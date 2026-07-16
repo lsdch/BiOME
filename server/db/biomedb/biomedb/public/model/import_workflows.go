@@ -8,17 +8,17 @@
 package model
 
 import (
+	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"time"
 )
 
 type ImportWorkflows struct {
-	ImportHash            string `sql:"primary_key"`
-	Label                 *string
-	GbifStatus            GbifImportStatus
-	GbifCandidatesTotal   *int32
-	GbifCandidatesFetched *int32
-	GbifClaimedAt         *time.Time
-	GbifUpdatedAt         *time.Time
-	CreatedAt             time.Time
-	CompletedAt           *time.Time
+	ImportID    uuid.UUID `sql:"primary_key"`
+	Label       string
+	Description *string
+	AssembledBy *pq.StringArray
+	CreatedBy   uuid.UUID
+	CreatedAt   time.Time
+	CompletedAt *time.Time
 }

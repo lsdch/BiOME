@@ -40,7 +40,7 @@ type ProgressTracker struct {
 	completedAt models.Optional[time.Time]
 	errorMsg    string
 
-	onUpdate func()
+	onUpdate func(status ProgressStatus)
 }
 
 func NewProgressTracker() *ProgressTracker {
@@ -49,14 +49,14 @@ func NewProgressTracker() *ProgressTracker {
 	}
 }
 
-func (g *ProgressTracker) WithCallback(onUpdate func()) *ProgressTracker {
+func (g *ProgressTracker) WithCallback(onUpdate func(status ProgressStatus)) *ProgressTracker {
 	g.onUpdate = onUpdate
 	return g
 }
 
 func (g *ProgressTracker) notify() {
 	if g.onUpdate != nil {
-		g.onUpdate()
+		g.onUpdate(g.status)
 	}
 }
 

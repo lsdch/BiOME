@@ -12,16 +12,20 @@ import {
   createOccurrenceResponseTransformer,
   createSamplingResponseTransformer,
   getDatasetByIdResponseTransformer,
-  getOccurrencesResponseTransformer,
+  getOccurrenceResponseTransformer,
   importOccurrencesCsvResponseTransformer,
+  importStatusResponseTransformer,
   listDatasetsResponseTransformer,
   listGeoapifyUsageResponseTransformer,
+  listImportsForCurrentUserResponseTransformer,
   listImportsResponseTransformer,
+  listOccurrencesAtProximityResponseTransformer,
   listOccurrencesResponseTransformer,
   listSamplingsAtProximityResponseTransformer,
   loadDatasetsForOccurrenceResponseTransformer,
   loadOccurrencesForDatasetResponseTransformer,
   loginResponseTransformer,
+  materializeBatchResponseTransformer,
   refreshSessionResponseTransformer
 } from './transformers.gen'
 import type {
@@ -52,6 +56,9 @@ import type {
   CreateSamplingMethodErrors,
   CreateSamplingMethodResponses,
   CreateSamplingResponses,
+  CreateTaxonData,
+  CreateTaxonErrors,
+  CreateTaxonResponses,
   DeleteArticleData,
   DeleteArticleErrors,
   DeleteArticleResponses,
@@ -64,12 +71,18 @@ import type {
   DeleteSamplingMethodData,
   DeleteSamplingMethodErrors,
   DeleteSamplingMethodResponses,
+  DeleteWorkflowData,
+  DeleteWorkflowErrors,
+  DeleteWorkflowResponses,
   GetCurrentUserData,
   GetCurrentUserErrors,
   GetCurrentUserResponses,
   GetDatasetByIdData,
   GetDatasetByIdErrors,
   GetDatasetByIdResponses,
+  GetFixativesResolutionData,
+  GetFixativesResolutionErrors,
+  GetFixativesResolutionResponses,
   GetGeoapifyStatusData,
   GetGeoapifyStatusErrors,
   GetGeoapifyStatusResponses,
@@ -79,9 +92,21 @@ import type {
   GetInstanceSettingsData,
   GetInstanceSettingsErrors,
   GetInstanceSettingsResponses,
-  GetOccurrencesData,
-  GetOccurrencesErrors,
-  GetOccurrencesResponses,
+  GetMethodsResolutionData,
+  GetMethodsResolutionErrors,
+  GetMethodsResolutionResponses,
+  GetOccurrenceData,
+  GetOccurrenceErrors,
+  GetOccurrenceResponses,
+  GetTaxaAtRankData,
+  GetTaxaAtRankErrors,
+  GetTaxaAtRankResponses,
+  GetTaxonData,
+  GetTaxonErrors,
+  GetTaxonResolutionsData,
+  GetTaxonResolutionsErrors,
+  GetTaxonResolutionsResponses,
+  GetTaxonResponses,
   ImportOccurrencesCsvData,
   ImportOccurrencesCsvErrors,
   ImportOccurrencesCsvResponses,
@@ -115,7 +140,13 @@ import type {
   ListGeoapifyUsageResponses,
   ListImportsData,
   ListImportsErrors,
+  ListImportsForCurrentUserData,
+  ListImportsForCurrentUserErrors,
+  ListImportsForCurrentUserResponses,
   ListImportsResponses,
+  ListOccurrencesAtProximityData,
+  ListOccurrencesAtProximityErrors,
+  ListOccurrencesAtProximityResponses,
   ListOccurrencesData,
   ListOccurrencesErrors,
   ListOccurrencesResponses,
@@ -125,6 +156,9 @@ import type {
   ListSamplingsAtProximityData,
   ListSamplingsAtProximityErrors,
   ListSamplingsAtProximityResponses,
+  ListSamplingsH3AtProximityData,
+  ListSamplingsH3AtProximityErrors,
+  ListSamplingsH3AtProximityResponses,
   ListUsersData,
   ListUsersErrors,
   ListUsersResponses,
@@ -140,12 +174,24 @@ import type {
   LogoutData,
   LogoutErrors,
   LogoutResponses,
+  MaterializeBatchData,
+  MaterializeBatchErrors,
+  MaterializeBatchResponses,
   OccurrencesTaxaOverviewData,
   OccurrencesTaxaOverviewErrors,
   OccurrencesTaxaOverviewResponses,
   RefreshSessionData,
   RefreshSessionErrors,
   RefreshSessionResponses,
+  ResolveFixativeData,
+  ResolveFixativeErrors,
+  ResolveFixativeResponses,
+  ResolveMethodData,
+  ResolveMethodErrors,
+  ResolveMethodResponses,
+  ResolveTaxonData,
+  ResolveTaxonErrors,
+  ResolveTaxonResponses,
   ReverseGeocodeData,
   ReverseGeocodeErrors,
   ReverseGeocodeResponses,
@@ -247,6 +293,33 @@ export class SamplingsService {
         }
       ],
       url: '/proximity',
+      ...options
+    })
+  }
+
+  /**
+   * List samplings at proximity (H3)
+   *
+   * List H3 cells at proximity to a given point, within a given radius and date range.
+   */
+  public static listSamplingsH3AtProximity<ThrowOnError extends boolean = false>(
+    options: Options<ListSamplingsH3AtProximityData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      ListSamplingsH3AtProximityResponses,
+      ListSamplingsH3AtProximityErrors,
+      ThrowOnError
+    >({
+      querySerializer: { parameters: { exclude_ids: { array: { explode: false } } } },
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/proximity/h3',
       ...options
     })
   }
@@ -1022,9 +1095,241 @@ export class BatchImportsService {
       }
     })
   }
-}
 
-export class DefaultService {
+  /**
+   * List import workflows for the current user
+   */
+  public static listImportsForCurrentUser<ThrowOnError extends boolean = false>(
+    options?: Options<ListImportsForCurrentUserData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListImportsForCurrentUserResponses,
+      ListImportsForCurrentUserErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listImportsForCurrentUserResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/by-user',
+      ...options
+    })
+  }
+
+  /**
+   * Get sampling fixatives resolution state
+   */
+  public static getFixativesResolution<ThrowOnError extends boolean = false>(
+    options: Options<GetFixativesResolutionData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      GetFixativesResolutionResponses,
+      GetFixativesResolutionErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/imports/batch/{id}/fixatives',
+      ...options
+    })
+  }
+
+  /**
+   * Resolve sampling fixative for import ID
+   */
+  public static resolveFixative<ThrowOnError extends boolean = false>(
+    options: Options<ResolveFixativeData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      ResolveFixativeResponses,
+      ResolveFixativeErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/imports/batch/{id}/fixatives',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Get sampling methods resolution state
+   */
+  public static getMethodsResolution<ThrowOnError extends boolean = false>(
+    options: Options<GetMethodsResolutionData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      GetMethodsResolutionResponses,
+      GetMethodsResolutionErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/imports/batch/{id}/sampling-methods',
+      ...options
+    })
+  }
+
+  /**
+   * Resolve sampling method for import ID
+   */
+  public static resolveMethod<ThrowOnError extends boolean = false>(
+    options: Options<ResolveMethodData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      ResolveMethodResponses,
+      ResolveMethodErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/imports/batch/{id}/sampling-methods',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Get taxonomy resolution state and candidates
+   */
+  public static getTaxonResolutions<ThrowOnError extends boolean = false>(
+    options: Options<GetTaxonResolutionsData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      GetTaxonResolutionsResponses,
+      GetTaxonResolutionsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/imports/batch/{id}/taxonomy',
+      ...options
+    })
+  }
+
+  /**
+   * Resolve taxon for import ID
+   */
+  public static resolveTaxon<ThrowOnError extends boolean = false>(
+    options: Options<ResolveTaxonData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      ResolveTaxonResponses,
+      ResolveTaxonErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/imports/batch/{id}/taxonomy',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Delete the import workflow
+   *
+   * Delete the import workflow and all associated data, including staging tables and taxon resolutions. This operation is irreversible.
+   */
+  public static deleteWorkflow<ThrowOnError extends boolean = false>(
+    options: Options<DeleteWorkflowData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<
+      DeleteWorkflowResponses,
+      DeleteWorkflowErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/{id}',
+      ...options
+    })
+  }
+
+  /**
+   * Materialize the import batch into the database
+   *
+   * Materialize the import batch into the database, creating samplings, occurrences, and resolving taxa. This operation is irreversible.
+   */
+  public static materializeBatch<ThrowOnError extends boolean = false>(
+    options: Options<MaterializeBatchData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      MaterializeBatchResponses,
+      MaterializeBatchErrors,
+      ThrowOnError
+    >({
+      responseTransformer: materializeBatchResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/{id}/materialize',
+      ...options
+    })
+  }
+
   /**
    * Get import status updates via Server-Sent Events (SSE)
    */
@@ -1036,6 +1341,7 @@ export class DefaultService {
       ImportStatusErrors,
       ThrowOnError
     >({
+      responseTransformer: importStatusResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -1209,15 +1515,15 @@ export class OccurrencesService {
   /**
    * Get Occurrence with all relevant metadata
    */
-  public static getOccurrences<ThrowOnError extends boolean = false>(
-    options: Options<GetOccurrencesData, ThrowOnError>
+  public static getOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<GetOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? client).get<
-      GetOccurrencesResponses,
-      GetOccurrencesErrors,
+      GetOccurrenceResponses,
+      GetOccurrenceErrors,
       ThrowOnError
     >({
-      responseTransformer: getOccurrencesResponseTransformer,
+      responseTransformer: getOccurrenceResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -1227,6 +1533,32 @@ export class OccurrencesService {
         }
       ],
       url: '/occurrences/item/{ulid}',
+      ...options
+    })
+  }
+
+  /**
+   * List samplings with occurrences within a certain distance of a given point
+   */
+  public static listOccurrencesAtProximity<ThrowOnError extends boolean = false>(
+    options: Options<ListOccurrencesAtProximityData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      ListOccurrencesAtProximityResponses,
+      ListOccurrencesAtProximityErrors,
+      ThrowOnError
+    >({
+      querySerializer: { parameters: { exclude_ids: { array: { explode: false } } } },
+      responseTransformer: listOccurrencesAtProximityResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/proximity',
       ...options
     })
   }
@@ -1471,6 +1803,30 @@ export class SettingsService {
 
 export class TaxonomyService {
   /**
+   * Get all taxa at a specific rank
+   */
+  public static getTaxaAtRank<ThrowOnError extends boolean = false>(
+    options: Options<GetTaxaAtRankData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      GetTaxaAtRankResponses,
+      GetTaxaAtRankErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/taxonomy/rank/{rank}',
+      ...options
+    })
+  }
+
+  /**
    * Search for taxa
    */
   public static searchTaxa<ThrowOnError extends boolean = false>(
@@ -1487,6 +1843,50 @@ export class TaxonomyService {
         }
       ],
       url: '/taxonomy/search',
+      ...options
+    })
+  }
+
+  /**
+   * Create a new taxon
+   */
+  public static createTaxon<ThrowOnError extends boolean = false>(
+    options?: Options<CreateTaxonData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).post<CreateTaxonResponses, CreateTaxonErrors, ThrowOnError>({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/taxonomy/taxa',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Get a taxon by ID
+   */
+  public static getTaxon<ThrowOnError extends boolean = false>(
+    options: Options<GetTaxonData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<GetTaxonResponses, GetTaxonErrors, ThrowOnError>({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/taxonomy/taxa/{id}',
       ...options
     })
   }

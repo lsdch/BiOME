@@ -51,15 +51,15 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
           icon: 'mdi-crosshairs-gps',
           component: () => import('@/features/datasets/views/OccurrenceDatasetsView.vue'),
           meta: { title: 'Occurrence datasets' }
-        },
-        {
-          label: 'Sequences',
-          path: '/datasets/sequences',
-          name: 'seq-datasets',
-          icon: 'mdi-dna',
-          component: () => import('@/features/datasets/views/SeqDatasetsView.vue'),
-          meta: { title: 'Sequence datasets' }
         }
+        // {
+        //   label: 'Sequences',
+        //   path: '/datasets/sequences',
+        //   name: 'seq-datasets',
+        //   icon: 'mdi-dna',
+        //   component: () => import('@/features/datasets/views/SeqDatasetsView.vue'),
+        //   meta: { title: 'Sequence datasets' }
+        // }
         // {
         //   label: "Research programs",
         //   path: "/programs",
@@ -87,18 +87,9 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
       component: () => import('@/features/sequences/views/SequencesView.vue'),
       meta: { title: 'Sequences' }
     },
-    guardRole('Admin', {
-      label: 'Data inputs',
-      path: '/import',
-      name: 'import',
-      icon: 'mdi-file-upload',
-      component: () => import('@/features/import/views/DataImportView.vue'),
-      meta: { title: 'Data import' }
-    }),
     {
       label: 'Data inputs',
       icon: 'mdi-file-upload',
-      granted: 'Contributor',
       routes: [
         guardRole('Contributor', {
           label: 'Register item',
@@ -113,7 +104,7 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
           path: '/import/batch',
           name: 'import-batch',
           icon: 'mdi-file-upload',
-          component: () => import('@/features/import/views/ImportBatchView.vue'),
+          component: () => import('@/features/import/views/ImportBatchCreateView.vue'),
           meta: { title: 'Import batch' }
         })
       ]

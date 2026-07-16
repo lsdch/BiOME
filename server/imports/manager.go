@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/stores"
 )
@@ -39,12 +40,12 @@ func (m *ImportManager) addRunner(runner *ImportRunner) {
 	m.runners[runner.Workflow().ImportID] = runner
 }
 
-func (m *ImportManager) NewWorkflow(ctx context.Context, label string) (*ImportRunner, error) {
-	workflow, err := m.workflowStore.CreateWorkflow(ctx, m.db, label)
+func (m *ImportManager) NewWorkflow(ctx context.Context, userID uuid.UUID, w models.ImportWorkflowInput) (*ImportRunner, error) {
+	workflow, err := m.workflowStore.CreateWorkflow(ctx, m.db, userID, w)
 	if err != nil {
 		return nil, err
 	}
-	runner := NewImportRunner(ctx, m.db, m.broker, workflow, m.workflowStore, m.samplings, m.taxonResolver)
+	runner := NewImportRunner(context.Background(), m.db, m.broker, workflow, m.workflowStore, m.samplings, m.taxonResolver)
 	m.addRunner(runner)
 	return runner, nil
 }
@@ -56,6 +57,7 @@ func (m *ImportManager) Restore(ctx context.Context) error {
 	}
 	for _, workflow := range workflows {
 		runner := NewImportRunner(ctx, m.db, m.broker, workflow, m.workflowStore, m.samplings, m.taxonResolver)
+		runner.Run()
 		m.addRunner(runner)
 	}
 	return nil
@@ -97,6 +99,17 @@ func (m *ImportManager) Snapshots() []ImportEvent {
 	snapshots := make([]ImportEvent, len(m.runners))
 	for _, runner := range m.runners {
 		snapshots = append(snapshots, runner.Snapshot())
+	}
+	return snapshots
+}
+
+func (m *ImportManager) SnapshotsForUser(userID uuid.UUID) []ImportEvent {
+	snapshots := make([]ImportEvent, 0, len(m.runners))
+	for _, runner := range m.runners {
+		snapshot := runner.Snapshot()
+		if snapshot.Workflow.CreatedBy == userID {
+			snapshots = append(snapshots, snapshot)
+		}
 	}
 	return snapshots
 }

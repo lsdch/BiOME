@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 const detectBatchOccurrenceCollisions = `-- name: DetectBatchOccurrenceCollisions :many
@@ -30,11 +30,11 @@ WITH resolved_staging AS (
     -- across heterogeneous taxonomic sources.
     --
     SELECT
-    i.import_id, i.imported_at, i.row_number, i.sampling_hash, i.sampling_comments, i.site_code, i.site_name, i.site_locality, i.site_country_code, i.coordinates_precision, i.longitude, i.latitude, i.coordinates, i.altitude, i.event_date, i.event_date_precision, i.performed_by, i.duration, i.access_points, i.sampling_targets, i.sampling_fixatives, i.sampling_methods, i.habitats, i.occurrence_code, i.type_status, i.taxon_name, i.taxon_authorship, i.taxon_scientific_name, i.taxon_rank, i.verbatim_identification, i.identified_by, i.identification_date, i.identification_date_precision, i.identification_confer, i.identification_addendum, i.content_description, i.quantity_exact, i.quantity_lower, i.quantity_upper, i.sources, i.occurrence_comments,
-    r.source,
-    r.gbif_id,
-    r.taxon_id,
-    r.staging_id,
+    i.id, i.import_id, i.imported_at, i.row_number, i.sampling_hash, i.sampling_comments, i.site_code, i.site_name, i.site_locality, i.site_country_code, i.coordinates_precision, i.longitude, i.latitude, i.coordinates, i.altitude, i.event_date, i.event_date_precision, i.performed_by, i.duration, i.access_points, i.sampling_targets, i.sampling_fixatives, i.sampling_methods, i.habitats, i.occurrence_code, i.type_status, i.taxon_name, i.taxon_authorship, i.taxon_scientific_name, i.taxon_rank, i.verbatim_identification, i.identified_by, i.identification_date, i.identification_date_precision, i.identification_confer, i.identification_addendum, i.content_description, i.quantity_exact, i.quantity_lower, i.quantity_upper, i.sources, i.occurrence_comments, i.taxon_resolution_id, i.materialized_sampling_id, i.materialized_occurrence_id,
+    c.source,
+    c.gbif_id,
+    c.taxon_id,
+    -- c.staging_id,
     CASE
         WHEN r.source = 'internal' THEN 't:' || r.taxon_id::text
         WHEN r.source = 'gbif' THEN 'g:' || r.gbif_id::text
@@ -42,6 +42,7 @@ WITH resolved_staging AS (
     END AS resolved_taxon_key
     FROM import_samplings_occurrences i
         JOIN taxon_resolution r ON r.import_id = i.import_id
+        LEFT JOIN taxon_candidates c ON c.id = r.resolved_to
         AND r.input_name = i.taxon_scientific_name
     WHERE i.import_id = $1
 ),
@@ -212,7 +213,7 @@ type DetectBatchOccurrenceCollisionsRow struct {
 	EventDatePrecision        *EventDatePrecision `json:"event_date_precision"`
 	CoordinatesPrecision      *int32              `json:"coordinates_precision"`
 	ResolvedTaxonKey          interface{}         `json:"resolved_taxon_key"`
-	OccurrenceID              ulid.ULID           `json:"occurrence_id"`
+	OccurrenceID              types.ULID          `json:"occurrence_id"`
 	ExistingTaxonID           uuid.UUID           `json:"existing_taxon_id"`
 	MatchTaxonName            string              `json:"match_taxon_name"`
 	MatchTaxonAuthorship      *string             `json:"match_taxon_authorship"`
@@ -274,7 +275,7 @@ func (q *Queries) DetectBatchOccurrenceCollisions(ctx context.Context, arg Detec
 
 const detectBatchSamplingCollisions = `-- name: DetectBatchSamplingCollisions :many
 WITH i AS (
-    SELECT import_id, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments
+    SELECT id, import_id, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments, taxon_resolution_id, materialized_sampling_id, materialized_occurrence_id
     FROM import_samplings_occurrences i
     WHERE i.import_id = $3
 ),

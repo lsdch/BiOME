@@ -18,6 +18,7 @@ import {
   Identification as TIdentification
 } from './gen/types.gen'
 import UserRoleChip from '@/components/users/UserRoleChip'
+import { FilterMatch } from 'vuetify'
 
 export * from './gen/types.gen'
 
@@ -139,17 +140,17 @@ export namespace TaxonRank {
   }
 
   export function isDescendant(rank: TaxonRank, from: TaxonRank) {
-    return index(rank) > index(from)
+    return index(rank) < index(from)
   }
 
   export function isAscendant(rank: TaxonRank, of: TaxonRank) {
-    return index(rank) < index(of)
+    return index(rank) > index(of)
   }
 
   export function parentRank(rank: TaxonRank): TaxonRank | undefined {
     if (rank === 'SPECIES') return 'GENUS'
     if (rank === 'SUBGENUS') return 'GENUS'
-    return $TaxonRank.enum[index(rank) - 1]
+    return $TaxonRank.enum[index(rank) + 1]
   }
 
   export function childRank(rank: TaxonRank): TaxonRank | undefined {
@@ -159,16 +160,16 @@ export namespace TaxonRank {
       case 'SUBGENUS':
         return undefined
       default:
-        return $TaxonRank.enum[index(rank) + 1]
+        return $TaxonRank.enum[index(rank) - 1]
     }
   }
 
   export function ranksUpTo(rank: TaxonRank): TaxonRank[] {
-    return $TaxonRank.enum.slice(index(rank))
+    return $TaxonRank.enum.slice(0, index(rank) + 1)
   }
 
   export function ranksDownTo(rank: TaxonRank): TaxonRank[] {
-    return $TaxonRank.enum.slice(0, index(rank) + 1)
+    return $TaxonRank.enum.slice(index(rank))
   }
 }
 
@@ -260,21 +261,5 @@ export namespace Identification {
     return splitName.length === 1
       ? `cf. ${taxon.name}`
       : `${splitName.slice(0, splitName.length - 1).join(' ')} cf. ${splitName[splitName.length - 1]}`
-  }
-
-  export function tableHeader(
-    props?: Omit<DataTableHeader, 'filter'>
-  ): HeaderDefinitionFor<Identification> {
-    return {
-      title: 'Taxon',
-      key: 'identification',
-      sortable: true,
-      align: 'start',
-      sort: (a, b) => a.taxon.name.localeCompare(b.name),
-      filter(value, query, item) {
-        return value.taxon.name.toLowerCase().includes(query.toLowerCase())
-      },
-      ...props
-    }
   }
 }

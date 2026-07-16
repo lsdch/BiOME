@@ -87,10 +87,10 @@ WITH resolved_staging AS (
     --
     SELECT
     i.*,
-    r.source,
-    r.gbif_id,
-    r.taxon_id,
-    r.staging_id,
+    c.source,
+    c.gbif_id,
+    c.taxon_id,
+    -- c.staging_id,
     CASE
         WHEN r.source = 'internal' THEN 't:' || r.taxon_id::text
         WHEN r.source = 'gbif' THEN 'g:' || r.gbif_id::text
@@ -98,6 +98,7 @@ WITH resolved_staging AS (
     END AS resolved_taxon_key
     FROM import_samplings_occurrences i
         JOIN taxon_resolution r ON r.import_id = i.import_id
+        LEFT JOIN taxon_candidates c ON c.id = r.resolved_to
         AND r.input_name = i.taxon_scientific_name
     WHERE i.import_id = @import_id
 ),

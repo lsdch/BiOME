@@ -9,7 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 const addArticleToOccurrence = `-- name: AddArticleToOccurrence :exec
@@ -20,7 +20,7 @@ VALUES (
     )
 `
 
-func (q *Queries) AddArticleToOccurrence(ctx context.Context, occurrenceID ulid.ULID, articleID uuid.UUID) error {
+func (q *Queries) AddArticleToOccurrence(ctx context.Context, occurrenceID types.ULID, articleID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, addArticleToOccurrence, occurrenceID, articleID)
 	return err
 }
@@ -32,7 +32,7 @@ FROM articles a
 WHERE oa.occurrence_id = $1
 `
 
-func (q *Queries) GetOccurrenceArticles(ctx context.Context, occurrenceID ulid.ULID) ([]Article, error) {
+func (q *Queries) GetOccurrenceArticles(ctx context.Context, occurrenceID types.ULID) ([]Article, error) {
 	rows, err := q.db.Query(ctx, getOccurrenceArticles, occurrenceID)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ WHERE occurrence_id = $1::ulid
     AND article_id = $2::uuid
 `
 
-func (q *Queries) RemoveArticleFromOccurrence(ctx context.Context, occurrenceID ulid.ULID, articleID uuid.UUID) error {
+func (q *Queries) RemoveArticleFromOccurrence(ctx context.Context, occurrenceID types.ULID, articleID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeArticleFromOccurrence, occurrenceID, articleID)
 	return err
 }

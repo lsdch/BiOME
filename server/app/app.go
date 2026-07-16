@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -114,6 +114,10 @@ func (a *App) Bootstrap() {
 	logrus.Infof("Bootstrapping database...")
 	if err := a.bootstrap.Bootstrap(context.Background()); err != nil {
 		panic(fmt.Sprintf("failed to bootstrap database: %v", err))
+	}
+
+	if err := a.importsManager.Restore(context.Background()); err != nil {
+		panic(fmt.Sprintf("failed to restore imports: %v", err))
 	}
 }
 

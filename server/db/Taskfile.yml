@@ -11,9 +11,19 @@ tasks:
     -  psql {{.DB_URL}} -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
   generate:
     cmds: 
-      - go generate ./
-      - go tool sqlc generate
+      - go generate ./      
       - go run generators/enums/generate_enums.go ./biomedb
+    deps: 
+      - generate-sqlc
+      - generate-jet
+
+  generate-sqlc:
+    internal: true
+    cmds: 
+      - go tool sqlc generate
+  generate-jet: 
+    internal: true
+    cmds: 
       - go run generators/jet-gen/jet_generator.go --dsn={{.DB_URL}} --schema=public --dest=./biomedb
   bootstrap:
     cmds: 

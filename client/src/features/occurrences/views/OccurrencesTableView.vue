@@ -1,186 +1,220 @@
 <template>
-  <CRUDTableServer
-    class="fill-height"
-    entity-name="Occurrence"
-    :headers
-    :filters
-    :toolbar="{ title: 'Occurrences', icon: 'mdi-package-variant' }"
-    :fetch-items="listOccurrencesOptions"
-    :delete="{
+  <!-- :delete="{
       mutation: deleteOccurrenceMutation,
       params: ({ code }: OccurrenceListItem) => ({ path: { code } })
-    }"
-    :mobile="xs"
-    show-expand
-    :sort-key-transform
-    @clear-filters="
-      Object.keys(filters).forEach((key) => (filters[key as keyof BiomatTableFilters] = undefined))
-    "
-    @reload="invalidateQuery()"
-  >
-    <!-- Search and filters panel -->
-    <template #menu>
-      <v-row class="ma-0">
-        <v-col cols="12" md="6">
-          <v-list>
-            <v-list-item prepend-icon="mdi-folder-table">
-              <DatasetPicker
-                v-model="filters.datasets"
-                label="Datasets"
-                class="mt-2"
-                item-value="label"
-                clearable
-                multiple
-                chips
-                closable-chips
-                density="compact"
-                hide-details
-              />
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-star-four-points">
-              <TypeStatusPicker
-                v-model="filters.type_status"
-                class="mt-2"
-                label="Type status"
-                multiple
-                clearable
-                chips
-                closable-chips
-                density="compact"
-                hide-details
-              />
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-dna">
-              <ClearableSwitch
-                v-model="filters.has_sequences"
-                class="pl-2"
-                label="Sequences available"
-                color-true="primary"
-                color-false="red"
-                hint="Show only bio material having registered sequences"
-                persistent-hint
-                density="compact"
-              />
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-calendar" v-if="yearRange?.min && yearRange?.max">
+    }" -->
+  <v-data-table-server id="table" class="crud-table fill-height" :headers="headers" :items="data?.items"
+    :items-length="data?.total_count ?? 0" item-key="id" :loading :items-per-page-options="[5, 10, 15, 25, 50]"
+    v-model:items-per-page="pagination.itemsPerPage" v-model:page="pagination.page" v-model:sort-by="sortBy"
+    @update:page="prefetchNext">
+    <!-- Toolbar -->
+    <template #top>
+      <TableToolbar title="Occurrences" icon="mdi-package-variant" ref="toolbar" id="table-toolbar"
+        v-model:search="filters.search_term" @reload="refetch()">
+        <template #extension>
+          <slot name="toolbar-extension" />
+        </template>
+        <template #[`prepend-actions`]>
+          <slot name="toolbar-prepend-actions" />
+        </template>
+        <template #[`append-actions`]>
+          <slot name="toolbar-append-actions" />
+        </template>
+
+        <!-- Right toolbar actions -->
+        <!-- <template #append>
+          <SortLastUpdatedBtn v-if="!toolbar?.noSort" sort-key="meta.last_updated" :sort-by @click="
+            sortBy = [
+              {
+                key: 'meta.last_updated',
+                remoteKey: 'last_updated',
+                order:
+                  sortBy?.[0]?.key === 'meta.last_updated'
+                    ? sortBy[0].order === 'asc'
+                      ? 'desc'
+                      : 'asc'
+                    : 'asc'
+              }
+            ]
+            " />
+        </template> -->
+
+        <!-- Searchbar -->
+        <template #search="props">
+          <slot name="search" v-bind="props" :toggleMenu :menu-open="menu">
+            <CRUDTableSearchBar v-model="filters.search_term" v-if="$vuetify.display.smAndUp" />
+
+            <v-badge dot :color="Object.values(filters)
+              .concat(Object.values(filters))
+              .some((v) => v !== undefined && v !== null && v !== '')
+              ? 'success'
+              : 'transparent'
+              " class="mx-1">
+              <v-btn color="primary" variant="tonal" icon="mdi-menu" @click="toggleMenu(true)" :active="menu"
+                size="small" />
+            </v-badge>
+          </slot>
+        </template>
+      </TableToolbar>
+      <v-menu id="search-menu" v-model="menu" location="bottom" target="#table-toolbar" attach="#table table"
+        :close-on-content-click="false">
+        <v-card rounded="t-0">
+          <v-card-text>
+            <v-inline-search-bar v-model="filters.search_term" label="Search term" />
+          </v-card-text>
+          <slot name="menu" :toggleMenu :menuOpen="menu">
+            <v-row class="ma-0">
+              <v-col cols="12" md="6">
+                <v-list>
+                  <v-list-item prepend-icon="mdi-folder-table">
+                    <DatasetPicker v-model="filters.datasets" label="Datasets" class="mt-2" item-value="label" clearable
+                      multiple chips closable-chips density="compact" hide-details />
+                  </v-list-item>
+                  <v-list-item prepend-icon="mdi-star-four-points">
+                    <TypeStatusPicker v-model="filters.type_status" class="mt-2" label="Type status" multiple clearable
+                      chips closable-chips density="compact" hide-details />
+                  </v-list-item>
+                  <!-- <v-list-item prepend-icon="mdi-dna">
+                    <ClearableSwitch v-model="filters.has_sequences" class="pl-2" label="Sequences available"
+                      color-true="primary" color-false="red" hint="Show only bio material having registered sequences"
+                      persistent-hint density="compact" />
+                  </v-list-item> -->
+                  <!-- <v-list-item prepend-icon="mdi-calendar" v-if="yearRange?.min && yearRange?.max">
               <div class="d-flex align-start mt-5">
-                <v-checkbox
-                  class=""
-                  density="compact"
-                  :model-value="useYearRange"
-                  @update:model-value="toggleYearRange"
-                  hide-details
-                  color="primary"
-                ></v-checkbox>
-                <v-range-slider
-                  :disabled="!useYearRange"
-                  class="mx-5 mt-1"
-                  :min="yearRange.min"
-                  :max="yearRange.max"
-                  :step="1"
-                  :width="400"
-                  thumb-label="always"
-                  clearable
-                  :model-value="[filters.year ?? yearRange.min, filters.year_end ?? yearRange.max]"
-                  @update:model-value="
+                <v-checkbox class="" density="compact" :model-value="useYearRange" @update:model-value="toggleYearRange"
+                  hide-details color="primary"></v-checkbox>
+                <v-range-slider :disabled="!useYearRange" class="mx-5 mt-1" :min="yearRange.min" :max="yearRange.max"
+                  :step="1" :width="400" thumb-label="always" clearable
+                  :model-value="[filters.year ?? yearRange.min, filters.year_end ?? yearRange.max]" @update:model-value="
                     ([start, end]: [number, number]) => {
                       filters.year = start
                       filters.year_end = end
                     }
-                  "
-                >
+                  ">
                 </v-range-slider>
               </div>
               <template #append>
-                <InlineHelp
-                  class="mr-4"
-                  text="Filters occurrences by sampling date. If sampling date is not available, identification date is used as fallback. If neither sampling nor identification dates are available, the earliest bibliographic reference year is used."
-                />
+                <InlineHelp class="mr-4"
+                  text="Filters occurrences by sampling date. If sampling date is not available, identification date is used as fallback. If neither sampling nor identification dates are available, the earliest bibliographic reference year is used." />
               </template>
-            </v-list-item>
-          </v-list>
-        </v-col>
-        <v-col cols="12" md="6">
-          <v-list density="compact">
-            <v-list-item prepend-icon="mdi-family-tree">
-              <TaxonFilterPicker
-                v-model:taxa="filters.taxa"
-                v-model:whole-clade="filters.whole_clade"
-                item-value="name"
-                label="Assigned taxon"
-                density="compact"
-                class="mt-1"
-                clearable
-                multiple
-                chips
-                closable-chips
-              />
-              <div class="d-flex align-center ga-3 flex-wrap">
-                <v-select
-                  v-model="filters.rank"
-                  :items="$TaxonRank.enum"
-                  label="Rank"
-                  density="compact"
-                  hide-details
-                  clearable
-                  multiple
-                  chips
-                  closable-chips
-                  :min-width="200"
-                />
-                <v-select
-                  v-model="filters.status"
-                  :items="$TaxonStatus.enum"
-                  label="Status"
-                  density="compact"
-                  hide-details
-                  clearable
-                  :min-width="200"
-                />
-              </div>
-              <ClearableSwitch
-                v-model="filters.confer"
-                class="pl-2"
-                label="Confer (cf.)"
-                color-true="primary"
-                color-false="red"
-                :hint="
-                  filters.confer
-                    ? 'Show only bio material with a confer identification'
-                    : filters.confer !== undefined
-                      ? 'Show only bio material without a confer identification'
-                      : undefined
-                "
-                density="compact"
-              />
-            </v-list-item>
-          </v-list>
-        </v-col>
-      </v-row>
+  </v-list-item> -->
+                </v-list>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-list density="compact">
+                  <v-list-item prepend-icon="mdi-family-tree">
+                    <TaxonFilterPicker v-model:taxa="filters.taxa" v-model:whole-clade="filters.whole_clade"
+                      item-value="id" label="Assigned taxon" density="compact" class="mt-1" clearable multiple chips
+                      closable-chips />
+                    <div class="d-flex align-center ga-3 flex-wrap">
+                      <v-select v-model="filters.rank" :items="$TaxonRank.enum" label="Rank" density="compact"
+                        hide-details clearable :min-width="200" />
+                      <v-select v-model="filters.status" :items="$TaxonStatus.enum" label="Status" density="compact"
+                        hide-details clearable :min-width="200" />
+                    </div>
+                    <ClearableSwitch v-model="filters.confer" class="pl-2" label="Confer (cf.)" color-true="primary"
+                      color-false="red" :hint="filters.confer
+                        ? 'Show only bio material with a confer identification'
+                        : filters.confer !== undefined
+                          ? 'Show only bio material without a confer identification'
+                          : undefined
+                        " density="compact" />
+                  </v-list-item>
+                </v-list>
+              </v-col>
+            </v-row>
+          </slot>
+          <v-divider />
+          <v-list-item v-if="currentUser">
+            <!-- <template #title>
+              <v-switch v-model="genericFilters.owned" label="Owned items" color="primary"
+                hint="Restrict the list to elements you contributed" persistent-hint class="ml-2" density="compact" />
+            </template> -->
+          </v-list-item>
+          <v-divider v-if="currentUser" />
+          <v-card-actions>
+            <v-btn color="primary" text="OK" @click="toggleMenu(false)" />
+            <v-spacer />
+            <v-btn color="" text="Clear" @click="resetFilters()" />
+          </v-card-actions>
+        </v-card>
+      </v-menu>
     </template>
 
-    <template #item.code="{ value, item }: { value: string; item: OccurrenceListItem }">
+    <template #body.prepend="{ columns }">
+      <tr v-if="!loading && error">
+        <td :colspan="columns.length">
+          <v-alert color="error" icon="mdi-alert" class="my-3">Failed to retrieve items</v-alert>
+        </td>
+      </tr>
+    </template>
+
+    <!-- Expose VDataTable slots -->
+    <!-- <template v-for="(id, index) of slotNames" #[id]="slotData" :key="index">
+      <slot :name="id" v-bind="{ ...slotData }" />
+    </template> -->
+    <!-- <slot :name="id" v-bind="{ ...slotData, actions }" /> -->
+
+    <!-- Table footer -->
+    <!-- <template #[`footer.prepend`]>
+      <div class="d-flex align-center flex-grow-1">
+        <slot name="footer.prepend-actions"></slot>
+        <v-btn
+          variant="plain"
+          size="small"
+          prepend-icon="mdi-download"
+          text="Export"
+          :loading="exportDialog.loading"
+          @click="exportTSV"
+        />
+      </div>
+    </template> -->
+
+    <!-- Expanded row -->
+    <template #expanded-row="{ columns, item, ...others }">
+      <slot name="expanded-row" v-bind="{ columns, item, ...others }">
+        <tr class="expanded">
+          <td :colspan="columns.length" class="px-0">
+            <div class="d-flex flex-column h-auto">
+              <div class="flex-grow-1">
+                <slot name="expanded-row-inject" :item> </slot>
+              </div>
+              <slot name="expanded-row-footer" :item>
+                <div class="d-flex flex-wrap align-center">
+                  <!-- <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" /> -->
+                  <!-- <v-btn
+                    prepend-icon="mdi-content-copy"
+                    text="UUID"
+                    variant="plain"
+                    size="small"
+                    rounded="sm"
+                    class="ma-1 text-caption font-monospace"
+                    @click="copyUUID(item)"
+                  /> -->
+                  <v-spacer />
+                </div>
+              </slot>
+            </div>
+          </td>
+        </tr>
+      </slot>
+    </template>
+
+    <template #item.code="{ value, item }: { value: string; item: Occurrence }">
       <span class="d-flex justify-space-between align-center">
-        <RouterLink :text="value" :to="{ name: 'occurrence-item', params: { code: value } }" />
+        <RouterLink :text="value" :to="{ name: 'occurrence-item', params: { id: item.id, code: value } }" />
         <span class="d-flex align-center ga-2 justify-end">
-          <v-icon
-            v-if="item.type_status"
-            icon="mdi-star-four-points"
-            size="small"
-            v-tooltip="item.type_status"
-            density="compact"
-          />
-          <v-icon
-            v-if="item.has_sequences"
-            size="small"
-            icon="mdi-dna"
-            v-tooltip="`Sequence(s) available`"
-          />
+          <v-icon v-if="item.type_status" icon="mdi-star-four-points" size="small" v-tooltip="item.type_status"
+            density="compact" />
+          <!-- <v-icon v-if="item.has_sequences" size="small" icon="mdi-dna" v-tooltip="`Sequence(s) available`" /> -->
         </span>
       </span>
     </template>
-    <template #item.sampling.site="{ value: { code, name } }: { value: SiteItem }">
-      <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name || code" />
+    <template #item.sampling.site="{ value: { code, name, country } }: { value: Site }">
+      <div class="d-flex justify-space-between">
+        <span class="font-size-small">{{ name }}</span>
+        <CountryChip :country="country" size=small />
+      </div>
     </template>
     <template #item.sampling.performed_on="{ value }: { value?: DateWithPrecision }">
       <span :class="['font-monospace text-caption', { 'text-muted': !value }]">
@@ -202,78 +236,95 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
+  </v-data-table-server>
 
-    <!-- <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <BioMaterialFormDialog
-        :dialog
-        :model-value="editItem"
-        @close="onClose"
-        @success="onSuccess"
-      />
-    </template> -->
-  </CRUDTableServer>
 </template>
 
 <script setup lang="ts">
-import { $TaxonRank, $TaxonStatus, TaxonRank, TypeStatus } from '@/api'
+import { $TaxonRank, $TaxonStatus, TaxonRank, OccurrenceTypeStatus, Site } from '@/api'
 
 import {
-  BioMatSortKey,
+  // BioMatSortKey,
   DateWithPrecision,
   Identification,
-  OccurrenceListItem,
-  SiteItem,
+  Occurrence,
+  // SiteItem,
   TaxonStatus
 } from '@/api'
 import {
-  deleteOccurrenceMutation,
+  // deleteOccurrenceMutation,
   listOccurrencesOptions,
   listOccurrencesQueryKey,
-  occurrencesDateRangeOptions
+  // occurrencesDateRangeOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
+import CRUDTableSearchBar from '@/components/toolkit/tables/CRUDTableSearchBar.vue'
 // import BioMaterialFormDialog from '@/features/occurrences/components/BioMaterialFormDialog.vue'
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
+import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import TypeStatusPicker from '@/features/occurrences/components/TypeStatusPicker'
+import CountryChip from '@/features/site/components/CountryChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
-import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { useToggle, useUrlSearchParams } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
-import { useDisplay } from 'vuetify'
+import { useFeedback } from '@/stores/feedback'
+import { useUserStore } from '@/stores/user'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { computedAsync, promiseTimeout, useToggle, useUrlSearchParams } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
+import { toRef } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { FilterMatch, useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()
 
-const { data: yearRange } = useQuery(occurrencesDateRangeOptions())
+// const { data: yearRange } = useQuery(occurrencesDateRangeOptions())
 
-const [useYearRange, _toggleYearRange] = useToggle(false)
+// const [useYearRange, _toggleYearRange] = useToggle(false)
 
-function toggleYearRange(v: boolean | null) {
-  if (!v) {
-    filters.year = undefined
-    filters.year_end = undefined
-  }
-  _toggleYearRange(!!v)
+// function toggleYearRange(v: boolean | null) {
+//   if (!v) {
+//     filters.value.year = undefined
+//     filters.value.year_end = undefined
+//   }
+//   _toggleYearRange(!!v)
+// }
+
+
+const { feedback } = useFeedback()
+const { user: currentUser } = storeToRefs(useUserStore())
+
+const [menu, toggleMenu] = useToggle(false)
+
+
+type Pagination = {
+  itemsPerPage: number
+  page: number
 }
 
+const pagination = ref<Pagination>({
+  itemsPerPage: 15,
+  page: 1
+})
+
+
 type BiomatTableFilters = {
+  search_term?: string
   year?: number
   year_end?: number | null
   datasets?: string[]
-  type_status?: TypeStatus[]
-  has_sequences?: boolean
+  type_status?: OccurrenceTypeStatus[]
   confer?: boolean
   whole_clade?: boolean
-  rank?: TaxonRank[]
+  rank?: TaxonRank
   status?: TaxonStatus
   taxa?: string[]
 }
 
-const filters = useUrlSearchParams<BiomatTableFilters>('history', { removeNullishValues: true })
+const filters = toRef(useUrlSearchParams<BiomatTableFilters>('history', { removeNullishValues: true, }))
 
-const headers: CRUDTableHeader<OccurrenceListItem>[] = [
+const headers: DataTableHeader[] = [
   {
     title: 'Occurrence',
     children: [{ key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } }]
@@ -297,13 +348,24 @@ const headers: CRUDTableHeader<OccurrenceListItem>[] = [
     sortable: false,
     headerProps: { class: 'border-s' },
     children: [
-      Identification.tableHeader({ key: 'identification', sort: undefined }),
       {
-        key: 'identification.identified_by',
-        title: 'Done by',
-        align: 'center',
-        sortable: false
+        title: 'Taxon',
+        key: 'identification',
+        sortable: true,
+        align: 'start',
+        sort: (a, b) => a.taxon.name.localeCompare(b.name),
+        filter(value, query, item): FilterMatch {
+          return (value as unknown as Identification).taxon.name
+            .toLowerCase()
+            .includes(query.toLowerCase())
+        }
       },
+      // {
+      //   key: 'identification.identified_by',
+      //   title: 'Done by',
+      //   align: 'center',
+      //   sortable: false
+      // },
       {
         key: 'identification.identified_on',
         title: 'Date',
@@ -313,32 +375,102 @@ const headers: CRUDTableHeader<OccurrenceListItem>[] = [
   }
 ] as const
 
-type SortableColumn = Exclude<
-  Extract<
-    Exclude<(typeof headers)[number]['children'], undefined>[number]['key'] | 'meta.last_updated',
-    string
-  >,
-  `data-table-${string}`
->
+// type SortableColumn = Exclude<
+//   Extract<
+//     Exclude<(typeof headers)[number]['children'], undefined>[number]['key'] | 'meta.last_updated',
+//     string
+//   >,
+//   `data-table-${string}`
+// >
 
-const sortKeyMap: Record<SortableColumn, BioMatSortKey> = {
-  'sampling.site': 'site',
-  'sampling.performed_on': 'sampling_date',
-  'identification.taxon': 'taxon',
-  'identification.identified_on': 'identified_on',
-  'meta.last_updated': 'last_updated',
-  code: 'code'
-}
+// const sortKeyMap: Record<SortableColumn, BioMatSortKey> = {
+//   'sampling.site': 'site',
+//   'sampling.performed_on': 'sampling_date',
+//   'identification.taxon': 'taxon',
+//   'identification.identified_on': 'identified_on',
+//   'meta.last_updated': 'last_updated',
+//   code: 'code'
+// }
 
-function sortKeyTransform(key: string | undefined): BioMatSortKey | undefined {
-  return key ? sortKeyMap[key as SortableColumn] : undefined
-}
+// function sortKeyTransform(key: string | undefined): BioMatSortKey | undefined {
+//   return key ? sortKeyMap[key as SortableColumn] : undefined
+// }
 
-const queryClient = useQueryClient()
 function invalidateQuery() {
   queryClient.invalidateQueries({ queryKey: listOccurrencesQueryKey() })
 }
 onMounted(invalidateQuery)
+
+
+const { data, error, isPending, isFetching, refetch } = useQuery(
+  computed(() => ({
+    staleTime: Infinity,
+    ...listOccurrencesOptions({
+      query: {
+        limit: pagination.value.itemsPerPage,
+        offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
+        confer: filters.value.confer,
+        datasets: filters.value.datasets,
+        taxon_rank: filters.value.rank,
+        taxon_status: filters.value.status,
+        taxa: filters.value.taxa,
+        search_term: filters.value.search_term,
+      }
+    }),
+    // ...props.fetchItems({
+    //   query: {
+    //     limit: pagination.value.itemsPerPage,
+    //     offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
+    //     ...genericFilters.value,
+    //     ...props.filters,
+    //     order: sortBy.value?.[0]?.order,
+    //     sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
+    //   }
+    // }),
+    placeholderData: keepPreviousData
+  }))
+)
+
+const queryClient = useQueryClient()
+async function prefetchNext(currentPage: number) {
+  await setTimeout(() => { }, 500)
+  await queryClient.prefetchQuery({
+    staleTime: Infinity,
+    ...listOccurrencesOptions({
+      query: {
+        limit: pagination.value.itemsPerPage,
+        offset: currentPage * pagination.value.itemsPerPage,
+        confer: filters.value.confer,
+        datasets: filters.value.datasets,
+        taxon_rank: filters.value.rank,
+        taxon_status: filters.value.status,
+        taxa: filters.value.taxa,
+        search_term: filters.value.search_term,
+        // order: sortBy.value?.[0]?.order,
+        // sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
+      }
+    })
+  })
+}
+
+onMounted(() => {
+  prefetchNext(pagination.value.page)
+})
+
+const loading = computedAsync(async () => {
+  return (
+    isPending.value ||
+    (isFetching.value &&
+      (await promiseTimeout(1000).then(() => {
+        return isFetching.value
+      })))
+  )
+}, true)
+
+function resetFilters() {
+  filters.value = {}
+}
+
 </script>
 
 <style scoped lang="scss"></style>

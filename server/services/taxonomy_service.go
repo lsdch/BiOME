@@ -103,6 +103,33 @@ func (s *TaxonomyService) GetTaxonWithLineage(ctx context.Context, q db.Querier,
 	}, nil
 }
 
+func (s *TaxonomyService) GetTaxonWithFullLineage(ctx context.Context, q db.Querier, taxonID uuid.UUID) (*models.TaxonWithFullLineage, error) {
+	taxonWithLineage, err := s.GetTaxonWithLineage(ctx, q, taxonID)
+	if err != nil {
+		return nil, err
+	}
+	descendants, err := s.GetTaxonDescendants(ctx, q, taxonID)
+	if err != nil {
+		return nil, err
+	}
+	return &models.TaxonWithFullLineage{
+		TaxonWithLineage: *taxonWithLineage,
+		Descendants:      descendants,
+	}, nil
+}
+
+func (s *TaxonomyService) GetTaxonDescendants(ctx context.Context, q db.Querier, taxonID uuid.UUID) ([]models.Taxon, error) {
+	descendants, err := q.Queries().GetTaxonDescendants(ctx, taxonID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]models.Taxon, len(descendants))
+	for i, t := range descendants {
+		result[i] = *models.TaxonFromDB(&t)
+	}
+	return result, nil
+}
+
 func (s *TaxonomyService) GetTaxaByRank(ctx context.Context, q db.Querier, rank models.TaxonRank) ([]models.Taxon, error) {
 	taxa, err := q.Queries().GetTaxaByRank(ctx, rank)
 	if err != nil {
@@ -121,4 +148,12 @@ func (s *TaxonomyService) DeleteTaxon(ctx context.Context, q db.Querier, taxonID
 		return err
 	}
 	return nil
+}
+
+func (s *TaxonomyService) CreateTaxon(ctx context.Context, q db.Querier, input *models.CreateTaxonInput) (*models.Taxon, error) {
+	taxon, err := q.Queries().InsertTaxon(ctx, *input.ToParams())
+	if err != nil {
+		return nil, err
+	}
+	return models.TaxonFromDB(&taxon), nil
 }

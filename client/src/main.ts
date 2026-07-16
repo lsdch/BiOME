@@ -1,13 +1,13 @@
-import { App, createApp } from 'vue'
+import { createApp } from 'vue'
 import AppComponent from './App.vue'
 
-import vuetify from './vuetify'
+import { QueryClient, VueQueryPlugin, VueQueryPluginOptions } from '@tanstack/vue-query'
 import { createPinia, setActivePinia } from 'pinia'
-import { useUserStore } from './stores/user'
+import { getInstanceSettingsOptions, listCountriesOptions } from './api/gen/@tanstack/vue-query.gen'
 import { settingsKey } from './lib/injection.ts'
 import setupRouter from './router'
-import { getInstanceSettingsOptions, listCountriesOptions } from './api/gen/@tanstack/vue-query.gen'
-import { QueryClient, VueQueryPlugin, VueQueryPluginOptions } from '@tanstack/vue-query'
+import { useUserStore } from './stores/user'
+import vuetify from './vuetify'
 
 // Create app instance
 const app = createApp(AppComponent)
@@ -29,8 +29,9 @@ app.use(pinia)
 queryClient.prefetchQuery({ ...listCountriesOptions(), gcTime: Infinity })
 
 // Bootstrap authentication and instance settings
+const userStore = useUserStore()
 await Promise.all([
-  useUserStore().bootstrapAuth(queryClient),
+  userStore.bootstrapAuth(queryClient),
   initSettings(queryClient).then((settings) => {
     app.provide(settingsKey, settings)
     app.use(setupRouter(settings))

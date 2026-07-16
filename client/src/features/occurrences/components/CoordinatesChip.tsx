@@ -1,4 +1,5 @@
 import { Coordinates } from '@/api'
+import { useFeedback } from '@/stores/feedback'
 import { useClipboard } from '@vueuse/core'
 import { VChip } from 'vuetify/components'
 
@@ -8,6 +9,14 @@ type Props = VChip['$props'] & {
 
 const { copy } = useClipboard()
 
+const {feedback} = useFeedback()
+
+function copyCoordinates(coordinates: Coordinates) {
+  const text = `${coordinates.latitude}, ${coordinates.longitude}`
+  copy(text)
+  feedback({ message: `Copied coordinates to clipboard: ${text}`, type: 'info' })
+}
+
 /**
  * A chip displaying an occurrence category and element.
  */
@@ -15,10 +24,11 @@ export function CoordinatesChip({ coordinates, ...props }: Props, context: { att
   return (
     <v-chip
       class="font-monospace"
-      onClick={() => copy(`${coordinates.latitude}, ${coordinates.longitude}`)}
+      prepend-icon="mdi-crosshairs-gps"
+      onClick={() => copyCoordinates(coordinates)}
       {...props}
     >
-      {coordinates.latitude}°, {coordinates.longitude}°
+      {coordinates.latitude}°N, {coordinates.longitude}°E
     </v-chip>
   )
 }

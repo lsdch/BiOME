@@ -86,6 +86,7 @@ type UserBootstrap struct {
 
 type CountriesBootstrap struct {
 	CountriesJSON_URL      string `mapstructure:"COUNTRIES_JSON_URL"`
+	CountryJSON_CachePath  string `mapstructure:"COUNTRIES_JSON_CACHE_PATH"`
 	CountryNameKey         string `mapstructure:"COUNTRY_NAME_KEY"`
 	CountryCodeKey         string `mapstructure:"COUNTRY_CODE_KEY"`
 	CountryContinentKey    string `mapstructure:"COUNTRY_CONTINENT_KEY"`

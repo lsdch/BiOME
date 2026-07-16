@@ -4,11 +4,11 @@ import (
 	"time"
 
 	"github.com/lsdch/biome/db/biomedb"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 type Dataset struct {
-	ID          ulid.ULID        `json:"id"`
+	ID          types.ULID       `json:"id"`
 	Label       string           `json:"label"`
 	Slug        string           `json:"slug"`
 	Description Optional[string] `json:"description,omitempty"`

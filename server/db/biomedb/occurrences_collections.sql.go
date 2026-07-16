@@ -9,7 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 const addOccurrenceCollection = `-- name: AddOccurrenceCollection :one
@@ -27,9 +27,9 @@ RETURNING collection_id, occurrence_id, name, vouchers
 `
 
 type AddOccurrenceCollectionParams struct {
-	OccurrenceID ulid.ULID `json:"occurrence_id"`
-	Name         string    `json:"name"`
-	Vouchers     []string  `json:"vouchers"`
+	OccurrenceID types.ULID `json:"occurrence_id"`
+	Name         string     `json:"name"`
+	Vouchers     []string   `json:"vouchers"`
 }
 
 func (q *Queries) AddOccurrenceCollection(ctx context.Context, arg AddOccurrenceCollectionParams) (OccurrenceCollection, error) {
@@ -50,7 +50,7 @@ FROM occurrence_collections c
 WHERE c.occurrence_id = $1
 `
 
-func (q *Queries) GetOccurrenceCollections(ctx context.Context, occurrenceID ulid.ULID) ([]OccurrenceCollection, error) {
+func (q *Queries) GetOccurrenceCollections(ctx context.Context, occurrenceID types.ULID) ([]OccurrenceCollection, error) {
 	rows, err := q.db.Query(ctx, getOccurrenceCollections, occurrenceID)
 	if err != nil {
 		return nil, err

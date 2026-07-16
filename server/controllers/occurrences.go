@@ -12,6 +12,7 @@ import (
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/stores"
+	"github.com/sirupsen/logrus"
 )
 
 type OccurrenceController struct {
@@ -27,6 +28,7 @@ func NewOccurrenceController(db *db.DB, service *services.OccurrencesService) *O
 }
 
 func (c *OccurrenceController) GetOccurrence(ctx context.Context, input *ULIDPath) (*BodyTransporter[models.OccurrenceWithDetails], error) {
+	logrus.Debugf("GetOccurrence: ulid=%s", input.ULID.String())
 	occurrence, err := c.service.GetOccurrenceWithDetails(ctx, c.db, input.ULID)
 	if err != nil {
 		return nil, err
@@ -76,6 +78,14 @@ func (c *OccurrenceController) ListOccurrences(ctx context.Context, input *store
 	return &BodyTransporter[models.PaginatedList[models.Occurrence]]{Body: occurrences}, nil
 }
 
+func (c *OccurrenceController) ListOccurrencesAtProximity(ctx context.Context, input *models.ListSamplingsAtProximityInput) (*BodyTransporter[[]*models.SamplingWithOccurrencesAndDistance], error) {
+	samplings, err := c.service.ListOccurrencesAtProximity(ctx, c.db, *input)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]*models.SamplingWithOccurrencesAndDistance]{Body: samplings}, nil
+}
+
 func (c *OccurrenceController) OccurrencesTaxaOverview(ctx context.Context, input *struct{}) (*BodyTransporter[[]models.OccurrenceOverviewItem], error) {
 	overview, err := c.service.OccurrencesByTaxaOverview(ctx, c.db)
 	if err != nil {
@@ -98,7 +108,7 @@ func (c *OccurrenceController) RegisterRoutes(r *router.Router) {
 
 	router.NewSpec(
 		occurrencesGroup,
-		"GetOccurrences",
+		"GetOccurrence",
 		huma.Operation{
 			Method:  http.MethodGet,
 			Path:    "/item/{ulid}",
@@ -116,6 +126,17 @@ func (c *OccurrenceController) RegisterRoutes(r *router.Router) {
 			Summary: "List occurrences with optional filters and pagination",
 		},
 		c.ListOccurrences,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(
+		occurrencesGroup,
+		"ListOccurrencesAtProximity",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/proximity",
+			Summary: "List samplings with occurrences within a certain distance of a given point",
+		},
+		c.ListOccurrencesAtProximity,
 	).WithAccessPolicy(auth.Public()).Register(r)
 
 	router.NewSpec(

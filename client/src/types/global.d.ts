@@ -1,7 +1,7 @@
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { Replace } from 'ts-toolbelt/out/Object/Replace'
 import { Ref } from 'vue'
-import { DataTableSortItem } from 'vuetify'
+import { DataTableSortItem, FilterMatch } from 'vuetify'
 import { VDataTable } from 'vuetify/components'
 import { VIcon } from 'vuetify/components/VIcon'
 import { DataTableItem } from 'vuetify/lib/components/VDataTable/types.mjs'
@@ -27,7 +27,7 @@ declare global {
     // Allow filtering using any value type instead of string only
     // See original definition of FilterFunction type:
     // https://github.com/vuetifyjs/vuetify/blob/21241e1762734f639b4ee421e00735d3754181c8/packages/vuetify/src/composables/filter.ts#L19-L19
-    readonly filter?: (value: Item, query: string, item: DataTableItem<RowItem>) => boolean
+    readonly filter?: (value: Item, query: string, item: DataTableItem<RowItem>) => FilterMatch
     hide?: Ref<boolean>
   }
 
@@ -35,7 +35,7 @@ declare global {
     HeaderDefinitionFor<Exclude<keyof Item, '$schema'>>,
     {
       key?: Exclude<keyof Item, '$schema'> | DataTableHeader['key']
-      readonly filter?: (value: any, query: string, item: DataTableItem<Item>) => boolean
+      readonly filter?: (value: any, query: string, item: DataTableItem<Item>) => FilterMatch
       value?: Exclude<keyof Item, '$schema'> | DataTableHeader['value']
     }
   >

@@ -32,6 +32,6 @@ type Occurrences struct {
 	QuantityUpper               *int32
 	Sources                     *pq.StringArray
 	CreatedAt                   time.Time
-	UpdatedAt                   time.Time
+	UpdatedAt                   *time.Time
 	ImportBatchID               *string
 }

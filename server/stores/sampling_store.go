@@ -7,7 +7,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
+	"github.com/sirupsen/logrus"
+	"github.com/uber/h3-go/v4"
 )
 
 type SamplingStore struct {
@@ -27,6 +29,7 @@ func (s *SamplingStore) ListSamplingsAtProximity(
 	input models.ListSamplingsAtProximityInput,
 ) ([]models.SamplingWithDistance, error) {
 
+	logrus.Debugf("ListSamplingsAtProximity: input=%+v", input)
 	rows, err := q.Queries().ListSamplingsAtProximity(ctx, input.ToParams())
 	if err != nil {
 		return nil, err
@@ -37,6 +40,26 @@ func (s *SamplingStore) ListSamplingsAtProximity(
 		res[i] = models.
 			NewSamplingFromDB(r.Sampling, r.Country).
 			WithDistance(r.DistanceMeters)
+	}
+
+	return res, nil
+}
+
+func (s *SamplingStore) ListSamplingsH3AtProximity(
+	ctx context.Context,
+	q db.Querier,
+	input models.ListSamplingsAtProximityInput,
+) ([]models.CellH3WithDistance, error) {
+
+	logrus.Debugf("ListSamplingsH3AtProximity: input=%+v", input)
+	rows, err := q.Queries().ListSamplingsH3AtProximity(ctx, input.ToParamsH3())
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]models.CellH3WithDistance, len(rows))
+	for i, r := range rows {
+		res[i] = models.CellH3FromDB(h3.Cell(r.H3Index), int32(r.SamplingCount), int32(r.OccurrenceCount)).WithDistance(int32(r.DistanceMeters))
 	}
 
 	return res, nil
@@ -73,87 +96,7 @@ func (s *SamplingStore) GetSampling(
 }
 
 // ------------------------
-// Methods
-// ------------------------
-
-func (s *SamplingStore) ListUnknownSamplingMethodCodes(
-	ctx context.Context,
-	q db.Querier,
-	codes []string,
-) ([]string, error) {
-	return q.Queries().ListUnknownSamplingMethodCodes(ctx, codes)
-}
-
-func (s *SamplingStore) ReplaceMethodsAtSampling(
-	ctx context.Context,
-	q db.Querier,
-	samplingID uuid.UUID,
-	codes []string,
-) error {
-	return q.Queries().ReplaceMethodsAtSampling(ctx, samplingID, codes)
-}
-
-func (s *SamplingStore) GetSamplingMethodsAtEvent(
-	ctx context.Context,
-	q db.Querier,
-	samplingID uuid.UUID,
-) ([]models.SamplingMethod, error) {
-
-	rows, err := q.Queries().GetSamplingMethodsAtEvent(ctx, samplingID)
-	if err != nil {
-		return nil, err
-	}
-
-	res := make([]models.SamplingMethod, len(rows))
-	for i, r := range rows {
-		res[i] = models.SamplingMethodFromDB(r)
-	}
-
-	return res, nil
-}
-
-// ------------------------
-// Fixatives
-// ------------------------
-
-func (s *SamplingStore) ListUnknownFixativeCodes(
-	ctx context.Context,
-	q db.Querier,
-	codes []string,
-) ([]string, error) {
-	return q.Queries().ListUnknownFixativeCodes(ctx, codes)
-}
-
-func (s *SamplingStore) ReplaceFixativesAtSampling(
-	ctx context.Context,
-	q db.Querier,
-	samplingID uuid.UUID,
-	codes []string,
-) error {
-	return q.Queries().ReplaceFixativesAtSampling(ctx, samplingID, codes)
-}
-
-func (s *SamplingStore) GetSamplingFixativesAtEvent(
-	ctx context.Context,
-	q db.Querier,
-	samplingID uuid.UUID,
-) ([]models.Fixative, error) {
-
-	rows, err := q.Queries().GetSamplingFixativesAtEvent(ctx, samplingID)
-	if err != nil {
-		return nil, err
-	}
-
-	res := make([]models.Fixative, len(rows))
-	for i, r := range rows {
-		res[i] = models.FixativeFromDB(r)
-	}
-
-	return res, nil
-}
-
-// ------------------------
-// Habitats
+// Habitats and access points
 // ------------------------
 
 func (s *SamplingStore) GetHabitatsAtEvent(
@@ -228,7 +171,7 @@ func (s *SamplingStore) GetOccurrencesAtSamplingsBatch(
 	ctx context.Context,
 	q db.Querier,
 	samplingIDs []uuid.UUID,
-	occurrenceIDs []ulid.ULID,
+	occurrenceIDs []types.ULID,
 ) (map[uuid.UUID][]models.BaseOccurrence, error) {
 
 	rows, err := q.Queries().GetOccurrencesAtSamplingsBatch(ctx, samplingIDs, occurrenceIDs)
@@ -429,4 +372,81 @@ func (s *SamplingStore) DeleteSamplingFixative(
 	}
 
 	return nil
+}
+
+// ------------------------
+// Fixative Resolution
+// ------------------------
+
+func (s *SamplingStore) InitFixativeResolution(
+	ctx context.Context,
+	q db.Querier,
+	importID uuid.UUID,
+) ([]models.SamplingFixativeResolution, error) {
+
+	rows, err := q.Queries().InitSamplingFixativesResolution(ctx, importID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]models.SamplingFixativeResolution, len(rows))
+	for i, r := range rows {
+		res[i] = models.SamplingFixativeResolutionFromDB(r)
+	}
+
+	return res, nil
+}
+
+func (s *SamplingStore) GetFixativesResolution(
+	ctx context.Context,
+	q db.Querier,
+	importID uuid.UUID,
+) ([]models.SamplingFixativeResolution, error) {
+
+	rows, err := q.Queries().GetSamplingFixativesResolution(ctx, importID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]models.SamplingFixativeResolution, len(rows))
+	for i, r := range rows {
+		res[i] = models.SamplingFixativeResolutionFromDB(r)
+	}
+
+	return res, nil
+}
+
+func (s *SamplingStore) ResolveFixative(
+	ctx context.Context,
+	q db.Querier,
+	importID uuid.UUID,
+	input models.SamplingFixativeResolutionInput,
+) (models.SamplingFixativeResolution, error) {
+
+	row, err := q.Queries().ResolveSamplingFixative(ctx, input.ToParams(importID))
+	if err != nil {
+		return models.SamplingFixativeResolution{}, err
+	}
+
+	return models.SamplingFixativeResolutionFromDB(row), nil
+}
+
+// ========================
+// Materialization
+// ========================
+
+func (s *SamplingStore) MaterializeSamplings(
+	ctx context.Context,
+	q db.Querier,
+	importBatchID types.ULID,
+) error {
+	return q.Queries().MaterializeSamplings(ctx, importBatchID.String())
+}
+
+func (s *SamplingStore) MaterializeSamplingMethods(
+	ctx context.Context,
+	q db.Querier,
+	importBatchID types.ULID,
+) error {
+	return q.Queries().MaterializeSamplingMethods(ctx, importBatchID.String())
 }

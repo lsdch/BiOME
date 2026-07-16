@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/db/biomedb/biomedb/public/table"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 type OccurrenceSortKey string
@@ -69,7 +69,7 @@ type IdentificationInput struct {
 }
 
 type BaseOccurrence struct {
-	ID                 ulid.ULID                      `json:"id"`
+	ID                 types.ULID                     `json:"id"`
 	Code               string                         `json:"code"`
 	TypeStatus         Optional[OccurrenceTypeStatus] `json:"type_status,omitempty"`
 	Identification     Identification                 `json:"identification"`
@@ -139,19 +139,19 @@ func (o BaseOccurrence) WithMetadata(metadata OccurrenceMetadata) OccurrenceWith
 
 func (o OccurrenceWithMetadata) WithSampling(sampling SamplingWithDetails) OccurrenceWithDetails {
 	return OccurrenceWithDetails{
-		SamplingWithDetails:    sampling,
+		Sampling:               sampling,
 		OccurrenceWithMetadata: o,
 	}
 }
 
 type OccurrenceWithDetails struct {
-	SamplingWithDetails
+	Sampling SamplingWithDetails `json:"sampling"`
 	OccurrenceWithMetadata
 }
 
 func (o Occurrence) WithDetails(samplingMetadata SamplingMetadata, occurrenceMetadata OccurrenceMetadata) OccurrenceWithDetails {
 	return OccurrenceWithDetails{
-		SamplingWithDetails:    o.Sampling.WithDetails(samplingMetadata),
+		Sampling:               o.Sampling.WithDetails(samplingMetadata),
 		OccurrenceWithMetadata: o.WithMetadata(occurrenceMetadata),
 	}
 }

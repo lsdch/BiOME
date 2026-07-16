@@ -5,30 +5,16 @@
     </template>
     <template #title>
       <v-tabs v-model="tab" class="text-body-large">
-        <v-tab value="sites">
-          Sites
-          <template #append>
-            <v-badge :content="data.length" :color="data.length ? 'primary' : ''" inline />
-          </template>
-        </v-tab>
         <v-tab value="samplings">
           Sampling Events
           <template #append>
-            <v-badge
-              :content="samplings.length"
-              :color="samplings.length ? 'warning' : ''"
-              inline
-            />
+            <v-badge :content="samplings.length" :color="samplings.length ? 'warning' : ''" inline />
           </template>
         </v-tab>
         <v-tab value="occurrences">
           Occurrences
           <template #append>
-            <v-badge
-              :content="occurrences.length"
-              :color="occurrences.length ? 'success' : ''"
-              inline
-            />
+            <v-badge :content="occurrences.length" :color="occurrences.length ? 'success' : ''" inline />
           </template>
         </v-tab>
         <v-tab value="sampled_taxa"> Sampled taxa </v-tab>
@@ -36,11 +22,11 @@
     </template>
     <slot name="prepend-body" />
     <v-tabs-window v-model="tab" class="overflow-y-auto">
-      <v-tabs-window-item value="sites">
+      <!-- <v-tabs-window-item value="sites">
         <slot name="sites-table" :sites="data">
           <SiteWithOccurrencesTable :sites="data" />
         </slot>
-      </v-tabs-window-item>
+      </v-tabs-window-item> -->
       <v-tabs-window-item value="samplings">
         <slot name="samplings-table" :samplings>
           <SamplingWithOccurrencesTable with-site :samplings />
@@ -61,14 +47,11 @@
   </CardDialog>
 </template>
 
-<script setup lang="ts" generic="Data extends SiteWithOccurrences">
-import { OccurrenceAtSite, SamplingDateWithOccurrences, SiteItem, SiteWithOccurrences } from '@/api'
+<script setup lang="ts" generic="Data extends Sampling & { occurrences?: BaseOccurrence[] }">
+import { BaseOccurrence, Occurrence, Sampling, } from '@/api'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
-import OccurrencesTable, {
-  OccurrenceTableItem
-} from '@/features/occurrences/components/tables/OccurrencesTable.vue'
+import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
-import SiteWithOccurrencesTable from '@/features/occurrences/components/tables/SiteWithOccurrencesTable.vue'
 import { computed, useSlots } from 'vue'
 // import OccurringTaxa from '../OccurringTaxa.vue'
 
@@ -80,24 +63,21 @@ const { data, ...props } = defineProps<
   } & CardDialogProps
 >()
 
-type Tab = 'sites' | 'samplings' | 'occurrences' | 'sampled_taxa'
-const tab = defineModel<Tab>('tab', { default: 'sites' })
+type Tab = 'samplings' | 'occurrences' | 'sampled_taxa'
+const tab = defineModel<Tab>('tab', { default: 'samplings' })
 
-type Sampling = SamplingDateWithOccurrences & { site: Omit<Data, 'samplings'> }
-const samplings = computed<Array<Sampling>>(() =>
-  data.flatMap(({ samplings, ...site }) => samplings.map((s) => ({ ...s, site })))
-)
+const samplings = computed<Array<Data>>(() => data)
 
-type Occurrence = OccurrenceTableItem<Omit<Data, 'samplings'>>
+// type Occurrence = OccurrenceTableItem<Omit<Data, 'samplings'>>
 const occurrences = computed<Array<Occurrence>>(() =>
-  data.flatMap<Occurrence>(({ samplings, ...site }) =>
-    samplings.flatMap(({ occurrences, date }) =>
-      occurrences.map<Occurrence>((o) => ({ sampling_date: date, site, ...o }))
-    )
+  data.flatMap<Occurrence>(({ occurrences, ...sampling }) =>
+    occurrences?.flatMap((o) =>
+      ({ ...o, sampling })
+    ) ?? []
   )
 )
 
-function open(target: Tab = 'sites') {
+function open(target: Tab = 'samplings') {
   tab.value = target
   dialog.value = true
 }

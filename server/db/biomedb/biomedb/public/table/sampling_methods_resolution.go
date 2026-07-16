@@ -17,7 +17,7 @@ type samplingMethodsResolutionTable struct {
 	postgres.Table
 
 	// Columns
-	ImportHash       postgres.ColumnString
+	ImportID         postgres.ColumnString
 	InputText        postgres.ColumnString
 	ResolvedMethodID postgres.ColumnString
 	Status           postgres.ColumnString
@@ -62,11 +62,11 @@ func newSamplingMethodsResolutionTable(schemaName, tableName, alias string) *Sam
 
 func newSamplingMethodsResolutionTableImpl(schemaName, tableName, alias string) samplingMethodsResolutionTable {
 	var (
-		ImportHashColumn       = postgres.StringColumn("import_hash")
+		ImportIDColumn         = postgres.StringColumn("import_id")
 		InputTextColumn        = postgres.StringColumn("input_text")
 		ResolvedMethodIDColumn = postgres.StringColumn("resolved_method_id")
 		StatusColumn           = postgres.StringColumn("status")
-		allColumns             = postgres.ColumnList{ImportHashColumn, InputTextColumn, ResolvedMethodIDColumn, StatusColumn}
+		allColumns             = postgres.ColumnList{ImportIDColumn, InputTextColumn, ResolvedMethodIDColumn, StatusColumn}
 		mutableColumns         = postgres.ColumnList{ResolvedMethodIDColumn, StatusColumn}
 		defaultColumns         = postgres.ColumnList{StatusColumn}
 	)
@@ -75,7 +75,7 @@ func newSamplingMethodsResolutionTableImpl(schemaName, tableName, alias string) 
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ImportHash:       ImportHashColumn,
+		ImportID:         ImportIDColumn,
 		InputText:        InputTextColumn,
 		ResolvedMethodID: ResolvedMethodIDColumn,
 		Status:           StatusColumn,

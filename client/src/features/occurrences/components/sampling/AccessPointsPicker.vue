@@ -1,12 +1,5 @@
 <template>
-  <v-combobox
-    :items
-    :loading="isPending"
-    chips
-    closable-chips
-    multiple
-    :error-message="error?.detail"
-  >
+  <v-combobox :items :loading="isPending" chips closable-chips multiple :error-message="error?.detail">
     <template #chip="{ item, props }">
       <v-chip v-bind="props" :text="item" :color="items?.includes(item) ? 'primary' : 'success'" />
     </template>

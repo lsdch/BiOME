@@ -17,7 +17,8 @@ type importSamplingsOccurrencesTable struct {
 	postgres.Table
 
 	// Columns
-	ImportHash                  postgres.ColumnString
+	ID                          postgres.ColumnString
+	ImportID                    postgres.ColumnString
 	ImportedAt                  postgres.ColumnTimestampz
 	RowNumber                   postgres.ColumnInteger
 	SamplingHash                postgres.ColumnString
@@ -57,6 +58,9 @@ type importSamplingsOccurrencesTable struct {
 	QuantityUpper               postgres.ColumnInteger
 	Sources                     postgres.ColumnStringArray
 	OccurrenceComments          postgres.ColumnString
+	TaxonResolutionID           postgres.ColumnString
+	MaterializedSamplingID      postgres.ColumnString
+	MaterializedOccurrenceID    postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -98,7 +102,8 @@ func newImportSamplingsOccurrencesTable(schemaName, tableName, alias string) *Im
 
 func newImportSamplingsOccurrencesTableImpl(schemaName, tableName, alias string) importSamplingsOccurrencesTable {
 	var (
-		ImportHashColumn                  = postgres.StringColumn("import_hash")
+		IDColumn                          = postgres.StringColumn("id")
+		ImportIDColumn                    = postgres.StringColumn("import_id")
 		ImportedAtColumn                  = postgres.TimestampzColumn("imported_at")
 		RowNumberColumn                   = postgres.IntegerColumn("row_number")
 		SamplingHashColumn                = postgres.StringColumn("sampling_hash")
@@ -138,8 +143,11 @@ func newImportSamplingsOccurrencesTableImpl(schemaName, tableName, alias string)
 		QuantityUpperColumn               = postgres.IntegerColumn("quantity_upper")
 		SourcesColumn                     = postgres.StringArrayColumn("sources")
 		OccurrenceCommentsColumn          = postgres.StringColumn("occurrence_comments")
-		allColumns                        = postgres.ColumnList{ImportHashColumn, ImportedAtColumn, RowNumberColumn, SamplingHashColumn, SamplingCommentsColumn, SiteCodeColumn, SiteNameColumn, SiteLocalityColumn, SiteCountryCodeColumn, CoordinatesPrecisionColumn, LongitudeColumn, LatitudeColumn, AltitudeColumn, EventDateColumn, EventDatePrecisionColumn, PerformedByColumn, DurationColumn, AccessPointsColumn, SamplingTargetsColumn, SamplingFixativesColumn, SamplingMethodsColumn, HabitatsColumn, OccurrenceCodeColumn, TypeStatusColumn, TaxonNameColumn, TaxonAuthorshipColumn, TaxonScientificNameColumn, TaxonRankColumn, VerbatimIdentificationColumn, IdentifiedByColumn, IdentificationDateColumn, IdentificationDatePrecisionColumn, IdentificationConferColumn, IdentificationAddendumColumn, ContentDescriptionColumn, QuantityExactColumn, QuantityLowerColumn, QuantityUpperColumn, SourcesColumn, OccurrenceCommentsColumn}
-		mutableColumns                    = postgres.ColumnList{ImportedAtColumn, SamplingHashColumn, SamplingCommentsColumn, SiteCodeColumn, SiteNameColumn, SiteLocalityColumn, SiteCountryCodeColumn, CoordinatesPrecisionColumn, LongitudeColumn, LatitudeColumn, AltitudeColumn, EventDateColumn, EventDatePrecisionColumn, PerformedByColumn, DurationColumn, AccessPointsColumn, SamplingTargetsColumn, SamplingFixativesColumn, SamplingMethodsColumn, HabitatsColumn, OccurrenceCodeColumn, TypeStatusColumn, TaxonNameColumn, TaxonAuthorshipColumn, TaxonRankColumn, VerbatimIdentificationColumn, IdentifiedByColumn, IdentificationDateColumn, IdentificationDatePrecisionColumn, IdentificationConferColumn, IdentificationAddendumColumn, ContentDescriptionColumn, QuantityExactColumn, QuantityLowerColumn, QuantityUpperColumn, SourcesColumn, OccurrenceCommentsColumn}
+		TaxonResolutionIDColumn           = postgres.StringColumn("taxon_resolution_id")
+		MaterializedSamplingIDColumn      = postgres.StringColumn("materialized_sampling_id")
+		MaterializedOccurrenceIDColumn    = postgres.StringColumn("materialized_occurrence_id")
+		allColumns                        = postgres.ColumnList{IDColumn, ImportIDColumn, ImportedAtColumn, RowNumberColumn, SamplingHashColumn, SamplingCommentsColumn, SiteCodeColumn, SiteNameColumn, SiteLocalityColumn, SiteCountryCodeColumn, CoordinatesPrecisionColumn, LongitudeColumn, LatitudeColumn, AltitudeColumn, EventDateColumn, EventDatePrecisionColumn, PerformedByColumn, DurationColumn, AccessPointsColumn, SamplingTargetsColumn, SamplingFixativesColumn, SamplingMethodsColumn, HabitatsColumn, OccurrenceCodeColumn, TypeStatusColumn, TaxonNameColumn, TaxonAuthorshipColumn, TaxonScientificNameColumn, TaxonRankColumn, VerbatimIdentificationColumn, IdentifiedByColumn, IdentificationDateColumn, IdentificationDatePrecisionColumn, IdentificationConferColumn, IdentificationAddendumColumn, ContentDescriptionColumn, QuantityExactColumn, QuantityLowerColumn, QuantityUpperColumn, SourcesColumn, OccurrenceCommentsColumn, TaxonResolutionIDColumn, MaterializedSamplingIDColumn, MaterializedOccurrenceIDColumn}
+		mutableColumns                    = postgres.ColumnList{ImportIDColumn, ImportedAtColumn, RowNumberColumn, SamplingHashColumn, SamplingCommentsColumn, SiteCodeColumn, SiteNameColumn, SiteLocalityColumn, SiteCountryCodeColumn, CoordinatesPrecisionColumn, LongitudeColumn, LatitudeColumn, AltitudeColumn, EventDateColumn, EventDatePrecisionColumn, PerformedByColumn, DurationColumn, AccessPointsColumn, SamplingTargetsColumn, SamplingFixativesColumn, SamplingMethodsColumn, HabitatsColumn, OccurrenceCodeColumn, TypeStatusColumn, TaxonNameColumn, TaxonAuthorshipColumn, TaxonRankColumn, VerbatimIdentificationColumn, IdentifiedByColumn, IdentificationDateColumn, IdentificationDatePrecisionColumn, IdentificationConferColumn, IdentificationAddendumColumn, ContentDescriptionColumn, QuantityExactColumn, QuantityLowerColumn, QuantityUpperColumn, SourcesColumn, OccurrenceCommentsColumn, TaxonResolutionIDColumn, MaterializedSamplingIDColumn, MaterializedOccurrenceIDColumn}
 		defaultColumns                    = postgres.ColumnList{ImportedAtColumn, TaxonScientificNameColumn, IdentificationConferColumn}
 	)
 
@@ -147,7 +155,8 @@ func newImportSamplingsOccurrencesTableImpl(schemaName, tableName, alias string)
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ImportHash:                  ImportHashColumn,
+		ID:                          IDColumn,
+		ImportID:                    ImportIDColumn,
 		ImportedAt:                  ImportedAtColumn,
 		RowNumber:                   RowNumberColumn,
 		SamplingHash:                SamplingHashColumn,
@@ -187,6 +196,9 @@ func newImportSamplingsOccurrencesTableImpl(schemaName, tableName, alias string)
 		QuantityUpper:               QuantityUpperColumn,
 		Sources:                     SourcesColumn,
 		OccurrenceComments:          OccurrenceCommentsColumn,
+		TaxonResolutionID:           TaxonResolutionIDColumn,
+		MaterializedSamplingID:      MaterializedSamplingIDColumn,
+		MaterializedOccurrenceID:    MaterializedOccurrenceIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

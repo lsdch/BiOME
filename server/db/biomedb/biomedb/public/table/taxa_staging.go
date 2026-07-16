@@ -18,7 +18,7 @@ type taxaStagingTable struct {
 
 	// Columns
 	ID              postgres.ColumnString
-	ImportHash      postgres.ColumnString
+	ImportID        postgres.ColumnString
 	Name            postgres.ColumnString
 	Authorship      postgres.ColumnString
 	Rank            postgres.ColumnString
@@ -69,7 +69,7 @@ func newTaxaStagingTable(schemaName, tableName, alias string) *TaxaStagingTable 
 func newTaxaStagingTableImpl(schemaName, tableName, alias string) taxaStagingTable {
 	var (
 		IDColumn              = postgres.StringColumn("id")
-		ImportHashColumn      = postgres.StringColumn("import_hash")
+		ImportIDColumn        = postgres.StringColumn("import_id")
 		NameColumn            = postgres.StringColumn("name")
 		AuthorshipColumn      = postgres.StringColumn("authorship")
 		RankColumn            = postgres.StringColumn("rank")
@@ -78,8 +78,8 @@ func newTaxaStagingTableImpl(schemaName, tableName, alias string) taxaStagingTab
 		ParentTaxaIDColumn    = postgres.StringColumn("parent_taxa_id")
 		ParentGbifIDColumn    = postgres.IntegerColumn("parent_gbif_id")
 		ParentInputNameColumn = postgres.StringColumn("parent_input_name")
-		allColumns            = postgres.ColumnList{IDColumn, ImportHashColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn, ParentSourceColumn, ParentTaxaIDColumn, ParentGbifIDColumn, ParentInputNameColumn}
-		mutableColumns        = postgres.ColumnList{ImportHashColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn, ParentSourceColumn, ParentTaxaIDColumn, ParentGbifIDColumn, ParentInputNameColumn}
+		allColumns            = postgres.ColumnList{IDColumn, ImportIDColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn, ParentSourceColumn, ParentTaxaIDColumn, ParentGbifIDColumn, ParentInputNameColumn}
+		mutableColumns        = postgres.ColumnList{ImportIDColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn, ParentSourceColumn, ParentTaxaIDColumn, ParentGbifIDColumn, ParentInputNameColumn}
 		defaultColumns        = postgres.ColumnList{IDColumn}
 	)
 
@@ -88,7 +88,7 @@ func newTaxaStagingTableImpl(schemaName, tableName, alias string) taxaStagingTab
 
 		//Columns
 		ID:              IDColumn,
-		ImportHash:      ImportHashColumn,
+		ImportID:        ImportIDColumn,
 		Name:            NameColumn,
 		Authorship:      AuthorshipColumn,
 		Rank:            RankColumn,

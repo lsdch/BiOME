@@ -1,15 +1,9 @@
 <template>
   <v-sheet :height class="d-flex flex-column">
-    <DeckGlMap
-      class="flex-grow-1"
-      ref="map"
-      :zoom="0.1"
-      :min-zoom="0.1"
-      :pinMarkers="pinMarker ? [pinMarker] : undefined"
-      :marker-layers="proximityRadius ? [proximalMarkers] : undefined"
+    <DeckGlMap class="flex-grow-1" ref="map" :zoom="0.1" :min-zoom="0.1"
+      :pinMarkers="pinMarker ? [pinMarker] : undefined" :marker-layers="proximityRadius ? [proximalMarkers] : undefined"
       :auto-fit="proximityRadius || item?.coordinates?.precision"
-      @drag-pin="(_index, { latitude, longitude }) => setCoordinates(latitude, longitude)"
-    >
+      @drag-pin="(_index, { latitude, longitude }) => setCoordinates(latitude, longitude)">
       <template #popup="{ item }">
         <SingleSitePopup :item="item" />
       </template>
@@ -18,74 +12,52 @@
     <v-list-item>
       <ProximityRadiusSlider v-model="proximitySliderValue" v-model:radius="proximityRadius" />
       <template #prepend>
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          v-if="hasValidCoordinates && isPending"
-          size="small"
-          class="mr-2"
-        />
-        <OccurrencesOverviewDialog
-          v-else
-          :data="
-            nearbySites?.filter(({ distance_meters }) => distance_meters <= proximityRadius) ?? []
-          "
-          :max-width="1400"
-        >
-          <template #sites-table="{ sites }">
-            <SiteWithOccurrencesTable :sites="sites" :extend-headers="[distanceHeader.direct]">
-              <template #item.distance="{ value }">
-                <DistanceDisplay :distance="value" />
-              </template>
-            </SiteWithOccurrencesTable>
-          </template>
+        <v-progress-circular indeterminate color="primary" v-if="hasValidCoordinates && isPending" size="small"
+          class="mr-2" />
+        <OccurrencesOverviewDialog v-else :data="nearbyOccurrences?.filter(({ distance_meters }) => distance_meters <= proximityRadius) ?? []
+          " :max-width="1400">
           <template #samplings-table="{ samplings }">
-            <SamplingWithOccurrencesTable
-              with-site
-              :samplings="samplings"
-              :extend-headers="[distanceHeader.nested]"
-            >
-              <template #item.site.distance="{ value }">
+            <SamplingWithOccurrencesTable :samplings="samplings" :extend-headers="[{
+              position: 1,
+              key: 'distance_meters',
+              title: 'Distance'
+            }]">
+              <template #item.distance_meters="{ value }">
                 <DistanceDisplay :distance="value" />
               </template>
             </SamplingWithOccurrencesTable>
           </template>
           <template #occurrences-table="{ occurrences }">
-            <OccurrencesTable
-              with-site
-              :occurrences="occurrences"
-              :extend-headers="[distanceHeader.nested]"
-            >
-              <template #item.site.distance="{ value }">
+            <OccurrencesTable with-site :occurrences="occurrences" :extend-headers="[{
+              position: 1,
+              key: 'sampling.distance_meters',
+              title: 'Distance'
+            }]">
+              <template #item.sampling.distance_meters="{ value }">
                 <DistanceDisplay :distance="value" />
               </template>
             </OccurrencesTable>
           </template>
           <template #sampled-taxa-table="{ occurrences }">
-            <SampledTaxaTable :occurrences="occurrences" :extend-headers="[distanceHeader.nested]">
-              <template #item.site.distance="{ value }: {value: number}">
+            <SampledTaxaTable :occurrences="occurrences" :extend-headers="[{
+              position: 1,
+              key: 'distance_meters',
+              title: 'Distance'
+            }]">
+              <template #item.distance_meters="{ value }: { value: number }">
                 <DistanceDisplay :distance="value" />
               </template>
             </SampledTaxaTable>
           </template>
           <template #prepend-body>
             <v-card-text>
-              <ProximityRadiusSlider
-                label="Radius"
-                v-model="proximitySliderValue"
-                v-model:radius="proximityRadius"
-              />
+              <ProximityRadiusSlider label="Radius" v-model="proximitySliderValue" v-model:radius="proximityRadius" />
             </v-card-text>
           </template>
           <template #activator="{ props }">
-            <v-btn
-              icon="mdi-list-box"
-              size="small"
-              variant="plain"
-              v-tooltip="`See list of sites and occurrences within radius`"
-              v-bind="props"
-              :disabled="!hasValidCoordinates || nearbySites?.length === 0 || proximityRadius === 0"
-            />
+            <v-btn icon="mdi-list-box" size="small" variant="plain"
+              v-tooltip="`See list of sites and occurrences within radius`" v-bind="props"
+              :disabled="!hasValidCoordinates || nearbyCells?.length === 0 || proximityRadius === 0" />
           </template>
         </OccurrencesOverviewDialog>
       </template>
@@ -94,7 +66,7 @@
 </template>
 
 <script setup lang="tsx" generic="Item extends DeepPartial<ItemWithCoordinates>">
-import { listSamplingsAtProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { listOccurrencesAtProximityOptions, listSamplingsH3AtProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import OccurrencesOverviewDialog from '@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue'
 import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SampledTaxaTable from '@/features/occurrences/components/tables/SampledTaxaTable.vue'
@@ -103,6 +75,7 @@ import SiteWithOccurrencesTable from '@/features/occurrences/components/tables/S
 import { formatDistance } from '@/lib/distances'
 import { useQuery } from '@tanstack/vue-query'
 import { circle } from '@turf/turf'
+import { cellToLatLng } from 'h3-js'
 import { MarkerOptions } from 'maplibre-gl'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
@@ -112,18 +85,6 @@ import { makeMarkerLayer, markerLayerFromSpec, PinMarker } from './layers-manage
 import SingleSitePopup from './popups/SingleSitePopup.vue'
 import ProximityRadiusSlider from './ProximityRadiusSlider.vue'
 
-const distanceHeader = {
-  direct: {
-    position: 1,
-    key: 'distance',
-    title: 'Distance'
-  },
-  nested: {
-    position: 1,
-    key: 'site.distance',
-    title: 'Distance'
-  }
-}
 
 const DistanceDisplay = (props: { distance: number }) => {
   return <span class="font-monospace">{formatDistance(props.distance)}</span>
@@ -134,11 +95,11 @@ const item = defineModel<Item>('item')
 const {
   height,
   markerOptions,
-  excludeCodes: excludeIDs
+  excludeIds
 } = defineProps<{
   height?: number
   markerOptions?: MarkerOptions
-  excludeCodes?: string[]
+  excludeIds?: UUID[]
 }>()
 
 function setCoordinates(latitude: number, longitude: number) {
@@ -204,18 +165,34 @@ watch(
 const hasValidCoordinates = computed(() => Coordinates.isValidCoordinates(item.value?.coordinates))
 
 const {
-  data: nearbySites,
+  data: nearbyCells,
   isPending,
   error
 } = useQuery(
   computed(() => ({
     enabled: hasValidCoordinates.value,
-    ...listSamplingsAtProximityOptions({
+    ...listSamplingsH3AtProximityOptions({
       query: {
         latitude: item.value?.coordinates?.latitude ?? 0,
         longitude: item.value?.coordinates?.longitude ?? 0,
         radius_meters: 100_000,
-        exclude_ids: excludeIDs
+        exclude_ids: excludeIds
+      }
+    })
+  }))
+)
+
+const {
+  data: nearbyOccurrences,
+} = useQuery(
+  computed(() => ({
+    enabled: hasValidCoordinates.value,
+    ...listOccurrencesAtProximityOptions({
+      query: {
+        latitude: item.value?.coordinates?.latitude ?? 0,
+        longitude: item.value?.coordinates?.longitude ?? 0,
+        radius_meters: 100_000,
+        exclude_ids: excludeIds
       }
     })
   }))
@@ -224,18 +201,43 @@ const {
 const pinMarker = computed<PinMarker<Item> | undefined>(() =>
   item.value && Coordinates.isValidCoordinates(item.value.coordinates)
     ? {
-        data: item.value,
-        coordinates: item.value.coordinates,
-        options: markerOptions
-      }
+      data: item.value,
+      coordinates: item.value.coordinates,
+      options: markerOptions
+    }
     : undefined
 )
-const proximalMarkersSpec = ref(makeMarkerLayer('Proximal sites', { ready: true }))
+
+type CellMarker = {
+  coordinates: Coordinates
+  h3_index: string
+  occurrences_count: number
+  samplings_count: number
+  distance: number
+}
+
+const proximalMarkersSpec = ref(makeMarkerLayer<CellMarker>('Proximal sites', {
+  ready: true, config: {
+    radius(item) {
+      return item.occurrences_count
+    },
+    getText: (item) => item.occurrences_count > 1 ? `${item.occurrences_count}` : undefined
+  }
+}))
 const proximalMarkers = computed(() => {
   return markerLayerFromSpec(
     proximalMarkersSpec.value,
-    nearbySites.value?.filter(({ distance_meters }) => distance_meters <= proximityRadius.value) ??
-      []
+    nearbyCells.value?.filter(({ distance_meters }) => distance_meters <= proximityRadius.value).map<CellMarker>((cell) => {
+      const [latitude, longitude] = cellToLatLng(cell.h3_index)
+      return {
+        coordinates: { latitude, longitude },
+        h3_index: cell.h3_index,
+        occurrences_count: cell.occurrences_count,
+        samplings_count: cell.samplings_count,
+        distance: cell.distance_meters
+      }
+    }) ??
+    []
   )
 })
 </script>

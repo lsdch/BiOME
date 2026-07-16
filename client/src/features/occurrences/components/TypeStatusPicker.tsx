@@ -1,17 +1,17 @@
-import { $TypeStatus, TypeStatus } from '@/api'
+import { $OccurrenceTypeStatus, OccurrenceTypeStatus } from '@/api'
 import { VSelect } from 'vuetify/components'
 
-export type TypeStatusPickerProps<Multiple extends boolean | undefined> = VSelect['$props'] & {
+export type OccurrenceTypeStatusPickerProps<Multiple extends boolean | undefined> = VSelect['$props'] & {
   multiple: Multiple extends true ? true : false
-  modelValue?: Multiple extends true ? TypeStatus[] : TypeStatus
-  'onUpdate:ModelValue'?: (value: TypeStatus) => void
+  modelValue?: Multiple extends true ? OccurrenceTypeStatus[] : OccurrenceTypeStatus
+  'onUpdate:ModelValue'?: (value: OccurrenceTypeStatus) => void
 }
 
-export function TypeStatusPicker<Multiple extends boolean | undefined>({
+export function OccurrenceTypeStatusPicker<Multiple extends boolean | undefined>({
   modelValue,
   ...props
-}: TypeStatusPickerProps<Multiple>) {
-  return <v-select items={$TypeStatus.enum} model-value={modelValue} {...props} />
+}: OccurrenceTypeStatusPickerProps<Multiple>) {
+  return <v-select items={$OccurrenceTypeStatus.enum} model-value={modelValue} {...props} />
 }
 
-export default TypeStatusPicker
+export default OccurrenceTypeStatusPicker

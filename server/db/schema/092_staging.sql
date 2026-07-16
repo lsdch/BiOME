@@ -1,26 +1,11 @@
-CREATE TYPE gbif_import_status AS ENUM (
-    'pending',
-    'in_progress',
-    'completed',
-    'failed'
-);
-
-CREATE TABLE import_workflows (
-    import_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    label TEXT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    completed_at TIMESTAMPTZ
-);
-
-
 CREATE TABLE import_samplings_occurrences (
     -- =========================
     -- INGESTION CONTEXT
     -- =========================
+    id ULID PRIMARY KEY,
     import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     imported_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     row_number INTEGER NOT NULL,
-    PRIMARY KEY (import_id, row_number),
     -- =========================
     -- SAMPLING
     -- =========================
@@ -76,36 +61,84 @@ CREATE TABLE import_samplings_occurrences (
     sources TEXT [],
     occurrence_comments TEXT,
     -- =========================
-    -- CONSTRAINTS
+    -- RESOLUTIONS
     -- =========================
-    CONSTRAINT import_coordinate_precision_check CHECK (
-        coordinates_precision IS NULL
-        OR (
-            coordinates_precision >= 0
-            AND coordinates_precision <= 100000
-        )
-    ),
-    CONSTRAINT import_sampling_occurrence_qty_check CHECK (
-        (
-            quantity_exact IS NOT NULL
-            AND quantity_lower IS NULL
-            AND quantity_upper IS NULL
-        )
-        OR (
-            quantity_exact IS NULL
-            AND (
-                quantity_lower IS NOT NULL
-                OR quantity_upper IS NOT NULL
+    taxon_resolution_id UUID REFERENCES taxon_resolution (id) ON DELETE
+    SET NULL,
+        -- =========================
+        -- MATERIALIZATIONS
+        -- =========================
+        materialized_sampling_id UUID REFERENCES samplings (id) ON DELETE
+    SET NULL,
+        materialized_occurrence_id ULID REFERENCES occurrences (id) ON DELETE
+    SET NULL,
+        -- =========================
+        -- CONSTRAINTS
+        -- =========================
+        CONSTRAINT import_coordinate_precision_check CHECK (
+            coordinates_precision IS NULL
+            OR (
+                coordinates_precision >= 0
+                AND coordinates_precision <= 100000
             )
-            AND (
-                quantity_lower IS NULL
-                OR quantity_upper IS NULL
-                OR quantity_lower <= quantity_upper
+        ),
+        CONSTRAINT import_sampling_occurrence_qty_check CHECK (
+            (
+                quantity_exact IS NULL
+                AND quantity_lower IS NULL
+                AND quantity_upper IS NULL
+            )
+            OR (
+                quantity_exact IS NOT NULL
+                AND quantity_lower IS NULL
+                AND quantity_upper IS NULL
+            )
+            OR (
+                quantity_exact IS NULL
+                AND (
+                    quantity_lower IS NOT NULL
+                    OR quantity_upper IS NOT NULL
+                )
+                AND (
+                    quantity_lower IS NULL
+                    OR quantity_upper IS NULL
+                    OR quantity_lower <= quantity_upper
+                )
             )
         )
-    )
 );
 
 CREATE INDEX idx_staging_import ON import_samplings_occurrences(import_id);
 
 CREATE INDEX idx_staging_hash ON import_samplings_occurrences(import_id, sampling_hash);
+
+CREATE OR REPLACE VIEW samplings_staging AS
+SELECT DISTINCT ON (import_id, sampling_hash) -- keep only the first row for each sampling hash within each import
+    import_id,
+    sampling_hash,
+    row_number AS representative_row_number,
+    site_code,
+    coordinates,
+    latitude,
+    longitude,
+    event_date,
+    event_date_precision,
+    site_name,
+    site_locality,
+    site_country_code,
+    coordinates_precision,
+    altitude,
+    performed_by,
+    duration,
+    access_points,
+    sampling_targets,
+    sampling_fixatives,
+    sampling_methods,
+    habitats,
+    imported_at,
+    sampling_comments,
+    materialized_sampling_id
+FROM import_samplings_occurrences
+ORDER BY import_id,
+    sampling_hash,
+    row_number;

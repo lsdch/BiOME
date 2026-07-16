@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 const addOccurrenceToSampling = `-- name: AddOccurrenceToSampling :one
@@ -62,7 +62,7 @@ WHERE o.id = $1
 `
 
 type AddOccurrenceToSamplingParams struct {
-	ID                          ulid.ULID             `json:"id"`
+	ID                          types.ULID            `json:"id"`
 	Code                        string                `json:"code"`
 	SamplingID                  uuid.UUID             `json:"sampling_id"`
 	TypeStatus                  *OccurrenceTypeStatus `json:"type_status"`
@@ -145,7 +145,7 @@ func (q *Queries) AddOccurrenceToSampling(ctx context.Context, arg AddOccurrence
 
 const getOccurrenceByID = `-- name: GetOccurrenceByID :one
 SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
-    s.id, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    s.id, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector,
     t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
     c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
@@ -162,7 +162,7 @@ type GetOccurrenceByIDRow struct {
 	Country    Country    `json:"country"`
 }
 
-func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID ulid.ULID) (GetOccurrenceByIDRow, error) {
+func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID types.ULID) (GetOccurrenceByIDRow, error) {
 	row := q.db.QueryRow(ctx, getOccurrenceByID, occurrenceID)
 	var i GetOccurrenceByIDRow
 	err := row.Scan(
@@ -187,7 +187,7 @@ func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID ulid.ULID)
 		&i.Occurrence.UpdatedAt,
 		&i.Occurrence.ImportBatchID,
 		&i.Sampling.ID,
-		&i.Sampling.Notes,
+		&i.Sampling.Comments,
 		&i.Sampling.SiteCode,
 		&i.Sampling.SiteName,
 		&i.Sampling.SiteLocality,
@@ -202,6 +202,7 @@ func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID ulid.ULID)
 		&i.Sampling.PerformedBy,
 		&i.Sampling.Duration,
 		&i.Sampling.AccessPoints,
+		&i.Sampling.ImportBatchID,
 		&i.Sampling.H3Index,
 		&i.Sampling.SearchVector,
 		&i.Taxon.ID,
@@ -231,7 +232,7 @@ WHERE h.occurrence_id = $1
 ORDER BY h.created_at DESC
 `
 
-func (q *Queries) GetOccurrenceCodeHistory(ctx context.Context, occurrenceID ulid.ULID) ([]OccurrenceCodeHistory, error) {
+func (q *Queries) GetOccurrenceCodeHistory(ctx context.Context, occurrenceID types.ULID) ([]OccurrenceCodeHistory, error) {
 	rows, err := q.db.Query(ctx, getOccurrenceCodeHistory, occurrenceID)
 	if err != nil {
 		return nil, err
@@ -264,7 +265,7 @@ FROM datasets d
 WHERE o.id = $1
 `
 
-func (q *Queries) GetOccurrenceDatasets(ctx context.Context, occurrenceID ulid.ULID) ([]Dataset, error) {
+func (q *Queries) GetOccurrenceDatasets(ctx context.Context, occurrenceID types.ULID) ([]Dataset, error) {
 	rows, err := q.db.Query(ctx, getOccurrenceDatasets, occurrenceID)
 	if err != nil {
 		return nil, err
@@ -280,6 +281,85 @@ func (q *Queries) GetOccurrenceDatasets(ctx context.Context, occurrenceID ulid.U
 			&i.Description,
 			&i.Pinned,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOccurrencesAtH3Index = `-- name: GetOccurrencesAtH3Index :many
+SELECT s.id, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector,
+    o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id
+FROM occurrences o
+    JOIN samplings s ON o.sampling_id = s.id
+WHERE s.h3_index = ANY(
+        CASE
+            WHEN h3_get_resolution($1) < 14 THEN h3_to_children($1, 14)
+            WHEN h3_get_resolution($1) = 14 THEN ARRAY [$1]
+            ELSE ARRAY [h3_cell_to_parent($1, 14)]
+        END
+    )
+`
+
+type GetOccurrencesAtH3IndexRow struct {
+	Sampling   Sampling   `json:"sampling"`
+	Occurrence Occurrence `json:"occurrence"`
+}
+
+func (q *Queries) GetOccurrencesAtH3Index(ctx context.Context, h3Index interface{}) ([]GetOccurrencesAtH3IndexRow, error) {
+	rows, err := q.db.Query(ctx, getOccurrencesAtH3Index, h3Index)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetOccurrencesAtH3IndexRow{}
+	for rows.Next() {
+		var i GetOccurrencesAtH3IndexRow
+		if err := rows.Scan(
+			&i.Sampling.ID,
+			&i.Sampling.Comments,
+			&i.Sampling.SiteCode,
+			&i.Sampling.SiteName,
+			&i.Sampling.SiteLocality,
+			&i.Sampling.SiteCountryCode,
+			&i.Sampling.CoordinatesPrecision,
+			&i.Sampling.Coordinates,
+			&i.Sampling.Latitude,
+			&i.Sampling.Longitude,
+			&i.Sampling.Altitude,
+			&i.Sampling.EventDate,
+			&i.Sampling.EventDatePrecision,
+			&i.Sampling.PerformedBy,
+			&i.Sampling.Duration,
+			&i.Sampling.AccessPoints,
+			&i.Sampling.ImportBatchID,
+			&i.Sampling.H3Index,
+			&i.Sampling.SearchVector,
+			&i.Occurrence.ID,
+			&i.Occurrence.Code,
+			&i.Occurrence.SamplingID,
+			&i.Occurrence.TypeStatus,
+			&i.Occurrence.Comments,
+			&i.Occurrence.TaxonID,
+			&i.Occurrence.VerbatimIdentification,
+			&i.Occurrence.IdentifiedBy,
+			&i.Occurrence.IdentificationDate,
+			&i.Occurrence.IdentificationDatePrecision,
+			&i.Occurrence.IdentificationConfer,
+			&i.Occurrence.IdentificationAddendum,
+			&i.Occurrence.ContentDescription,
+			&i.Occurrence.QuantityExact,
+			&i.Occurrence.QuantityLower,
+			&i.Occurrence.QuantityUpper,
+			&i.Occurrence.Sources,
+			&i.Occurrence.CreatedAt,
+			&i.Occurrence.UpdatedAt,
+			&i.Occurrence.ImportBatchID,
 		); err != nil {
 			return nil, err
 		}
@@ -493,6 +573,71 @@ func (q *Queries) ListSamplingSites(ctx context.Context, arg ListSamplingSitesPa
 	return items, nil
 }
 
+const loadOccurrencesForSamplings = `-- name: LoadOccurrencesForSamplings :many
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
+FROM occurrences o
+    JOIN taxa t ON t.id = o.taxon_id
+WHERE o.sampling_id = ANY($1::uuid [])
+`
+
+type LoadOccurrencesForSamplingsRow struct {
+	Occurrence Occurrence `json:"occurrence"`
+	Taxon      Taxon      `json:"taxon"`
+}
+
+func (q *Queries) LoadOccurrencesForSamplings(ctx context.Context, samplingIds []uuid.UUID) ([]LoadOccurrencesForSamplingsRow, error) {
+	rows, err := q.db.Query(ctx, loadOccurrencesForSamplings, samplingIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LoadOccurrencesForSamplingsRow{}
+	for rows.Next() {
+		var i LoadOccurrencesForSamplingsRow
+		if err := rows.Scan(
+			&i.Occurrence.ID,
+			&i.Occurrence.Code,
+			&i.Occurrence.SamplingID,
+			&i.Occurrence.TypeStatus,
+			&i.Occurrence.Comments,
+			&i.Occurrence.TaxonID,
+			&i.Occurrence.VerbatimIdentification,
+			&i.Occurrence.IdentifiedBy,
+			&i.Occurrence.IdentificationDate,
+			&i.Occurrence.IdentificationDatePrecision,
+			&i.Occurrence.IdentificationConfer,
+			&i.Occurrence.IdentificationAddendum,
+			&i.Occurrence.ContentDescription,
+			&i.Occurrence.QuantityExact,
+			&i.Occurrence.QuantityLower,
+			&i.Occurrence.QuantityUpper,
+			&i.Occurrence.Sources,
+			&i.Occurrence.CreatedAt,
+			&i.Occurrence.UpdatedAt,
+			&i.Occurrence.ImportBatchID,
+			&i.Taxon.ID,
+			&i.Taxon.GBIFID,
+			&i.Taxon.Name,
+			&i.Taxon.ScientificName,
+			&i.Taxon.Rank,
+			&i.Taxon.Status,
+			&i.Taxon.Authorship,
+			&i.Taxon.AcceptedTaxonID,
+			&i.Taxon.ParentID,
+			&i.Taxon.SearchVector,
+			&i.Taxon.Comments,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const occurrencesByTaxaOverview = `-- name: OccurrencesByTaxaOverview :many
 SELECT t.id AS id,
     t.name AS name,
@@ -503,10 +648,7 @@ SELECT t.id AS id,
     COUNT(DISTINCT s.id)::int AS samplings_count,
     ARRAY_AGG(DISTINCT s.id) FILTER (
         WHERE s.id IS NOT NULL
-    )::uuid [] AS sampling_ids,
-    ARRAY_AGG(DISTINCT o.id) FILTER (
-        WHERE o.id IS NOT NULL
-    )::uuid [] AS occurrence_ids
+    )::uuid [] AS sampling_ids
 FROM taxa t
     LEFT JOIN taxa parent ON parent.id = t.parent_id
     LEFT JOIN occurrences o ON o.taxon_id = t.id
@@ -527,7 +669,6 @@ type OccurrencesByTaxaOverviewRow struct {
 	OccurrencesCount int32       `json:"occurrences_count"`
 	SamplingsCount   int32       `json:"samplings_count"`
 	SamplingIDs      []uuid.UUID `json:"sampling_ids"`
-	OccurrenceIDs    []uuid.UUID `json:"occurrence_ids"`
 }
 
 func (q *Queries) OccurrencesByTaxaOverview(ctx context.Context) ([]OccurrencesByTaxaOverviewRow, error) {
@@ -548,7 +689,6 @@ func (q *Queries) OccurrencesByTaxaOverview(ctx context.Context) ([]OccurrencesB
 			&i.OccurrencesCount,
 			&i.SamplingsCount,
 			&i.SamplingIDs,
-			&i.OccurrenceIDs,
 		); err != nil {
 			return nil, err
 		}
@@ -684,14 +824,14 @@ HAVING (
 `
 
 type OccurrencesGroupsH3Params struct {
-	CountryCodes             []string    `json:"country_codes"`
-	Habitats                 []string    `json:"habitats"`
-	TargetTaxaSciNames       []string    `json:"target_taxa_sci_names"`
-	MinOccurrences           int32       `json:"min_occurrences"`
-	TaxaSciNames             []string    `json:"taxa_sci_names"`
-	IncludeDescendants       bool        `json:"include_descendants"`
-	TargetIncludeDescendants bool        `json:"target_include_descendants"`
-	DatasetIds               []ulid.ULID `json:"dataset_ids"`
+	CountryCodes             []string     `json:"country_codes"`
+	Habitats                 []string     `json:"habitats"`
+	TargetTaxaSciNames       []string     `json:"target_taxa_sci_names"`
+	MinOccurrences           int32        `json:"min_occurrences"`
+	TaxaSciNames             []string     `json:"taxa_sci_names"`
+	IncludeDescendants       bool         `json:"include_descendants"`
+	TargetIncludeDescendants bool         `json:"target_include_descendants"`
+	DatasetIds               []types.ULID `json:"dataset_ids"`
 }
 
 type OccurrencesGroupsH3Row struct {

@@ -34,10 +34,7 @@ SELECT t.id AS id,
     COUNT(DISTINCT s.id)::int AS samplings_count,
     ARRAY_AGG(DISTINCT s.id) FILTER (
         WHERE s.id IS NOT NULL
-    )::uuid [] AS sampling_ids,
-    ARRAY_AGG(DISTINCT o.id) FILTER (
-        WHERE o.id IS NOT NULL
-    )::uuid [] AS occurrence_ids
+    )::uuid [] AS sampling_ids
 FROM taxa t
     LEFT JOIN taxa parent ON parent.id = t.parent_id
     LEFT JOIN occurrences o ON o.taxon_id = t.id
@@ -367,3 +364,25 @@ HAVING (
         @min_occurrences::int IS NULL
         OR COUNT(DISTINCT o.id) > @min_occurrences
     );
+
+
+-- name: GetOccurrencesAtH3Index :many
+SELECT sqlc.embed(s),
+    sqlc.embed(o)
+FROM occurrences o
+    JOIN samplings s ON o.sampling_id = s.id
+WHERE s.h3_index = ANY(
+        CASE
+            WHEN h3_get_resolution(@h3_index) < 14 THEN h3_to_children(@h3_index, 14)
+            WHEN h3_get_resolution(@h3_index) = 14 THEN ARRAY [@h3_index]
+            ELSE ARRAY [h3_cell_to_parent(@h3_index, 14)]
+        END
+    );
+
+
+-- name: LoadOccurrencesForSamplings :many
+SELECT sqlc.embed(o),
+    sqlc.embed(t)
+FROM occurrences o
+    JOIN taxa t ON t.id = o.taxon_id
+WHERE o.sampling_id = ANY(@sampling_ids::uuid []);

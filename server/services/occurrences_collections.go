@@ -5,10 +5,10 @@ import (
 
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
-func (s *OccurrencesService) AddCollection(ctx context.Context, q db.Querier, occurrenceID ulid.ULID, input models.CollectionInput) (*models.Collection, error) {
+func (s *OccurrencesService) AddCollection(ctx context.Context, q db.Querier, occurrenceID types.ULID, input models.CollectionInput) (*models.Collection, error) {
 	created, err := q.Queries().AddOccurrenceCollection(ctx, input.ToDBParams(occurrenceID))
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func (s *OccurrencesService) AddCollection(ctx context.Context, q db.Querier, oc
 	return &collection, nil
 }
 
-func (s *OccurrencesService) loadOccurrenceCollections(ctx context.Context, q db.Querier, occurrenceID ulid.ULID) ([]models.Collection, error) {
+func (s *OccurrencesService) loadOccurrenceCollections(ctx context.Context, q db.Querier, occurrenceID types.ULID) ([]models.Collection, error) {
 	collections, err := q.Queries().GetOccurrenceCollections(ctx, occurrenceID)
 	if err != nil {
 		return nil, err

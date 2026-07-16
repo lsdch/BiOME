@@ -1,70 +1,32 @@
 <template>
-  <div
-    ref="mapContainer"
-    id="map-container"
-    class="deck-map-container fill-height"
-    @mouseleave="cursorCoordinates = undefined"
-  >
+  <div ref="mapContainer" id="map-container" class="deck-map-container fill-height"
+    @mouseleave="cursorCoordinates = undefined">
     <div ref="mapHost" class="deck-map"></div>
 
     <div class="map-control top-left">
       <div class="d-flex flex-column ga-1">
-        <layers-control
-          :hexgrid
-          :marker-layers
-          :hasSiteMarkers="!!pinMarkers?.length"
-          v-model:site-markers-visible="siteMarkersVisible"
-          v-model:regions="regions"
-          v-model:roads="roads"
+        <layers-control :hexgrid :marker-layers :hasSiteMarkers="!!pinMarkers?.length"
+          v-model:site-markers-visible="siteMarkersVisible" v-model:regions="regions" v-model:roads="roads"
           @toggleHexgrid="(v) => emit('toggleHexgrid', v)"
-          @toggleMarkers="(index, v) => emit('toggleMarkers', index, v)"
-        />
-        <v-btn
-          v-tooltip="{ text: 'Fit view', openDelay: 300 }"
-          class="bg-white"
-          color="white"
-          :rounded="false"
-          icon="mdi-fit-to-screen"
-          :width="30"
-          density="compact"
-          @click="fitMapView(typeof autoFit === 'number' ? autoFit : 0)"
-        />
-        <v-btn
-          v-tooltip="{ text: 'Toggle fullscreen', openDelay: 300 }"
-          color="white"
-          class="bg-white"
-          :rounded="false"
-          :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
-          :width="30"
-          density="compact"
-          @click="toggleFullscreen"
-        />
+          @toggleMarkers="(index, v) => emit('toggleMarkers', index, v)" />
+        <v-btn v-tooltip="{ text: 'Fit view', openDelay: 300 }" class="bg-white" color="white" :rounded="false"
+          icon="mdi-fit-to-screen" :width="30" density="compact"
+          @click="fitMapView(typeof autoFit === 'number' ? autoFit : 0)" />
+        <v-btn v-tooltip="{ text: 'Toggle fullscreen', openDelay: 300 }" color="white" class="bg-white" :rounded="false"
+          :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" :width="30" density="compact"
+          @click="toggleFullscreen" />
       </div>
     </div>
 
     <div v-if="closable" class="map-control top-right">
-      <v-btn
-        title="Close"
-        color="white"
-        class="bg-white"
-        :rounded="false"
-        icon="mdi-close"
-        :width="35"
-        :height="35"
-        density="compact"
-        @click="emit('close')"
-      />
+      <v-btn title="Close" color="white" class="bg-white" :rounded="false" icon="mdi-close" :width="35" :height="35"
+        density="compact" @click="emit('close')" />
     </div>
 
     <div class="d-flex top-right ga-2 map-control">
       <div v-if="hexgrid?.active && hexgridColorDomain">
-        <color-scale-widget
-          :min="hexgridColorDomain.min"
-          :max="hexgridColorDomain.max"
-          :color-range="hexgridColorRange"
-          :binding-spec="hexgrid.colorBinding"
-          :hidden="false"
-        />
+        <color-scale-widget :min="hexgridColorDomain.min" :max="hexgridColorDomain.max" :color-range="hexgridColorRange"
+          :binding-spec="hexgrid.colorBinding" :hidden="false" />
       </div>
     </div>
 
@@ -96,13 +58,11 @@
       <div v-else-if="selected?.type === 'cluster' && selected?.info.object">
         <slot name="cluster-popup" :data="selected.info.object.items" :type="selected.type" />
       </div>
-      <div
-        v-else-if="
-          selected?.type === 'hexagon' &&
-          selected?.info.object &&
-          selected.info.object.points?.length === 1
-        "
-      >
+      <div v-else-if="
+        selected?.type === 'hexagon' &&
+        selected?.info.object &&
+        selected.info.object.points?.length === 1
+      ">
         <slot name="popup" :item="selected.info.object.points[0]" :zoom="currentZoom" />
       </div>
 
@@ -111,11 +71,8 @@
       </div>
     </div>
 
-    <div
-      v-if="hoverTooltip"
-      class="map-popup hex-hover-tooltip pointer-events-none"
-      :style="{ left: `${hoverTooltip.x}px`, top: `${hoverTooltip.y}px` }"
-    >
+    <div v-if="hoverTooltip" class="map-popup hex-hover-tooltip pointer-events-none"
+      :style="{ left: `${hoverTooltip.x}px`, top: `${hoverTooltip.y}px` }">
       <div class="hex-hover-tooltip__content text-label-small font-monospace">
         {{ hoverTooltip.text }}
       </div>
@@ -137,7 +94,7 @@ export default {
 }
 </script>
 
-<script setup lang="ts" generic="PinMarkerData">
+<script setup lang="ts" generic="PinMarkerData, Item extends ItemWithCoordinates">
 import type { Layer } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
@@ -154,7 +111,7 @@ import {
   watchEffect
 } from 'vue'
 
-import { type SiteWithOccurrences } from '@/api'
+// import { type SiteWithOccurrences } from '@/api'
 import type { Coordinates, ItemWithCoordinates } from '@/features/cartography/coordinates'
 import { useMarkerLayers } from '../composables/useMarkerLayers'
 import type { HexgridLayer, MarkerLayer, PinMarker } from './layers-manager/map-layers'
@@ -181,7 +138,12 @@ export type GlobalMarkerOptions = {
   tooltips?: boolean
 }
 
-type Item = SiteWithOccurrences
+// type Item = {
+//   // distance_meters: number;
+//   h3_index: string;
+//   occurrences_count: number;
+//   samplings_count: number;
+// }
 
 const mapContainer = ref<HTMLElement>()
 const mapHost = ref<HTMLElement>()
@@ -355,10 +317,10 @@ const deckLayers = computed<Layer[]>(() => {
 const fitSignature = computed(() => {
   const hexSignature = hexgrid
     ? [
-        hexgrid.data?.length ?? 0,
-        hexgrid.data?.[0]?.coordinates.latitude ?? '',
-        hexgrid.data?.[0]?.coordinates.longitude ?? ''
-      ].join(':')
+      hexgrid.data?.length ?? 0,
+      hexgrid.data?.[0]?.coordinates.latitude ?? '',
+      hexgrid.data?.[0]?.coordinates.longitude ?? ''
+    ].join(':')
     : 'none'
 
   const markerSignature = (props.markerLayers ?? [])
@@ -569,6 +531,7 @@ defineExpose({ fitMapView, fitViewToSite, select, clear, instance: map, el: mapC
   bottom: 48px; // leave space for the attribution control
   right: 12px;
 }
+
 .bottom-left {
   bottom: 12px;
   left: 12px;

@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const checkMissingOrDuplicateTaxonNamesBulk = `-- name: CheckMissingOrDuplicateTaxonNamesBulk :many
@@ -202,6 +203,51 @@ func (q *Queries) GetTaxonByScientificName(ctx context.Context, scientificName s
 	return i, err
 }
 
+const getTaxonDescendants = `-- name: GetTaxonDescendants :many
+With descendants AS (
+    SELECT descendant_id AS id
+    FROM taxa_closure
+    WHERE ancestor_id = $1
+        AND depth = 1
+)
+SELECT t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
+FROM taxa t
+    JOIN descendants d ON d.id = t.id
+ORDER BY t.name ASC
+`
+
+func (q *Queries) GetTaxonDescendants(ctx context.Context, taxonID uuid.UUID) ([]Taxon, error) {
+	rows, err := q.db.Query(ctx, getTaxonDescendants, taxonID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Taxon{}
+	for rows.Next() {
+		var i Taxon
+		if err := rows.Scan(
+			&i.ID,
+			&i.GBIFID,
+			&i.Name,
+			&i.ScientificName,
+			&i.Rank,
+			&i.Status,
+			&i.Authorship,
+			&i.AcceptedTaxonID,
+			&i.ParentID,
+			&i.SearchVector,
+			&i.Comments,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTaxonLineage = `-- name: GetTaxonLineage :many
 With parents AS (
     SELECT ancestor_id AS id
@@ -263,37 +309,22 @@ VALUES (
         $3,
         $4,
         $5,
-        (
-            SELECT id
-            FROM taxa t
-            WHERE t.scientific_name = $6::text
-            LIMIT 1
-        ), (
-            SELECT id
-            FROM taxa t
-            WHERE t.scientific_name = $7::text
-            LIMIT 1
-        ), $8
-    ) ON CONFLICT ON CONSTRAINT taxon_name_authorship_uidx DO
-UPDATE
-SET gbif_id = EXCLUDED.gbif_id,
-    rank = EXCLUDED.rank,
-    status = EXCLUDED.status,
-    accepted_taxon_id = EXCLUDED.accepted_taxon_id,
-    parent_id = EXCLUDED.parent_id,
-    comments = EXCLUDED.comments
+        $6,
+        $7,
+        $8
+    )
 RETURNING id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, search_vector, comments
 `
 
 type InsertTaxonParams struct {
-	GBIFID                *int32      `json:"gbif_id"`
-	Name                  string      `json:"name"`
-	Authorship            *string     `json:"authorship"`
-	Rank                  TaxonRank   `json:"rank"`
-	Status                TaxonStatus `json:"status"`
-	SynonymScientificName string      `json:"synonym_scientific_name"`
-	ParentScientificName  string      `json:"parent_scientific_name"`
-	Comments              *string     `json:"comments"`
+	GBIFID     *int32      `json:"gbif_id"`
+	Name       string      `json:"name"`
+	Authorship *string     `json:"authorship"`
+	Rank       TaxonRank   `json:"rank"`
+	Status     TaxonStatus `json:"status"`
+	AcceptedID pgtype.UUID `json:"accepted_id"`
+	ParentID   pgtype.UUID `json:"parent_id"`
+	Comments   *string     `json:"comments"`
 }
 
 func (q *Queries) InsertTaxon(ctx context.Context, arg InsertTaxonParams) (Taxon, error) {
@@ -303,8 +334,8 @@ func (q *Queries) InsertTaxon(ctx context.Context, arg InsertTaxonParams) (Taxon
 		arg.Authorship,
 		arg.Rank,
 		arg.Status,
-		arg.SynonymScientificName,
-		arg.ParentScientificName,
+		arg.AcceptedID,
+		arg.ParentID,
 		arg.Comments,
 	)
 	var i Taxon

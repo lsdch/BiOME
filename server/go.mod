@@ -2,7 +2,7 @@ module github.com/lsdch/biome
 
 go 1.26.0
 
-// replace github.com/danielgtaylor/huma/v2 => ../../huma
+replace github.com/danielgtaylor/huma/v2 => ../../huma
 
 require (
 	github.com/a-h/templ v0.3.1020

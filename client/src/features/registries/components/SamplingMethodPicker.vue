@@ -1,14 +1,6 @@
 <template>
-  <v-autocomplete
-    :items
-    :loading="isPending"
-    item-title="name"
-    item-value="code"
-    item-subtitle="description"
-    v-bind="$attrs"
-    prepend-inner-icon="mdi-hook"
-    :error-messages="error?.detail"
-  >
+  <v-autocomplete v-bind="$attrs" :items :loading="isPending" item-title="name" item-value="code"
+    item-subtitle="description" prepend-inner-icon="mdi-hook" :error-messages="error?.detail">
   </v-autocomplete>
 </template>
 

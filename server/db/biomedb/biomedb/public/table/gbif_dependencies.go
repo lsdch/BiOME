@@ -17,8 +17,9 @@ type gbifDependenciesTable struct {
 	postgres.Table
 
 	// Columns
-	ImportHash postgres.ColumnString
-	Key        postgres.ColumnInteger
+	ImportID postgres.ColumnString
+	Key      postgres.ColumnInteger
+	FromKey  postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -60,19 +61,21 @@ func newGbifDependenciesTable(schemaName, tableName, alias string) *GbifDependen
 
 func newGbifDependenciesTableImpl(schemaName, tableName, alias string) gbifDependenciesTable {
 	var (
-		ImportHashColumn = postgres.StringColumn("import_hash")
-		KeyColumn        = postgres.IntegerColumn("key")
-		allColumns       = postgres.ColumnList{ImportHashColumn, KeyColumn}
-		mutableColumns   = postgres.ColumnList{}
-		defaultColumns   = postgres.ColumnList{}
+		ImportIDColumn = postgres.StringColumn("import_id")
+		KeyColumn      = postgres.IntegerColumn("key")
+		FromKeyColumn  = postgres.IntegerColumn("from_key")
+		allColumns     = postgres.ColumnList{ImportIDColumn, KeyColumn, FromKeyColumn}
+		mutableColumns = postgres.ColumnList{}
+		defaultColumns = postgres.ColumnList{}
 	)
 
 	return gbifDependenciesTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ImportHash: ImportHashColumn,
-		Key:        KeyColumn,
+		ImportID: ImportIDColumn,
+		Key:      KeyColumn,
+		FromKey:  FromKeyColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

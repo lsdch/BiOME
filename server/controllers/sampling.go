@@ -36,6 +36,17 @@ func (c *SamplingController) ListSamplingsAtProximity(
 	return &BodyTransporter[[]models.SamplingWithDistance]{Body: samplings}, nil
 }
 
+func (c *SamplingController) ListSamplingsH3AtProximity(
+	ctx context.Context,
+	input *models.ListSamplingsAtProximityInput,
+) (*BodyTransporter[[]models.CellH3WithDistance], error) {
+	samplings, err := c.service.ListSamplingsH3AtProximity(ctx, c.db, *input)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]models.CellH3WithDistance]{Body: samplings}, nil
+}
+
 func (c *SamplingController) CreateSampling(
 	ctx context.Context,
 	input *BodyTransporter[models.SamplingInput],
@@ -74,6 +85,15 @@ func (c *SamplingController) RegisterRoutes(r *router.Router) {
 		Description: "List samplings at proximity to a given point, within a given radius and date range.",
 	},
 		c.ListSamplingsAtProximity,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(baseGroup, "ListSamplingsH3AtProximity", huma.Operation{
+		Method:      http.MethodGet,
+		Path:        "proximity/h3",
+		Summary:     "List samplings at proximity (H3)",
+		Description: "List H3 cells at proximity to a given point, within a given radius and date range.",
+	},
+		c.ListSamplingsH3AtProximity,
 	).WithAccessPolicy(auth.Public()).Register(r)
 
 	router.NewSpec(baseGroup, "ListAccessPoints", huma.Operation{

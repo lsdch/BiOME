@@ -13,7 +13,7 @@ WITH inserted AS (
             performed_by,
             duration,
             access_points,
-            notes
+            comments
         )
     VALUES (
             @site_code,
@@ -28,7 +28,7 @@ WITH inserted AS (
             @performed_by,
             @duration,
             @access_points,
-            @notes
+            @comments
         )
 )
 SELECT sqlc.embed(s),
@@ -99,9 +99,32 @@ SELECT sqlc.embed(h),
     sqlc.embed(hg)
 FROM habitats h
     JOIN samplings_habitats sh ON sh.habitat_id = h.id
-    JOIN habitat_groups hg ON hg.id = h.group_id
+    JOIN habitat_groups hg ON hg.id = h.habitat_group_id
 WHERE sh.sampling_id = @sampling_id::uuid;
 
+-- name: ListSamplingsH3AtProximity :many
+SELECT s.h3_index,
+    COUNT(DISTINCT s.id) AS sampling_count,
+    COUNT(o.id) AS occurrence_count,
+    ST_Distance(
+        ST_SetSRID(
+            ST_MakePoint(@longitude::real, @latitude::real),
+            4326
+        )::geography,
+        h3_cell_to_geography(s.h3_index::h3index)::geography
+    )::integer AS distance_meters
+FROM samplings s
+    LEFT JOIN occurrences o ON o.sampling_id = s.id
+WHERE ST_DWithin(
+        s.coordinates::geography,
+        ST_SetSRID(
+            ST_MakePoint(@longitude::real, @latitude::real),
+            4326
+        )::geography,
+        @radius_meters::integer
+    )
+    AND (s.id <> ALL(@exclude_sampling_ids::uuid []))
+GROUP BY s.h3_index;
 
 -- name: ListSamplingsAtProximity :many 
 SELECT sqlc.embed(s),
@@ -126,9 +149,9 @@ WHERE ST_DWithin(
     AND (
         sqlc.narg('event_date')::date IS NULL
         OR (
-            event_date_precision IS NOT NULL
-            AND event_date IS NOT NULL
-            AND event_date BETWEEN (
+            s.event_date_precision IS NOT NULL
+            AND s.event_date IS NOT NULL
+            AND s.event_date BETWEEN (
                 sqlc.narg('event_date')::date - (@date_interval_days::integer) * INTERVAL '1 day'
             )
             AND (
@@ -136,7 +159,7 @@ WHERE ST_DWithin(
             )
         )
     )
-    AND NOT s.id = ANY(sqlc.narg('exclude_sampling_ids')::uuid []);
+    AND (s.id <> ALL(@exclude_sampling_ids::uuid []));
 
 -- name: ListSamplingAccessPoints :many
 SELECT ap

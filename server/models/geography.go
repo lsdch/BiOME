@@ -37,11 +37,6 @@ func CoordinatesWithPrecisionFromDB(lat float32, lon float32, precision *int32) 
 	}
 }
 
-type CoordinatesWithPrecisionInput struct {
-	Coordinates
-	PrecisionM *int32 `csv:"coordinates_precision_m,omitempty"`
-}
-
 type BoundingBox struct {
 	Corners [4]Coordinates `json:",inline" minItems:"4" maxItems:"4"`
 }

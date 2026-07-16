@@ -8,7 +8,7 @@ package biomedb
 import (
 	"context"
 
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 const addOccurrenceToDataset = `-- name: AddOccurrenceToDataset :exec
@@ -19,7 +19,7 @@ VALUES (
     )
 `
 
-func (q *Queries) AddOccurrenceToDataset(ctx context.Context, occurrenceID ulid.ULID, datasetID ulid.ULID) error {
+func (q *Queries) AddOccurrenceToDataset(ctx context.Context, occurrenceID types.ULID, datasetID types.ULID) error {
 	_, err := q.db.Exec(ctx, addOccurrenceToDataset, occurrenceID, datasetID)
 	return err
 }
@@ -30,7 +30,7 @@ FROM datasets d
 WHERE d.id = $1
 `
 
-func (q *Queries) GetDatasetByID(ctx context.Context, datasetID ulid.ULID) (Dataset, error) {
+func (q *Queries) GetDatasetByID(ctx context.Context, datasetID types.ULID) (Dataset, error) {
 	row := q.db.QueryRow(ctx, getDatasetByID, datasetID)
 	var i Dataset
 	err := row.Scan(
@@ -51,7 +51,7 @@ FROM datasets d
 WHERE od.occurrence_id = $1
 `
 
-func (q *Queries) GetDatasetsForOccurrence(ctx context.Context, occurrenceID ulid.ULID) ([]Dataset, error) {
+func (q *Queries) GetDatasetsForOccurrence(ctx context.Context, occurrenceID types.ULID) ([]Dataset, error) {
 	rows, err := q.db.Query(ctx, getDatasetsForOccurrence, occurrenceID)
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ func (q *Queries) ListDatasets(ctx context.Context) ([]Dataset, error) {
 
 const listOccurrencesForDataset = `-- name: ListOccurrencesForDataset :many
 SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
-    s.id, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    s.id, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector,
     t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
     c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
@@ -131,7 +131,7 @@ type ListOccurrencesForDatasetRow struct {
 	Country    Country    `json:"country"`
 }
 
-func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID ulid.ULID) ([]ListOccurrencesForDatasetRow, error) {
+func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID types.ULID) ([]ListOccurrencesForDatasetRow, error) {
 	rows, err := q.db.Query(ctx, listOccurrencesForDataset, datasetID)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID ulid.
 			&i.Occurrence.UpdatedAt,
 			&i.Occurrence.ImportBatchID,
 			&i.Sampling.ID,
-			&i.Sampling.Notes,
+			&i.Sampling.Comments,
 			&i.Sampling.SiteCode,
 			&i.Sampling.SiteName,
 			&i.Sampling.SiteLocality,
@@ -177,6 +177,7 @@ func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID ulid.
 			&i.Sampling.PerformedBy,
 			&i.Sampling.Duration,
 			&i.Sampling.AccessPoints,
+			&i.Sampling.ImportBatchID,
 			&i.Sampling.H3Index,
 			&i.Sampling.SearchVector,
 			&i.Taxon.ID,
@@ -212,7 +213,7 @@ WHERE occurrence_id = $1::ulid
     AND dataset_id = $2::ulid
 `
 
-func (q *Queries) RemoveOccurrenceFromDataset(ctx context.Context, occurrenceID ulid.ULID, datasetID ulid.ULID) error {
+func (q *Queries) RemoveOccurrenceFromDataset(ctx context.Context, occurrenceID types.ULID, datasetID types.ULID) error {
 	_, err := q.db.Exec(ctx, removeOccurrenceFromDataset, occurrenceID, datasetID)
 	return err
 }

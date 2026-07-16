@@ -1,11 +1,11 @@
-import { SiteItem } from '@/api'
 import { hexToArray } from '@/lib/color_brewer'
-import type { Layer, PickingInfo } from '@deck.gl/core'
+import type { Layer } from '@deck.gl/core'
 import { ScatterplotLayer, TextLayer } from '@deck.gl/layers'
 import { computed, MaybeRefOrGetter, toValue, type Ref } from 'vue'
 import { parseHex } from 'vuetify/lib/util/colorUtils.mjs'
 import { GlobalMarkerOptions } from '../components/DeckGlMap.vue'
 import type { MarkerLayer } from '../components/layers-manager/map-layers'
+import { ItemWithCoordinates } from '../coordinates.ts'
 import { MarkerSelectionInfo } from './marker-selection'
 
 export type MarkerCluster<Item> = {
@@ -43,7 +43,7 @@ function groupItemsByCoordinate<
   return [...groups.values()]
 }
 
-export function instanciateMarkerLayer<Item extends SiteItem>(
+export function instanciateMarkerLayer<Item extends ItemWithCoordinates>(
   layer: MarkerLayer<Item>,
   index: number | string,
   ctx: {
@@ -55,106 +55,91 @@ export function instanciateMarkerLayer<Item extends SiteItem>(
     showClusterText?: boolean
   }
 ) {
-  const groups = groupItemsByCoordinate(layer.data ?? [])
-  const simpleRadius = Math.max(1, Number(layer.config.radius ?? 4))
-  const clusterRadius = (count: number) =>
-    simpleRadius +
-    simpleRadius *
-      (ctx.markerOptions?.cluster.radiusScaleFactor ?? DEFAULT_RADIUS_SCALE_FACTOR) *
-      count
+  const radiusFn = (item: Item) => {
+    const baseRadius = layer.config.radius?.(item) ?? 5
+    return (
+      baseRadius +
+      baseRadius * (ctx.markerOptions?.cluster.radiusScaleFactor ?? DEFAULT_RADIUS_SCALE_FACTOR)
+    )
+  }
+  // const groups = groupItemsByCoordinate(layer.data ?? [])
+  // const simpleRadius = Math.max(1, Number(layer.config.radius ?? 4))
+  // const clusterRadius = (count: number) =>
+  //   simpleRadius +
+  //   simpleRadius *
+  //     (ctx.markerOptions?.cluster.radiusScaleFactor ?? DEFAULT_RADIUS_SCALE_FACTOR) *
+  //     count
   const fillColor = hexToArray(parseHex(layer.config.fillColor ?? DEFAULT_HEX_COLOR))
   const strokeColor = hexToArray(parseHex(layer.config.color ?? DEFAULT_HEX_COLOR))
 
-  const singleItems = groups.filter((group) => group.count === 1).flatMap((group) => group.items)
-  const clusteredGroups = groups.filter((group) => group.count > 1)
+  // const singleItems = groups.filter((group) => group.count === 1).flatMap((group) => group.items)
+  // const clusteredGroups = groups.filter((group) => group.count > 1)
 
   const layers: Layer[] = []
 
-  if (singleItems.length) {
+  // if (singleItems.length) {
+  layers.push(
+    new ScatterplotLayer<Item>({
+      id: `markers-${index}`,
+      data: layer.data ?? [],
+      pickable: true,
+      stroked: true,
+      filled: true,
+      radiusUnits: 'pixels',
+      lineWidthUnits: 'pixels',
+      lineWidthMinPixels: Number(layer.config.weight ?? 1),
+      radiusMinPixels: 4,
+      getRadius: radiusFn,
+      getPosition: (item) => [item.coordinates.longitude, item.coordinates.latitude],
+      getFillColor: () => fillColor,
+      getLineColor: () => strokeColor,
+      onClick: (info) => ctx.select({ type: 'item', info })
+      // onHover: ctx.markerOptions?.tooltips
+      //   ? (info: PickingInfo<Item>) => {
+      //       const object = info.object
+
+      //       if (!object) {
+      //         ctx.hoverTooltip.value = undefined
+      //         return false
+      //       }
+
+      //       ctx.hoverTooltip.value = {
+      //         x: info.x,
+      //         y: info.y,
+      //         text: object.name ?? object.code
+      //       }
+      //       return true
+      //     }
+      //   : undefined
+    })
+  )
+
+  if (ctx.showClusterText && layer.config.getText) {
     layers.push(
-      new ScatterplotLayer<Item>({
-        id: `markers-${index}-single`,
-        data: singleItems,
-        pickable: true,
-        stroked: true,
-        filled: true,
-        radiusUnits: 'pixels',
-        lineWidthUnits: 'pixels',
-        lineWidthMinPixels: Number(layer.config.weight ?? 1),
-        radiusMinPixels: simpleRadius,
-        getRadius: () => simpleRadius,
-        getPosition: (item) => [item.coordinates.longitude, item.coordinates.latitude],
-        getFillColor: () => fillColor,
-        getLineColor: () => strokeColor,
-        onClick: (info) => ctx.select({ type: 'item', info }),
-        onHover: ctx.markerOptions?.tooltips
-          ? (info: PickingInfo<Item>) => {
-              const object = info.object
+      new TextLayer<Item>({
+        id: `markers-${index}-count`,
+        data: layer.data,
+        pickable: false,
+        billboard: true,
+        background: false,
+        sizeUnits: 'pixels',
+        fontWeight: 800,
 
-              if (!object) {
-                ctx.hoverTooltip.value = undefined
-                return false
-              }
-
-              ctx.hoverTooltip.value = {
-                x: info.x,
-                y: info.y,
-                text: object.name ?? object.code
-              }
-              return true
-            }
-          : undefined
-      })
-    )
-  }
-
-  if (clusteredGroups.length) {
-    layers.push(
-      new ScatterplotLayer<MarkerCluster<Item>>({
-        id: `markers-${index}-cluster`,
-        data: clusteredGroups,
-        pickable: true,
-        stroked: true,
-        filled: true,
-        radiusUnits: 'pixels',
-        lineWidthUnits: 'pixels',
-        lineWidthMinPixels: Number(layer.config.weight ?? 1),
-        radiusMinPixels: clusterRadius(1),
-        getRadius: ({ count }) => clusterRadius(count),
         getPosition: ({ coordinates: { longitude: lon, latitude: lat } }) => [lon, lat],
-        getFillColor: () => fillColor,
-        getLineColor: () => strokeColor,
-        onClick: (info) => ctx.select({ type: 'cluster', info })
+        getText: layer.config.getText,
+        getSize: 14,
+        getColor: [255, 255, 255, 255],
+        getTextAnchor: 'middle',
+        getAlignmentBaseline: 'center',
+        getPixelOffset: [0, 0]
       })
     )
-
-    if (ctx.showClusterText) {
-      layers.push(
-        new TextLayer<MarkerCluster<Item>>({
-          id: `markers-${index}-cluster-count`,
-          data: clusteredGroups,
-          pickable: false,
-          billboard: true,
-          background: false,
-          sizeUnits: 'pixels',
-          fontWeight: 800,
-
-          getPosition: ({ coordinates: { longitude: lon, latitude: lat } }) => [lon, lat],
-          getText: (group) => String(group.count),
-          getSize: 14,
-          getColor: [255, 255, 255, 255],
-          getTextAnchor: 'middle',
-          getAlignmentBaseline: 'center',
-          getPixelOffset: [0, 0]
-        })
-      )
-    }
   }
 
   return layers
 }
 
-export function useMarkerLayers<Item extends SiteItem>(
+export function useMarkerLayers<Item extends ItemWithCoordinates>(
   props: {
     markerLayers?: MaybeRefOrGetter<MarkerLayer<Item>[]>
     markerOptions?: MaybeRefOrGetter<GlobalMarkerOptions>

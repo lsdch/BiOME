@@ -17,15 +17,13 @@ type importWorkflowsTable struct {
 	postgres.Table
 
 	// Columns
-	ImportHash            postgres.ColumnString
-	Label                 postgres.ColumnString
-	GbifStatus            postgres.ColumnString
-	GbifCandidatesTotal   postgres.ColumnInteger
-	GbifCandidatesFetched postgres.ColumnInteger
-	GbifClaimedAt         postgres.ColumnTimestampz
-	GbifUpdatedAt         postgres.ColumnTimestampz
-	CreatedAt             postgres.ColumnTimestampz
-	CompletedAt           postgres.ColumnTimestampz
+	ImportID    postgres.ColumnString
+	Label       postgres.ColumnString
+	Description postgres.ColumnString
+	AssembledBy postgres.ColumnStringArray
+	CreatedBy   postgres.ColumnString
+	CreatedAt   postgres.ColumnTimestampz
+	CompletedAt postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -67,33 +65,29 @@ func newImportWorkflowsTable(schemaName, tableName, alias string) *ImportWorkflo
 
 func newImportWorkflowsTableImpl(schemaName, tableName, alias string) importWorkflowsTable {
 	var (
-		ImportHashColumn            = postgres.StringColumn("import_hash")
-		LabelColumn                 = postgres.StringColumn("label")
-		GbifStatusColumn            = postgres.StringColumn("gbif_status")
-		GbifCandidatesTotalColumn   = postgres.IntegerColumn("gbif_candidates_total")
-		GbifCandidatesFetchedColumn = postgres.IntegerColumn("gbif_candidates_fetched")
-		GbifClaimedAtColumn         = postgres.TimestampzColumn("gbif_claimed_at")
-		GbifUpdatedAtColumn         = postgres.TimestampzColumn("gbif_updated_at")
-		CreatedAtColumn             = postgres.TimestampzColumn("created_at")
-		CompletedAtColumn           = postgres.TimestampzColumn("completed_at")
-		allColumns                  = postgres.ColumnList{ImportHashColumn, LabelColumn, GbifStatusColumn, GbifCandidatesTotalColumn, GbifCandidatesFetchedColumn, GbifClaimedAtColumn, GbifUpdatedAtColumn, CreatedAtColumn, CompletedAtColumn}
-		mutableColumns              = postgres.ColumnList{LabelColumn, GbifStatusColumn, GbifCandidatesTotalColumn, GbifCandidatesFetchedColumn, GbifClaimedAtColumn, GbifUpdatedAtColumn, CreatedAtColumn, CompletedAtColumn}
-		defaultColumns              = postgres.ColumnList{GbifStatusColumn, CreatedAtColumn}
+		ImportIDColumn    = postgres.StringColumn("import_id")
+		LabelColumn       = postgres.StringColumn("label")
+		DescriptionColumn = postgres.StringColumn("description")
+		AssembledByColumn = postgres.StringArrayColumn("assembled_by")
+		CreatedByColumn   = postgres.StringColumn("created_by")
+		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
+		CompletedAtColumn = postgres.TimestampzColumn("completed_at")
+		allColumns        = postgres.ColumnList{ImportIDColumn, LabelColumn, DescriptionColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, CompletedAtColumn}
+		mutableColumns    = postgres.ColumnList{LabelColumn, DescriptionColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, CompletedAtColumn}
+		defaultColumns    = postgres.ColumnList{ImportIDColumn, CreatedAtColumn}
 	)
 
 	return importWorkflowsTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ImportHash:            ImportHashColumn,
-		Label:                 LabelColumn,
-		GbifStatus:            GbifStatusColumn,
-		GbifCandidatesTotal:   GbifCandidatesTotalColumn,
-		GbifCandidatesFetched: GbifCandidatesFetchedColumn,
-		GbifClaimedAt:         GbifClaimedAtColumn,
-		GbifUpdatedAt:         GbifUpdatedAtColumn,
-		CreatedAt:             CreatedAtColumn,
-		CompletedAt:           CompletedAtColumn,
+		ImportID:    ImportIDColumn,
+		Label:       LabelColumn,
+		Description: DescriptionColumn,
+		AssembledBy: AssembledByColumn,
+		CreatedBy:   CreatedByColumn,
+		CreatedAt:   CreatedAtColumn,
+		CompletedAt: CompletedAtColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

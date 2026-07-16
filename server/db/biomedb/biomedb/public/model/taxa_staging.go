@@ -13,7 +13,7 @@ import (
 
 type TaxaStaging struct {
 	ID              uuid.UUID `sql:"primary_key"`
-	ImportHash      string
+	ImportID        uuid.UUID
 	Name            string
 	Authorship      *string
 	Rank            TaxonRank

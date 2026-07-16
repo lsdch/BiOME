@@ -7,7 +7,12 @@
 
 package model
 
+import (
+	"github.com/google/uuid"
+)
+
 type GbifDependencies struct {
-	ImportHash string `sql:"primary_key"`
-	Key        int32  `sql:"primary_key"`
+	ImportID uuid.UUID `sql:"primary_key"`
+	Key      int32     `sql:"primary_key"`
+	FromKey  int32     `sql:"primary_key"`
 }

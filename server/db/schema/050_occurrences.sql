@@ -22,12 +22,17 @@ CREATE TABLE IF NOT EXISTS occurrences (
 	sources TEXT [],
 	-- Metadata fields
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ,
 	import_batch_id ULID REFERENCES import_batches (id) ON DELETE
 	SET NULL,
 		-- Constraints
 		CONSTRAINT occurrence_quantity_shape CHECK (
 			(
+				quantity_exact IS NULL
+				AND quantity_lower IS NULL
+				AND quantity_upper IS NULL
+			)
+			OR (
 				quantity_exact IS NOT NULL
 				AND quantity_lower IS NULL
 				AND quantity_upper IS NULL
@@ -62,3 +67,38 @@ CREATE TABLE IF NOT EXISTS occurrence_code_history (
 	code TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+
+CREATE VIEW occurrence_codes_to_update AS with codes_projection AS (
+	SELECT o.id,
+		o.import_batch_id,
+		o.code AS current_code,
+		format(
+			'%s[%s|%s]',
+			REPLACE(t.name, ' ', '_'),
+			COALESCE(
+				s.site_code,
+				format('%sN,%sE', s.latitude, s.longitude)
+			),
+			(
+				CASE
+					WHEN s.event_date IS NOT NULL THEN (
+						CASE
+							WHEN s.event_date_precision = 'day'
+							OR s.event_date_precision IS NULL THEN to_char(s.event_date, 'YYYY-MM-DD')
+							WHEN s.event_date_precision = 'month' THEN to_char(s.event_date, 'YYYY-MM')
+							WHEN s.event_date_precision = 'year' THEN to_char(s.event_date, 'YYYY')
+						END
+					)
+					ELSE 'N/A'
+				END
+			)
+		) AS computed_code
+	FROM occurrences o
+		JOIN samplings s ON s.id = o.sampling_id
+		JOIN taxa t ON t.id = o.taxon_id
+)
+SELECT *
+FROM codes_projection
+WHERE current_code IS DISTINCT
+FROM computed_code;

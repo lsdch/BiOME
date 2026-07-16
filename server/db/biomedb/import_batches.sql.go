@@ -8,7 +8,7 @@ package biomedb
 import (
 	"context"
 
-	ulid "github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 const deleteImportBatch = `-- name: DeleteImportBatch :exec
@@ -16,7 +16,7 @@ DELETE FROM import_batches
 WHERE id = $1
 `
 
-func (q *Queries) DeleteImportBatch(ctx context.Context, importBatchID ulid.ULID) error {
+func (q *Queries) DeleteImportBatch(ctx context.Context, importBatchID types.ULID) error {
 	_, err := q.db.Exec(ctx, deleteImportBatch, importBatchID)
 	return err
 }
@@ -43,56 +43,56 @@ WHERE se.id IN (
     )
 `
 
-func (q *Queries) DeleteOccurrencesFromBatch(ctx context.Context, importBatchID ulid.ULID) error {
+func (q *Queries) DeleteOccurrencesFromBatch(ctx context.Context, importBatchID types.ULID) error {
 	_, err := q.db.Exec(ctx, deleteOccurrencesFromBatch, importBatchID)
 	return err
 }
 
 const getImportBatch = `-- name: GetImportBatch :one
-SELECT id, label, slug, description, submitted_by, assembled_by, created_at
+SELECT id, label, description, assembled_by, created_by, created_at, workflow_id
 FROM import_batches ib
 WHERE ib.id = $1
 `
 
-func (q *Queries) GetImportBatch(ctx context.Context, importBatchID ulid.ULID) (ImportBatch, error) {
+func (q *Queries) GetImportBatch(ctx context.Context, importBatchID types.ULID) (ImportBatch, error) {
 	row := q.db.QueryRow(ctx, getImportBatch, importBatchID)
 	var i ImportBatch
 	err := row.Scan(
 		&i.ID,
 		&i.Label,
-		&i.Slug,
 		&i.Description,
-		&i.SubmittedBy,
 		&i.AssembledBy,
+		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.WorkflowID,
 	)
 	return i, err
 }
 
 const getImportBatchForOccurrence = `-- name: GetImportBatchForOccurrence :one
-SELECT ib.id, ib.label, ib.slug, ib.description, ib.submitted_by, ib.assembled_by, ib.created_at
+SELECT ib.id, ib.label, ib.description, ib.assembled_by, ib.created_by, ib.created_at, ib.workflow_id
 FROM import_batches ib
     JOIN occurrences o ON o.import_batch_id = ib.id
 WHERE o.id = $1
 `
 
-func (q *Queries) GetImportBatchForOccurrence(ctx context.Context, occurrenceID ulid.ULID) (ImportBatch, error) {
+func (q *Queries) GetImportBatchForOccurrence(ctx context.Context, occurrenceID types.ULID) (ImportBatch, error) {
 	row := q.db.QueryRow(ctx, getImportBatchForOccurrence, occurrenceID)
 	var i ImportBatch
 	err := row.Scan(
 		&i.ID,
 		&i.Label,
-		&i.Slug,
 		&i.Description,
-		&i.SubmittedBy,
 		&i.AssembledBy,
+		&i.CreatedBy,
 		&i.CreatedAt,
+		&i.WorkflowID,
 	)
 	return i, err
 }
 
 const listImportBatches = `-- name: ListImportBatches :many
-SELECT id, label, slug, description, submitted_by, assembled_by, created_at
+SELECT id, label, description, assembled_by, created_by, created_at, workflow_id
 FROM import_batches ib
 ORDER BY ib.created_at DESC
 `
@@ -109,11 +109,11 @@ func (q *Queries) ListImportBatches(ctx context.Context) ([]ImportBatch, error) 
 		if err := rows.Scan(
 			&i.ID,
 			&i.Label,
-			&i.Slug,
 			&i.Description,
-			&i.SubmittedBy,
 			&i.AssembledBy,
+			&i.CreatedBy,
 			&i.CreatedAt,
+			&i.WorkflowID,
 		); err != nil {
 			return nil, err
 		}

@@ -19,11 +19,11 @@ type importBatchesTable struct {
 	// Columns
 	ID          postgres.ColumnString
 	Label       postgres.ColumnString
-	Slug        postgres.ColumnString
 	Description postgres.ColumnString
-	SubmittedBy postgres.ColumnString
 	AssembledBy postgres.ColumnStringArray
+	CreatedBy   postgres.ColumnString
 	CreatedAt   postgres.ColumnTimestampz
+	WorkflowID  postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -67,13 +67,13 @@ func newImportBatchesTableImpl(schemaName, tableName, alias string) importBatche
 	var (
 		IDColumn          = postgres.StringColumn("id")
 		LabelColumn       = postgres.StringColumn("label")
-		SlugColumn        = postgres.StringColumn("slug")
 		DescriptionColumn = postgres.StringColumn("description")
-		SubmittedByColumn = postgres.StringColumn("submitted_by")
 		AssembledByColumn = postgres.StringArrayColumn("assembled_by")
+		CreatedByColumn   = postgres.StringColumn("created_by")
 		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
-		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, SlugColumn, DescriptionColumn, SubmittedByColumn, AssembledByColumn, CreatedAtColumn}
-		mutableColumns    = postgres.ColumnList{LabelColumn, SlugColumn, DescriptionColumn, SubmittedByColumn, AssembledByColumn, CreatedAtColumn}
+		WorkflowIDColumn  = postgres.StringColumn("workflow_id")
+		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, DescriptionColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, WorkflowIDColumn}
+		mutableColumns    = postgres.ColumnList{LabelColumn, DescriptionColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, WorkflowIDColumn}
 		defaultColumns    = postgres.ColumnList{CreatedAtColumn}
 	)
 
@@ -83,11 +83,11 @@ func newImportBatchesTableImpl(schemaName, tableName, alias string) importBatche
 		//Columns
 		ID:          IDColumn,
 		Label:       LabelColumn,
-		Slug:        SlugColumn,
 		Description: DescriptionColumn,
-		SubmittedBy: SubmittedByColumn,
 		AssembledBy: AssembledByColumn,
+		CreatedBy:   CreatedByColumn,
 		CreatedAt:   CreatedAtColumn,
+		WorkflowID:  WorkflowIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

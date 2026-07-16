@@ -1,11 +1,11 @@
-import { TaxonomyItem as TItem, TaxonRank, TaxonStatus } from '@/api'
+import { TaxonRank, TaxonStatus } from '@/api'
 import TaxonomyItem from './TaxonomyItem.vue'
 
 export function FTaxaNestedList(props: { items: TItem[]; rank: TaxonRank }) {
   return (
     <div
       class="pa-0 taxa-list bg-surface"
-      style={{ 'grid-column': `${props.rank == 'Subgenus' ? 'Species' : props.rank} / span end` }}
+      style={{ 'grid-column': `${props.rank == 'SUBGENUS' ? 'SPECIES' : props.rank} / span end` }}
     >
       {props.items.map((item) => (
         <TaxonomyItem item={item} />
@@ -22,34 +22,34 @@ type TaxonStatusProps = {
 
 export function taxonStatusIndicatorProps(status: TaxonStatus): TaxonStatusProps {
   switch (status) {
-    case 'Accepted':
+    case 'ACCEPTED':
       return {
         icon: 'mdi-circle-medium',
         color: 'success',
         description: 'Taxon definition is accepted in GBIF database.'
       }
-    case 'Synonym':
+    case 'SYNONYM':
       return {
         icon: 'mdi-circle-medium',
         color: 'purple',
         description:
           'Taxon definition is not accepted in GBIF database, and is considered a synonym of another taxon.'
       }
-    case 'Doubtful':
+    case 'DOUBTFUL':
       return {
         icon: 'mdi-circle-medium',
         color: 'error',
         description:
           'Taxon definition is considered doubtful in GBIF database.'
       }
-    case 'Unreferenced':
+    case 'UNREFERENCED':
       return {
         icon: 'mdi-circle-medium',
         color: 'primary',
         description:
           'Taxon definition is not accepted in GBIF database, but is supported by a scientific consensus.'
       }
-    case 'Unclassified':
+    case 'UNCLASSIFIED':
       return {
         icon: 'mdi-circle-medium',
         color: 'warning',

@@ -1,32 +1,13 @@
 <template>
-  <v-data-table-server
-    id="table"
-    class="crud-table"
-    :headers="processedHeaders"
-    :items="data?.items"
-    :items-length="data?.total_count ?? 0"
-    item-key="id"
-    :loading
-    :items-per-page-options="[5, 10, 15, 25, 50]"
-    v-model:items-per-page="pagination.itemsPerPage"
-    v-model:page="pagination.page"
-    v-model:sort-by="sortBy"
-    @update:page="prefetchNext"
-  >
+  <v-data-table-server id="table" class="crud-table" :headers="processedHeaders" :items="data?.items"
+    :items-length="data?.total_count ?? 0" item-key="id" :loading :items-per-page-options="[5, 10, 15, 25, 50]"
+    v-model:items-per-page="pagination.itemsPerPage" v-model:page="pagination.page" v-model:sort-by="sortBy"
+    @update:page="prefetchNext">
     <!-- Toolbar -->
     <template #top v-if="toolbar">
-      <TableToolbar
-        ref="toolbar"
-        id="table-toolbar"
-        v-model:search="genericFilters.search"
-        v-bind="toolbar"
-        @reload="
-          (emit('reload'),
-          refetch().then(() => {
-            feedback({ message: 'Data reload' })
-          }))
-        "
-      >
+      <TableToolbar ref="toolbar" id="table-toolbar" v-model:search="genericFilters.search" v-bind="toolbar" @reload="
+        emit('reload')
+        ">
         <template #extension>
           <slot name="toolbar-extension" />
         </template>
@@ -59,25 +40,20 @@
 
         <!-- Right toolbar actions -->
         <template #append>
-          <SortLastUpdatedBtn
-            v-if="!toolbar?.noSort"
-            sort-key="meta.last_updated"
-            :sort-by
-            @click="
-              sortBy = [
-                {
-                  key: 'meta.last_updated',
-                  remoteKey: 'last_updated',
-                  order:
-                    sortBy?.[0]?.key === 'meta.last_updated'
-                      ? sortBy[0].order === 'asc'
-                        ? 'desc'
-                        : 'asc'
+          <SortLastUpdatedBtn v-if="!toolbar?.noSort" sort-key="meta.last_updated" :sort-by @click="
+            sortBy = [
+              {
+                key: 'meta.last_updated',
+                remoteKey: 'last_updated',
+                order:
+                  sortBy?.[0]?.key === 'meta.last_updated'
+                    ? sortBy[0].order === 'asc'
+                      ? 'desc'
                       : 'asc'
-                }
-              ]
-            "
-          />
+                    : 'asc'
+              }
+            ]
+            " />
         </template>
 
         <!-- Searchbar -->
@@ -85,37 +61,20 @@
           <slot name="search" v-bind="props" :toggleMenu :menu-open="menu">
             <CRUDTableSearchBar v-model="genericFilters.search" v-if="$vuetify.display.smAndUp" />
 
-            <v-badge
-              dot
-              :color="
-                Object.values(genericFilters)
-                  .concat(Object.values(filters))
-                  .some((v) => v !== undefined && v !== null && v !== '')
-                  ? 'success'
-                  : 'transparent'
-              "
-              class="mx-1"
-            >
-              <v-btn
-                color="primary"
-                variant="tonal"
-                icon="mdi-menu"
-                @click="toggleMenu(true)"
-                :active="menu"
-                size="small"
-              />
+            <v-badge dot :color="Object.values(genericFilters)
+              .concat(Object.values(filters))
+              .some((v) => v !== undefined && v !== null && v !== '')
+              ? 'success'
+              : 'transparent'
+              " class="mx-1">
+              <v-btn color="primary" variant="tonal" icon="mdi-menu" @click="toggleMenu(true)" :active="menu"
+                size="small" />
             </v-badge>
           </slot>
         </template>
       </TableToolbar>
-      <v-menu
-        id="search-menu"
-        v-model="menu"
-        location="bottom"
-        target="#table-toolbar"
-        attach="#table table"
-        :close-on-content-click="false"
-      >
+      <v-menu id="search-menu" v-model="menu" location="bottom" target="#table-toolbar" attach="#table table"
+        :close-on-content-click="false">
         <v-card rounded="t-0">
           <v-card-text>
             <v-inline-search-bar v-model="genericFilters.search" label="Search term" />
@@ -124,15 +83,8 @@
           <v-divider />
           <v-list-item v-if="currentUser">
             <template #title>
-              <v-switch
-                v-model="genericFilters.owned"
-                label="Owned items"
-                color="primary"
-                hint="Restrict the list to elements you contributed"
-                persistent-hint
-                class="ml-2"
-                density="compact"
-              />
+              <v-switch v-model="genericFilters.owned" label="Owned items" color="primary"
+                hint="Restrict the list to elements you contributed" persistent-hint class="ml-2" density="compact" />
             </template>
           </v-list-item>
           <v-divider v-if="currentUser" />
@@ -185,7 +137,7 @@
               </div>
               <slot name="expanded-row-footer" :item>
                 <div class="d-flex flex-wrap align-center">
-                  <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" />
+                  <!-- <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" /> -->
                   <!-- <v-btn
                     prepend-icon="mdi-content-copy"
                     text="UUID"
@@ -236,164 +188,145 @@
   </v-data-table-server>
 </template>
 
-<script
-  setup
-  lang="ts"
-  generic="
-    ItemType extends { id: string; meta?: Meta },
+<script setup lang="ts" generic="
+    ItemType extends { id: string; },
     ItemFilters extends {},
     ItemSortKey extends string
-  "
->
-import { ErrorModel, Meta } from '@/api'
-import { PaginatedList } from '@/api/responses'
-import { useFeedback } from '@/stores/feedback'
-import { useUserStore } from '@/stores/user'
-import {
-  keepPreviousData,
-  UndefinedInitialQueryOptions,
-  useQuery,
-  useQueryClient
-} from '@tanstack/vue-query'
-import { computedAsync, promiseTimeout, set, useToggle } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
-import { computed, ComputedRef, onMounted, reactive, ref, useSlots } from 'vue'
-import { TableSlots, ToolbarProps, useTableSort } from '.'
-import MetaChip from '@/components/toolkit/MetaChip'
-import SortLastUpdatedBtn from '@/components/toolkit/ui/SortLastUpdatedBtn.vue'
-import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
-import TableToolbar from './TableToolbar.vue'
-export type SortItemRemote<ItemSortKey> = SortItem<ItemSortKey> & {
-  remoteKey: string
-}
-type ItemsQueryData = {
-  limit?: number
-  offset?: number
-}
-
-type Pagination = {
-  itemsPerPage: number
-  page: number
-}
-
-const pagination = ref<Pagination>({
-  itemsPerPage: 15,
-  page: 1
-})
-
-type Filters = {
-  search?: string
-  owned?: boolean
-}
-const genericFilters = ref<Filters>({
-  search: '',
-  owned: undefined
-})
-
-const emit = defineEmits<{
-  clearFilters: []
-  reload: []
-}>()
-
-function resetFilters() {
-  genericFilters.value = {}
-  emit('clearFilters')
-}
-
-const sortBy = ref<SortItemRemote<ItemSortKey>[]>()
-
-const slots = useSlots()
-// Assert type here to prevent errors in template
-const slotNames = Object.keys(slots) as 'default'[]
-defineSlots<TableSlots<ItemType>>()
-
-const props = defineProps<{
-  sortKeyTransform?: (key: ItemSortKey | undefined) => ItemSortKey | undefined
-  filters: ItemFilters & Filters
-  headers: CRUDTableHeader<ItemType>[]
-  toolbar?: ToolbarProps | false
-  fetchItems: (options?: {
-    query: ItemsQueryData &
-      ItemFilters &
-      Filters & {
-        order?: 'asc' | 'desc'
-        sort?: ItemSortKey
-      }
-  }) => UndefinedInitialQueryOptions<
-    PaginatedList<ItemType>,
-    ErrorModel,
-    PaginatedList<ItemType>,
-    any
-  > & {
-    queryKey: any
+  ">
+  import { ErrorModel } from '@/api'
+  import { PaginatedList } from '@/api/responses'
+  import { useFeedback } from '@/stores/feedback'
+  import { useUserStore } from '@/stores/user'
+  import {
+    keepPreviousData,
+    UndefinedInitialQueryOptions,
+    useQuery,
+    useQueryClient
+  } from '@tanstack/vue-query'
+  import { computedAsync, promiseTimeout, set, useToggle } from '@vueuse/core'
+  import { storeToRefs } from 'pinia'
+  import { computed, ComputedRef, onMounted, reactive, ref, useSlots } from 'vue'
+  import { TableSlots, ToolbarProps, useTableSort } from '.'
+  // import MetaChip from '@/components/toolkit/MetaChip'
+  import SortLastUpdatedBtn from '@/components/toolkit/ui/SortLastUpdatedBtn.vue'
+  import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
+  import TableToolbar from './TableToolbar.vue'
+  export type SortItemRemote<ItemSortKey> = SortItem<ItemSortKey> & {
+    remoteKey: string
   }
-}>()
 
-const { feedback } = useFeedback()
-const { user: currentUser } = storeToRefs(useUserStore())
+  type Pagination = {
+    itemsPerPage: number
+    page: number
+  }
 
-const [menu, toggleMenu] = useToggle(false)
-
-const processedHeaders = computed((): CRUDTableHeader<ItemType>[] => {
-  return props.headers.filter(({ hide }) => {
-    return !hide?.value
+  const pagination = ref<Pagination>({
+    itemsPerPage: 15,
+    page: 1
   })
-}) as ComputedRef<DataTableHeader[]>
 
-const { data, error, isPending, isFetching, refetch } = useQuery(
-  computed(() => ({
-    staleTime: Infinity,
-    ...props.fetchItems({
-      query: {
-        limit: pagination.value.itemsPerPage,
-        offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
-        ...genericFilters.value,
-        ...props.filters,
-        order: sortBy.value?.[0]?.order,
-        sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
-      }
-    }),
-    placeholderData: keepPreviousData
-  }))
-)
+  type Filters = {
+    search?: string
+    owned?: boolean
+  }
+  const genericFilters = ref<Filters>({
+    search: '',
+    owned: undefined
+  })
 
-const queryClient = useQueryClient()
-async function prefetchNext(currentPage: number) {
-  await setTimeout(() => {}, 500)
-  await queryClient.prefetchQuery({
-    staleTime: Infinity,
-    ...props.fetchItems({
-      query: {
-        limit: pagination.value.itemsPerPage,
-        offset: currentPage * pagination.value.itemsPerPage,
-        ...genericFilters.value,
-        ...props.filters,
-        order: sortBy.value?.[0]?.order,
-        sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
-      }
+  const emit = defineEmits<{
+    clearFilters: []
+    reload: []
+  }>()
+
+  function resetFilters() {
+    genericFilters.value = {}
+    emit('clearFilters')
+  }
+
+  const sortBy = ref<SortItemRemote<ItemSortKey>[]>()
+
+  const slots = useSlots()
+  // Assert type here to prevent errors in template
+  const slotNames = Object.keys(slots) as 'default'[]
+  defineSlots<TableSlots<ItemType>>()
+
+  const props = defineProps<{
+    sortKeyTransform?: (key: ItemSortKey | undefined) => ItemSortKey | undefined
+    filters: ItemFilters & Filters
+    headers: CRUDTableHeader<ItemType>[]
+    toolbar?: ToolbarProps | false
+    items: PaginatedList<ItemType>
+    loading?: boolean
+    error?: string
+  }>()
+
+  const { feedback } = useFeedback()
+  const { user: currentUser } = storeToRefs(useUserStore())
+
+  const [menu, toggleMenu] = useToggle(false)
+
+  const processedHeaders = computed((): CRUDTableHeader<ItemType>[] => {
+    return props.headers.filter(({ hide }) => {
+      return !hide?.value
     })
-  })
-}
+  }) as ComputedRef<DataTableHeader[]>
 
-onMounted(() => {
-  prefetchNext(pagination.value.page)
-})
+  // const { data, error, isPending, isFetching, refetch } = useQuery(
+  //   computed(() => ({
+  //     staleTime: Infinity,
+  //     ...props.fetchItems({
+  //       query: {
+  //         limit: pagination.value.itemsPerPage,
+  //         offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
+  //         ...genericFilters.value,
+  //         ...props.filters,
+  //         order: sortBy.value?.[0]?.order,
+  //         sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
+  //       }
+  //     }),
+  //     placeholderData: keepPreviousData
+  //   }))
+  // )
 
-const loading = computedAsync(async () => {
-  return (
-    isPending.value ||
-    (isFetching.value &&
-      (await promiseTimeout(1000).then(() => {
-        return isFetching.value
-      })))
-  )
-}, true)
+  // const queryClient = useQueryClient()
+  // async function prefetchNext(currentPage: number) {
+  //   await setTimeout(() => { }, 500)
+  //   await queryClient.prefetchQuery({
+  //     staleTime: Infinity,
+  //     ...props.fetchItems({
+  //       query: {
+  //         limit: pagination.value.itemsPerPage,
+  //         offset: currentPage * pagination.value.itemsPerPage,
+  //         ...genericFilters.value,
+  //         ...props.filters,
+  //         order: sortBy.value?.[0]?.order,
+  //         sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
+  //       }
+  //     })
+  //   })
+  // }
+
+  // onMounted(() => {
+  //   prefetchNext(pagination.value.page)
+  // })
+
+  // const loading = computedAsync(async () => {
+  //   return (
+  //     isPending.value ||
+  //     (isFetching.value &&
+  //       (await promiseTimeout(1000).then(() => {
+  //         return isFetching.value
+  //       })))
+  //   )
+  // }, true)
 </script>
 
 <style lang="scss">
 #table table {
   position: relative;
 }
+
 #search-menu .v-overlay__content {
   left: 0px !important;
   top: 0px !important;

@@ -6,7 +6,7 @@ tmp_dir = "tmp"
 exclude_dir = ["assets", "tmp", "vendor", "testdata", "db/biomedb"]
 args_bin = []
 bin = "./tmp/main"
-cmd = "go build -o ./tmp/main ./app"
+cmd = "go build -o ./tmp/main ."
 delay = 3000
 exclude_file = ["docs/docs.go"]
 exclude_regex = [
@@ -28,10 +28,7 @@ poll_interval = 0
 post_cmd = []
 # run code generation
 pre_cmd = [
-  "go tool templ generate",
-  # "go get",
-  "task db:generate",
-  "go generate ./app",
+  "task generate",
   # "cd ../client && pnpm gen-client"
 ]
 rerun = false

@@ -2,11 +2,13 @@ package stores
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
+	"github.com/sirupsen/logrus"
 )
 
 type TaxonResolutionStore struct {
@@ -24,26 +26,40 @@ func (r *TaxonResolutionStore) InitTaxonResolution(ctx context.Context, q db.Que
 	return models.TaxonResolutionFromDBSlice(resolution), nil
 }
 
+func (r *TaxonResolutionStore) LinkTaxonResolutions(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	return q.Queries().LinkTaxonResolutions(ctx, importID)
+}
+
 func (r *TaxonResolutionStore) InsertGBIFBatch(ctx context.Context, q db.Querier, taxa []models.TaxonGBIF) (err error) {
 	toInsert := make([]biomedb.InsertGBIFBatchParams, len(taxa))
 	for i, taxon := range taxa {
 		toInsert[i] = taxon.ToStaging()
 	}
 
-	_, err = q.Queries().InsertGBIFBatch(ctx, toInsert)
-	return err
+	batch := q.Queries().InsertGBIFBatch(ctx, toInsert)
+	var errs error = nil
+	batch.Exec(func(i int, err error) {
+		errs = errors.Join(errs, err)
+	})
+	return errs
 }
 
-func (r *TaxonResolutionStore) InsertGBIFCandidatesBatch(ctx context.Context, q db.Querier, candidates map[string][]models.TaxonGBIF) (err error) {
+func (r *TaxonResolutionStore) InsertGBIFCandidatesBatch(ctx context.Context, q db.Querier, importID uuid.UUID, candidates map[uuid.UUID][]models.TaxonGBIFWithPriority) (err error) {
 	toInsert := make([]biomedb.InsertTaxonCandidatesBatchParams, 0, len(candidates))
-	for inputName, matches := range candidates {
+	for resolutionID, matches := range candidates {
 		for _, match := range matches {
-			toInsert = append(toInsert, match.ToCandidate(inputName))
+			if match.IsAcceptable() {
+				toInsert = append(toInsert, match.ToCandidate(importID, resolutionID))
+			}
 		}
 	}
 
-	_, err = q.Queries().InsertTaxonCandidatesBatch(ctx, toInsert)
-	return err
+	batch := q.Queries().InsertTaxonCandidatesBatch(ctx, toInsert)
+	var errs error = nil
+	batch.Exec(func(i int, err error) {
+		errs = errors.Join(errs, err)
+	})
+	return errs
 }
 
 func (r *TaxonResolutionStore) InsertTaxonStaging(ctx context.Context, q db.Querier, importID uuid.UUID, params models.TaxonStagingParams) (err error) {
@@ -69,12 +85,14 @@ func (r *TaxonResolutionStore) ListMissingGBIFDependencies(ctx context.Context, 
 
 // Inserts taxa from GBIF staging into the main taxa table, for a given import and rank.
 // This is done in two steps: first insert non-synonyms, then insert synonyms (which depend on the accepted taxa being present).
-func (r *TaxonResolutionStore) InsertTaxaFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID, rank models.TaxonRank) (err error) {
-	err = q.Queries().InsertTaxaFromGBIF(ctx, biomedb.InsertTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: false})
+func (r *TaxonResolutionStore) MaterializeTaxaFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID, rank models.TaxonRank) (err error) {
+	logrus.Infof("Materializing non synonym taxa for import ID %s at rank %s", importID, rank)
+	err = q.Queries().MaterializeTaxaFromGBIF(ctx, biomedb.MaterializeTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: false})
 	if err != nil {
 		return err
 	}
-	err = q.Queries().InsertTaxaFromGBIF(ctx, biomedb.InsertTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: true})
+	logrus.Infof("Materializing synonym taxa for import ID %s at rank %s", importID, rank)
+	err = q.Queries().MaterializeTaxaFromGBIF(ctx, biomedb.MaterializeTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: true})
 	if err != nil {
 		return err
 	}
@@ -85,12 +103,20 @@ func (r *TaxonResolutionStore) MarkTaxaNeedingGBIFCandidates(ctx context.Context
 	return q.Queries().MarkTaxaNeedingGBIFCandidates(ctx, importID)
 }
 
-func (r *TaxonResolutionStore) MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID, inputNames []string) (err error) {
-	return q.Queries().MarkTaxaGBIFImportCompleted(ctx, importID, inputNames)
+func (r *TaxonResolutionStore) MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID, resolutionIDs []uuid.UUID) (err error) {
+	return q.Queries().MarkTaxaGBIFImportCompleted(ctx, importID, resolutionIDs)
 }
 
-func (r *TaxonResolutionStore) ListTaxnamesToFetchFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID) (toFetch []biomedb.ListTaxaToFetchGBIFCandidatesRow, err error) {
-	return q.Queries().ListTaxaToFetchGBIFCandidates(ctx, importID)
+func (r *TaxonResolutionStore) ListTaxnamesToFetchFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID) (toFetch []models.TaxonResolution, err error) {
+	res, err := q.Queries().ListResolutionsToFetchGBIFCandidates(ctx, importID)
+	if err != nil {
+		return nil, err
+	}
+	resolutions := make([]models.TaxonResolution, len(res))
+	for i, res := range res {
+		resolutions[i] = models.TaxonResolutionFromDB(res)
+	}
+	return resolutions, nil
 }
 
 func (r *TaxonResolutionStore) GenerateLocalTaxonCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
@@ -109,21 +135,21 @@ func (r *TaxonResolutionStore) GenerateLocalTaxonCandidates(ctx context.Context,
 
 func (r *TaxonResolutionStore) ListTaxonCandidates(
 	ctx context.Context, q db.Querier, importID uuid.UUID,
-) (candidatesByName map[string][]models.TaxonCandidate, err error) {
+) (candidatesByName map[uuid.UUID][]models.TaxonCandidate, err error) {
 
 	candidates, err := q.Queries().ListAllTaxonCandidates(ctx, importID)
 	if err != nil {
 		return nil, err
 	}
 
-	candidatesByName = make(map[string][]models.TaxonCandidate)
+	candidatesByName = make(map[uuid.UUID][]models.TaxonCandidate)
 	for _, candidate := range candidates {
-		candidatesByName[candidate.InputName] = append(candidatesByName[candidate.InputName], models.TaxonCandidateFromDB(candidate))
+		candidatesByName[candidate.ResolutionID] = append(candidatesByName[candidate.ResolutionID], models.TaxonCandidateFromDB(candidate))
 	}
 	return candidatesByName, nil
 }
 
-func (r *TaxonResolutionStore) GetTaxonResolutionState(ctx context.Context, q db.Querier, importID uuid.UUID) (state *models.TaxonResolutionState, err error) {
+func (r *TaxonResolutionStore) GetTaxonResolutions(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.TaxonResolutionWithCandidates, err error) {
 	resolutions, err := q.Queries().GetTaxonResolution(ctx, importID)
 	if err != nil {
 		return nil, err
@@ -133,8 +159,32 @@ func (r *TaxonResolutionStore) GetTaxonResolutionState(ctx context.Context, q db
 		return nil, err
 	}
 
-	return &models.TaxonResolutionState{
-		Resolution: models.TaxonResolutionFromDBSlice(resolutions),
-		Candidates: candidates,
-	}, nil
+	state = make([]models.TaxonResolutionWithCandidates, len(resolutions))
+	for i, resolution := range resolutions {
+		state[i] = models.TaxonResolutionWithCandidates{
+			TaxonResolution: models.TaxonResolutionFromDB(resolution),
+			Candidates:      candidates[resolution.ID],
+		}
+	}
+	return state, nil
+}
+
+func (r *TaxonResolutionStore) AutoResolveUnambiguousCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	err = q.Queries().AutoResolveUnambiguousCandidates(ctx, importID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *TaxonResolutionStore) ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveTaxonInput) (err error) {
+	err = q.Queries().ResolveTaxon(ctx, biomedb.ResolveTaxonParams{
+		ImportID:     importID,
+		ResolutionID: input.ResolutionID,
+		ResolvedTo:   input.CandidateID,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

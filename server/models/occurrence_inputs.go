@@ -4,7 +4,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/lsdch/biome/db/biomedb"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 type BaseOccurrenceInput struct {
@@ -50,7 +50,7 @@ func (i BaseOccurrenceInput) ToParams(samplingID uuid.UUID, code string) biomedb
 		QuantityUpper:               quantityUpper,
 		Sources:                     i.Sources,
 		Comments:                    i.Comments.ToPtr(),
-		ID:                          ulid.Make(),
+		ID:                          types.MakeULID(),
 	}
 }
 
@@ -58,7 +58,7 @@ type OccurrenceInput struct {
 	BaseOccurrenceInput
 	Collections []CollectionInput `json:"collections,omitempty"`
 	PublishedIn []uuid.UUID       `json:"published_in,omitempty"`
-	Datasets    []ulid.ULID       `json:"datasets,omitempty"`
+	Datasets    []types.ULID      `json:"datasets,omitempty"`
 }
 
 type FullOccurrenceInput struct {
@@ -71,7 +71,7 @@ type CollectionInput struct {
 	Vouchers []string `json:"vouchers,omitempty"`
 }
 
-func (i CollectionInput) ToDBParams(occurrenceID ulid.ULID) biomedb.AddOccurrenceCollectionParams {
+func (i CollectionInput) ToDBParams(occurrenceID types.ULID) biomedb.AddOccurrenceCollectionParams {
 	return biomedb.AddOccurrenceCollectionParams{
 		OccurrenceID: occurrenceID,
 		Name:         i.Name,

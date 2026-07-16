@@ -17,14 +17,15 @@ type taxonResolutionTable struct {
 	postgres.Table
 
 	// Columns
-	ImportHash postgres.ColumnString
-	InputName  postgres.ColumnString
-	Source     postgres.ColumnString
-	GbifID     postgres.ColumnInteger
-	TaxonID    postgres.ColumnString
-	StagingID  postgres.ColumnString
-	Status     postgres.ColumnString
-	GbifStatus postgres.ColumnString
+	ID              postgres.ColumnString
+	ImportID        postgres.ColumnString
+	InputName       postgres.ColumnString
+	InputAuthorship postgres.ColumnString
+	InputRank       postgres.ColumnString
+	ScientificName  postgres.ColumnString
+	Status          postgres.ColumnString
+	GbifStatus      postgres.ColumnString
+	ResolvedTo      postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -66,31 +67,33 @@ func newTaxonResolutionTable(schemaName, tableName, alias string) *TaxonResoluti
 
 func newTaxonResolutionTableImpl(schemaName, tableName, alias string) taxonResolutionTable {
 	var (
-		ImportHashColumn = postgres.StringColumn("import_hash")
-		InputNameColumn  = postgres.StringColumn("input_name")
-		SourceColumn     = postgres.StringColumn("source")
-		GbifIDColumn     = postgres.IntegerColumn("gbif_id")
-		TaxonIDColumn    = postgres.StringColumn("taxon_id")
-		StagingIDColumn  = postgres.StringColumn("staging_id")
-		StatusColumn     = postgres.StringColumn("status")
-		GbifStatusColumn = postgres.StringColumn("gbif_status")
-		allColumns       = postgres.ColumnList{ImportHashColumn, InputNameColumn, SourceColumn, GbifIDColumn, TaxonIDColumn, StagingIDColumn, StatusColumn, GbifStatusColumn}
-		mutableColumns   = postgres.ColumnList{SourceColumn, GbifIDColumn, TaxonIDColumn, StagingIDColumn, StatusColumn, GbifStatusColumn}
-		defaultColumns   = postgres.ColumnList{StatusColumn, GbifStatusColumn}
+		IDColumn              = postgres.StringColumn("id")
+		ImportIDColumn        = postgres.StringColumn("import_id")
+		InputNameColumn       = postgres.StringColumn("input_name")
+		InputAuthorshipColumn = postgres.StringColumn("input_authorship")
+		InputRankColumn       = postgres.StringColumn("input_rank")
+		ScientificNameColumn  = postgres.StringColumn("scientific_name")
+		StatusColumn          = postgres.StringColumn("status")
+		GbifStatusColumn      = postgres.StringColumn("gbif_status")
+		ResolvedToColumn      = postgres.StringColumn("resolved_to")
+		allColumns            = postgres.ColumnList{IDColumn, ImportIDColumn, InputNameColumn, InputAuthorshipColumn, InputRankColumn, ScientificNameColumn, StatusColumn, GbifStatusColumn, ResolvedToColumn}
+		mutableColumns        = postgres.ColumnList{ImportIDColumn, InputNameColumn, InputAuthorshipColumn, InputRankColumn, StatusColumn, GbifStatusColumn, ResolvedToColumn}
+		defaultColumns        = postgres.ColumnList{IDColumn, ScientificNameColumn, StatusColumn, GbifStatusColumn}
 	)
 
 	return taxonResolutionTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ImportHash: ImportHashColumn,
-		InputName:  InputNameColumn,
-		Source:     SourceColumn,
-		GbifID:     GbifIDColumn,
-		TaxonID:    TaxonIDColumn,
-		StagingID:  StagingIDColumn,
-		Status:     StatusColumn,
-		GbifStatus: GbifStatusColumn,
+		ID:              IDColumn,
+		ImportID:        ImportIDColumn,
+		InputName:       InputNameColumn,
+		InputAuthorship: InputAuthorshipColumn,
+		InputRank:       InputRankColumn,
+		ScientificName:  ScientificNameColumn,
+		Status:          StatusColumn,
+		GbifStatus:      GbifStatusColumn,
+		ResolvedTo:      ResolvedToColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

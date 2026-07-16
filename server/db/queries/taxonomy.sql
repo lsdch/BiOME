@@ -15,25 +15,10 @@ VALUES (
         @authorship,
         @rank,
         @status,
-        (
-            SELECT id
-            FROM taxa t
-            WHERE t.scientific_name = sqlc.arg (synonym_scientific_name)::text
-            LIMIT 1
-        ), (
-            SELECT id
-            FROM taxa t
-            WHERE t.scientific_name = sqlc.arg (parent_scientific_name)::text
-            LIMIT 1
-        ), @comments
-    ) ON CONFLICT ON CONSTRAINT taxon_name_authorship_uidx DO
-UPDATE
-SET gbif_id = EXCLUDED.gbif_id,
-    rank = EXCLUDED.rank,
-    status = EXCLUDED.status,
-    accepted_taxon_id = EXCLUDED.accepted_taxon_id,
-    parent_id = EXCLUDED.parent_id,
-    comments = EXCLUDED.comments
+        @accepted_id,
+        @parent_id,
+        @comments
+    )
 RETURNING *;
 
 -- name: GetTaxonByScientificName :one
@@ -105,3 +90,15 @@ SELECT t.*
 FROM taxa t
     JOIN parents p ON p.id = t.id
 ORDER BY t.rank DESC;
+
+-- name: GetTaxonDescendants :many
+With descendants AS (
+    SELECT descendant_id AS id
+    FROM taxa_closure
+    WHERE ancestor_id = @taxon_id
+        AND depth = 1
+)
+SELECT t.*
+FROM taxa t
+    JOIN descendants d ON d.id = t.id
+ORDER BY t.name ASC;

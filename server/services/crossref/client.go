@@ -3,7 +3,6 @@ package crossref
 import (
 	"fmt"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/lib/queue"
 	"github.com/lsdch/biome/models"
@@ -78,7 +77,7 @@ func (c *CrossRefScheduler) RetrieveDOI(doi models.DOI) (*crossrefapi.Works, err
 	resp := <-queueItem.Receiver
 	data, err := resp.Data, resp.Error
 	if data == nil || err != nil {
-		return nil, huma.Error404NotFound(fmt.Sprintf("No match found for DOI %s", doi))
+		return nil, fmt.Errorf("No match found for DOI %s", doi)
 	}
 
 	logrus.Debugf("Received response for DOI %s: %+v", doi, data)

@@ -6,8 +6,7 @@ import {
   refreshSessionMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { client } from '@/api/gen/client.gen'
-import { QueryClient, useQuery } from '@tanstack/vue-query'
-import { useMutation } from '@tanstack/vue-query'
+import { QueryClient, useMutation } from '@tanstack/vue-query'
 import { until, useLocalStorage, useSessionStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -58,6 +57,21 @@ export const useUserStore = defineStore('user', () => {
     pending: refreshPending.value
   }))
 
+  // Intercept requests to refresh session if needed
+  client.interceptors.request.use(async (request) => {
+    console.log('Intercepting request to check if session refresh is needed', sessionExpired())
+    console.log('Refresh token:', refresh_token.value)
+    if (!!refresh_token.value && sessionExpired() && !request.headers.has('noAuthRefresh')) {
+      console.debug('Session expired, refreshing before request', request)
+      // Prevent concurrent refresh requests
+      if (!refreshPending.value) {
+        refresh()
+      }
+      await until(refreshPending).toBe(false)
+    }
+    return request
+  })
+
   async function bootstrapAuth(client: QueryClient) {
     if (authReady.value) {
       return
@@ -70,39 +84,25 @@ export const useUserStore = defineStore('user', () => {
         console.log('Bootstrapped auth state with user', u)
         user.value = u
         usePrivilege.value = u.role
-        authReady.value = true
         return
       })
       .catch((err) => {
         console.log('Using refresh token to bootstrap auth state', err)
         if (!authBootstrap.value) {
           authBootstrap.value = (async () => {
-            try {
-              if (refresh_token.value) {
-                await refresh()
-              } else {
-                clearSession()
-              }
-            } finally {
-              authReady.value = true
+            if (refresh_token.value) {
+              await refresh()
+            } else {
+              clearSession()
             }
           })()
         }
         return authBootstrap.value
       })
+      .finally(() => {
+        authReady.value = true
+      })
   }
-
-  // Intercept requests to refresh session if needed
-  client.interceptors.request.use(async (request) => {
-    if (isAuthenticated.value && sessionExpired() && !request.headers.has('noAuthRefresh')) {
-      // Prevent concurrent refresh requests
-      if (!refreshPending.value) {
-        refresh()
-      }
-      await until(refreshPending).toBe(false)
-    }
-    return request
-  })
 
   // Login
   const {
@@ -163,7 +163,8 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function sessionExpired() {
-    return session_expires.value === undefined || new Date() >= session_expires.value
+    console.log('session expires:', session_expires.value?.getTime())
+    return session_expires.value === undefined || Date.now() >= session_expires.value.getTime()
   }
 
   function isGranted(role: UserRole) {

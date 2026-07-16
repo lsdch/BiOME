@@ -159,58 +159,6 @@ func (u NullEventDatePrecision) Get() (EventDatePrecision, bool) {
 	return u.EventDatePrecision, u.Valid
 }
 
-var GBIFImportStatusValues = []GBIFImportStatus{
-	GBIFImportStatusPending,
-	GBIFImportStatusInProgress,
-	GBIFImportStatusCompleted,
-	GBIFImportStatusFailed,
-}
-
-var GBIFImportStatusHierarchy = map[GBIFImportStatus]int{
-	GBIFImportStatusPending:    0,
-	GBIFImportStatusInProgress: 1,
-	GBIFImportStatusCompleted:  2,
-	GBIFImportStatusFailed:     3,
-}
-
-func (u *GBIFImportStatus) UnmarshalCSV(v []byte) error {
-	e := GBIFImportStatus(v)
-	if e.Valid() {
-		*u = e
-		return nil
-	}
-	return fmt.Errorf("invalid GBIFImportStatus value: %s", v)
-}
-
-func (u GBIFImportStatus) IsGreater(v GBIFImportStatus) bool {
-	return GBIFImportStatusHierarchy[u] > GBIFImportStatusHierarchy[v]
-}
-
-func (u GBIFImportStatus) IsGreaterEqual(v GBIFImportStatus) bool {
-	return GBIFImportStatusHierarchy[u] >= GBIFImportStatusHierarchy[v]
-}
-
-// Register enum in OpenAPI specification.
-func (u GBIFImportStatus) Schema(r huma.Registry) *huma.Schema {
-	if r.Map()["GBIFImportStatus"] == nil {
-		schemaRef := r.Schema(reflect.TypeOf(""), true, "GBIFImportStatus")
-		schemaRef.Title = "GBIFImportStatus"
-
-		for _, v := range GBIFImportStatusValues {
-			schemaRef.Enum = append(schemaRef.Enum, string(v))
-		}
-
-		r.Map()["GBIFImportStatus"] = schemaRef
-	}
-
-	return &huma.Schema{
-		Ref: "#/components/schemas/GBIFImportStatus",
-	}
-}
-func (u NullGBIFImportStatus) Get() (GBIFImportStatus, bool) {
-	return u.GBIFImportStatus, u.Valid
-}
-
 var InvitationStatusValues = []InvitationStatus{
 	InvitationStatusPending,
 	InvitationStatusRedeemed,
@@ -369,6 +317,110 @@ func (u OccurrenceTypeStatus) Schema(r huma.Registry) *huma.Schema {
 }
 func (u NullOccurrenceTypeStatus) Get() (OccurrenceTypeStatus, bool) {
 	return u.OccurrenceTypeStatus, u.Valid
+}
+
+var PublicationResolutionStatusValues = []PublicationResolutionStatus{
+	PublicationResolutionStatusPending,
+	PublicationResolutionStatusResolved,
+	PublicationResolutionStatusFailed,
+	PublicationResolutionStatusManualRequired,
+}
+
+var PublicationResolutionStatusHierarchy = map[PublicationResolutionStatus]int{
+	PublicationResolutionStatusPending:        0,
+	PublicationResolutionStatusResolved:       1,
+	PublicationResolutionStatusFailed:         2,
+	PublicationResolutionStatusManualRequired: 3,
+}
+
+func (u *PublicationResolutionStatus) UnmarshalCSV(v []byte) error {
+	e := PublicationResolutionStatus(v)
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+	return fmt.Errorf("invalid PublicationResolutionStatus value: %s", v)
+}
+
+func (u PublicationResolutionStatus) IsGreater(v PublicationResolutionStatus) bool {
+	return PublicationResolutionStatusHierarchy[u] > PublicationResolutionStatusHierarchy[v]
+}
+
+func (u PublicationResolutionStatus) IsGreaterEqual(v PublicationResolutionStatus) bool {
+	return PublicationResolutionStatusHierarchy[u] >= PublicationResolutionStatusHierarchy[v]
+}
+
+// Register enum in OpenAPI specification.
+func (u PublicationResolutionStatus) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["PublicationResolutionStatus"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "PublicationResolutionStatus")
+		schemaRef.Title = "PublicationResolutionStatus"
+
+		for _, v := range PublicationResolutionStatusValues {
+			schemaRef.Enum = append(schemaRef.Enum, string(v))
+		}
+
+		r.Map()["PublicationResolutionStatus"] = schemaRef
+	}
+
+	return &huma.Schema{
+		Ref: "#/components/schemas/PublicationResolutionStatus",
+	}
+}
+func (u NullPublicationResolutionStatus) Get() (PublicationResolutionStatus, bool) {
+	return u.PublicationResolutionStatus, u.Valid
+}
+
+var PublicationResolutionTypeValues = []PublicationResolutionType{
+	PublicationResolutionTypeCrossref,
+	PublicationResolutionTypeDoi,
+	PublicationResolutionTypeVerbatim,
+	PublicationResolutionTypeManual,
+}
+
+var PublicationResolutionTypeHierarchy = map[PublicationResolutionType]int{
+	PublicationResolutionTypeCrossref: 0,
+	PublicationResolutionTypeDoi:      1,
+	PublicationResolutionTypeVerbatim: 2,
+	PublicationResolutionTypeManual:   3,
+}
+
+func (u *PublicationResolutionType) UnmarshalCSV(v []byte) error {
+	e := PublicationResolutionType(v)
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+	return fmt.Errorf("invalid PublicationResolutionType value: %s", v)
+}
+
+func (u PublicationResolutionType) IsGreater(v PublicationResolutionType) bool {
+	return PublicationResolutionTypeHierarchy[u] > PublicationResolutionTypeHierarchy[v]
+}
+
+func (u PublicationResolutionType) IsGreaterEqual(v PublicationResolutionType) bool {
+	return PublicationResolutionTypeHierarchy[u] >= PublicationResolutionTypeHierarchy[v]
+}
+
+// Register enum in OpenAPI specification.
+func (u PublicationResolutionType) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["PublicationResolutionType"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "PublicationResolutionType")
+		schemaRef.Title = "PublicationResolutionType"
+
+		for _, v := range PublicationResolutionTypeValues {
+			schemaRef.Enum = append(schemaRef.Enum, string(v))
+		}
+
+		r.Map()["PublicationResolutionType"] = schemaRef
+	}
+
+	return &huma.Schema{
+		Ref: "#/components/schemas/PublicationResolutionType",
+	}
+}
+func (u NullPublicationResolutionType) Get() (PublicationResolutionType, bool) {
+	return u.PublicationResolutionType, u.Valid
 }
 
 var ResolutionStatusValues = []ResolutionStatus{

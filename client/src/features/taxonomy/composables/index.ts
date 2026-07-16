@@ -1,16 +1,14 @@
-import { Taxon, TaxonRank } from "@/api";
-import { createEventHook, useEventBus, useLocalStorage } from "@vueuse/core";
-import { nextTick, reactive, Reactive, ref, ToRefs, toRefs } from "vue";
-import { TaxonomyElement } from "../components/TaxonomyItem.vue";
+import { Taxon, TaxonRank } from '@/api'
+import { createEventHook, useEventBus, useLocalStorage } from '@vueuse/core'
+import { nextTick, reactive, Reactive, ref, ToRefs, toRefs } from 'vue'
+import { TaxonomyElement } from '../components/TaxonomyItem.vue'
 
-
-export const maxRankDisplay = useLocalStorage<TaxonRank>('max-taxon-rank', 'Kingdom')
+export const maxRankDisplay = useLocalStorage<TaxonRank>('max-taxon-rank', 'KINGDOM')
 
 const selectedTaxon = ref<Taxon>()
 const selectHook = createEventHook<Taxon>()
 
 export function useTaxonSelection() {
-
   function select(taxon: Taxon) {
     selectedTaxon.value = taxon
     history.replaceState(history.state, '', `#${taxon.name}`)
@@ -25,7 +23,7 @@ export function useTaxonSelection() {
   return { select, drop, selected: selectedTaxon, onSelect: selectHook.on }
 }
 
-type TaxonFoldState = ToRefs<Reactive<{ expanded: boolean, parent: string | undefined }>>
+type TaxonFoldState = ToRefs<Reactive<{ expanded: boolean; parent: string | undefined }>>
 const taxonFoldState: Record<string, TaxonFoldState> = {}
 
 function foldTaxon(taxonID: string) {
@@ -47,10 +45,8 @@ async function unfoldTaxon(taxonID: string) {
 }
 
 export async function showTaxon(taxon: TaxonomyElement) {
-  if (taxon.parent) await unfoldTaxon(taxon.parent.id)
-  return nextTick(() =>
-    scrollToTaxon(taxon.name)
-  )
+  if (taxon.parent_id) await unfoldTaxon(taxon.parent_id)
+  return nextTick(() => scrollToTaxon(taxon.name))
 }
 
 export function scrollToTaxon(name: string) {
@@ -59,9 +55,11 @@ export function scrollToTaxon(name: string) {
 
 export function useTaxonFoldState(taxon: TaxonomyElement, initial?: boolean) {
   if (!(taxon.id in taxonFoldState))
-    taxonFoldState[taxon.id] = toRefs(reactive({ expanded: initial ?? true, parent: taxon.parent?.id }))
+    taxonFoldState[taxon.id] = toRefs(
+      reactive({ expanded: initial ?? true, parent: taxon.parent_id })
+    )
   const state = taxonFoldState[taxon.id]
-  if(!state) throw new Error(`Failed to initialize fold state for taxon ${taxon.id}`)
+  if (!state) throw new Error(`Failed to initialize fold state for taxon ${taxon.id}`)
 
   function fold() {
     return foldTaxon(taxon.id)
@@ -76,33 +74,29 @@ export function useTaxonFoldState(taxon: TaxonomyElement, initial?: boolean) {
   }
 
   async function show() {
-    if (taxon.parent) await unfoldTaxon(taxon.parent.id)
-    nextTick(() =>
-      scrollToTaxon(taxon.name)
-    )
+    if (taxon.parent_id) await unfoldTaxon(taxon.parent_id)
+    nextTick(() => scrollToTaxon(taxon.name))
   }
-
 
   return { expanded: state.expanded, fold, unfold, show, toggleFold, scrollToTaxon }
 }
 
 const rankFoldState = ref<{ [k in TaxonRank]: boolean | undefined }>({
-  Kingdom: true,
-  Phylum: true,
-  Class: true,
-  Order: true,
-  Family: true,
-  Genus: true,
-  Species: true,
-  Subgenus: true,
-  Subspecies: true
+  KINGDOM: true,
+  PHYLUM: true,
+  CLASS: true,
+  ORDER: true,
+  FAMILY: true,
+  GENUS: true,
+  SPECIES: true,
+  SUBGENUS: true,
+  SUBSPECIES: true
 })
 
 const { emit: emitFold, on: onFold } = useEventBus<TaxonRank>('fold')
 const { emit: emitUnfold, on: onUnfold } = useEventBus<TaxonRank>('unfold')
 
 export function useRankFoldState() {
-
   function fold(rank: TaxonRank) {
     const child = TaxonRank.childRank(rank)
     if (child) fold(child)

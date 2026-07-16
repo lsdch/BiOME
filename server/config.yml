@@ -37,6 +37,7 @@ API:
 bootstrap: 
   countries: 
     COUNTRIES_JSON_URL: https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
+    COUNTRIES_JSON_CACHE_PATH: ./data/cache/countries.json
     COUNTRY_NAME_KEY: name
     COUNTRY_CODE_KEY: alpha-3
     COUNTRY_CONTINENT_KEY: region

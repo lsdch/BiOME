@@ -68,3 +68,19 @@ func (s *SamplingService) BootstrapSamplingFixatives(ctx context.Context, q db.Q
 	}
 	return nil
 }
+
+// Initializes the sampling fixatives resolution state for a given import hash. This is typically called when starting a new import workflow.
+func (s *SamplingService) InitFixativeResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.SamplingFixativeResolution, err error) {
+	return s.store.InitFixativeResolution(ctx, q, importID)
+}
+
+func (s *SamplingService) GetFixativesResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.SamplingFixativeResolution, err error) {
+	return s.store.GetFixativesResolution(ctx, q, importID)
+}
+
+func (s *SamplingService) ResolveFixative(ctx context.Context, q db.Querier, importID uuid.UUID, input models.SamplingFixativeResolutionInput) (models.SamplingFixativeResolution, error) {
+	if err := input.Validate(); err != nil {
+		return models.SamplingFixativeResolution{}, err
+	}
+	return s.store.ResolveFixative(ctx, q, importID, input)
+}

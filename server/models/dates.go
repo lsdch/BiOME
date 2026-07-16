@@ -86,7 +86,7 @@ func (d *EventDateInput) String() string {
 	case biomedb.EventDatePrecisionYear:
 		return d.Date.Format("2006")
 	default:
-		return d.Date.Format(time.RFC3339)
+		return d.Date.Format("2006-01-02")
 	}
 }
 

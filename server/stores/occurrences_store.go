@@ -11,7 +11,8 @@ import (
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/db/biomedb/biomedb/public/table"
 	"github.com/lsdch/biome/models"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
+	"github.com/sirupsen/logrus"
 )
 
 const MIN_FULL_TEXT_SEARCH_TERM_LENGTH = 3
@@ -37,11 +38,14 @@ func (s *OccurrenceStore) fromOccurrenceCoreTables(stmt SelectStatement) SelectS
 }
 
 func (s *OccurrenceStore) ListOccurrencesCount(ctx context.Context, q db.Querier, params ListOccurrencesParams) (int64, error) {
-	stmt := s.fromOccurrenceCoreTables(SELECT(COUNT(Int(1))))
+
+	logrus.Debugf("ListOccurrencesCount called with params: %+v", params)
+	stmt := s.fromOccurrenceCoreTables(SELECT(COUNT(STAR)))
 	searchParts := buildSearchParts(params.SearchTerm)
 	stmt = params.ApplyFilters(stmt, searchParts)
 
 	sql, args := stmt.Sql()
+	logrus.Infof("args: %+v", args)
 	row := q.QueryRow(ctx, sql, args...)
 	var count int64
 	err := row.Scan(&count)
@@ -52,22 +56,27 @@ func (s *OccurrenceStore) ListOccurrencesCount(ctx context.Context, q db.Querier
 }
 
 func (s *OccurrenceStore) ListOccurrences(ctx context.Context, q db.Querier, params ListOccurrencesParams) ([]models.Occurrence, error) {
-	score := Float(0)
+
+	logrus.Debugf("ListOccurrences called with params: %+v", params)
+
+	score := Float(0.0)
 	searchParts := buildSearchParts(strings.TrimSpace(params.SearchTerm))
 	score = searchParts.toScoreProjection()
 
 	stmt := s.fromOccurrenceCoreTables(SELECT(
 		table.Occurrences.AllColumns,
-		table.Taxa.AllColumns,
 		table.Samplings.AllColumns,
+		table.Taxa.AllColumns,
 		table.Countries.AllColumns,
-		score,
+		score.AS("score"),
 	))
 	stmt = params.ApplyFilters(stmt, searchParts)
 	stmt = params.ApplySorting(stmt, score)
 	stmt = params.ApplyPagination(stmt)
 
 	sql, args := stmt.Sql()
+	logrus.Infof("SQL Query: %s", sql)
+	logrus.Infof("args: %+v", args)
 	occurrencesRows, err := q.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, err
@@ -86,6 +95,7 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 	occurrences := make([]models.Occurrence, 0, 64)
 
 	for rows.Next() {
+		var score float32
 		var i biomedb.GetOccurrenceByIDRow
 		err := rows.Scan(
 			&i.Occurrence.ID,
@@ -109,13 +119,12 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 			&i.Occurrence.UpdatedAt,
 			&i.Occurrence.ImportBatchID,
 			&i.Sampling.ID,
-			&i.Sampling.Notes,
+			&i.Sampling.Comments,
 			&i.Sampling.SiteCode,
 			&i.Sampling.SiteName,
 			&i.Sampling.SiteLocality,
 			&i.Sampling.SiteCountryCode,
 			&i.Sampling.CoordinatesPrecision,
-			&i.Sampling.Coordinates,
 			&i.Sampling.Latitude,
 			&i.Sampling.Longitude,
 			&i.Sampling.Altitude,
@@ -124,7 +133,9 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 			&i.Sampling.PerformedBy,
 			&i.Sampling.Duration,
 			&i.Sampling.AccessPoints,
+			&i.Sampling.ImportBatchID,
 			&i.Sampling.H3Index,
+			&i.Sampling.SearchVector,
 			&i.Taxon.ID,
 			&i.Taxon.GBIFID,
 			&i.Taxon.Name,
@@ -134,11 +145,13 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 			&i.Taxon.Authorship,
 			&i.Taxon.AcceptedTaxonID,
 			&i.Taxon.ParentID,
+			&i.Taxon.SearchVector,
 			&i.Taxon.Comments,
 			&i.Country.Code,
 			&i.Country.Name,
 			&i.Country.Continent,
 			&i.Country.Subcontinent,
+			&score,
 		)
 		if err != nil {
 			return nil, err
@@ -154,15 +167,15 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 }
 
 type ListOccurrencesParams struct {
-	SearchTerm  string                                                   `json:"search_term,omitempty" query:"search_term"`
-	Datasets    []ulid.ULID                                              `json:"datasets,omitempty" query:"datasets"`
-	Taxa        []uuid.UUID                                              `json:"taxa,omitempty" query:"taxa"`
-	WholeClade  bool                                                     `json:"whole_clade,omitempty" query:"whole_clade"`
-	Confer      models.Optional[bool]                                    `json:"confer,omitempty" query:"confer"`
-	TaxonRank   models.Optional[biomedb.TaxonRank]                       `json:"taxon_rank,omitempty" query:"taxon_rank"`
-	TaxonStatus models.Optional[biomedb.TaxonStatus]                     `json:"taxon_status,omitempty" query:"taxon_status"`
-	Pagination  models.Pagination                                        `json:"pagination"`
-	OrderBy     models.Optional[models.SortBy[models.OccurrenceSortKey]] `json:"order_by"`
+	SearchTerm        string                              `json:"search_term,omitempty" query:"search_term"`
+	Datasets          []types.ULID                        `json:"datasets,omitempty" query:"datasets"`
+	Taxa              []uuid.UUID                         `json:"taxa,omitempty" query:"taxa"`
+	WholeClade        bool                                `json:"whole_clade,omitempty" query:"whole_clade"`
+	Confer            models.Optional[bool]               `json:"confer,omitempty" query:"confer"`
+	TaxonRank         models.Optional[models.TaxonRank]   `json:"taxon_rank,omitempty" query:"taxon_rank"`
+	TaxonStatus       models.Optional[models.TaxonStatus] `json:"taxon_status,omitempty" query:"taxon_status"`
+	models.Pagination `json:"pagination" query:"pagination"`
+	OrderBy           models.Optional[models.SortBy[models.OccurrenceSortKey]] `json:"order_by" query:"order_by"`
 }
 
 func (p *ListOccurrencesParams) ApplyFilters(stmt SelectStatement, parts searchParts) SelectStatement {
@@ -175,10 +188,10 @@ func (p *ListOccurrencesParams) ApplyFilters(stmt SelectStatement, parts searchP
 func (p *ListOccurrencesParams) ApplySorting(stmt SelectStatement, score FloatExpression) SelectStatement {
 	orderBy, ok := p.OrderBy.Get()
 	if ok {
-		stmt = stmt.ORDER_BY(score.DESC(), orderBy.ToOrderByClause())
+		stmt = stmt.ORDER_BY(FloatColumn("score").DESC(), orderBy.ToOrderByClause())
 	} else {
 		// Default sorting by occurrence code if no order_by is provided
-		stmt = stmt.ORDER_BY(score.DESC(), table.Occurrences.Code.ASC())
+		stmt = stmt.ORDER_BY(FloatColumn("score").DESC(), table.Occurrences.Code.ASC())
 	}
 	return stmt
 }
@@ -204,7 +217,7 @@ func (p *ListOccurrencesParams) applyDatasetFilter(stmt SelectStatement) SelectS
 	od := table.OccurrencesDatasets
 	return stmt.WHERE(
 		EXISTS(
-			SELECT(Int(1)).
+			SELECT(Bool(true)).
 				FROM(od).
 				WHERE(
 					od.OccurrenceID.EQ(table.Occurrences.ID).
@@ -227,7 +240,7 @@ func (p *ListOccurrencesParams) applyTaxonomyFilter(stmt SelectStatement) Select
 	if hasTaxaFilter {
 		var taxaExpr = make([]Expression, 0, len(p.Taxa))
 		for _, id := range p.Taxa {
-			taxaExpr = append(taxaExpr, String(id.String()))
+			taxaExpr = append(taxaExpr, UUID(id))
 		}
 		if p.WholeClade {
 			stmt = stmt.WHERE(
@@ -250,14 +263,14 @@ func (p *ListOccurrencesParams) applyTaxonomyFilter(stmt SelectStatement) Select
 	// 2. rank
 	if hasRankFilter {
 		stmt = stmt.WHERE(
-			table.Taxa.Rank.EQ(String(string(p.TaxonRank.Value))),
+			table.Taxa.Rank.EQ(StringExp(CAST(String(string(p.TaxonRank.Value))).AS("public.taxon_rank"))),
 		)
 	}
 
 	// 3. status
 	if hasStatusFilter {
 		stmt = stmt.WHERE(
-			table.Taxa.Status.EQ(String(string(p.TaxonStatus.Value))),
+			table.Taxa.Status.EQ(StringExp(CAST(String(string(p.TaxonStatus.Value))).AS("public.taxon_status"))),
 		)
 	}
 
@@ -285,8 +298,8 @@ func buildSearchParts(term string) searchParts {
 		return searchParts{}
 	}
 
-	t := String(term)
-	like := String(term + "%")
+	t := Text(term)
+	like := Text("%" + term + "%")
 
 	return searchParts{
 		term: term,
@@ -333,18 +346,20 @@ func (s searchParts) toExpression() BoolExpression {
 
 func (s searchParts) toScoreProjection() FloatExpression {
 	if !s.hasTerm() {
-		return Float(0)
+		return RawFloat("0.0")
 	}
 
-	exact := Float(100)
-	prefixScore := Float(60)
-	ftsScore := Float(30)
+	exact := RawFloat("100.0")
+	prefixScore := RawFloat("60.0")
+	ftsScore := RawFloat("30.0")
 
 	score := FloatExp(
-		CASE().
-			WHEN(s.exact).THEN(exact).
-			WHEN(s.prefix).THEN(prefixScore).
-			ELSE(Float(0)),
+		CAST(
+			CASE().
+				WHEN(s.exact).THEN(exact).
+				WHEN(s.prefix).THEN(prefixScore).
+				ELSE(RawFloat("0.0")),
+		).AS("float"),
 	)
 
 	if s.hasFullTextSearch() {

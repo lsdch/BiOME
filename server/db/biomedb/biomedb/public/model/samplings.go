@@ -15,7 +15,7 @@ import (
 
 type Samplings struct {
 	ID                   uuid.UUID `sql:"primary_key"`
-	Notes                *string
+	Comments             *string
 	SiteCode             *string
 	SiteName             *string
 	SiteLocality         *string
@@ -29,6 +29,7 @@ type Samplings struct {
 	PerformedBy          *pq.StringArray
 	Duration             *int32
 	AccessPoints         *pq.StringArray
+	ImportBatchID        *string
 	H3Index              int64
 	SearchVector         *string
 }

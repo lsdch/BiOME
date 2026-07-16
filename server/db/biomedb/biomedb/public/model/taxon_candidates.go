@@ -12,16 +12,17 @@ import (
 )
 
 type TaxonCandidates struct {
-	ImportHash string
-	InputName  string
-	Source     TaxonMatchSource
-	MatchType  TaxonMatchType
-	TaxonID    *uuid.UUID
-	GbifID     *int32
-	Score      *float64
-	Priority   int32
-	Name       string
-	Authorship *string
-	Rank       TaxonRank
-	Status     TaxonStatus
+	ID           uuid.UUID `sql:"primary_key"`
+	ImportID     uuid.UUID
+	ResolutionID uuid.UUID
+	Source       TaxonMatchSource
+	MatchType    TaxonMatchType
+	TaxonID      *uuid.UUID
+	GbifID       *int32
+	Score        *float64
+	Priority     int32
+	Name         string
+	Authorship   *string
+	Rank         TaxonRank
+	Status       TaxonStatus
 }

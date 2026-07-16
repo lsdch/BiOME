@@ -100,7 +100,7 @@ func newOccurrencesTableImpl(schemaName, tableName, alias string) occurrencesTab
 		ImportBatchIDColumn               = postgres.StringColumn("import_batch_id")
 		allColumns                        = postgres.ColumnList{IDColumn, CodeColumn, SamplingIDColumn, TypeStatusColumn, CommentsColumn, TaxonIDColumn, VerbatimIdentificationColumn, IdentifiedByColumn, IdentificationDateColumn, IdentificationDatePrecisionColumn, IdentificationConferColumn, IdentificationAddendumColumn, ContentDescriptionColumn, QuantityExactColumn, QuantityLowerColumn, QuantityUpperColumn, SourcesColumn, CreatedAtColumn, UpdatedAtColumn, ImportBatchIDColumn}
 		mutableColumns                    = postgres.ColumnList{CodeColumn, SamplingIDColumn, TypeStatusColumn, CommentsColumn, TaxonIDColumn, VerbatimIdentificationColumn, IdentifiedByColumn, IdentificationDateColumn, IdentificationDatePrecisionColumn, IdentificationConferColumn, IdentificationAddendumColumn, ContentDescriptionColumn, QuantityExactColumn, QuantityLowerColumn, QuantityUpperColumn, SourcesColumn, CreatedAtColumn, UpdatedAtColumn, ImportBatchIDColumn}
-		defaultColumns                    = postgres.ColumnList{IdentificationConferColumn, CreatedAtColumn, UpdatedAtColumn}
+		defaultColumns                    = postgres.ColumnList{IdentificationConferColumn, CreatedAtColumn}
 	)
 
 	return occurrencesTable{

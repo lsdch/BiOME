@@ -8,14 +8,16 @@
 package model
 
 import (
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"time"
 )
 
 type ImportSamplingsOccurrences struct {
-	ImportHash                  string `sql:"primary_key"`
+	ID                          string `sql:"primary_key"`
+	ImportID                    uuid.UUID
 	ImportedAt                  time.Time
-	RowNumber                   int32 `sql:"primary_key"`
+	RowNumber                   int32
 	SamplingHash                string
 	SamplingComments            *string
 	SiteCode                    *string
@@ -53,4 +55,7 @@ type ImportSamplingsOccurrences struct {
 	QuantityUpper               *int32
 	Sources                     *pq.StringArray
 	OccurrenceComments          *string
+	TaxonResolutionID           *uuid.UUID
+	MaterializedSamplingID      *uuid.UUID
+	MaterializedOccurrenceID    *string
 }

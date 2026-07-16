@@ -42,7 +42,7 @@ func OptionalDateWithPrecisionFromDB(date pgtype.Date, precision *biomedb.EventD
 }
 
 type Sampling struct {
-	ID           uuid.UUID
+	ID           uuid.UUID                   `json:"id"`
 	Site         Site                        `json:"site"`
 	Coordinates  CoordinatesWithPrecision    `json:"coordinates"`
 	Altitude     Optional[int32]             `json:"altitude,omitempty"`
@@ -98,6 +98,13 @@ func (s Sampling) WithDistance(distanceMeters int32) SamplingWithDistance {
 	return SamplingWithDistance{
 		Sampling:       s,
 		DistanceMeters: distanceMeters,
+	}
+}
+
+func (s Sampling) WithOccurrences(occurrences []BaseOccurrence) SamplingWithOccurrences {
+	return SamplingWithOccurrences{
+		Sampling:    s,
+		Occurrences: occurrences,
 	}
 }
 
@@ -167,10 +174,34 @@ func (i ListSamplingsAtProximityInput) ToParams() biomedb.ListSamplingsAtProximi
 		ExcludeSamplingIds: i.ExcludeIds,
 	}
 }
+func (i ListSamplingsAtProximityInput) ToParamsH3() biomedb.ListSamplingsH3AtProximityParams {
+	// var eventDate pgtype.Date
+	// if i.EventDate.IsSet {
+	// 	eventDate = i.EventDate.Value.ToPgDate()
+	// }
+	return biomedb.ListSamplingsH3AtProximityParams{
+		Latitude:     i.Latitude,
+		Longitude:    i.Longitude,
+		RadiusMeters: i.RadiusMeters,
+		// EventDate:          eventDate,
+		// DateIntervalDays:   i.DateIntervalDays.GetWithDefault(30),
+		ExcludeSamplingIds: i.ExcludeIds,
+	}
+}
 
 type SamplingWithDistance struct {
 	Sampling
 	DistanceMeters int32 `json:"distance_meters"`
+}
+
+func (s SamplingWithDistance) WithOccurrences(occurrences []BaseOccurrence) SamplingWithOccurrencesAndDistance {
+	return SamplingWithOccurrencesAndDistance{
+		SamplingWithOccurrences: SamplingWithOccurrences{
+			Sampling:    s.Sampling,
+			Occurrences: occurrences,
+		},
+		DistanceMeters: s.DistanceMeters,
+	}
 }
 
 type SamplingWithDetails struct {
@@ -183,54 +214,40 @@ type SamplingWithOccurrences struct {
 	Occurrences []BaseOccurrence `json:"occurrences,omitempty"`
 }
 
-type SamplingVocabUpdateParams struct {
-	Name        Optional[string]     `json:"name,omitempty"`
-	Code        Optional[string]     `json:"code,omitempty"`
-	Description OptionalNull[string] `json:"description,omitempty"`
-}
-
-type SamplingMethodUpdateParams SamplingVocabUpdateParams
-
-func (s *SamplingMethodUpdateParams) ToParams(oldCode string) biomedb.UpdateSamplingMethodParams {
-	return biomedb.UpdateSamplingMethodParams{
-		Code:           s.Code.ToPtr(),
-		Name:           s.Name.ToPtr(),
-		SetDescription: s.Description.IsSet,
-		Description:    s.Description.ToPtr(),
-		OldCode:        oldCode,
+func (s SamplingWithOccurrences) WithDistance(distanceMeters int32) SamplingWithOccurrencesAndDistance {
+	return SamplingWithOccurrencesAndDistance{
+		SamplingWithOccurrences: s,
+		DistanceMeters:          distanceMeters,
 	}
 }
 
-type FixativeUpdateParams SamplingVocabUpdateParams
+type SamplingWithOccurrencesAndDistance struct {
+	SamplingWithOccurrences
+	DistanceMeters int32 `json:"distance_meters"`
+}
 
-func (s *FixativeUpdateParams) ToParams(oldCode string) biomedb.UpdateFixativeParams {
-	return biomedb.UpdateFixativeParams{
-		Code:           s.Code.ToPtr(),
-		Name:           s.Name.ToPtr(),
-		SetDescription: s.Description.IsSet,
-		Description:    s.Description.ToPtr(),
-		OldCode:        oldCode,
+type CellH3 struct {
+	H3Index          h3.Cell `json:"h3_index"`
+	SamplingsCount   int32   `json:"samplings_count"`
+	OccurrencesCount int32   `json:"occurrences_count"`
+}
+
+func CellH3FromDB(h3Index h3.Cell, samplingsCount int32, occurrencesCount int32) CellH3 {
+	return CellH3{
+		H3Index:          h3Index,
+		SamplingsCount:   samplingsCount,
+		OccurrencesCount: occurrencesCount,
 	}
 }
 
-type SamplingMethodResolutionInput struct {
-	InputText        string                        `json:"input_text"`
-	ResolvedMethodId Optional[uuid.UUID]           `json:"resolved_method_id,omitempty"`
-	Status           biomedb.VocabResolutionStatus `json:"status"`
+func (c CellH3) WithDistance(distanceMeters int32) CellH3WithDistance {
+	return CellH3WithDistance{
+		CellH3:         c,
+		DistanceMeters: distanceMeters,
+	}
 }
 
-func (i SamplingMethodResolutionInput) Validate() error {
-	if i.Status == biomedb.VocabResolutionStatusSelected && !i.ResolvedMethodId.IsSet {
-		return WrapErrorPath(fmt.Errorf("resolution status is 'selected' but no method was provided"), "resolved_method_id")
-	}
-	return nil
-}
-
-func (i SamplingMethodResolutionInput) ToParams(importID uuid.UUID) biomedb.ResolveMethodParams {
-	return biomedb.ResolveMethodParams{
-		ImportID:         importID,
-		InputText:        i.InputText,
-		ResolvedMethodID: UUIDOpt(i.ResolvedMethodId),
-		Status:           i.Status,
-	}
+type CellH3WithDistance struct {
+	CellH3
+	DistanceMeters int32 `json:"distance_meters"`
 }

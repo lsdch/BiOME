@@ -1,10 +1,13 @@
-package main
+package app
 
 import (
 	"context"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
+	"time"
 
 	_ "embed"
 
@@ -67,6 +70,36 @@ func (s *AppBootstrap) Bootstrap(ctx context.Context) error {
 	return nil
 }
 
+func loadCountriesJSON(ctx context.Context, url string, cachePath string) ([]byte, error) {
+	// Try cache first
+	info, err := os.Stat(cachePath)
+	// invalidate cache after 1 year
+	if err == nil && time.Since(info.ModTime()) < 365*30*24*time.Hour {
+		return os.ReadFile(cachePath)
+	}
+
+	logrus.Infof("Downloading countries from %s", url)
+
+	data, err := downloadCountriesJSON(ctx, url)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ensure directory exists
+	if err := os.MkdirAll(filepath.Dir(cachePath), 0755); err != nil {
+		return nil, fmt.Errorf("create cache directory: %w", err)
+	}
+
+	// Save cache
+	if err := os.WriteFile(cachePath, data, 0644); err != nil {
+		logrus.Warnf("failed to write countries cache: %v", err)
+	} else {
+		logrus.Infof("Saved countries.json cache to %s", cachePath)
+	}
+
+	return data, nil
+}
+
 func (s *AppBootstrap) BootstrapCountries(ctx context.Context) error {
 	existingCountries, err := s.db.Queries().ListCountries(ctx)
 	if err != nil {
@@ -78,9 +111,9 @@ func (s *AppBootstrap) BootstrapCountries(ctx context.Context) error {
 	}
 
 	logrus.Infof("Downloading countries from %s", s.config.Countries.CountriesJSON_URL)
-	countriesJSON, err := downloadCountriesJSON(ctx, s.config.Countries.CountriesJSON_URL)
+	countriesJSON, err := loadCountriesJSON(ctx, s.config.Countries.CountriesJSON_URL, s.config.Countries.CountryJSON_CachePath)
 	if err != nil {
-		return fmt.Errorf("failed to download countries.json: %w", err)
+		return fmt.Errorf("failed to load countries.json: %w", err)
 	}
 
 	// Parse the JSON and insert countries into the database

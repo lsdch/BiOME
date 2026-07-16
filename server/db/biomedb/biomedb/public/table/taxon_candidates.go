@@ -17,18 +17,19 @@ type taxonCandidatesTable struct {
 	postgres.Table
 
 	// Columns
-	ImportHash postgres.ColumnString
-	InputName  postgres.ColumnString
-	Source     postgres.ColumnString
-	MatchType  postgres.ColumnString
-	TaxonID    postgres.ColumnString
-	GbifID     postgres.ColumnInteger
-	Score      postgres.ColumnFloat
-	Priority   postgres.ColumnInteger
-	Name       postgres.ColumnString
-	Authorship postgres.ColumnString
-	Rank       postgres.ColumnString
-	Status     postgres.ColumnString
+	ID           postgres.ColumnString
+	ImportID     postgres.ColumnString
+	ResolutionID postgres.ColumnString
+	Source       postgres.ColumnString
+	MatchType    postgres.ColumnString
+	TaxonID      postgres.ColumnString
+	GbifID       postgres.ColumnInteger
+	Score        postgres.ColumnFloat
+	Priority     postgres.ColumnInteger
+	Name         postgres.ColumnString
+	Authorship   postgres.ColumnString
+	Rank         postgres.ColumnString
+	Status       postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -70,39 +71,41 @@ func newTaxonCandidatesTable(schemaName, tableName, alias string) *TaxonCandidat
 
 func newTaxonCandidatesTableImpl(schemaName, tableName, alias string) taxonCandidatesTable {
 	var (
-		ImportHashColumn = postgres.StringColumn("import_hash")
-		InputNameColumn  = postgres.StringColumn("input_name")
-		SourceColumn     = postgres.StringColumn("source")
-		MatchTypeColumn  = postgres.StringColumn("match_type")
-		TaxonIDColumn    = postgres.StringColumn("taxon_id")
-		GbifIDColumn     = postgres.IntegerColumn("gbif_id")
-		ScoreColumn      = postgres.FloatColumn("score")
-		PriorityColumn   = postgres.IntegerColumn("priority")
-		NameColumn       = postgres.StringColumn("name")
-		AuthorshipColumn = postgres.StringColumn("authorship")
-		RankColumn       = postgres.StringColumn("rank")
-		StatusColumn     = postgres.StringColumn("status")
-		allColumns       = postgres.ColumnList{ImportHashColumn, InputNameColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
-		mutableColumns   = postgres.ColumnList{ImportHashColumn, InputNameColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
-		defaultColumns   = postgres.ColumnList{}
+		IDColumn           = postgres.StringColumn("id")
+		ImportIDColumn     = postgres.StringColumn("import_id")
+		ResolutionIDColumn = postgres.StringColumn("resolution_id")
+		SourceColumn       = postgres.StringColumn("source")
+		MatchTypeColumn    = postgres.StringColumn("match_type")
+		TaxonIDColumn      = postgres.StringColumn("taxon_id")
+		GbifIDColumn       = postgres.IntegerColumn("gbif_id")
+		ScoreColumn        = postgres.FloatColumn("score")
+		PriorityColumn     = postgres.IntegerColumn("priority")
+		NameColumn         = postgres.StringColumn("name")
+		AuthorshipColumn   = postgres.StringColumn("authorship")
+		RankColumn         = postgres.StringColumn("rank")
+		StatusColumn       = postgres.StringColumn("status")
+		allColumns         = postgres.ColumnList{IDColumn, ImportIDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
+		mutableColumns     = postgres.ColumnList{ImportIDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
+		defaultColumns     = postgres.ColumnList{IDColumn}
 	)
 
 	return taxonCandidatesTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ImportHash: ImportHashColumn,
-		InputName:  InputNameColumn,
-		Source:     SourceColumn,
-		MatchType:  MatchTypeColumn,
-		TaxonID:    TaxonIDColumn,
-		GbifID:     GbifIDColumn,
-		Score:      ScoreColumn,
-		Priority:   PriorityColumn,
-		Name:       NameColumn,
-		Authorship: AuthorshipColumn,
-		Rank:       RankColumn,
-		Status:     StatusColumn,
+		ID:           IDColumn,
+		ImportID:     ImportIDColumn,
+		ResolutionID: ResolutionIDColumn,
+		Source:       SourceColumn,
+		MatchType:    MatchTypeColumn,
+		TaxonID:      TaxonIDColumn,
+		GbifID:       GbifIDColumn,
+		Score:        ScoreColumn,
+		Priority:     PriorityColumn,
+		Name:         NameColumn,
+		Authorship:   AuthorshipColumn,
+		Rank:         RankColumn,
+		Status:       StatusColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

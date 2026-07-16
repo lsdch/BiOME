@@ -4,9 +4,6 @@ vars:
   TEST_DB_NAME: testing
 
 includes:
-  db:
-    taskfile: ./db
-    dir: ./db
   client:
     taskfile: ./client
     dir: ./client
@@ -22,11 +19,8 @@ tasks:
     deps:
       - task: server:install
       - task: client:install
-      - task: db:migrate
   setup:
-    desc: "Install dependencies, apply migrations and seed database content"
-    cmds:
-      - task: db:seed
+    desc: "Install dependencies"
     deps:
       - server:install
       - task: client:install

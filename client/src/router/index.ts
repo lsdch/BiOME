@@ -53,15 +53,15 @@ function setupRouter(settings: InstanceSettings) {
         props: (route) => ({ slug: route.params.slug })
       },
       {
-        path: '/sites/:code',
-        name: 'site-item',
-        component: () => import('@/features/site/views/SiteItemView.vue'),
+        path: '/occurrences/:id/:code?',
+        name: 'occurrence-item',
+        component: () => import('@/features/occurrences/views/OccurrenceItemView.vue'),
         props: true
       },
       {
-        path: '/occurrences/:code',
-        name: 'occurrence-item',
-        component: () => import('@/features/occurrences/views/OccurrenceItemView.vue'),
+        path: '/import/batch/:uuid',
+        name: 'import-batch-item',
+        component: () => import('@/features/import/views/ImportBatchView.vue'),
         props: true
       },
       {

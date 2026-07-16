@@ -5,16 +5,20 @@ import type {
   CreateOccurrenceResponse,
   CreateSamplingResponse,
   GetDatasetByIdResponse,
-  GetOccurrencesResponse,
+  GetOccurrenceResponse,
   ImportOccurrencesCsvResponse,
+  ImportStatusResponse,
   ListDatasetsResponse,
   ListGeoapifyUsageResponse,
+  ListImportsForCurrentUserResponse,
   ListImportsResponse,
+  ListOccurrencesAtProximityResponse,
   ListOccurrencesResponse,
   ListSamplingsAtProximityResponse,
   LoadDatasetsForOccurrenceResponse,
   LoadOccurrencesForDatasetResponse,
   LoginResponse,
+  MaterializeBatchResponse,
   RefreshSessionResponse
 } from './types.gen'
 
@@ -117,7 +121,7 @@ const importWorkflowSchemaResponseTransformer = (data: any) => {
 
 const importEventSchemaResponseTransformer = (data: any) => {
   data.GBIF = progressSnapshotSchemaResponseTransformer(data.GBIF)
-  data.Workflow = importWorkflowSchemaResponseTransformer(data.Workflow)
+  data.workflow = importWorkflowSchemaResponseTransformer(data.workflow)
   return data
 }
 
@@ -130,6 +134,30 @@ export const importOccurrencesCsvResponseTransformer = async (
   data: any
 ): Promise<ImportOccurrencesCsvResponse> => {
   data = importWorkflowSchemaResponseTransformer(data)
+  return data
+}
+
+export const listImportsForCurrentUserResponseTransformer = async (
+  data: any
+): Promise<ListImportsForCurrentUserResponse> => {
+  data = data.map((item: any) => importEventSchemaResponseTransformer(item))
+  return data
+}
+
+const importBatchSchemaResponseTransformer = (data: any) => {
+  data.created_at = new Date(data.created_at)
+  return data
+}
+
+export const materializeBatchResponseTransformer = async (
+  data: any
+): Promise<MaterializeBatchResponse> => {
+  data = importBatchSchemaResponseTransformer(data)
+  return data
+}
+
+export const importStatusResponseTransformer = async (data: any): Promise<ImportStatusResponse> => {
+  data = importEventSchemaResponseTransformer(data)
   return data
 }
 
@@ -150,8 +178,10 @@ const codeHistoryEntrySchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const importBatchSchemaResponseTransformer = (data: any) => {
-  data.created_at = new Date(data.created_at)
+const samplingWithDetailsSchemaResponseTransformer = (data: any) => {
+  if (data.performed_on) {
+    data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
   return data
 }
 
@@ -168,9 +198,7 @@ const occurrenceWithDetailsSchemaResponseTransformer = (data: any) => {
   if (data.import_batch) {
     data.import_batch = importBatchSchemaResponseTransformer(data.import_batch)
   }
-  if (data.performed_on) {
-    data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
-  }
+  data.sampling = samplingWithDetailsSchemaResponseTransformer(data.sampling)
   return data
 }
 
@@ -181,10 +209,34 @@ export const createOccurrenceResponseTransformer = async (
   return data
 }
 
-export const getOccurrencesResponseTransformer = async (
+export const getOccurrenceResponseTransformer = async (
   data: any
-): Promise<GetOccurrencesResponse> => {
+): Promise<GetOccurrenceResponse> => {
   data = occurrenceWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
+const baseOccurrenceSchemaResponseTransformer = (data: any) => {
+  data.identification = identificationSchemaResponseTransformer(data.identification)
+  return data
+}
+
+const samplingWithOccurrencesAndDistanceSchemaResponseTransformer = (data: any) => {
+  if (data.occurrences) {
+    data.occurrences = data.occurrences.map((item: any) =>
+      baseOccurrenceSchemaResponseTransformer(item)
+    )
+  }
+  if (data.performed_on) {
+    data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
+  return data
+}
+
+export const listOccurrencesAtProximityResponseTransformer = async (
+  data: any
+): Promise<ListOccurrencesAtProximityResponse> => {
+  data = data.map((item: any) => samplingWithOccurrencesAndDistanceSchemaResponseTransformer(item))
   return data
 }
 
@@ -229,13 +281,6 @@ export const listSamplingsAtProximityResponseTransformer = async (
   data: any
 ): Promise<ListSamplingsAtProximityResponse> => {
   data = data.map((item: any) => samplingWithDistanceSchemaResponseTransformer(item))
-  return data
-}
-
-const samplingWithDetailsSchemaResponseTransformer = (data: any) => {
-  if (data.performed_on) {
-    data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
-  }
   return data
 }
 

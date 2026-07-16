@@ -5,7 +5,7 @@ import (
 
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 type DatasetsService struct {
@@ -15,7 +15,7 @@ func NewDatasetsService() *DatasetsService {
 	return &DatasetsService{}
 }
 
-func (s *DatasetsService) LoadDatasetsForOccurrence(ctx context.Context, q db.Querier, occurrenceID ulid.ULID) ([]models.Dataset, error) {
+func (s *DatasetsService) LoadDatasetsForOccurrence(ctx context.Context, q db.Querier, occurrenceID types.ULID) ([]models.Dataset, error) {
 	datasets, err := q.Queries().GetDatasetsForOccurrence(ctx, occurrenceID)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (s *DatasetsService) LoadDatasetsForOccurrence(ctx context.Context, q db.Qu
 	return result, nil
 }
 
-func (s *DatasetsService) GetDatasetByID(ctx context.Context, q db.Querier, datasetID ulid.ULID) (*models.Dataset, error) {
+func (s *DatasetsService) GetDatasetByID(ctx context.Context, q db.Querier, datasetID types.ULID) (*models.Dataset, error) {
 	d, err := q.Queries().GetDatasetByID(ctx, datasetID)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (s *DatasetsService) ListDatasets(ctx context.Context, q db.Querier) ([]mod
 	return result, nil
 }
 
-func (s *DatasetsService) LoadOccurrencesForDataset(ctx context.Context, q db.Querier, datasetID ulid.ULID) ([]models.Occurrence, error) {
+func (s *DatasetsService) LoadOccurrencesForDataset(ctx context.Context, q db.Querier, datasetID types.ULID) ([]models.Occurrence, error) {
 	occurrences, err := q.Queries().ListOccurrencesForDataset(ctx, datasetID)
 	if err != nil {
 		return nil, err
@@ -60,10 +60,10 @@ func (s *DatasetsService) LoadOccurrencesForDataset(ctx context.Context, q db.Qu
 	return result, nil
 }
 
-func (s *DatasetsService) AddOccurrenceToDataset(ctx context.Context, q db.Querier, datasetID ulid.ULID, occurrenceID ulid.ULID) error {
+func (s *DatasetsService) AddOccurrenceToDataset(ctx context.Context, q db.Querier, datasetID types.ULID, occurrenceID types.ULID) error {
 	return q.Queries().AddOccurrenceToDataset(ctx, occurrenceID, datasetID)
 }
 
-func (s *DatasetsService) RemoveOccurrenceFromDataset(ctx context.Context, q db.Querier, datasetID ulid.ULID, occurrenceID ulid.ULID) error {
+func (s *DatasetsService) RemoveOccurrenceFromDataset(ctx context.Context, q db.Querier, datasetID types.ULID, occurrenceID types.ULID) error {
 	return q.Queries().RemoveOccurrenceFromDataset(ctx, occurrenceID, datasetID)
 }

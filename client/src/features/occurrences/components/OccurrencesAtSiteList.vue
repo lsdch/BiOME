@@ -1,23 +1,11 @@
 <template>
   <v-list density="compact">
-    <v-list-item
-      v-for="{ code, identification, date } in occurrences"
-      :subtitle="DateWithPrecision.format(date)"
-      :to="{
-        name: 'occurrence-item',
-        params: { code: code }
-      }"
-      target="_blank"
-    >
+    <v-list-item v-for="{ id, code, identification, sampling } in occurrences">
       <template #title>
-        <RouterLink
-          :to="{
-            name: 'occurrence-item',
-            params: { code: code }
-          }"
-          class="font-monospace text-caption"
-          target="_blank"
-        >
+        <RouterLink :to="{
+          name: 'occurrence-item',
+          params: { id, code: code }
+        }" class="font-monospace text-label-medium" target="_blank">
           {{ code }}
         </RouterLink>
       </template>
@@ -29,11 +17,11 @@
 </template>
 
 <script setup lang="ts">
-import { DateWithPrecision, OccurrenceAtSite } from '@/api'
-import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
+import { DateWithPrecision, Occurrence } from '@/api';
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip';
 
 defineProps<{
-  occurrences: (OccurrenceAtSite & { date?: DateWithPrecision })[]
+  occurrences: Occurrence[]
 }>()
 </script>
 

@@ -29,6 +29,7 @@ func (r *iteratorForCopyImportStaging) Next() bool {
 
 func (r iteratorForCopyImportStaging) Values() ([]interface{}, error) {
 	return []interface{}{
+		r.rows[0].ID,
 		r.rows[0].ImportID,
 		r.rows[0].SamplingHash,
 		r.rows[0].RowNumber,
@@ -75,101 +76,5 @@ func (r iteratorForCopyImportStaging) Err() error {
 }
 
 func (q *Queries) CopyImportStaging(ctx context.Context, arg []CopyImportStagingParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"import_samplings_occurrences"}, []string{"import_id", "sampling_hash", "row_number", "sampling_comments", "site_code", "site_name", "site_locality", "site_country_code", "coordinates_precision", "longitude", "latitude", "altitude", "event_date", "event_date_precision", "performed_by", "duration", "access_points", "sampling_targets", "sampling_fixatives", "sampling_methods", "habitats", "occurrence_code", "type_status", "occurrence_comments", "taxon_name", "taxon_rank", "taxon_authorship", "verbatim_identification", "identified_by", "identification_date", "identification_date_precision", "identification_confer", "identification_addendum", "content_description", "quantity_exact", "quantity_lower", "quantity_upper", "sources"}, &iteratorForCopyImportStaging{rows: arg})
-}
-
-// iteratorForInsertGBIFBatch implements pgx.CopyFromSource.
-type iteratorForInsertGBIFBatch struct {
-	rows                 []InsertGBIFBatchParams
-	skippedFirstNextCall bool
-}
-
-func (r *iteratorForInsertGBIFBatch) Next() bool {
-	if len(r.rows) == 0 {
-		return false
-	}
-	if !r.skippedFirstNextCall {
-		r.skippedFirstNextCall = true
-		return true
-	}
-	r.rows = r.rows[1:]
-	return len(r.rows) > 0
-}
-
-func (r iteratorForInsertGBIFBatch) Values() ([]interface{}, error) {
-	return []interface{}{
-		r.rows[0].InputName,
-		r.rows[0].Key,
-		r.rows[0].Parent,
-		r.rows[0].ParentKey,
-		r.rows[0].CanonicalName,
-		r.rows[0].ScientificName,
-		r.rows[0].Status,
-		r.rows[0].Rank,
-		r.rows[0].NameType,
-		r.rows[0].KingdomKey,
-		r.rows[0].PhylumKey,
-		r.rows[0].ClassKey,
-		r.rows[0].OrderKey,
-		r.rows[0].FamilyKey,
-		r.rows[0].GenusKey,
-		r.rows[0].SpeciesKey,
-		r.rows[0].HigherTaxonKeys,
-		r.rows[0].HigherTaxonNames,
-		r.rows[0].Authorship,
-		r.rows[0].NumDescendants,
-		r.rows[0].AcceptedKey,
-		r.rows[0].AcceptedName,
-	}, nil
-}
-
-func (r iteratorForInsertGBIFBatch) Err() error {
-	return nil
-}
-
-func (q *Queries) InsertGBIFBatch(ctx context.Context, arg []InsertGBIFBatchParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"gbif_staging"}, []string{"input_name", "key", "parent", "parent_key", "canonical_name", "scientific_name", "status", "rank", "name_type", "kingdom_key", "phylum_key", "class_key", "order_key", "family_key", "genus_key", "species_key", "higher_taxon_keys", "higher_taxon_names", "authorship", "num_descendants", "accepted_key", "accepted_name"}, &iteratorForInsertGBIFBatch{rows: arg})
-}
-
-// iteratorForInsertTaxonCandidatesBatch implements pgx.CopyFromSource.
-type iteratorForInsertTaxonCandidatesBatch struct {
-	rows                 []InsertTaxonCandidatesBatchParams
-	skippedFirstNextCall bool
-}
-
-func (r *iteratorForInsertTaxonCandidatesBatch) Next() bool {
-	if len(r.rows) == 0 {
-		return false
-	}
-	if !r.skippedFirstNextCall {
-		r.skippedFirstNextCall = true
-		return true
-	}
-	r.rows = r.rows[1:]
-	return len(r.rows) > 0
-}
-
-func (r iteratorForInsertTaxonCandidatesBatch) Values() ([]interface{}, error) {
-	return []interface{}{
-		r.rows[0].ImportID,
-		r.rows[0].InputName,
-		r.rows[0].Source,
-		r.rows[0].MatchType,
-		r.rows[0].TaxonID,
-		r.rows[0].GBIFID,
-		r.rows[0].Score,
-		r.rows[0].Priority,
-		r.rows[0].Name,
-		r.rows[0].Authorship,
-		r.rows[0].Rank,
-		r.rows[0].Status,
-	}, nil
-}
-
-func (r iteratorForInsertTaxonCandidatesBatch) Err() error {
-	return nil
-}
-
-func (q *Queries) InsertTaxonCandidatesBatch(ctx context.Context, arg []InsertTaxonCandidatesBatchParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"taxon_candidates"}, []string{"import_id", "input_name", "source", "match_type", "taxon_id", "gbif_id", "score", "priority", "name", "authorship", "rank", "status"}, &iteratorForInsertTaxonCandidatesBatch{rows: arg})
+	return q.db.CopyFrom(ctx, []string{"import_samplings_occurrences"}, []string{"id", "import_id", "sampling_hash", "row_number", "sampling_comments", "site_code", "site_name", "site_locality", "site_country_code", "coordinates_precision", "longitude", "latitude", "altitude", "event_date", "event_date_precision", "performed_by", "duration", "access_points", "sampling_targets", "sampling_fixatives", "sampling_methods", "habitats", "occurrence_code", "type_status", "occurrence_comments", "taxon_name", "taxon_rank", "taxon_authorship", "verbatim_identification", "identified_by", "identification_date", "identification_date_precision", "identification_confer", "identification_addendum", "content_description", "quantity_exact", "quantity_lower", "quantity_upper", "sources"}, &iteratorForCopyImportStaging{rows: arg})
 }

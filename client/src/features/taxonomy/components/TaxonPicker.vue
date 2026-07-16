@@ -1,24 +1,7 @@
 <template>
-  <v-autocomplete
-    v-model="model"
-    v-model:search="search"
-    :label
-    :loading
-    :chips
-    :items
-    :item-value
-    :multiple
-    :return-object
-    item-title="name"
-    no-filter
-    variant="outlined"
-    clear-on-select
-    placeholder="Enter search term..."
-    :error-messages="error?.detail"
-    class="taxon-picker"
-    :list-props="{ class: 'position-relative' }"
-    v-bind="$attrs"
-  >
+  <v-autocomplete v-model="model" v-model:search="search" :label :loading :chips :items :item-value :multiple
+    :return-object item-title="name" no-filter variant="outlined" clear-on-select placeholder="Enter search term..."
+    :error-messages="error?.detail" class="taxon-picker" :list-props="{ class: 'position-relative' }" v-bind="$attrs">
     <template #append-inner="props">
       <slot name="append-inner" v-bind="props" />
     </template>
@@ -49,14 +32,10 @@
   </v-autocomplete>
 </template>
 
-<script
-  setup
-  lang="ts"
-  generic="Multiple extends boolean, ReturnObject extends boolean, ItemValue extends keyof Taxon"
->
+<script setup lang="ts" generic="Multiple extends boolean, ReturnObject extends boolean, ItemValue extends keyof Taxon">
 import { Taxon, TaxonRank } from '@/api'
 import { searchTaxaOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { useQuery } from '@tanstack/vue-query'
+import { keepPreviousData, useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 import { Value } from 'vuetify/lib/components/VAutocomplete/VAutocomplete.mjs'
 import { FTaxonStatusIndicator } from './functionals'
@@ -97,6 +76,7 @@ const {
   computed(() => ({
     initialData: Array<Taxon>(),
     enabled: search.value.length > 2,
+    placeholderData: keepPreviousData,
     ...searchTaxaOptions({
       query: {
         search_term: search.value,

@@ -7,7 +7,7 @@ import (
 
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 type ImportBatchService struct{}
@@ -16,7 +16,7 @@ func NewImportBatchService() *ImportBatchService {
 	return &ImportBatchService{}
 }
 
-func (s *ImportBatchService) GetImportBatch(ctx context.Context, q db.Querier, id ulid.ULID) (*models.ImportBatch, error) {
+func (s *ImportBatchService) GetImportBatch(ctx context.Context, q db.Querier, id types.ULID) (*models.ImportBatch, error) {
 	ib, err := q.Queries().GetImportBatch(ctx, id)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func (s *ImportBatchService) GetImportBatch(ctx context.Context, q db.Querier, i
 	return &importBatch, nil
 }
 
-func (s *ImportBatchService) GetImportBatchForOccurrence(ctx context.Context, q db.Querier, occurrenceID ulid.ULID) (models.Optional[models.ImportBatch], error) {
+func (s *ImportBatchService) GetImportBatchForOccurrence(ctx context.Context, q db.Querier, occurrenceID types.ULID) (models.Optional[models.ImportBatch], error) {
 	ib, err := q.Queries().GetImportBatchForOccurrence(ctx, occurrenceID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -49,7 +49,7 @@ func (s *ImportBatchService) ListImportBatches(ctx context.Context, q db.Querier
 	return result, nil
 }
 
-func (s *ImportBatchService) DeleteImportBatch(ctx context.Context, q db.Querier, id ulid.ULID) error {
+func (s *ImportBatchService) DeleteImportBatch(ctx context.Context, q db.Querier, id types.ULID) error {
 	err := q.Queries().DeleteImportBatch(ctx, id)
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func (s *ImportBatchService) DeleteImportBatch(ctx context.Context, q db.Querier
 	return nil
 }
 
-func (s *ImportBatchService) DeleteImportBatchWithOccurrences(ctx context.Context, tx *db.Tx, id ulid.ULID) error {
+func (s *ImportBatchService) DeleteImportBatchWithOccurrences(ctx context.Context, tx *db.Tx, id types.ULID) error {
 	q := tx.Queries()
 	if err := q.DeleteOccurrencesFromBatch(ctx, id); err != nil {
 		return err

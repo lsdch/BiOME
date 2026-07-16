@@ -12,8 +12,8 @@ import (
 )
 
 type SamplingMethodsResolution struct {
-	ImportHash       string `sql:"primary_key"`
-	InputText        string `sql:"primary_key"`
+	ImportID         uuid.UUID `sql:"primary_key"`
+	InputText        string    `sql:"primary_key"`
 	ResolvedMethodID *uuid.UUID
 	Status           VocabResolutionStatus
 }

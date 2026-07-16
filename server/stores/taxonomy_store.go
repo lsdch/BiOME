@@ -5,8 +5,10 @@ import (
 
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/db/biomedb/biomedb/public/table"
 	"github.com/lsdch/biome/models"
+	"github.com/sirupsen/logrus"
 )
 
 type TaxonomyStore struct {
@@ -36,6 +38,10 @@ func (s *TaxonomyStore) SearchTaxa(ctx context.Context, q db.Querier, params mod
 	stmt = stmt.OFFSET(int64(params.Pagination.Offset))
 
 	sql, args := stmt.Sql()
+	logrus.Debugf("SearchTaxa SQL: %s, args: %v", sql, args)
+	for i, arg := range args {
+		logrus.Debugf("arg[%d]: %T %#v", i, arg, arg)
+	}
 	rows, err := q.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, err
@@ -44,19 +50,24 @@ func (s *TaxonomyStore) SearchTaxa(ctx context.Context, q db.Querier, params mod
 
 	var taxa = []models.Taxon{}
 	for rows.Next() {
-		var t models.Taxon
+		var t biomedb.Taxon
 		err := rows.Scan(
 			&t.ID,
+			&t.GBIFID,
 			&t.Name,
-			&t.Authorship,
+			&t.ScientificName,
 			&t.Rank,
 			&t.Status,
-			&t.GBIF_ID,
+			&t.Authorship,
+			&t.AcceptedTaxonID,
+			&t.ParentID,
+			&t.SearchVector,
+			&t.Comments,
 		)
 		if err != nil {
 			return nil, err
 		}
-		taxa = append(taxa, t)
+		taxa = append(taxa, *models.TaxonFromDB(&t))
 	}
 
 	return taxa, nil
@@ -75,20 +86,19 @@ func applyRanksFilter(params models.ListTaxaParams, stmt SelectStatement) Select
 
 func applySearchFilter(stmt SelectStatement, searchTerm models.Optional[string]) SelectStatement {
 	term, isSet := searchTerm.Get()
-	if !isSet || len(term) < 3 {
+	if !isSet || len(term) < 2 {
 		return stmt
 	}
 
-	if len(term) < 5 {
-		return stmt.WHERE(table.Taxa.Name.LIKE(String(term + "%")))
-	}
-
-	return stmt.WHERE(TrgmMatch(table.Taxa.Name, String(term)))
+	return stmt.WHERE(OR(
+		table.Taxa.Name.LIKE(String("%"+term+"%")),
+		TrgmMatch(table.Taxa.Name, String(term)),
+	))
 
 }
 
 func TrgmMatch(col Expression, value Expression) BoolExpression {
 	return BoolExp(
-		Raw("#arg1 % #arg2", map[string]interface{}{"#arg1": col, "#arg2": value}),
+		BinaryOperator(col, value, "%"),
 	)
 }

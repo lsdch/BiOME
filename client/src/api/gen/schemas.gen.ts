@@ -43,6 +43,41 @@ export const $Article = {
   type: 'object'
 } as const
 
+export const $BaseOccurrence = {
+  additionalProperties: false,
+  properties: {
+    code: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    content_description: {
+      type: 'string'
+    },
+    id: {
+      type: 'string'
+    },
+    identification: {
+      $ref: '#/components/schemas/Identification'
+    },
+    quantity: {
+      $ref: '#/components/schemas/OccurrenceQuantity'
+    },
+    sources: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    type_status: {
+      $ref: '#/components/schemas/OccurrenceTypeStatus'
+    }
+  },
+  required: ['id', 'code', 'identification'],
+  type: 'object'
+} as const
+
 export const $BodyTransporterStruct___Body = {
   additionalProperties: false,
   properties: {
@@ -54,6 +89,29 @@ export const $BodyTransporterStruct___Body = {
       type: 'string'
     }
   },
+  type: 'object'
+} as const
+
+export const $CellH3WithDistance = {
+  additionalProperties: false,
+  properties: {
+    distance_meters: {
+      format: 'int32',
+      type: 'integer'
+    },
+    h3_index: {
+      type: 'string'
+    },
+    occurrences_count: {
+      format: 'int32',
+      type: 'integer'
+    },
+    samplings_count: {
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: ['distance_meters', 'h3_index', 'samplings_count', 'occurrences_count'],
   type: 'object'
 } as const
 
@@ -258,6 +316,42 @@ export const $CreateArticleParams = {
     }
   },
   required: ['authors', 'year'],
+  type: 'object'
+} as const
+
+export const $CreateTaxonInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/CreateTaxonInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    accepted_id: {
+      type: 'string'
+    },
+    authorship: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    name: {
+      type: 'string'
+    },
+    parent_id: {
+      type: 'string'
+    },
+    rank: {
+      $ref: '#/components/schemas/TaxonRank'
+    },
+    status: {
+      $ref: '#/components/schemas/TaxonStatus'
+    }
+  },
+  required: ['name', 'rank', 'status', 'parent_id'],
   type: 'object'
 } as const
 
@@ -470,27 +564,6 @@ export const $FixativeUpdateParams = {
       type: 'string'
     }
   },
-  type: 'object'
-} as const
-
-export const $FormFile = {
-  additionalProperties: false,
-  properties: {
-    ContentType: {
-      type: 'string'
-    },
-    Filename: {
-      type: 'string'
-    },
-    IsSet: {
-      type: 'boolean'
-    },
-    Size: {
-      format: 'int64',
-      type: 'integer'
-    }
-  },
-  required: ['ContentType', 'IsSet', 'Size', 'Filename'],
   type: 'object'
 } as const
 
@@ -884,6 +957,13 @@ export const $IdentificationInput = {
 export const $ImportBatch = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/ImportBatch.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     assembled_by: {
       items: {
         type: 'string'
@@ -894,6 +974,9 @@ export const $ImportBatch = {
       format: 'date-time',
       type: 'string'
     },
+    created_by: {
+      type: 'string'
+    },
     description: {
       type: 'string'
     },
@@ -902,30 +985,37 @@ export const $ImportBatch = {
     },
     label: {
       type: 'string'
-    },
-    submitted_by: {
-      type: 'string'
     }
   },
-  required: ['id', 'label', 'created_at'],
+  required: ['id', 'label', 'created_by', 'created_at'],
   type: 'object'
 } as const
 
 export const $ImportEvent = {
   additionalProperties: false,
   properties: {
-    Error: {},
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/ImportEvent.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     GBIF: {
       $ref: '#/components/schemas/ProgressSnapshot'
     },
-    Status: {
+    error: {},
+    resolution_status: {
+      $ref: '#/components/schemas/MaterializationReadyCheck'
+    },
+    status: {
       type: 'string'
     },
-    Workflow: {
+    workflow: {
       $ref: '#/components/schemas/ImportWorkflow'
     }
   },
-  required: ['Workflow', 'Status', 'GBIF', 'Error'],
+  required: ['workflow', 'status', 'resolution_status', 'GBIF', 'error'],
   type: 'object'
 } as const
 
@@ -947,6 +1037,12 @@ export const $ImportWorkflow = {
       format: 'date-time',
       type: 'string'
     },
+    created_by: {
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
     import_id: {
       type: 'string'
     },
@@ -954,7 +1050,27 @@ export const $ImportWorkflow = {
       type: 'string'
     }
   },
-  required: ['import_id', 'label', 'created_at'],
+  required: ['import_id', 'label', 'created_by', 'created_at'],
+  type: 'object'
+} as const
+
+export const $ImportWorkflowInput = {
+  additionalProperties: false,
+  properties: {
+    assembled_by: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    description: {
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    }
+  },
+  required: ['label'],
   type: 'object'
 } as const
 
@@ -1058,6 +1174,20 @@ export const $LoginResult = {
     }
   },
   required: ['user', 'session'],
+  type: 'object'
+} as const
+
+export const $MaterializationReadyCheck = {
+  additionalProperties: false,
+  properties: {
+    methods: {
+      type: 'boolean'
+    },
+    taxonomy: {
+      type: 'boolean'
+    }
+  },
+  required: ['taxonomy', 'methods'],
   type: 'object'
 } as const
 
@@ -1212,19 +1342,6 @@ export const $OccurrenceWithDetails = {
       readOnly: true,
       type: 'string'
     },
-    ID: {
-      type: 'string'
-    },
-    access_points: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    altitude: {
-      format: 'int32',
-      type: 'integer'
-    },
     code: {
       type: 'string'
     },
@@ -1246,54 +1363,20 @@ export const $OccurrenceWithDetails = {
     content_description: {
       type: 'string'
     },
-    coordinates: {
-      $ref: '#/components/schemas/CoordinatesWithPrecision'
-    },
     datasets: {
       items: {
         $ref: '#/components/schemas/Dataset'
       },
       type: 'array'
     },
-    duration: {
-      format: 'int32',
-      type: 'integer'
-    },
-    fixatives: {
-      items: {
-        $ref: '#/components/schemas/Fixative'
-      },
-      type: 'array'
-    },
-    h3_cell: {
+    id: {
       type: 'string'
-    },
-    habitats: {
-      items: {
-        $ref: '#/components/schemas/HabitatWithGroupName'
-      },
-      type: 'array'
     },
     identification: {
       $ref: '#/components/schemas/Identification'
     },
     import_batch: {
       $ref: '#/components/schemas/ImportBatch'
-    },
-    methods: {
-      items: {
-        $ref: '#/components/schemas/SamplingMethod'
-      },
-      type: 'array'
-    },
-    performed_by: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    performed_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
     },
     quantity: {
       $ref: '#/components/schemas/OccurrenceQuantity'
@@ -1304,8 +1387,8 @@ export const $OccurrenceWithDetails = {
       },
       type: 'array'
     },
-    site: {
-      $ref: '#/components/schemas/Site'
+    sampling: {
+      $ref: '#/components/schemas/SamplingWithDetails'
     },
     sources: {
       items: {
@@ -1313,17 +1396,11 @@ export const $OccurrenceWithDetails = {
       },
       type: 'array'
     },
-    target_taxa: {
-      items: {
-        $ref: '#/components/schemas/Taxon'
-      },
-      type: 'array'
-    },
     type_status: {
       $ref: '#/components/schemas/OccurrenceTypeStatus'
     }
   },
-  required: ['ID', 'site', 'coordinates', 'h3_cell', 'code', 'identification'],
+  required: ['sampling', 'id', 'code', 'identification'],
   type: 'object'
 } as const
 
@@ -1470,12 +1547,36 @@ export const $QuantityInput = {
   type: 'object'
 } as const
 
+export const $ResolutionStatus = {
+  enum: ['pending', 'auto_resolved', 'user_resolved', 'needs_decision'],
+  title: 'ResolutionStatus',
+  type: 'string'
+} as const
+
+export const $ResolveTaxonInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/ResolveTaxonInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    candidate_id: {
+      type: 'string'
+    },
+    resolution_id: {
+      type: 'string'
+    }
+  },
+  required: ['resolution_id', 'candidate_id'],
+  type: 'object'
+} as const
+
 export const $Sampling = {
   additionalProperties: false,
   properties: {
-    ID: {
-      type: 'string'
-    },
     access_points: {
       items: {
         type: 'string'
@@ -1496,6 +1597,9 @@ export const $Sampling = {
     h3_cell: {
       type: 'string'
     },
+    id: {
+      type: 'string'
+    },
     performed_by: {
       items: {
         type: 'string'
@@ -1509,7 +1613,58 @@ export const $Sampling = {
       $ref: '#/components/schemas/Site'
     }
   },
-  required: ['ID', 'site', 'coordinates', 'h3_cell'],
+  required: ['id', 'site', 'coordinates', 'h3_cell'],
+  type: 'object'
+} as const
+
+export const $SamplingFixativeResolution = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/SamplingFixativeResolution.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    import_id: {
+      type: 'string'
+    },
+    input_text: {
+      type: 'string'
+    },
+    resolved_fixative_id: {
+      type: 'string'
+    },
+    status: {
+      $ref: '#/components/schemas/VocabResolutionStatus'
+    }
+  },
+  required: ['import_id', 'input_text', 'status'],
+  type: 'object'
+} as const
+
+export const $SamplingFixativeResolutionInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/SamplingFixativeResolutionInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    input_text: {
+      type: 'string'
+    },
+    resolved_fixative_id: {
+      type: 'string'
+    },
+    status: {
+      $ref: '#/components/schemas/VocabResolutionStatus'
+    }
+  },
+  required: ['input_text', 'status'],
   type: 'object'
 } as const
 
@@ -1619,6 +1774,57 @@ export const $SamplingMethodInput = {
   type: 'object'
 } as const
 
+export const $SamplingMethodResolution = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/SamplingMethodResolution.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    import_id: {
+      type: 'string'
+    },
+    input_text: {
+      type: 'string'
+    },
+    resolved_method_id: {
+      type: 'string'
+    },
+    status: {
+      $ref: '#/components/schemas/VocabResolutionStatus'
+    }
+  },
+  required: ['import_id', 'input_text', 'status'],
+  type: 'object'
+} as const
+
+export const $SamplingMethodResolutionInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/SamplingMethodResolutionInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    input_text: {
+      type: 'string'
+    },
+    resolved_method_id: {
+      type: 'string'
+    },
+    status: {
+      $ref: '#/components/schemas/VocabResolutionStatus'
+    }
+  },
+  required: ['input_text', 'status'],
+  type: 'object'
+} as const
+
 export const $SamplingMethodUpdateParams = {
   additionalProperties: false,
   properties: {
@@ -1650,9 +1856,6 @@ export const $SamplingWithDetails = {
       examples: ['//localhost:5173/api/v1/schemas/SamplingWithDetails.json'],
       format: 'uri',
       readOnly: true,
-      type: 'string'
-    },
-    ID: {
       type: 'string'
     },
     access_points: {
@@ -1687,6 +1890,9 @@ export const $SamplingWithDetails = {
       },
       type: 'array'
     },
+    id: {
+      type: 'string'
+    },
     methods: {
       items: {
         $ref: '#/components/schemas/SamplingMethod'
@@ -1712,16 +1918,13 @@ export const $SamplingWithDetails = {
       type: 'array'
     }
   },
-  required: ['ID', 'site', 'coordinates', 'h3_cell'],
+  required: ['id', 'site', 'coordinates', 'h3_cell'],
   type: 'object'
 } as const
 
 export const $SamplingWithDistance = {
   additionalProperties: false,
   properties: {
-    ID: {
-      type: 'string'
-    },
     access_points: {
       items: {
         type: 'string'
@@ -1746,6 +1949,9 @@ export const $SamplingWithDistance = {
     h3_cell: {
       type: 'string'
     },
+    id: {
+      type: 'string'
+    },
     performed_by: {
       items: {
         type: 'string'
@@ -1759,7 +1965,60 @@ export const $SamplingWithDistance = {
       $ref: '#/components/schemas/Site'
     }
   },
-  required: ['distance_meters', 'ID', 'site', 'coordinates', 'h3_cell'],
+  required: ['distance_meters', 'id', 'site', 'coordinates', 'h3_cell'],
+  type: 'object'
+} as const
+
+export const $SamplingWithOccurrencesAndDistance = {
+  additionalProperties: false,
+  properties: {
+    access_points: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    altitude: {
+      format: 'int32',
+      type: 'integer'
+    },
+    coordinates: {
+      $ref: '#/components/schemas/CoordinatesWithPrecision'
+    },
+    distance_meters: {
+      format: 'int32',
+      type: 'integer'
+    },
+    duration: {
+      format: 'int32',
+      type: 'integer'
+    },
+    h3_cell: {
+      type: 'string'
+    },
+    id: {
+      type: 'string'
+    },
+    occurrences: {
+      items: {
+        $ref: '#/components/schemas/BaseOccurrence'
+      },
+      type: 'array'
+    },
+    performed_by: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    performed_on: {
+      $ref: '#/components/schemas/DateWithPrecision'
+    },
+    site: {
+      $ref: '#/components/schemas/Site'
+    }
+  },
+  required: ['distance_meters', 'id', 'site', 'coordinates', 'h3_cell'],
   type: 'object'
 } as const
 
@@ -1838,9 +2097,30 @@ export const $SiteInput = {
   type: 'object'
 } as const
 
+export const $SortByOccurrenceSortKey = {
+  additionalProperties: false,
+  properties: {
+    key: {
+      type: 'string'
+    },
+    order: {
+      description: 'ASC if true, default is DESC',
+      type: 'boolean'
+    }
+  },
+  type: 'object'
+} as const
+
 export const $Taxon = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/Taxon.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     accepted_id: {
       type: 'string'
     },
@@ -1874,6 +2154,71 @@ export const $Taxon = {
   type: 'object'
 } as const
 
+export const $TaxonCandidate = {
+  additionalProperties: false,
+  properties: {
+    authorship: {
+      type: 'string'
+    },
+    gbif_id: {
+      format: 'int32',
+      type: 'integer'
+    },
+    id: {
+      type: 'string'
+    },
+    match_type: {
+      $ref: '#/components/schemas/TaxonMatchType'
+    },
+    name: {
+      type: 'string'
+    },
+    priority: {
+      format: 'int32',
+      type: 'integer'
+    },
+    rank: {
+      $ref: '#/components/schemas/TaxonRank'
+    },
+    resolution_id: {
+      type: 'string'
+    },
+    score: {
+      format: 'double',
+      type: 'number'
+    },
+    source: {
+      $ref: '#/components/schemas/TaxonMatchSource'
+    },
+    status: {
+      $ref: '#/components/schemas/TaxonStatus'
+    },
+    taxon_id: {
+      type: 'string'
+    }
+  },
+  required: ['id', 'resolution_id', 'name', 'rank', 'status', 'source', 'match_type', 'priority'],
+  type: 'object'
+} as const
+
+export const $TaxonGBIFStatus = {
+  enum: ['skipped', 'pending', 'completed', 'failed'],
+  title: 'TaxonGBIFStatus',
+  type: 'string'
+} as const
+
+export const $TaxonMatchSource = {
+  enum: ['internal', 'gbif', 'manual'],
+  title: 'TaxonMatchSource',
+  type: 'string'
+} as const
+
+export const $TaxonMatchType = {
+  enum: ['exact', 'fuzzy', 'name_only'],
+  title: 'TaxonMatchType',
+  type: 'string'
+} as const
+
 export const $TaxonRank = {
   enum: [
     'SUBSPECIES',
@@ -1890,10 +2235,112 @@ export const $TaxonRank = {
   type: 'string'
 } as const
 
+export const $TaxonResolutionWithCandidates = {
+  additionalProperties: false,
+  properties: {
+    candidates: {
+      items: {
+        $ref: '#/components/schemas/TaxonCandidate'
+      },
+      type: 'array'
+    },
+    gbif_status: {
+      $ref: '#/components/schemas/TaxonGBIFStatus'
+    },
+    id: {
+      type: 'string'
+    },
+    import_id: {
+      type: 'string'
+    },
+    input_authorship: {
+      type: 'string'
+    },
+    input_name: {
+      type: 'string'
+    },
+    input_rank: {
+      type: 'string'
+    },
+    resolved_to: {
+      type: 'string'
+    },
+    scientific_name: {
+      type: 'string'
+    },
+    status: {
+      $ref: '#/components/schemas/ResolutionStatus'
+    }
+  },
+  required: ['candidates', 'id', 'import_id', 'input_name', 'scientific_name'],
+  type: 'object'
+} as const
+
 export const $TaxonStatus = {
   enum: ['ACCEPTED', 'SYNONYM', 'DOUBTFUL', 'UNREFERENCED', 'UNCLASSIFIED'],
   title: 'TaxonStatus',
   type: 'string'
+} as const
+
+export const $TaxonWithFullLineage = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/TaxonWithFullLineage.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    accepted_id: {
+      type: 'string'
+    },
+    accepted_taxon: {
+      $ref: '#/components/schemas/Taxon'
+    },
+    authorship: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    descendants: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
+    },
+    gbif_id: {
+      format: 'int32',
+      type: 'integer'
+    },
+    id: {
+      type: 'string'
+    },
+    lineage: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
+    },
+    name: {
+      type: 'string'
+    },
+    parent_id: {
+      type: 'string'
+    },
+    parent_taxon: {
+      $ref: '#/components/schemas/Taxon'
+    },
+    rank: {
+      $ref: '#/components/schemas/TaxonRank'
+    },
+    status: {
+      $ref: '#/components/schemas/TaxonStatus'
+    }
+  },
+  required: ['descendants', 'lineage', 'id', 'gbif_id', 'name', 'rank', 'status'],
+  type: 'object'
 } as const
 
 export const $User = {
@@ -1968,5 +2415,11 @@ export const $UserCredentials = {
 export const $UserRole = {
   enum: ['Visitor', 'Contributor', 'Maintainer', 'Admin'],
   title: 'UserRole',
+  type: 'string'
+} as const
+
+export const $VocabResolutionStatus = {
+  enum: ['auto', 'selected', 'pending', 'request_creation', 'discard'],
+  title: 'VocabResolutionStatus',
   type: 'string'
 } as const

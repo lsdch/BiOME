@@ -19,11 +19,29 @@ export type Article = {
   year: number
 }
 
+export type BaseOccurrence = {
+  code: string
+  comments?: string
+  content_description?: string
+  id: string
+  identification: Identification
+  quantity?: OccurrenceQuantity
+  sources?: Array<string>
+  type_status?: OccurrenceTypeStatus
+}
+
 export type BodyTransporterStructBody = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+}
+
+export type CellH3WithDistance = {
+  distance_meters: number
+  h3_index: string
+  occurrences_count: number
+  samplings_count: number
 }
 
 export type CodeHistoryEntry = {
@@ -88,6 +106,20 @@ export type CreateArticleParams = {
   title?: string
   verbatim?: string
   year: number
+}
+
+export type CreateTaxonInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  accepted_id?: string
+  authorship?: string
+  comments?: string
+  name: string
+  parent_id: string
+  rank: TaxonRank
+  status: TaxonStatus
 }
 
 export type Dataset = {
@@ -193,13 +225,6 @@ export type FixativeUpdateParams = {
   code?: string
   description?: string | null
   name?: string
-}
-
-export type FormFile = {
-  ContentType: string
-  Filename: string
-  IsSet: boolean
-  Size: number
 }
 
 export type FullOccurrenceInput = {
@@ -341,19 +366,28 @@ export type IdentificationInput = {
 }
 
 export type ImportBatch = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   assembled_by?: Array<string>
   created_at: Date
+  created_by: string
   description?: string
   id: string
   label: string
-  submitted_by?: string
 }
 
 export type ImportEvent = {
-  Error: unknown
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   GBIF: ProgressSnapshot
-  Status: string
-  Workflow: ImportWorkflow
+  error: unknown
+  resolution_status: MaterializationReadyCheck
+  status: string
+  workflow: ImportWorkflow
 }
 
 export type ImportWorkflow = {
@@ -363,7 +397,15 @@ export type ImportWorkflow = {
   readonly $schema?: string
   completed_at?: Date
   created_at: Date
+  created_by: string
+  description?: string
   import_id: string
+  label: string
+}
+
+export type ImportWorkflowInput = {
+  assembled_by?: Array<string>
+  description?: string
   label: string
 }
 
@@ -403,6 +445,11 @@ export type LoginResult = {
   readonly $schema?: string
   session: SessionTokens
   user: User
+}
+
+export type MaterializationReadyCheck = {
+  methods: boolean
+  taxonomy: boolean
 }
 
 export type Occurrence = {
@@ -457,30 +504,19 @@ export type OccurrenceWithDetails = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  ID: string
-  access_points?: Array<string>
-  altitude?: number
   code: string
   code_history?: Array<CodeHistoryEntry>
   collections?: Array<Collection>
   comments?: string
   content_description?: string
-  coordinates: CoordinatesWithPrecision
   datasets?: Array<Dataset>
-  duration?: number
-  fixatives?: Array<Fixative>
-  h3_cell: string
-  habitats?: Array<HabitatWithGroupName>
+  id: string
   identification: Identification
   import_batch?: ImportBatch
-  methods?: Array<SamplingMethod>
-  performed_by?: Array<string>
-  performed_on?: DateWithPrecision
   quantity?: OccurrenceQuantity
   references?: Array<Article>
-  site: Site
+  sampling: SamplingWithDetails
   sources?: Array<string>
-  target_taxa?: Array<Taxon>
   type_status?: OccurrenceTypeStatus
 }
 
@@ -528,16 +564,51 @@ export type QuantityInput = {
   upper?: number
 }
 
+/**
+ * ResolutionStatus
+ */
+export type ResolutionStatus = 'pending' | 'auto_resolved' | 'user_resolved' | 'needs_decision'
+
+export type ResolveTaxonInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  candidate_id: string
+  resolution_id: string
+}
+
 export type Sampling = {
-  ID: string
   access_points?: Array<string>
   altitude?: number
   coordinates: CoordinatesWithPrecision
   duration?: number
   h3_cell: string
+  id: string
   performed_by?: Array<string>
   performed_on?: DateWithPrecision
   site: Site
+}
+
+export type SamplingFixativeResolution = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  import_id: string
+  input_text: string
+  resolved_fixative_id?: string
+  status: VocabResolutionStatus
+}
+
+export type SamplingFixativeResolutionInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  input_text: string
+  resolved_fixative_id?: string
+  status: VocabResolutionStatus
 }
 
 export type SamplingInput = {
@@ -576,6 +647,27 @@ export type SamplingMethodInput = {
   name: string
 }
 
+export type SamplingMethodResolution = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  import_id: string
+  input_text: string
+  resolved_method_id?: string
+  status: VocabResolutionStatus
+}
+
+export type SamplingMethodResolutionInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  input_text: string
+  resolved_method_id?: string
+  status: VocabResolutionStatus
+}
+
 export type SamplingMethodUpdateParams = {
   /**
    * A URL to the JSON Schema for this object.
@@ -591,7 +683,6 @@ export type SamplingWithDetails = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  ID: string
   access_points?: Array<string>
   altitude?: number
   coordinates: CoordinatesWithPrecision
@@ -599,6 +690,7 @@ export type SamplingWithDetails = {
   fixatives?: Array<Fixative>
   h3_cell: string
   habitats?: Array<HabitatWithGroupName>
+  id: string
   methods?: Array<SamplingMethod>
   performed_by?: Array<string>
   performed_on?: DateWithPrecision
@@ -607,13 +699,27 @@ export type SamplingWithDetails = {
 }
 
 export type SamplingWithDistance = {
-  ID: string
   access_points?: Array<string>
   altitude?: number
   coordinates: CoordinatesWithPrecision
   distance_meters: number
   duration?: number
   h3_cell: string
+  id: string
+  performed_by?: Array<string>
+  performed_on?: DateWithPrecision
+  site: Site
+}
+
+export type SamplingWithOccurrencesAndDistance = {
+  access_points?: Array<string>
+  altitude?: number
+  coordinates: CoordinatesWithPrecision
+  distance_meters: number
+  duration?: number
+  h3_cell: string
+  id: string
+  occurrences?: Array<BaseOccurrence>
   performed_by?: Array<string>
   performed_on?: DateWithPrecision
   site: Site
@@ -646,7 +752,19 @@ export type SiteInput = {
   name?: string
 }
 
+export type SortByOccurrenceSortKey = {
+  key?: string
+  /**
+   * ASC if true, default is DESC
+   */
+  order?: boolean
+}
+
 export type Taxon = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   accepted_id?: string
   authorship?: string
   comments?: string
@@ -657,6 +775,36 @@ export type Taxon = {
   rank: TaxonRank
   status: TaxonStatus
 }
+
+export type TaxonCandidate = {
+  authorship?: string
+  gbif_id?: number
+  id: string
+  match_type: TaxonMatchType
+  name: string
+  priority: number
+  rank: TaxonRank
+  resolution_id: string
+  score?: number
+  source: TaxonMatchSource
+  status: TaxonStatus
+  taxon_id?: string
+}
+
+/**
+ * TaxonGBIFStatus
+ */
+export type TaxonGbifStatus = 'skipped' | 'pending' | 'completed' | 'failed'
+
+/**
+ * TaxonMatchSource
+ */
+export type TaxonMatchSource = 'internal' | 'gbif' | 'manual'
+
+/**
+ * TaxonMatchType
+ */
+export type TaxonMatchType = 'exact' | 'fuzzy' | 'name_only'
 
 /**
  * TaxonRank
@@ -672,10 +820,43 @@ export type TaxonRank =
   | 'PHYLUM'
   | 'KINGDOM'
 
+export type TaxonResolutionWithCandidates = {
+  candidates: Array<TaxonCandidate>
+  gbif_status?: TaxonGbifStatus
+  id: string
+  import_id: string
+  input_authorship?: string
+  input_name: string
+  input_rank?: string
+  resolved_to?: string
+  scientific_name: string
+  status?: ResolutionStatus
+}
+
 /**
  * TaxonStatus
  */
 export type TaxonStatus = 'ACCEPTED' | 'SYNONYM' | 'DOUBTFUL' | 'UNREFERENCED' | 'UNCLASSIFIED'
+
+export type TaxonWithFullLineage = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  accepted_id?: string
+  accepted_taxon?: Taxon
+  authorship?: string
+  comments?: string
+  descendants: Array<Taxon>
+  gbif_id: number
+  id: string
+  lineage: Array<Taxon>
+  name: string
+  parent_id?: string
+  parent_taxon?: Taxon
+  rank: TaxonRank
+  status: TaxonStatus
+}
 
 export type User = {
   /**
@@ -708,6 +889,11 @@ export type UserCredentials = {
  * UserRole
  */
 export type UserRole = 'Visitor' | 'Contributor' | 'Maintainer' | 'Admin'
+
+/**
+ * VocabResolutionStatus
+ */
+export type VocabResolutionStatus = 'auto' | 'selected' | 'pending' | 'request_creation' | 'discard'
 
 export type ListAccessPointsData = {
   body?: never
@@ -1420,9 +1606,9 @@ export type ListImportsResponse = ListImportsResponses[keyof ListImportsResponse
 export type ImportOccurrencesCsvData = {
   body?: {
     file: Blob | File
-    label: string
     quotes: string
     separator: string
+    workflow: ImportWorkflowInput
   }
   path?: never
   query?: never
@@ -1452,6 +1638,285 @@ export type ImportOccurrencesCsvResponses = {
 export type ImportOccurrencesCsvResponse =
   ImportOccurrencesCsvResponses[keyof ImportOccurrencesCsvResponses]
 
+export type ListImportsForCurrentUserData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/imports/batch/by-user'
+}
+
+export type ListImportsForCurrentUserErrors = {
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListImportsForCurrentUserError =
+  ListImportsForCurrentUserErrors[keyof ListImportsForCurrentUserErrors]
+
+export type ListImportsForCurrentUserResponses = {
+  /**
+   * OK
+   */
+  200: Array<ImportEvent>
+}
+
+export type ListImportsForCurrentUserResponse =
+  ListImportsForCurrentUserResponses[keyof ListImportsForCurrentUserResponses]
+
+export type GetFixativesResolutionData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/imports/batch/{id}/fixatives'
+}
+
+export type GetFixativesResolutionErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetFixativesResolutionError =
+  GetFixativesResolutionErrors[keyof GetFixativesResolutionErrors]
+
+export type GetFixativesResolutionResponses = {
+  /**
+   * OK
+   */
+  200: Array<SamplingFixativeResolution>
+}
+
+export type GetFixativesResolutionResponse =
+  GetFixativesResolutionResponses[keyof GetFixativesResolutionResponses]
+
+export type ResolveFixativeData = {
+  body: SamplingFixativeResolutionInput
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/imports/batch/{id}/fixatives'
+}
+
+export type ResolveFixativeErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ResolveFixativeError = ResolveFixativeErrors[keyof ResolveFixativeErrors]
+
+export type ResolveFixativeResponses = {
+  /**
+   * OK
+   */
+  200: SamplingFixativeResolution
+}
+
+export type ResolveFixativeResponse = ResolveFixativeResponses[keyof ResolveFixativeResponses]
+
+export type GetMethodsResolutionData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/imports/batch/{id}/sampling-methods'
+}
+
+export type GetMethodsResolutionErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetMethodsResolutionError = GetMethodsResolutionErrors[keyof GetMethodsResolutionErrors]
+
+export type GetMethodsResolutionResponses = {
+  /**
+   * OK
+   */
+  200: Array<SamplingMethodResolution>
+}
+
+export type GetMethodsResolutionResponse =
+  GetMethodsResolutionResponses[keyof GetMethodsResolutionResponses]
+
+export type ResolveMethodData = {
+  body: SamplingMethodResolutionInput
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/imports/batch/{id}/sampling-methods'
+}
+
+export type ResolveMethodErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ResolveMethodError = ResolveMethodErrors[keyof ResolveMethodErrors]
+
+export type ResolveMethodResponses = {
+  /**
+   * OK
+   */
+  200: SamplingMethodResolution
+}
+
+export type ResolveMethodResponse = ResolveMethodResponses[keyof ResolveMethodResponses]
+
+export type GetTaxonResolutionsData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/imports/batch/{id}/taxonomy'
+}
+
+export type GetTaxonResolutionsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetTaxonResolutionsError = GetTaxonResolutionsErrors[keyof GetTaxonResolutionsErrors]
+
+export type GetTaxonResolutionsResponses = {
+  /**
+   * OK
+   */
+  200: Array<TaxonResolutionWithCandidates>
+}
+
+export type GetTaxonResolutionsResponse =
+  GetTaxonResolutionsResponses[keyof GetTaxonResolutionsResponses]
+
+export type ResolveTaxonData = {
+  body: ResolveTaxonInput
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/imports/batch/{id}/taxonomy'
+}
+
+export type ResolveTaxonErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ResolveTaxonError = ResolveTaxonErrors[keyof ResolveTaxonErrors]
+
+export type ResolveTaxonResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ResolveTaxonResponse = ResolveTaxonResponses[keyof ResolveTaxonResponses]
+
+export type DeleteWorkflowData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/{id}'
+}
+
+export type DeleteWorkflowErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteWorkflowError = DeleteWorkflowErrors[keyof DeleteWorkflowErrors]
+
+export type DeleteWorkflowResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type DeleteWorkflowResponse = DeleteWorkflowResponses[keyof DeleteWorkflowResponses]
+
+export type MaterializeBatchData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/{id}/materialize'
+}
+
+export type MaterializeBatchErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type MaterializeBatchError = MaterializeBatchErrors[keyof MaterializeBatchErrors]
+
+export type MaterializeBatchResponses = {
+  /**
+   * OK
+   */
+  200: ImportBatch
+}
+
+export type MaterializeBatchResponse = MaterializeBatchResponses[keyof MaterializeBatchResponses]
+
 export type ImportStatusData = {
   body?: never
   path: {
@@ -1472,11 +1937,9 @@ export type ImportStatusError = ImportStatusErrors[keyof ImportStatusErrors]
 
 export type ImportStatusResponses = {
   /**
-   * Server Sent Events
-   *
-   * Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.
+   * OK
    */
-  200: Array<unknown>
+  200: ImportEvent
 }
 
 export type ImportStatusResponse = ImportStatusResponses[keyof ImportStatusResponses]
@@ -1576,6 +2039,9 @@ export type ListOccurrencesData = {
     confer?: boolean
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
+    limit?: number
+    offset?: number
+    order_by?: SortByOccurrenceSortKey
   }
   url: '/occurrences'
 }
@@ -1657,7 +2123,7 @@ export type ListCollectionNamesResponses = {
 export type ListCollectionNamesResponse =
   ListCollectionNamesResponses[keyof ListCollectionNamesResponses]
 
-export type GetOccurrencesData = {
+export type GetOccurrenceData = {
   body?: never
   path: {
     ulid: string
@@ -1666,7 +2132,7 @@ export type GetOccurrencesData = {
   url: '/occurrences/item/{ulid}'
 }
 
-export type GetOccurrencesErrors = {
+export type GetOccurrenceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -1677,16 +2143,54 @@ export type GetOccurrencesErrors = {
   500: ErrorModel
 }
 
-export type GetOccurrencesError = GetOccurrencesErrors[keyof GetOccurrencesErrors]
+export type GetOccurrenceError = GetOccurrenceErrors[keyof GetOccurrenceErrors]
 
-export type GetOccurrencesResponses = {
+export type GetOccurrenceResponses = {
   /**
    * OK
    */
   200: OccurrenceWithDetails
 }
 
-export type GetOccurrencesResponse = GetOccurrencesResponses[keyof GetOccurrencesResponses]
+export type GetOccurrenceResponse = GetOccurrenceResponses[keyof GetOccurrenceResponses]
+
+export type ListOccurrencesAtProximityData = {
+  body?: never
+  path?: never
+  query: {
+    latitude: number
+    longitude: number
+    radius_meters: number
+    event_date?: CompositeDate
+    date_interval_days?: number
+    exclude_ids?: Array<string>
+  }
+  url: '/occurrences/proximity'
+}
+
+export type ListOccurrencesAtProximityErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListOccurrencesAtProximityError =
+  ListOccurrencesAtProximityErrors[keyof ListOccurrencesAtProximityErrors]
+
+export type ListOccurrencesAtProximityResponses = {
+  /**
+   * OK
+   */
+  200: Array<SamplingWithOccurrencesAndDistance>
+}
+
+export type ListOccurrencesAtProximityResponse =
+  ListOccurrencesAtProximityResponses[keyof ListOccurrencesAtProximityResponses]
 
 export type CreateOccurrenceAtSamplingData = {
   body: OccurrenceInput
@@ -1818,6 +2322,44 @@ export type ListSamplingsAtProximityResponses = {
 
 export type ListSamplingsAtProximityResponse =
   ListSamplingsAtProximityResponses[keyof ListSamplingsAtProximityResponses]
+
+export type ListSamplingsH3AtProximityData = {
+  body?: never
+  path?: never
+  query: {
+    latitude: number
+    longitude: number
+    radius_meters: number
+    event_date?: CompositeDate
+    date_interval_days?: number
+    exclude_ids?: Array<string>
+  }
+  url: '/proximity/h3'
+}
+
+export type ListSamplingsH3AtProximityErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListSamplingsH3AtProximityError =
+  ListSamplingsH3AtProximityErrors[keyof ListSamplingsH3AtProximityErrors]
+
+export type ListSamplingsH3AtProximityResponses = {
+  /**
+   * OK
+   */
+  200: Array<CellH3WithDistance>
+}
+
+export type ListSamplingsH3AtProximityResponse =
+  ListSamplingsH3AtProximityResponses[keyof ListSamplingsH3AtProximityResponses]
 
 export type ListSamplingMethodsData = {
   body?: never
@@ -2143,6 +2685,37 @@ export type TestSmtpConnectionResponses = {
 export type TestSmtpConnectionResponse =
   TestSmtpConnectionResponses[keyof TestSmtpConnectionResponses]
 
+export type GetTaxaAtRankData = {
+  body?: never
+  path: {
+    rank: TaxonRank
+  }
+  query?: never
+  url: '/taxonomy/rank/{rank}'
+}
+
+export type GetTaxaAtRankErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetTaxaAtRankError = GetTaxaAtRankErrors[keyof GetTaxaAtRankErrors]
+
+export type GetTaxaAtRankResponses = {
+  /**
+   * OK
+   */
+  200: Array<Taxon>
+}
+
+export type GetTaxaAtRankResponse = GetTaxaAtRankResponses[keyof GetTaxaAtRankResponses]
+
 export type SearchTaxaData = {
   body?: never
   path?: never
@@ -2177,3 +2750,63 @@ export type SearchTaxaResponses = {
 }
 
 export type SearchTaxaResponse = SearchTaxaResponses[keyof SearchTaxaResponses]
+
+export type CreateTaxonData = {
+  body?: CreateTaxonInput
+  path?: never
+  query?: never
+  url: '/taxonomy/taxa'
+}
+
+export type CreateTaxonErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateTaxonError = CreateTaxonErrors[keyof CreateTaxonErrors]
+
+export type CreateTaxonResponses = {
+  /**
+   * OK
+   */
+  200: Taxon
+}
+
+export type CreateTaxonResponse = CreateTaxonResponses[keyof CreateTaxonResponses]
+
+export type GetTaxonData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/taxonomy/taxa/{id}'
+}
+
+export type GetTaxonErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetTaxonError = GetTaxonErrors[keyof GetTaxonErrors]
+
+export type GetTaxonResponses = {
+  /**
+   * OK
+   */
+  200: TaxonWithFullLineage
+}
+
+export type GetTaxonResponse = GetTaxonResponses[keyof GetTaxonResponses]

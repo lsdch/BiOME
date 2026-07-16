@@ -1,24 +1,12 @@
 <template>
   <div class="taxonomy-container d-flex flex-column">
-    <TableToolbar
-      title="Taxonomy"
-      icon="mdi-family-tree"
-      :togglable-search="smAndDown"
-      @reload="refetch()"
-    >
+    <TableToolbar title="Taxonomy" icon="mdi-FAMILY-tree" :togglable-search="smAndDown" @reload="refetch()">
       <template #search>
         <v-container>
           <v-row>
             <v-col cols="12" sm="6" lg="8">
-              <v-text-field
-                v-model="searchTerm"
-                label="Search"
-                hide-details
-                density="compact"
-                clearable
-                prepend-inner-icon="mdi-magnify"
-                color="primary"
-              />
+              <v-text-field v-model="searchTerm" label="Search" hide-details density="compact" clearable
+                prepend-inner-icon="mdi-magnify" color="primary" />
             </v-col>
             <v-col cols="12" sm="6" lg="4">
               <StatusPicker v-model="filterStatus" density="compact" hide-details clearable />
@@ -27,52 +15,27 @@
         </v-container>
       </template>
       <template #append>
-        <TaxonRankPicker
-          class="ml-3"
-          v-model="maxRankDisplay"
-          :exclude="['Subgenus']"
-          label="Truncate above"
-          hide-details
-          density="compact"
-          min-width="200px"
-        />
+        <TaxonRankPicker class="ml-3" v-model="maxRankDisplay" :exclude="['SUBGENUS']" label="Truncate above"
+          hide-details density="compact" min-width="200px" />
       </template>
     </TableToolbar>
 
     <!-- TREE -->
     <div class="taxonomy-explorer bg-surface" :style="{ 'grid-template-columns': templateColumns }">
       <!-- HEADERS -->
-      <div
-        v-for="{ rank } in headers.filter(
-          ({ rank }) => rank == maxRankDisplay || TaxonRank.isDescendant(rank, maxRankDisplay)
-        )"
-        :key="rank"
-        :style="{ 'grid-column': rank }"
-        class="taxonomy-header bg-surface"
-      >
+      <div v-for="{ rank } in headers.filter(
+        ({ rank }) => rank == maxRankDisplay || TaxonRank.isDescendant(rank, maxRankDisplay)
+      )" :key="rank" :style="{ 'grid-column': rank }" class="taxonomy-header bg-surface">
         <span class="text-overline">
-          {{ rank === 'Species' ? 'Species / Subgenus' : rank }}
+          {{ rank === 'SPECIES' ? 'SPECIES / SUBGENUS' : rank }}
         </span>
-        <v-chip
-          size="small"
-          rounded="100"
-          color="primary"
-          @click="rank == 'Subspecies' ? unfold(TaxonRank.parentRank(rank)!) : toggleFold(rank)"
-        >
-          {{ countsByRank[rank] + (rank == 'Species' ? countsByRank['Subgenus'] : 0) }}
+        <v-chip size="small" rounded="100" color="primary"
+          @click="rank == 'SUBSPECIES' ? unfold(TaxonRank.parentRank(rank)!) : toggleFold(rank)">
+          {{ countsByRank[rank] + (rank == 'SPECIES' ? countsByRank['SUBGENUS'] : 0) }}
           <template #append>
-            <v-progress-circular
-              v-if="isRankFetching(rank)"
-              class="ml-1"
-              size="14"
-              width="2"
-              indeterminate
-            />
-            <v-icon
-              v-else-if="rank !== 'Subspecies'"
-              class="ml-1"
-              :icon="isFolded(rank) ? 'mdi-plus-box-outline' : 'mdi-minus-box-outline'"
-            />
+            <v-progress-circular v-if="isRankFetching(rank)" class="ml-1" size="14" width="2" indeterminate />
+            <v-icon v-else-if="rank !== 'SUBSPECIES'" class="ml-1"
+              :icon="isFolded(rank) ? 'mdi-plus-box-outline' : 'mdi-minus-box-outline'" />
           </template>
         </v-chip>
       </div>
@@ -83,7 +46,7 @@
         <v-container v-if="error" style="grid-column: start / span end">
           <v-alert type="error" icon="mdi-alert"> Failed to load taxonomy </v-alert>
         </v-container>
-        <FTaxaNestedList v-else-if="filteredItems?.length" :items="filteredItems" rank="Kingdom" />
+        <FTaxaNestedList v-else-if="filteredItems?.length" :items="filteredItems" rank="KINGDOM" />
         <div v-else class="mx-auto my-5" style="grid-column: start / span end">
           {{ loading ? 'Loading...' : 'Nothing to display' }}
         </div>
@@ -92,30 +55,20 @@
     </div>
 
     <!-- FOOTER -->
-    <div class="taxonomy-footer bg-surface pa-3 border-t-thin d-flex"></div>
+    <div class="taxonomy-footer bg-surface pa-3 bORDER-t-thin d-flex"></div>
 
     <!-- MODALS -->
-    <TaxonCard
-      v-if="selected"
-      v-model:open="showTaxonCard"
-      v-model="selected"
-      @add-child="addDescendant"
-      @navigate="(target) => (selected = target)"
-      @deleted="refetch()"
-    />
-    <TaxonFormDialogMutation
-      v-if="parentTaxon"
-      v-model:dialog="formDialog"
-      v-model:parent="parentTaxon"
-      @success="onTaxonCreated"
-    />
+    <TaxonCard v-if="selected" v-model:open="showTaxonCard" v-model="selected" @add-child="addDescendant"
+      @navigate="(target) => (selected = target)" @deleted="refetch()" />
+    <!-- <TaxonFormDialogMutation v-if="parentTaxon" v-model:dialog="formDialog" v-model:parent="parentTaxon"
+      @success="onTaxonCreated" /> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { $TaxonRank, Taxon, TaxonRank, TaxonStatus } from '@/api'
-import { getTaxonomyAtRankOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import TaxonFormDialogMutation from '@/components/forms/TaxonFormDialogMutation.vue'
+import { getTaxaAtRankOptions } from '@/api/gen/@tanstack/vue-query.gen'
+// import TaxonFormDialogMutation from '@/components/forms/TaxonFormDialogMutation.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useQuery } from '@tanstack/vue-query'
 import { refDebounced } from '@vueuse/core'
@@ -129,9 +82,10 @@ import {
 } from '../composables'
 import { FTaxaNestedList } from './functionals'
 import StatusPicker from './StatusPicker.vue'
-import TaxonCard from './TaxonCard.vue'
+// import TaxonCard from './TaxonCard.vue'
 import { TaxonomyElement } from './TaxonomyItem.vue'
 import TaxonRankPicker from './TaxonRankPicker'
+import TaxonCard from './TaxonCard.vue'
 
 const { smAndDown } = useDisplay()
 
@@ -152,36 +106,36 @@ onSelect((_taxon) => {
 type Header = { rank: TaxonRank.NoSubgenus }
 
 const headers: Header[] = [
-  { rank: 'Kingdom' },
-  { rank: 'Phylum' },
-  { rank: 'Class' },
-  { rank: 'Order' },
-  { rank: 'Family' },
-  { rank: 'Genus' },
-  { rank: 'Species' },
-  { rank: 'Subspecies' }
+  { rank: 'KINGDOM' },
+  { rank: 'PHYLUM' },
+  { rank: 'CLASS' },
+  { rank: 'ORDER' },
+  { rank: 'FAMILY' },
+  { rank: 'GENUS' },
+  { rank: 'SPECIES' },
+  { rank: 'SUBSPECIES' }
 ]
 
 const { toggleFold, isFolded, unfold } = useRankFoldState()
 
-const RANKS_TO_LOAD = $TaxonRank.enum
+const RANKS_TO_LOAD = $TaxonRank.enum.toReversed()
 const TAXONOMY_STALE_MS = 5 * 60 * 1000
 const TAXONOMY_GC_MS = 30 * 60 * 1000
 
 // Helper to assemble tree structure from flat rank-filtered lists
 function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): TaxonomyElement[] {
   // Build maps for each rank for O(1) lookup
-  const rankMap: Record<string, Map<string, TaxonomyElement>> = RANKS_TO_LOAD.reduce(
+  const rankMap: Record<TaxonRank, Map<string, TaxonomyElement>> = RANKS_TO_LOAD.reduce(
     (acc, rank) => {
-      const taxaMap = new Map<string, TaxonomyElement>()
+      const taxaMap = new Map<UUID, TaxonomyElement>()
       const rankTaxa = rankData[rank] ?? []
       rankTaxa.forEach((taxon) => {
-        taxaMap.set(taxon.name, { ...taxon, children: [] } as TaxonomyElement)
+        taxaMap.set(taxon.id, { ...taxon, children: [] } as TaxonomyElement)
       })
       acc[rank] = taxaMap
       return acc
     },
-    {} as Record<string, Map<string, TaxonomyElement>>
+    {} as Record<TaxonRank, Map<string, TaxonomyElement>>
   )
 
   // Link parents to children
@@ -191,12 +145,13 @@ function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): Tax
 
     const parentRank = TaxonRank.parentRank(rank)
     rankMapForRank.forEach((taxon) => {
-      if (taxon.parent?.name) {
+      if (taxon.parent_id) {
         try {
-          const parent = parentRank ? rankMap[parentRank]?.get(taxon.parent.name) : null
+          const parent = parentRank ? rankMap[parentRank]?.get(taxon.parent_id) : null
           if (parent) {
             parent.children = parent.children || []
             parent.children.push(taxon)
+            parent.children_count = (parent.children_count ?? 0) + 1
           }
         } catch (e) {
           console.log('error:', e)
@@ -206,12 +161,12 @@ function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): Tax
     })
   })
 
-  return Array.from(rankMap.Kingdom?.values() ?? [])
+  return Array.from(rankMap.KINGDOM?.values() ?? [])
 }
 
 // Create queries for each rank in parallel
 const rankQueries = RANKS_TO_LOAD.map((rank) => {
-  const options = getTaxonomyAtRankOptions({
+  const options = getTaxaAtRankOptions({
     path: { rank }
   })
   return useQuery({
@@ -239,7 +194,7 @@ const items = computed(() => {
     if (!query) return
 
     const data = query.data.value
-    const rankKey = String(rank)
+    const rankKey = rank
     rankData[rankKey] = data ?? []
   })
   return assembleTreeFromRanks(rankData)
@@ -294,10 +249,10 @@ async function onTaxonCreated(taxon: TaxonomyElement) {
 
 // CSS grid template columns based on ranks and maxRankDisplay
 const templateColumns = computed(() => {
-  return $TaxonRank.enum
+  return $TaxonRank.enum.toReversed()
     .reduce((acc, rank) => {
-      if (rank === 'Subgenus') return acc
-      const name = `[${rank}${rank == 'Kingdom' ? ' start' : ''}]`
+      if (rank === 'SUBGENUS') return acc
+      const name = `[${rank}${rank == 'KINGDOM' ? ' start' : ''}]`
       return `${acc} ${name} ${TaxonRank.isAscendant(rank, maxRankDisplay.value) ? '0px' : 'auto'}`
     }, '')
     .concat(' [end]')
@@ -309,15 +264,15 @@ type RanksCount = {
 
 const countsByRank = computed(() => {
   const acc: RanksCount = {
-    Kingdom: 0,
-    Phylum: 0,
-    Class: 0,
-    Order: 0,
-    Family: 0,
-    Genus: 0,
-    Subgenus: 0,
-    Species: 0,
-    Subspecies: 0
+    KINGDOM: 0,
+    PHYLUM: 0,
+    CLASS: 0,
+    ORDER: 0,
+    FAMILY: 0,
+    GENUS: 0,
+    SUBGENUS: 0,
+    SPECIES: 0,
+    SUBSPECIES: 0
   }
 
   // Count items from parallel rank queries
@@ -343,11 +298,12 @@ const countsByRank = computed(() => {
   border-collapse: collapse;
   overflow: scroll;
 
-  > .taxonomy-tree {
+  >.taxonomy-tree {
     display: grid;
     grid-column: start / span end;
     grid-template-columns: subgrid;
     grid-template-rows: auto;
+
     .loading {
       grid-column: start / span end;
     }

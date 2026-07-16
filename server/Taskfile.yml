@@ -35,3 +35,14 @@ tasks:
     desc: "Run golangci-lint"
     cmd: golangci-lint run --fast --print-issued-lines=false --out-format=colored-line-number --issues-exit-code=0
     deps: [install-linter]
+
+  generate-templ: 
+    desc: "Generate Go code from HTML templates"
+    cmd: go tool templ generate
+    deps: [install-templ]
+  
+  generate:
+    desc: "Generate code for backend"
+    deps: [generate-templ, db:generate]
+    cmds: 
+      - go generate .

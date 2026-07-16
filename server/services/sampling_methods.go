@@ -59,7 +59,11 @@ func (s *SamplingService) ResolveMethod(ctx context.Context, q db.Querier, impor
 	if err := input.Validate(); err != nil {
 		return models.SamplingMethodResolution{}, err
 	}
-	return s.store.ResolveMethod(ctx, q, importID, input)
+	m, err := s.store.ResolveMethod(ctx, q, importID, input)
+	if err != nil {
+		return models.SamplingMethodResolution{}, err
+	}
+	return m, nil
 }
 
 func (s *SamplingService) BootstrapSamplingMethods(ctx context.Context, q db.Querier, yamlBytes []byte) error {

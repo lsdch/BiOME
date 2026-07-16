@@ -1,4 +1,4 @@
-package main
+package app
 
 // func setupRoutes(r *gin.Engine, basePath string) *gin.RouterGroup {
 // 	apiConfig := apiConfig(basePath)

@@ -18,12 +18,6 @@ type MaybeGet[T any] interface {
 	Get() (T, bool)
 }
 
-type OptionalNullable[T any] interface {
-	HasValue() bool
-	IsNull() bool
-	MaybeGet[T]
-}
-
 type Null struct {
 	isNull bool
 }
@@ -31,9 +25,8 @@ type Null struct {
 func (n Null) IsNull() bool {
 	return n.isNull
 }
-
-func (n Null) SetNull(isNull bool) {
-	n.isNull = isNull
+func (n *Null) SetNull() {
+	n.isNull = true
 }
 
 type Nullable[T any] struct {
@@ -43,10 +36,6 @@ type Nullable[T any] struct {
 
 func (n Nullable[T]) Get() (T, bool) {
 	return n.Value, !n.IsNull()
-}
-
-func (n Nullable[T]) HasValue() bool {
-	return true
 }
 
 func (n Nullable[T]) Schema(r huma.Registry) *huma.Schema {
@@ -66,8 +55,8 @@ func (n Nullable[T]) MarshalJSON() ([]byte, error) {
 
 func (o *Nullable[T]) UnmarshalJSON(b []byte) error {
 	if len(b) > 0 {
-		if bytes.Equal(b, []byte("null")) || bytes.Equal(b, []byte("")) {
-			o.SetNull(true)
+		if bytes.Equal(b, []byte("null")) || bytes.Equal(b, []byte(`""`)) {
+			o.SetNull()
 			return nil
 		}
 		return json.Unmarshal(b, &o.Value)
@@ -109,6 +98,7 @@ func NewOptionalFromUUID(u pgtype.UUID) Optional[uuid.UUID] {
 			IsSet: false,
 		}
 	}
+	// ignore error since we know the UUID is valid and has 16 bytes
 	UUID, _ := uuid.FromBytes(u.Bytes[:16])
 	return Optional[uuid.UUID]{
 		Value: UUID,
@@ -127,21 +117,6 @@ func NewOptionalFromTimestamp(t pgtype.Timestamptz) Optional[time.Time] {
 	return Optional[time.Time]{
 		Value: t.Time,
 		IsSet: true,
-	}
-}
-
-func NewOptionalFromGetter[T any](getter MaybeGet[T]) Optional[T] {
-	if getter == nil {
-		var zero T
-		return Optional[T]{
-			Value: zero,
-			IsSet: false,
-		}
-	}
-	value, ok := getter.Get()
-	return Optional[T]{
-		Value: value,
-		IsSet: ok,
 	}
 }
 
@@ -167,28 +142,24 @@ func (o Optional[T]) HasValue() bool {
 	return o.IsSet
 }
 
-func (o *Optional[T]) SetValue(value T) Optional[T] {
+func (o *Optional[T]) SetValue(value T) *Optional[T] {
 	o.IsSet = true
 	o.Value = value
-	return *o
+	return o
 }
 
-func (o *Optional[T]) Clear() Optional[T] {
+func (o *Optional[T]) Clear() *Optional[T] {
 	o.IsSet = false
 	var zero T
 	o.Value = zero
-	return *o
+	return o
 }
 
 func (o Optional[T]) IsZero() bool {
 	return !o.IsSet
 }
 
-func (o Optional[T]) IsNull() bool {
-	return false
-}
-
-func (o *Optional[T]) Fake(f *gofakeit.Faker) (any, error) {
+func (o Optional[T]) Fake(f *gofakeit.Faker) (any, error) {
 	var value T
 	if err := f.Struct(&value); err != nil {
 		return nil, err
@@ -295,7 +266,13 @@ func (o OptionalNull[T]) Schema(r huma.Registry) *huma.Schema {
 	return schemaRef
 }
 
+func (o *OptionalNull[T]) SetNull() {
+	o.IsSet = true
+	o.Null.isNull = true
+}
+
 func (o OptionalNull[T]) MarshalJSON() ([]byte, error) {
+	// Due to JSON marshalling rules, we cannot distinguish between an omitted field and a field set to null.
 	if (!o.IsSet) || o.Null.IsNull() {
 		return json.Marshal(nil)
 	}
@@ -306,7 +283,7 @@ func (o *OptionalNull[T]) UnmarshalJSON(b []byte) error {
 	if len(b) > 0 {
 		o.IsSet = true
 		if bytes.Equal(b, []byte("null")) || bytes.Equal(b, []byte("")) {
-			o.Null.SetNull(true)
+			o.SetNull()
 			return nil
 		}
 		return json.Unmarshal(b, &o.Value)
@@ -314,7 +291,7 @@ func (o *OptionalNull[T]) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (o *OptionalNull[T]) Fake(f *gofakeit.Faker) (any, error) {
+func (o OptionalNull[T]) Fake(f *gofakeit.Faker) (any, error) {
 	v, err := o.Optional.Fake(f)
 	if err != nil {
 		return nil, err

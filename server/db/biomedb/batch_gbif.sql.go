@@ -23,124 +23,53 @@ func (q *Queries) CleanUpGBIFDependencies(ctx context.Context, importID uuid.UUI
 }
 
 const expandGBIFDependencies = `-- name: ExpandGBIFDependencies :exec
-WITH resolution AS (
-    SELECT DISTINCT r.import_id,
-        r.gbif_id
-    FROM taxon_resolution r
-        JOIN gbif_staging g ON g.key = taxon_resolution.gbif_id
-    WHERE r.import_id = $1
-        AND gbif_id IS NOT NULL
+WITH candidates AS (
+    SELECT DISTINCT c.import_id,
+        c.gbif_id
+    FROM taxon_candidates c
+        JOIN gbif_staging g ON g.key = c.gbif_id
+    WHERE c.import_id = $1
+        AND c.gbif_id IS NOT NULL
 ),
 expanded AS (
     -- 1. direct gbif_id
     SELECT r.import_id,
-        r.gbif_id AS key
-    FROM resolution r
-    UNION ALL
+        r.gbif_id AS key,
+        r.gbif_id AS from_key
+    FROM candidates r
+    UNION
     -- 2. accepted key
     SELECT r.import_id,
-        g.accepted_key AS key
-    FROM resolution r
+        g.accepted_key AS key,
+        r.gbif_id AS from_key
+    FROM candidates r
         JOIN gbif_staging g ON g.key = r.gbif_id
     WHERE g.accepted_key IS NOT NULL
-    UNION ALL
+    UNION
     -- 3. higher taxonomy expansion
     SELECT r.import_id,
-        h.key
-    FROM resolution r
+        h.key,
+        r.gbif_id AS from_key
+    FROM candidates r
         JOIN gbif_staging g ON g.key = r.gbif_id
         CROSS JOIN LATERAL unnest(g.higher_taxon_keys) AS h(key)
-),
-deduplicated AS (
-    SELECT DISTINCT import_id,
-        key
-    FROM expanded
-    WHERE key IS NOT NULL
 )
-INSERT INTO gbif_dependencies (import_id, key)
+INSERT INTO gbif_dependencies (import_id, key, from_key)
 SELECT import_id,
-    key
-FROM deduplicated
+    key,
+    from_key
+FROM expanded
 WHERE NOT EXISTS (
         SELECT 1
         FROM taxa t
-        WHERE t.gbif_key = key
-    ) ON CONFLICT (import_id, key) DO NOTHING
+        WHERE t.gbif_id = key
+    ) ON CONFLICT (import_id, key, from_key) DO NOTHING
 `
 
+// This query expands the list of GBIF keys that need to be resolved for a given import batch.
+// It includes direct GBIF IDs, accepted keys, and higher taxonomy keys.
 func (q *Queries) ExpandGBIFDependencies(ctx context.Context, importID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, expandGBIFDependencies, importID)
-	return err
-}
-
-type InsertGBIFBatchParams struct {
-	InputName        string   `json:"input_name"`
-	Key              int32    `json:"key"`
-	Parent           string   `json:"parent"`
-	ParentKey        int32    `json:"parent_key"`
-	CanonicalName    string   `json:"canonical_name"`
-	ScientificName   string   `json:"scientific_name"`
-	Status           string   `json:"status"`
-	Rank             string   `json:"rank"`
-	NameType         string   `json:"name_type"`
-	KingdomKey       int32    `json:"kingdom_key"`
-	PhylumKey        int32    `json:"phylum_key"`
-	ClassKey         int32    `json:"class_key"`
-	OrderKey         int32    `json:"order_key"`
-	FamilyKey        int32    `json:"family_key"`
-	GenusKey         int32    `json:"genus_key"`
-	SpeciesKey       int32    `json:"species_key"`
-	HigherTaxonKeys  []int32  `json:"higher_taxon_keys"`
-	HigherTaxonNames []string `json:"higher_taxon_names"`
-	Authorship       string   `json:"authorship"`
-	NumDescendants   int32    `json:"num_descendants"`
-	AcceptedKey      int32    `json:"accepted_key"`
-	AcceptedName     string   `json:"accepted_name"`
-}
-
-const insertTaxaFromGBIF = `-- name: InsertTaxaFromGBIF :exec
-INSERT INTO taxa (
-        gbif_id,
-        name,
-        authorship,
-        rank,
-        status,
-        parent_id,
-        accepted_id
-    )
-SELECT g.key,
-    g.canonical_name,
-    g.authorship,
-    g.rank,
-    g.status,
-    parent.id,
-    accepted.id
-FROM gbif_staging g
-    JOIN gbif_dependencies d ON d.key = g.key
-    LEFT JOIN taxa parent ON parent.gbif_key = g.parent_key
-    LEFT JOIN taxa accepted ON accepted.gbif_key = g.accepted_key
-WHERE d.import_id = $1
-    AND g.rank = $2
-    AND (
-        (
-            $3 = false
-            AND g.accepted_key IS NULL
-        )
-        OR (
-            $3 = true
-            AND g.accepted_key IS NOT NULL
-        )
-    ) ON CONFLICT (gbif_id) DO NOTHING
-`
-
-type InsertTaxaFromGBIFParams struct {
-	ImportID  uuid.UUID   `json:"import_id"`
-	Rank      string      `json:"rank"`
-	IsSynonym interface{} `json:"is_synonym"`
-}
-
-func (q *Queries) InsertTaxaFromGBIF(ctx context.Context, arg InsertTaxaFromGBIFParams) error {
-	_, err := q.db.Exec(ctx, insertTaxaFromGBIF, arg.ImportID, arg.Rank, arg.IsSynonym)
 	return err
 }
 
@@ -201,7 +130,7 @@ WHERE d.import_id = $1
     AND NOT EXISTS (
         SELECT 1
         FROM taxa t
-        WHERE t.gbif_key = d.key
+        WHERE t.gbif_id = d.key
     )
     AND NOT EXISTS (
         SELECT 1
@@ -228,4 +157,70 @@ func (q *Queries) ListMissingGBIFKeys(ctx context.Context, importID uuid.UUID) (
 		return nil, err
 	}
 	return items, nil
+}
+
+const materializeTaxaFromGBIF = `-- name: MaterializeTaxaFromGBIF :exec
+INSERT INTO taxa (
+        gbif_id,
+        name,
+        authorship,
+        rank,
+        status,
+        parent_id,
+        accepted_taxon_id
+    )
+SELECT g.key,
+    g.canonical_name,
+    g.authorship,
+    g.rank::taxon_rank,
+    g.status::taxon_status,
+    parent.id as parent_id,
+    accepted.id as accepted_taxon_id
+FROM taxon_resolution r
+    JOIN taxon_candidates c ON (
+        r.resolved_to = c.id
+        AND r.import_id = c.import_id
+    )
+    JOIN gbif_dependencies d ON (
+        d.import_id = r.import_id
+        AND d.from_key = c.gbif_id
+    )
+    JOIN gbif_staging g ON (g.key = d.key)
+    LEFT JOIN taxa parent ON parent.gbif_id = g.parent_key
+    LEFT JOIN taxa accepted ON accepted.gbif_id = g.accepted_key
+WHERE r.import_id = $1
+    AND g.rank = $2
+    AND (
+        (
+            $3 = false
+            AND g.accepted_key IS NULL
+        )
+        OR (
+            $3 = true
+            AND g.accepted_key IS NOT NULL
+        )
+    ) ON CONFLICT (gbif_id) DO NOTHING
+`
+
+type MaterializeTaxaFromGBIFParams struct {
+	ImportID  uuid.UUID   `json:"import_id"`
+	Rank      string      `json:"rank"`
+	IsSynonym interface{} `json:"is_synonym"`
+}
+
+// This query materializes taxa from the GBIF staging table into the main taxa table,
+// based on the dependencies identified for a given import batch.
+// It ensures that only taxa that are not already present in the main taxa table are inserted.
+//
+// ExpandGBIFDependencies should be run before this query to ensure that all necessary GBIF keys are identified.
+// The GBIF staging table should be populated with the relevant GBIF data before running this query.
+// Taxa to fetch can be identified with ListMissingGBIFKeys, which will return the GBIF keys
+// that are needed for the import batch but are not yet present
+// in the main taxa table or the GBIF staging table.
+//
+// Fetched taxa can be inserted with InsertGBIFBatch, which will insert the taxa into the GBIF staging table,
+// if they are not already present.
+func (q *Queries) MaterializeTaxaFromGBIF(ctx context.Context, arg MaterializeTaxaFromGBIFParams) error {
+	_, err := q.db.Exec(ctx, materializeTaxaFromGBIF, arg.ImportID, arg.Rank, arg.IsSynonym)
+	return err
 }

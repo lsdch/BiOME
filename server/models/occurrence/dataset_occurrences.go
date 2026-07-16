@@ -129,7 +129,7 @@ package occurrence
 // 	dataset.DatasetInput
 // 	OccurrenceBatchInput
 // 	AddOccurrences []string  `json:"add_occurrences,omitempty" default:"[]"`
-// 	BatchULID      ulid.ULID `json:"batch_ulid,omitempty"`
+// 	BatchULID      types.ULID `json:"batch_ulid,omitempty"`
 // 	Kingdom        string    `json:"kingdom,omitempty" doc:"This is used to discriminate between homonymous taxa from different kingdoms. For example, if the dataset only contains occurrences of plants, the taxonomic scope can be set to 'Plantae' to avoid fetching homonymous animal taxa from GBIF."`
 // }
 

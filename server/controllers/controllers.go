@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/router"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/sirupsen/logrus"
@@ -43,7 +43,7 @@ func (i UUIDInput) Identifier() uuid.UUID {
 }
 
 type ULIDPath struct {
-	ULID ulid.ULID `path:"ulid" format:"ulid"`
+	ULID types.ULID `path:"ulid" format:"ulid"`
 }
 
 type CodePath struct {

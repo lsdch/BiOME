@@ -1,51 +1,27 @@
 <template>
   <div v-if="(occurrences?.length ?? 0) > 10" class="d-flex align-center ga-2">
-    <v-text-field
-      v-model="search.term"
-      class="ma-2"
-      hide-details
-      label="Search"
-      density="compact"
-      clearable
-    />
+    <v-text-field v-model="search.term" class="ma-2" hide-details label="Search" density="compact" clearable />
   </div>
   <CRUDTable :items entity-name="Occurrences" :headers :search filter-mode="some">
-    <template #item.code="{ item, value }: { item: Data; value: string }">
-      <RouterLink
-        :to="{
-          name: 'occurrence-item',
-          params: { code: item.code }
-        }"
-        target="_blank"
-      >
+    <template #item.code="{ item, value }: { item: Occurrence; value: string }">
+      <RouterLink :to="{
+        name: 'occurrence-item',
+        params: { id: item.id, code: item.code }
+      }" target="_blank">
         <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
       </RouterLink>
     </template>
-    <template #item.site="{ value }: { value: SiteItem }" v-if="withSite">
-      <RouterLink
-        :to="{
-          name: 'site-item',
-          params: { code: value.code }
-        }"
-        target="_blank"
-        v-tooltip="value.name"
-      >
-        <span class="text-wrap font-monospace">
-          {{ CodeIdentifier.textWrap(value.code) }}
-        </span>
-      </RouterLink>
-    </template>
-    <template #item.site.coordinates.latitude="{ value }">
+    <template #item.sampling.coordinates.latitude="{ value }">
       <span class="font-monospace">
         {{ value }}
       </span>
     </template>
-    <template #item.site.coordinates.longitude="{ value }">
+    <template #item.sampling.coordinates.longitude="{ value }">
       <span class="font-monospace">
         {{ value }}
       </span>
     </template>
-    <template #item.sampling_date="{ value }">
+    <template #item.sampling.performed_on="{ value }">
       <span :class="['font-monospace', { 'text-muted': !value }]">
         {{ DateWithPrecision.format(value) }}
       </span>
@@ -59,32 +35,19 @@
   </CRUDTable>
 </template>
 
-<script
-  setup
-  lang="ts"
-  generic="
-    Data extends OccurrenceAtSite | (OccurrenceAtSite & { site: Site }),
-    Site extends SiteItem
-  "
->
+<script setup lang="ts" generic="">
 import {
   CodeIdentifier,
   DateWithPrecision,
   Identification,
-  OccurrenceAtSite,
-  SiteItem
+  Occurrence,
 } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { HeaderExtension, mergeHeaders } from '@/features/occurrences/components/tables/headers'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import { computed, ref, useSlots } from 'vue'
+import { FilterMatch } from 'vuetify'
 
-export type OccurrenceTableItem<Site> = OccurrenceAtSite & {
-  sampling_date?: DateWithPrecision
-  site: Site
-}
-
-type Occurrence = Data
 
 const {
   occurrences,
@@ -109,7 +72,7 @@ const search = ref({
   owned: undefined
 })
 
-const headersWithSites = [
+const _headers = [
   {
     title: 'Code',
     value: 'code',
@@ -117,45 +80,53 @@ const headersWithSites = [
   },
   {
     title: 'Site',
-    value: 'site',
+    value: 'sampling.site.name',
     width: 0,
     sortable: true,
     sort: (a, b) => a?.code.localeCompare(b?.code) || 0,
-    filter(value: SiteItem, query, item) {
-      if (!query) return true
-      return (
-        value.code.toLowerCase().includes(query.toLowerCase()) ||
-        !!value.name?.toLowerCase().includes(query.toLowerCase())
-      )
-    }
+    // filter(value: SiteItem, query, item) {
+    //   if (!query) return true
+    //   return (
+    //     value.code.toLowerCase().includes(query.toLowerCase()) ||
+    //     !!value.name?.toLowerCase().includes(query.toLowerCase())
+    //   )
+    // }
   },
   {
     title: 'Latitude',
-    value: 'site.coordinates.latitude',
+    value: 'sampling.coordinates.latitude',
     width: 0,
     sortable: true
   },
   {
     title: 'Longitude',
-    value: 'site.coordinates.longitude',
+    value: 'sampling.coordinates.longitude',
     sortable: true,
     width: 0
   },
   {
     title: 'Sampl. date',
-    value: 'sampling_date',
+    value: 'sampling.performed_on',
     sortable: true,
     align: 'end',
     sort: DateWithPrecision.compare
   },
-  Identification.tableHeader({ key: 'identification' })
-] as const satisfies CRUDTableHeader<Data>[]
+  {
+    title: 'Taxon',
+    key: 'identification',
+    sortable: true,
+    align: 'start',
+    sort: (a, b) => a.taxon.name.localeCompare(b.name),
+    filter(value, query, item): FilterMatch {
+      return (value as unknown as Identification).taxon.name
+        .toLowerCase()
+        .includes(query.toLowerCase())
+    }
+  }
+] as const satisfies CRUDTableHeader<Occurrence>[]
 
 const headers = computed(() => {
-  const h = headersWithSites.filter(
-    (header) => withSite || !(typeof header.value === 'string' && header.value?.startsWith('site.'))
-  ) as CRUDTableHeader<Occurrence>[]
-  return mergeHeaders(h, props.extendHeaders) satisfies CRUDTableHeader<Occurrence>[]
+  return mergeHeaders(_headers, props.extendHeaders) satisfies CRUDTableHeader<Occurrence>[]
 })
 
 const slots = useSlots()

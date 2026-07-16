@@ -8,6 +8,7 @@
 package model
 
 import (
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"time"
 )
@@ -15,9 +16,9 @@ import (
 type ImportBatches struct {
 	ID          string `sql:"primary_key"`
 	Label       string
-	Slug        string
 	Description *string
-	SubmittedBy *string
 	AssembledBy *pq.StringArray
+	CreatedBy   uuid.UUID
 	CreatedAt   time.Time
+	WorkflowID  *uuid.UUID
 }

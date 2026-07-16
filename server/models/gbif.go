@@ -4,45 +4,49 @@ import (
 	_ "embed"
 	"maps"
 	"slices"
+	"strings"
 
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/db/biomedb"
-
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 )
 
 type TaxonGBIF struct {
-	Key                     int32            `json:"key" gel:"GBIF_ID"`
-	Parent                  string           `json:"parent"`
-	ParentKey               int32            `json:"parentKey" gel:"parentID"`
-	Name                    string           `json:"canonicalName" gel:"name"`
-	ScientificName          string           `json:"scientificName" gel:"scientific_name"`
-	Status                  string           `json:"taxonomicStatus" gel:"status"`
-	Rank                    string           `json:"rank" gel:"rank"`
-	NameType                string           `json:"nameType" gel:"name_type"`
-	KingdomKey              int32            `json:"kingdomKey"`
-	PhylumKey               int32            `json:"phylumKey"`
-	ClassKey                int32            `json:"classKey"`
-	OrderKey                int32            `json:"orderKey"`
-	FamilyKey               int32            `json:"familyKey"`
-	GenusKey                int32            `json:"genusKey"`
-	SpeciesKey              int32            `json:"speciesKey"`
+	Key                     int32            `json:"key"`
+	Parent                  Optional[string] `json:"parent,omitempty"`
+	ParentKey               Optional[int32]  `json:"parentKey,omitempty"`
+	Name                    string           `json:"canonicalName"`
+	ScientificName          string           `json:"scientificName"`
+	Status                  string           `json:"taxonomicStatus"`
+	Rank                    string           `json:"rank"`
+	NameType                string           `json:"nameType"`
+	KingdomKey              Optional[int32]  `json:"kingdomKey,omitempty"`
+	PhylumKey               Optional[int32]  `json:"phylumKey,omitempty"`
+	ClassKey                Optional[int32]  `json:"classKey,omitempty"`
+	OrderKey                Optional[int32]  `json:"orderKey,omitempty"`
+	FamilyKey               Optional[int32]  `json:"familyKey,omitempty"`
+	GenusKey                Optional[int32]  `json:"genusKey,omitempty"`
+	SpeciesKey              Optional[int32]  `json:"speciesKey,omitempty"`
 	HigherClassificationMap map[int32]string `json:"higherClassificationMap"`
-	Authorship              Optional[string] `json:"authorship,omitempty" gel:"authorship,omitempty"`
-	NumDescendants          int32            `json:"numDescendants" gel:"-"`
-	AcceptedKey             int32            `json:"acceptedKey"`
-	AcceptedName            string           `json:"accepted"`
+	Authorship              Optional[string] `json:"authorship,omitempty"`
+	NumDescendants          Optional[int32]  `json:"numDescendants,omitempty"`
+	AcceptedKey             Optional[int32]  `json:"acceptedKey,omitempty"`
+	AcceptedName            Optional[string] `json:"accepted,omitempty"`
+}
+
+func (taxon *TaxonGBIF) IsAcceptable() bool {
+	return taxon.GetRank().Valid() && taxon.GetStatus().Valid()
 }
 
 func (taxon *TaxonGBIF) GetParentKeysList() []int32 {
 	parents := []int32{}
 
-	addKeys := func(keys ...int32) {
+	addKeys := func(keys ...Optional[int32]) {
 		for _, key := range keys {
-			if key == 0 || key == taxon.Key {
+			if key, ok := key.Get(); !ok || key == taxon.Key {
 				return
+			} else {
+				parents = append(parents, key)
 			}
-			parents = append(parents, key)
 		}
 	}
 
@@ -60,16 +64,16 @@ func (taxon *TaxonGBIF) GetParentKeysList() []int32 {
 }
 
 func (taxon *TaxonGBIF) GetRank() TaxonRank {
-	return TaxonRank(cases.Title(language.English).String(taxon.Rank))
+	return TaxonRank(taxon.Rank)
 }
 
 func (taxon *TaxonGBIF) GetStatus() TaxonStatus {
-	switch taxon.Status {
-	case "Accepted":
+	switch strings.ToUpper(taxon.Status) {
+	case "ACCEPTED":
 		return biomedb.TaxonStatusACCEPTED
-	case "Synonym":
+	case "SYNONYM":
 		return biomedb.TaxonStatusSYNONYM
-	case "Doubtful":
+	case "DOUBTFUL":
 		return biomedb.TaxonStatusDOUBTFUL
 	default:
 		return biomedb.TaxonStatusUNCLASSIFIED
@@ -79,33 +83,38 @@ func (taxon *TaxonGBIF) GetStatus() TaxonStatus {
 func (taxon *TaxonGBIF) ToStaging() biomedb.InsertGBIFBatchParams {
 	return biomedb.InsertGBIFBatchParams{
 		Key:              taxon.Key,
-		Parent:           taxon.Parent,
-		ParentKey:        taxon.ParentKey,
+		Parent:           taxon.Parent.ToPtr(),
+		ParentKey:        taxon.ParentKey.ToPtr(),
 		CanonicalName:    taxon.Name,
 		ScientificName:   taxon.ScientificName,
 		Status:           string(taxon.GetStatus()),
 		Rank:             string(taxon.GetRank()),
 		NameType:         taxon.NameType,
-		KingdomKey:       taxon.KingdomKey,
-		PhylumKey:        taxon.PhylumKey,
-		ClassKey:         taxon.ClassKey,
-		OrderKey:         taxon.OrderKey,
-		FamilyKey:        taxon.FamilyKey,
-		GenusKey:         taxon.GenusKey,
-		SpeciesKey:       taxon.SpeciesKey,
+		KingdomKey:       taxon.KingdomKey.ToPtr(),
+		PhylumKey:        taxon.PhylumKey.ToPtr(),
+		ClassKey:         taxon.ClassKey.ToPtr(),
+		OrderKey:         taxon.OrderKey.ToPtr(),
+		FamilyKey:        taxon.FamilyKey.ToPtr(),
+		GenusKey:         taxon.GenusKey.ToPtr(),
+		SpeciesKey:       taxon.SpeciesKey.ToPtr(),
 		HigherTaxonKeys:  slices.Collect(maps.Keys(taxon.HigherClassificationMap)),
 		HigherTaxonNames: slices.Collect(maps.Values(taxon.HigherClassificationMap)),
-		Authorship:       taxon.Authorship.GetWithDefault(""),
-		NumDescendants:   taxon.NumDescendants,
-		AcceptedKey:      taxon.AcceptedKey,
-		AcceptedName:     taxon.AcceptedName,
+		Authorship:       taxon.Authorship.ToPtr(),
+		NumDescendants:   taxon.NumDescendants.ToPtr(),
+		AcceptedKey:      taxon.AcceptedKey.ToPtr(),
+		AcceptedName:     taxon.AcceptedName.ToPtr(),
 	}
 }
 
-func (taxon *TaxonGBIF) ToCandidate(inputName string) biomedb.InsertTaxonCandidatesBatchParams {
+type TaxonGBIFWithPriority struct {
+	TaxonGBIF
+	Priority int32 `json:"priority"`
+}
+
+func (t TaxonGBIF) ComputePriority(res TaxonResolution) int32 {
 	var priority int32
-	if taxon.Name == inputName || taxon.ScientificName == inputName {
-		if taxon.GetStatus() == biomedb.TaxonStatusACCEPTED {
+	if t.Name == res.InputName || t.ScientificName == res.ScientificName {
+		if t.GetStatus() == biomedb.TaxonStatusACCEPTED {
 			// Accepted exact matches
 			priority = 100
 		} else {
@@ -116,17 +125,28 @@ func (taxon *TaxonGBIF) ToCandidate(inputName string) biomedb.InsertTaxonCandida
 		// Non-exact matches
 		priority = 50
 	}
+	return priority
+}
 
+func (t TaxonGBIF) WithPriority(res TaxonResolution) TaxonGBIFWithPriority {
+	return TaxonGBIFWithPriority{
+		TaxonGBIF: t,
+		Priority:  t.ComputePriority(res),
+	}
+}
+
+func (taxon TaxonGBIFWithPriority) ToCandidate(importID uuid.UUID, resolutionID uuid.UUID) biomedb.InsertTaxonCandidatesBatchParams {
 	return biomedb.InsertTaxonCandidatesBatchParams{
-		InputName:  inputName,
-		Name:       taxon.Name,
-		Authorship: taxon.Authorship.ToPtr(),
-		Rank:       taxon.GetRank(),
-		Status:     taxon.GetStatus(),
-		Source:     biomedb.TaxonMatchSourceGBIF,
-		MatchType:  biomedb.TaxonMatchTypeExact,
-		Priority:   priority,
-		GBIFID:     &taxon.Key,
+		ImportID:     importID,
+		ResolutionID: resolutionID,
+		Name:         taxon.Name,
+		Authorship:   taxon.Authorship.ToPtr(),
+		Rank:         taxon.GetRank(),
+		Status:       taxon.GetStatus(),
+		Source:       biomedb.TaxonMatchSourceGBIF,
+		MatchType:    biomedb.TaxonMatchTypeExact,
+		Priority:     taxon.Priority,
+		GBIFID:       &taxon.Key,
 	}
 }
 

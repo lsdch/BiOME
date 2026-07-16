@@ -80,9 +80,36 @@ func (t *Taxon) WithLineage(parent *Taxon, accepted *Taxon, lineage []Taxon) Tax
 	}
 }
 
+type TaxonWithFullLineage struct {
+	TaxonWithLineage
+	Descendants []Taxon `json:"descendants"`
+}
+
 type ListTaxaParams struct {
 	SearchTerm  Optional[string] `query:"search_term"`
 	Ranks       []TaxonRank      `query:"ranks"`
 	SampledOnly bool             `query:"sampled_only"`
 	Pagination
+}
+
+type CreateTaxonInput struct {
+	Name       string              `json:"name" validate:"required"`
+	Rank       TaxonRank           `json:"rank" validate:"required"`
+	Status     TaxonStatus         `json:"status" validate:"required"`
+	Authorship Optional[string]    `json:"authorship,omitempty"`
+	Comments   Optional[string]    `json:"comments,omitempty"`
+	ParentID   uuid.UUID           `json:"parent_id"`
+	AcceptedID Optional[uuid.UUID] `json:"accepted_id,omitempty"`
+}
+
+func (i *CreateTaxonInput) ToParams() *biomedb.InsertTaxonParams {
+	return &biomedb.InsertTaxonParams{
+		Name:       i.Name,
+		Rank:       i.Rank,
+		Status:     i.Status,
+		Authorship: i.Authorship.ToPtr(),
+		Comments:   i.Comments.ToPtr(),
+		ParentID:   UUIDToPg(i.ParentID),
+		AcceptedID: UUIDOpt(i.AcceptedID),
+	}
 }

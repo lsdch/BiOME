@@ -52,6 +52,9 @@ import type {
   CreateSamplingMethodError,
   CreateSamplingMethodResponse,
   CreateSamplingResponse,
+  CreateTaxonData,
+  CreateTaxonError,
+  CreateTaxonResponse,
   DeleteArticleData,
   DeleteArticleError,
   DeleteArticleResponse,
@@ -64,12 +67,18 @@ import type {
   DeleteSamplingMethodData,
   DeleteSamplingMethodError,
   DeleteSamplingMethodResponse,
+  DeleteWorkflowData,
+  DeleteWorkflowError,
+  DeleteWorkflowResponse,
   GetCurrentUserData,
   GetCurrentUserError,
   GetCurrentUserResponse,
   GetDatasetByIdData,
   GetDatasetByIdError,
   GetDatasetByIdResponse,
+  GetFixativesResolutionData,
+  GetFixativesResolutionError,
+  GetFixativesResolutionResponse,
   GetGeoapifyStatusData,
   GetGeoapifyStatusError,
   GetGeoapifyStatusResponse,
@@ -79,9 +88,21 @@ import type {
   GetInstanceSettingsData,
   GetInstanceSettingsError,
   GetInstanceSettingsResponse,
-  GetOccurrencesData,
-  GetOccurrencesError,
-  GetOccurrencesResponse,
+  GetMethodsResolutionData,
+  GetMethodsResolutionError,
+  GetMethodsResolutionResponse,
+  GetOccurrenceData,
+  GetOccurrenceError,
+  GetOccurrenceResponse,
+  GetTaxaAtRankData,
+  GetTaxaAtRankError,
+  GetTaxaAtRankResponse,
+  GetTaxonData,
+  GetTaxonError,
+  GetTaxonResolutionsData,
+  GetTaxonResolutionsError,
+  GetTaxonResolutionsResponse,
+  GetTaxonResponse,
   ImportOccurrencesCsvData,
   ImportOccurrencesCsvError,
   ImportOccurrencesCsvResponse,
@@ -111,7 +132,13 @@ import type {
   ListGeoapifyUsageResponse,
   ListImportsData,
   ListImportsError,
+  ListImportsForCurrentUserData,
+  ListImportsForCurrentUserError,
+  ListImportsForCurrentUserResponse,
   ListImportsResponse,
+  ListOccurrencesAtProximityData,
+  ListOccurrencesAtProximityError,
+  ListOccurrencesAtProximityResponse,
   ListOccurrencesData,
   ListOccurrencesError,
   ListOccurrencesResponse,
@@ -121,6 +148,9 @@ import type {
   ListSamplingsAtProximityData,
   ListSamplingsAtProximityError,
   ListSamplingsAtProximityResponse,
+  ListSamplingsH3AtProximityData,
+  ListSamplingsH3AtProximityError,
+  ListSamplingsH3AtProximityResponse,
   ListUsersData,
   ListUsersError,
   ListUsersResponse,
@@ -136,12 +166,24 @@ import type {
   LogoutData,
   LogoutError,
   LogoutResponse,
+  MaterializeBatchData,
+  MaterializeBatchError,
+  MaterializeBatchResponse,
   OccurrencesTaxaOverviewData,
   OccurrencesTaxaOverviewError,
   OccurrencesTaxaOverviewResponse,
   RefreshSessionData,
   RefreshSessionError,
   RefreshSessionResponse,
+  ResolveFixativeData,
+  ResolveFixativeError,
+  ResolveFixativeResponse,
+  ResolveMethodData,
+  ResolveMethodError,
+  ResolveMethodResponse,
+  ResolveTaxonData,
+  ResolveTaxonError,
+  ResolveTaxonResponse,
   ReverseGeocodeData,
   ReverseGeocodeError,
   ReverseGeocodeResponse,
@@ -852,6 +894,236 @@ export const importOccurrencesCsvMutation = (
   return mutationOptions
 }
 
+export const listImportsForCurrentUserQueryKey = (
+  options?: Options<ListImportsForCurrentUserData>
+) => createQueryKey('listImportsForCurrentUser', options)
+
+/**
+ * List import workflows for the current user
+ */
+export const listImportsForCurrentUserOptions = (
+  options?: Options<ListImportsForCurrentUserData>
+) =>
+  queryOptions<
+    ListImportsForCurrentUserResponse,
+    ListImportsForCurrentUserError,
+    ListImportsForCurrentUserResponse,
+    ReturnType<typeof listImportsForCurrentUserQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await BatchImportsService.listImportsForCurrentUser({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listImportsForCurrentUserQueryKey(options)
+  })
+
+export const getFixativesResolutionQueryKey = (options: Options<GetFixativesResolutionData>) =>
+  createQueryKey('getFixativesResolution', options)
+
+/**
+ * Get sampling fixatives resolution state
+ */
+export const getFixativesResolutionOptions = (options: Options<GetFixativesResolutionData>) =>
+  queryOptions<
+    GetFixativesResolutionResponse,
+    GetFixativesResolutionError,
+    GetFixativesResolutionResponse,
+    ReturnType<typeof getFixativesResolutionQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await BatchImportsService.getFixativesResolution({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getFixativesResolutionQueryKey(options)
+  })
+
+/**
+ * Resolve sampling fixative for import ID
+ */
+export const resolveFixativeMutation = (
+  options?: Partial<Options<ResolveFixativeData>>
+): UseMutationOptions<
+  ResolveFixativeResponse,
+  ResolveFixativeError,
+  Options<ResolveFixativeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ResolveFixativeResponse,
+    ResolveFixativeError,
+    Options<ResolveFixativeData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await BatchImportsService.resolveFixative({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const getMethodsResolutionQueryKey = (options: Options<GetMethodsResolutionData>) =>
+  createQueryKey('getMethodsResolution', options)
+
+/**
+ * Get sampling methods resolution state
+ */
+export const getMethodsResolutionOptions = (options: Options<GetMethodsResolutionData>) =>
+  queryOptions<
+    GetMethodsResolutionResponse,
+    GetMethodsResolutionError,
+    GetMethodsResolutionResponse,
+    ReturnType<typeof getMethodsResolutionQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await BatchImportsService.getMethodsResolution({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getMethodsResolutionQueryKey(options)
+  })
+
+/**
+ * Resolve sampling method for import ID
+ */
+export const resolveMethodMutation = (
+  options?: Partial<Options<ResolveMethodData>>
+): UseMutationOptions<ResolveMethodResponse, ResolveMethodError, Options<ResolveMethodData>> => {
+  const mutationOptions: UseMutationOptions<
+    ResolveMethodResponse,
+    ResolveMethodError,
+    Options<ResolveMethodData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await BatchImportsService.resolveMethod({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const getTaxonResolutionsQueryKey = (options: Options<GetTaxonResolutionsData>) =>
+  createQueryKey('getTaxonResolutions', options)
+
+/**
+ * Get taxonomy resolution state and candidates
+ */
+export const getTaxonResolutionsOptions = (options: Options<GetTaxonResolutionsData>) =>
+  queryOptions<
+    GetTaxonResolutionsResponse,
+    GetTaxonResolutionsError,
+    GetTaxonResolutionsResponse,
+    ReturnType<typeof getTaxonResolutionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await BatchImportsService.getTaxonResolutions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getTaxonResolutionsQueryKey(options)
+  })
+
+/**
+ * Resolve taxon for import ID
+ */
+export const resolveTaxonMutation = (
+  options?: Partial<Options<ResolveTaxonData>>
+): UseMutationOptions<ResolveTaxonResponse, ResolveTaxonError, Options<ResolveTaxonData>> => {
+  const mutationOptions: UseMutationOptions<
+    ResolveTaxonResponse,
+    ResolveTaxonError,
+    Options<ResolveTaxonData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await BatchImportsService.resolveTaxon({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Delete the import workflow
+ *
+ * Delete the import workflow and all associated data, including staging tables and taxon resolutions. This operation is irreversible.
+ */
+export const deleteWorkflowMutation = (
+  options?: Partial<Options<DeleteWorkflowData>>
+): UseMutationOptions<DeleteWorkflowResponse, DeleteWorkflowError, Options<DeleteWorkflowData>> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteWorkflowResponse,
+    DeleteWorkflowError,
+    Options<DeleteWorkflowData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await BatchImportsService.deleteWorkflow({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Materialize the import batch into the database
+ *
+ * Materialize the import batch into the database, creating samplings, occurrences, and resolving taxa. This operation is irreversible.
+ */
+export const materializeBatchMutation = (
+  options?: Partial<Options<MaterializeBatchData>>
+): UseMutationOptions<
+  MaterializeBatchResponse,
+  MaterializeBatchError,
+  Options<MaterializeBatchData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    MaterializeBatchResponse,
+    MaterializeBatchError,
+    Options<MaterializeBatchData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await BatchImportsService.materializeBatch({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
 export const listCountriesQueryKey = (options?: Options<ListCountriesData>) =>
   createQueryKey('listCountries', options)
 
@@ -952,6 +1224,83 @@ export const listOccurrencesOptions = (options?: Options<ListOccurrencesData>) =
     queryKey: listOccurrencesQueryKey(options)
   })
 
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>
+>(
+  queryKey: QueryKey<Options>,
+  page: K
+) => {
+  const params = { ...queryKey[0] }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any)
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any)
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any)
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const listOccurrencesInfiniteQueryKey = (
+  options?: Options<ListOccurrencesData>
+): QueryKey<Options<ListOccurrencesData>> => createQueryKey('listOccurrences', options, true)
+
+/**
+ * List occurrences with optional filters and pagination
+ */
+export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrencesData>) =>
+  infiniteQueryOptions<
+    ListOccurrencesResponse,
+    ListOccurrencesError,
+    InfiniteData<ListOccurrencesResponse>,
+    QueryKey<Options<ListOccurrencesData>>,
+    number | Pick<QueryKey<Options<ListOccurrencesData>>[0], 'body' | 'headers' | 'path' | 'query'>
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListOccurrencesData>>[0],
+          'body' | 'headers' | 'path' | 'query'
+        > =
+          typeof pageParam === 'object'
+            ? pageParam
+            : {
+                query: {
+                  offset: pageParam
+                }
+              }
+        const params = createInfiniteParams(queryKey, page)
+        const { data } = await OccurrencesService.listOccurrences({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true
+        })
+        return data
+      },
+      queryKey: listOccurrencesInfiniteQueryKey(options)
+    }
+  )
+
 /**
  * Create a new occurrence with its sampling and taxon
  */
@@ -1004,21 +1353,21 @@ export const listCollectionNamesOptions = (options?: Options<ListCollectionNames
     queryKey: listCollectionNamesQueryKey(options)
   })
 
-export const getOccurrencesQueryKey = (options: Options<GetOccurrencesData>) =>
-  createQueryKey('getOccurrences', options)
+export const getOccurrenceQueryKey = (options: Options<GetOccurrenceData>) =>
+  createQueryKey('getOccurrence', options)
 
 /**
  * Get Occurrence with all relevant metadata
  */
-export const getOccurrencesOptions = (options: Options<GetOccurrencesData>) =>
+export const getOccurrenceOptions = (options: Options<GetOccurrenceData>) =>
   queryOptions<
-    GetOccurrencesResponse,
-    GetOccurrencesError,
-    GetOccurrencesResponse,
-    ReturnType<typeof getOccurrencesQueryKey>
+    GetOccurrenceResponse,
+    GetOccurrenceError,
+    GetOccurrenceResponse,
+    ReturnType<typeof getOccurrenceQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.getOccurrences({
+      const { data } = await OccurrencesService.getOccurrence({
         ...options,
         ...queryKey[0],
         signal,
@@ -1026,7 +1375,35 @@ export const getOccurrencesOptions = (options: Options<GetOccurrencesData>) =>
       })
       return data
     },
-    queryKey: getOccurrencesQueryKey(options)
+    queryKey: getOccurrenceQueryKey(options)
+  })
+
+export const listOccurrencesAtProximityQueryKey = (
+  options: Options<ListOccurrencesAtProximityData>
+) => createQueryKey('listOccurrencesAtProximity', options)
+
+/**
+ * List samplings with occurrences within a certain distance of a given point
+ */
+export const listOccurrencesAtProximityOptions = (
+  options: Options<ListOccurrencesAtProximityData>
+) =>
+  queryOptions<
+    ListOccurrencesAtProximityResponse,
+    ListOccurrencesAtProximityError,
+    ListOccurrencesAtProximityResponse,
+    ReturnType<typeof listOccurrencesAtProximityQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.listOccurrencesAtProximity({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listOccurrencesAtProximityQueryKey(options)
   })
 
 /**
@@ -1132,6 +1509,36 @@ export const listSamplingsAtProximityOptions = (options: Options<ListSamplingsAt
       return data
     },
     queryKey: listSamplingsAtProximityQueryKey(options)
+  })
+
+export const listSamplingsH3AtProximityQueryKey = (
+  options: Options<ListSamplingsH3AtProximityData>
+) => createQueryKey('listSamplingsH3AtProximity', options)
+
+/**
+ * List samplings at proximity (H3)
+ *
+ * List H3 cells at proximity to a given point, within a given radius and date range.
+ */
+export const listSamplingsH3AtProximityOptions = (
+  options: Options<ListSamplingsH3AtProximityData>
+) =>
+  queryOptions<
+    ListSamplingsH3AtProximityResponse,
+    ListSamplingsH3AtProximityError,
+    ListSamplingsH3AtProximityResponse,
+    ReturnType<typeof listSamplingsH3AtProximityQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SamplingsService.listSamplingsH3AtProximity({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listSamplingsH3AtProximityQueryKey(options)
   })
 
 export const listSamplingMethodsQueryKey = (options?: Options<ListSamplingMethodsData>) =>
@@ -1419,6 +1826,31 @@ export const testSmtpConnectionOptions = (options?: Options<TestSmtpConnectionDa
     queryKey: testSmtpConnectionQueryKey(options)
   })
 
+export const getTaxaAtRankQueryKey = (options: Options<GetTaxaAtRankData>) =>
+  createQueryKey('getTaxaAtRank', options)
+
+/**
+ * Get all taxa at a specific rank
+ */
+export const getTaxaAtRankOptions = (options: Options<GetTaxaAtRankData>) =>
+  queryOptions<
+    GetTaxaAtRankResponse,
+    GetTaxaAtRankError,
+    GetTaxaAtRankResponse,
+    ReturnType<typeof getTaxaAtRankQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await TaxonomyService.getTaxaAtRank({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getTaxaAtRankQueryKey(options)
+  })
+
 export const searchTaxaQueryKey = (options?: Options<SearchTaxaData>) =>
   createQueryKey('searchTaxa', options)
 
@@ -1443,40 +1875,6 @@ export const searchTaxaOptions = (options?: Options<SearchTaxaData>) =>
     },
     queryKey: searchTaxaQueryKey(options)
   })
-
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>
->(
-  queryKey: QueryKey<Options>,
-  page: K
-) => {
-  const params = { ...queryKey[0] }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any)
-    }
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any)
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any)
-    }
-  }
-  return params as unknown as typeof page
-}
 
 export const searchTaxaInfiniteQueryKey = (
   options?: Options<SearchTaxaData>
@@ -1520,3 +1918,51 @@ export const searchTaxaInfiniteOptions = (options?: Options<SearchTaxaData>) =>
       queryKey: searchTaxaInfiniteQueryKey(options)
     }
   )
+
+/**
+ * Create a new taxon
+ */
+export const createTaxonMutation = (
+  options?: Partial<Options<CreateTaxonData>>
+): UseMutationOptions<CreateTaxonResponse, CreateTaxonError, Options<CreateTaxonData>> => {
+  const mutationOptions: UseMutationOptions<
+    CreateTaxonResponse,
+    CreateTaxonError,
+    Options<CreateTaxonData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await TaxonomyService.createTaxon({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const getTaxonQueryKey = (options: Options<GetTaxonData>) =>
+  createQueryKey('getTaxon', options)
+
+/**
+ * Get a taxon by ID
+ */
+export const getTaxonOptions = (options: Options<GetTaxonData>) =>
+  queryOptions<
+    GetTaxonResponse,
+    GetTaxonError,
+    GetTaxonResponse,
+    ReturnType<typeof getTaxonQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await TaxonomyService.getTaxon({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getTaxonQueryKey(options)
+  })

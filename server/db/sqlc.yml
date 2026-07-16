@@ -53,5 +53,10 @@ sql:
             type: "Cell"
         - db_type: "ulid"
           go_type:
-            import: "github.com/oklog/ulid/v2"
+            import: "github.com/lsdch/biome/types"
             type: "ULID"
+        - db_type: "ulid[]"
+          go_type:
+            import: "github.com/lsdch/biome/types"
+            type: "ULID"
+            slice: true

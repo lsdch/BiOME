@@ -7,7 +7,7 @@ import (
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/stores"
-	"github.com/oklog/ulid/v2"
+	"github.com/lsdch/biome/types"
 )
 
 type SamplingService struct {
@@ -22,6 +22,10 @@ func NewSamplingService() *SamplingService {
 
 func (s *SamplingService) ListSamplingsAtProximity(ctx context.Context, q db.Querier, input models.ListSamplingsAtProximityInput) ([]models.SamplingWithDistance, error) {
 	return s.store.ListSamplingsAtProximity(ctx, q, input)
+}
+
+func (s *SamplingService) ListSamplingsH3AtProximity(ctx context.Context, q db.Querier, input models.ListSamplingsAtProximityInput) ([]models.CellH3WithDistance, error) {
+	return s.store.ListSamplingsH3AtProximity(ctx, q, input)
 }
 
 func (s *SamplingService) CreateSampling(ctx context.Context, tx *db.Tx, input models.SamplingInput) (*models.SamplingWithDetails, error) {
@@ -73,7 +77,7 @@ func (s *SamplingService) GetSampling(ctx context.Context, q db.Querier, samplin
 	return s.store.GetSampling(ctx, q, samplingID)
 }
 
-func (s *SamplingService) GetSamplingBatchWithOccurrences(ctx context.Context, q db.Querier, samplingIDs []uuid.UUID, occurrenceIDs []ulid.ULID) (map[uuid.UUID]*models.SamplingWithOccurrences, error) {
+func (s *SamplingService) GetSamplingBatchWithOccurrences(ctx context.Context, q db.Querier, samplingIDs []uuid.UUID, occurrenceIDs []types.ULID) (map[uuid.UUID]*models.SamplingWithOccurrences, error) {
 	sBatch, err := s.store.GetSamplingBatch(ctx, q, samplingIDs)
 	if err != nil {
 		return nil, err
@@ -143,4 +147,20 @@ func (s *SamplingService) LoadSamplingMetadata(ctx context.Context, q db.Querier
 
 func (s *SamplingService) ListSamplingAccessPoints(ctx context.Context, q db.Querier) ([]string, error) {
 	return q.Queries().ListSamplingAccessPoints(ctx)
+}
+
+/*
+Materializes samplings with their associated metadata for a given batch.
+*/
+func (s *SamplingService) MaterializeSamplings(ctx context.Context, tx *db.Tx, batchID types.ULID) error {
+	if err := s.store.MaterializeSamplings(ctx, tx, batchID); err != nil {
+		return err
+	}
+	if err := s.store.MaterializeSamplingMethods(ctx, tx, batchID); err != nil {
+		return err
+	}
+	// if err := s.store.MaterializeSamplingFixatives(ctx, tx, batchID); err != nil {
+	// 	return err
+	// }
+	return nil
 }

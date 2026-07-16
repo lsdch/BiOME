@@ -8,10 +8,11 @@ import (
 )
 
 type ImportEvent struct {
-	Workflow models.ImportWorkflow
-	Status   RunnerStatus
-	GBIF     progress.ProgressSnapshot
-	Error    error
+	Workflow         models.ImportWorkflow            `json:"workflow"`
+	Status           RunnerStatus                     `json:"status"`
+	ResolutionStatus models.MaterializationReadyCheck `json:"resolution_status"`
+	GBIF             progress.ProgressSnapshot        `json:"GBIF"`
+	Error            error                            `json:"error"`
 }
 
 type ImportEventSink[T any] interface {

@@ -1,11 +1,11 @@
-import { BaseIdentification, Identification, Taxon } from '@/api'
+import { Identification, Taxon } from '@/api'
 import { FTaxonStatusIndicator } from '@/features/taxonomy/components/functionals'
 import LinkIconGBIF from '@/features/taxonomy/components/LinkIconGBIF'
 import { withModifiers } from 'vue'
 import { VChip } from 'vuetify/components'
 
 export type IdentificationChipProps = VChip['$props'] & {
-  identification: BaseIdentification & Partial<Taxon>
+  identification: Identification
   short?: boolean
 }
 
@@ -50,9 +50,9 @@ export function IdentificationChip({
           >
             {{
               prepend: () =>
-                taxon.GBIF_ID ? (
+                taxon.gbif_id ? (
                   <LinkIconGBIF
-                    GBIF_ID={taxon.GBIF_ID}
+                    GBIF_ID={taxon.gbif_id}
                     variant="tonal"
                     size="x-small"
                     onClick={withModifiers(() => {}, ['stop'])}
