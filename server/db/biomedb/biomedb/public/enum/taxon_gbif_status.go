@@ -10,13 +10,15 @@ package enum
 import "github.com/go-jet/jet/v2/postgres"
 
 var TaxonGbifStatus = &struct {
-	Skipped   postgres.StringExpression
-	Pending   postgres.StringExpression
-	Completed postgres.StringExpression
-	Failed    postgres.StringExpression
+	Skipped      postgres.StringExpression
+	Pending      postgres.StringExpression
+	Completed    postgres.StringExpression
+	Failed       postgres.StringExpression
+	NoCandidates postgres.StringExpression
 }{
-	Skipped:   postgres.NewEnumValue("skipped"),
-	Pending:   postgres.NewEnumValue("pending"),
-	Completed: postgres.NewEnumValue("completed"),
-	Failed:    postgres.NewEnumValue("failed"),
+	Skipped:      postgres.NewEnumValue("skipped"),
+	Pending:      postgres.NewEnumValue("pending"),
+	Completed:    postgres.NewEnumValue("completed"),
+	Failed:       postgres.NewEnumValue("failed"),
+	NoCandidates: postgres.NewEnumValue("no_candidates"),
 }

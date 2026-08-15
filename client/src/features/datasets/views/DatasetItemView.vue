@@ -34,14 +34,14 @@
         </template>
         <template #append>
           <v-btn
-            v-if="isUserMaintainer || userStore.isGranted('Admin')"
+            v-if="isUserMaintainer || userStore.isGranted('admin')"
             color="primary"
             icon="mdi-pencil"
             variant="plain"
             @click="toggleEdit(true)"
           />
           <DatasetPinButton
-            v-if="baseDataset && userStore.isGranted('Admin')"
+            v-if="baseDataset && userStore.isGranted('admin')"
             :model-value="baseDataset"
             @update:model-value="({ pinned }) => togglePin(pinned)"
           />
@@ -104,7 +104,7 @@
 <script setup lang="ts" generic="DatasetType extends OccurrenceDataset | SiteDataset">
 import { Dataset, OccurrenceDataset, SiteDataset } from '@/api'
 import { getDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import PersonChip from '@/features/people/components/PersonChip'
+import PersonChip from '@/features/users/components/UserChip.tsx'
 import MetaChip from '@/components/toolkit/MetaChip'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
 import { useUserStore } from '@/stores/user'

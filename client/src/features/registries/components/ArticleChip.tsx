@@ -16,7 +16,12 @@ export function ArticleChip({ article, ...chipProps }: ArticleChipProps) {
     >
       {{
         activator: ({ props }: { props: any }) => (
-          <v-chip text={Article.toString(article)} {...{ ...props, ...chipProps }} />
+          <v-chip {...{ ...props, ...chipProps }} style={'max-width: 300px'} class="text-truncate">
+            <span class="text-truncate" style={{
+              'min-width': '0px',
+              'max-width': '100%',
+            }}>{Article.toString(article)}</span>
+            </v-chip>
         ),
         default: () => (
           <v-card

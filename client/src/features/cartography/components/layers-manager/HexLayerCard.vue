@@ -19,6 +19,15 @@
         size="small"
         color="warning"
       ></v-progress-circular>
+      <v-btn
+        v-else
+        icon="mdi-reload"
+        size="small"
+        variant="text"
+        color="grey"
+        v-tooltip="`Reload data`"
+        @click="remote.refetch()"
+      ></v-btn>
       <v-switch v-model="layer.active" color="primary" hide-details></v-switch>
       <v-btn
         :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
@@ -37,21 +46,28 @@
           <v-tab prepend-icon="mdi-hexagon-multiple-outline" value="layer">Style</v-tab>
           <v-tab prepend-icon="mdi-circle-multiple-outline" value="markers">Markers</v-tab>
           <v-tab prepend-icon="mdi-chart-bar" value="stats" :disabled="remote.isFetching.value">
-            Stats
+            <v-icon icon="mdi-download" size="small" />
           </v-tab>
+          <!-- <v-tab
+            slim
+            prepend-icon="mdi-download"
+            value="export"
+            :disabled="remote.isFetching.value"
+          >
+          </v-tab> -->
         </v-tabs>
         <v-divider></v-divider>
         <v-tabs-window v-model="tab">
           <v-tabs-window-item value="data">
-            <SiteSamplingStatusFilter v-model="layer.include_sites" />
-            <v-confirm-edit v-model="layer.filters" @save="register()">
-              <template #default="{ model, actions, isPristine }">
-                <LayerDataFeed v-model="model.value" class="pa-2" />
-                <div v-if="!isPristine" class="d-flex justify-end">
+            <!-- <SiteSamplingStatusFilter v-model="layer.include_sites" /> -->
+            <!-- <v-confirm-edit v-model="layer.filters" @save="register()">
+              <template #default="{ model, actions, isPristine }"> -->
+            <LayerDataFeed v-model="layer.filters" v-model:mode="layer.mode" class="pa-2" />
+            <!-- <div v-if="!isPristine" class="d-flex justify-end">
                   <component :is="actions"></component>
-                </div>
-              </template>
-            </v-confirm-edit>
+                </div> -->
+            <!-- </template> -->
+            <!-- </v-confirm-edit> -->
           </v-tabs-window-item>
           <v-tabs-window-item value="layer">
             <HexgridLayerStylePanel v-model="layer" />
@@ -59,35 +75,58 @@
           <v-tabs-window-item value="markers">
             <MarkerLayerStylePanel v-model="layer.markers">
               <template #prepend-item>
-                <v-list-subheader title="Markers can show up when zooming in on the hexgrid layer.">
-                </v-list-subheader>
+                <!-- <v-list-subheader title="Markers can show up when zooming in on the hexgrid layer.">
+                </v-list-subheader> -->
                 <ListItemInput
                   label="Zoom threshold"
                   :subtitle="
-                    layer.markers.minZoom === 0
-                      ? 'Always'
-                      : layer.markers.minZoom === 18
-                        ? 'Never'
+                    layer.markers.minZoomMode === 'manual'
+                      ? layer.markers.minZoom === 0
+                        ? 'Always'
                         : `Zoom ${layer.markers.minZoom}+`
+                      : layer.markers.minZoomMode === 'auto'
+                        ? 'Auto'
+                        : 'Never'
                   "
                 >
+                  <v-chip-group v-model="layer.markers.minZoomMode">
+                    <v-chip value="auto">Auto</v-chip>
+                    <v-chip value="never">Never</v-chip>
+                    <v-chip value="manual">Manual</v-chip>
+                  </v-chip-group>
+                  <InlineHelp>
+                    The minimum zoom level at which cells are faded to display their content as
+                    markers.
+                  </InlineHelp>
+                </ListItemInput>
+                <v-list-item v-if="layer.markers.minZoomMode === 'manual'">
                   <v-slider
                     v-model="layer.markers.minZoom"
+                    class="py-1 px-3"
                     :min="0"
                     :max="18"
                     :step="1"
-                    :width="250"
                     hide-details
-                    thumb-label
+                    :track-size="2"
+                    density="compact"
                   >
                   </v-slider>
-                </ListItemInput>
+                </v-list-item>
                 <v-divider />
               </template>
             </MarkerLayerStylePanel>
           </v-tabs-window-item>
           <v-tabs-window-item value="stats">
-            <OccurrencesStats :sites="remote.data.value" />
+            <OccurrencesStats :cells="remote.data.value" />
+            <v-divider></v-divider>
+            <v-card-text>
+              <v-select :items="['JSON', 'CSV']" density="compact" hide-details>
+                <template #prepend> Export as </template>
+                <template #append>
+                  <v-btn icon="mdi-download" variant="text" color="primary" @click="exportData()" />
+                </template>
+              </v-select>
+            </v-card-text>
           </v-tabs-window-item>
         </v-tabs-window>
       </div>
@@ -96,7 +135,13 @@
 </template>
 
 <script setup lang="ts">
-import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
+// import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { ExportSamplingsWithOccurrencesData } from '@/api/adapters.ts'
+import {
+  listOccurrencesH3Options,
+  listSamplingsH3Options
+} from '@/api/gen/@tanstack/vue-query.gen.ts'
+import { client } from '@/api/gen/client.gen.ts'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
 import OccurrencesStats from '@/features/occurrences/components/OccurrencesStats.vue'
 import { useQuery } from '@tanstack/vue-query'
@@ -104,13 +149,14 @@ import { computed, onMounted, ref, watch } from 'vue'
 import HexgridLayerStylePanel from './HexgridLayerStylePanel.vue'
 import { useLayerData } from './layer-data'
 import LayerDataFeed from './LayerDataFeed.vue'
-import { HexLayerSpec } from './map-layers'
+import { automaticResolution, HexLayerSpec } from './map-layers'
 import MarkerLayerStylePanel from './MarkerLayerStylePanel.vue'
-import SiteSamplingStatusFilter from './SiteSamplingStatusFilter.vue'
+import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 
 const layer = defineModel<HexLayerSpec>('layer', { required: true })
+const { zoom } = defineProps<{ zoom: number }>()
 
-const title = computed(() => (layer.value.name?.length ? layer.value.name : 'Hexgrid layer'))
+const title = computed(() => (layer.value.name?.length ? layer.value.name : 'Cells'))
 
 const tab = ref<'data' | 'layer' | 'markers' | 'stats'>('data')
 
@@ -123,14 +169,67 @@ const emit = defineEmits<{
   'draghandle-down': []
 }>()
 
+watch(
+  [() => zoom, () => [layer.value.resolutionMode, layer.value.markers.resolutionMode]],
+  (newValues) => {
+    const [newZoom] = newValues
+    if (layer.value.resolutionMode === 'auto') {
+      layer.value.resolution = automaticResolution(layer.value, newZoom)
+    }
+    if (layer.value.markers.resolutionMode === 'auto') {
+      layer.value.markers.resolution = automaticResolution(layer.value.markers, newZoom)
+    }
+  },
+  { immediate: true }
+)
+
+async function exportData() {
+  const queryClient = client
+  const requestUrl = queryClient.buildUrl<ExportSamplingsWithOccurrencesData>({
+    url: '/occurrences/export',
+    query: {
+      taxa: layer.value.filters.taxa,
+      whole_clade: layer.value.filters.whole_clade,
+      countries: layer.value.filters.countries,
+      batches: layer.value.filters.batches
+    }
+  })
+  window.location.assign(requestUrl)
+}
+
 const remote = useQuery(
   computed(() => {
-    return occurrencesBySiteOptions({
-      body: {
-        ...layer.value.filters,
-        habitats: layer.value.filters.habitats?.map(({ label }) => label)
-      }
-    })
+    switch (layer.value.mode) {
+      case 'samplings':
+        return {
+          enabled: layer.value.active,
+          initialData: [],
+          ...listSamplingsH3Options({
+            path: { resolution: layer.value.resolution },
+            query: {
+              target_taxa: layer.value.filters.target_taxa,
+              target_taxa_whole_clade: layer.value.filters.whole_clade,
+              countries: layer.value.filters.countries,
+              batches: layer.value.filters.batches
+            }
+          })
+        }
+      case 'occurrences':
+      default:
+        return {
+          enabled: layer.value.active,
+          initialData: [],
+          ...listOccurrencesH3Options({
+            path: { resolution: layer.value.resolution },
+            query: {
+              taxa: layer.value.filters.taxa,
+              whole_clade: layer.value.filters.whole_clade,
+              countries: layer.value.filters.countries,
+              batches: layer.value.filters.batches
+            }
+          })
+        }
+    }
   })
 )
 

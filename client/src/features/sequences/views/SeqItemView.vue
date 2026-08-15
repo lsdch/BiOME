@@ -286,7 +286,7 @@ const fasta = useTemplateRef('fasta-seq')
 
 const { isGranted, isOwner } = useUserStore()
 
-const canEdit = computed(() => item.value && (isOwner(item.value) || isGranted('Maintainer')))
+const canEdit = computed(() => item.value && (isOwner(item.value) || isGranted('maintainer')))
 </script>
 
 <style scoped lang="scss"></style>

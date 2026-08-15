@@ -5,7 +5,7 @@ CREATE TABLE invitations (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
 	email CITEXT NOT NULL,
 	invitee_name TEXT NOT NULL,
-	role user_role NOT NULL DEFAULT 'Visitor',
+	role user_role NOT NULL DEFAULT 'visitor',
 	message TEXT,
 	inviter_id UUID REFERENCES users (id) ON DELETE
 	SET NULL,

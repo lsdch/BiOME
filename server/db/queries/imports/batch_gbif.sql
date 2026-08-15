@@ -96,7 +96,7 @@ WHERE NOT EXISTS (
     ) ON CONFLICT (import_id, key, from_key) DO NOTHING;
 
 -- name: ListMissingGBIFKeys :many
-SELECT d.key
+SELECT DISTINCT d.key
 FROM gbif_dependencies d
 WHERE d.import_id = @import_id
     AND NOT EXISTS (
@@ -141,7 +141,7 @@ SELECT g.key,
     accepted.id as accepted_taxon_id
 FROM taxon_resolution r
     JOIN taxon_candidates c ON (
-        r.resolved_to = c.id
+        r.resolved_candidate_id = c.id
         AND r.import_id = c.import_id
     )
     JOIN gbif_dependencies d ON (
@@ -163,46 +163,3 @@ WHERE r.import_id = @import_id
             AND g.accepted_key IS NOT NULL
         )
     ) ON CONFLICT (gbif_id) DO NOTHING;
-
--- name: InsertTaxonStaging :exec
-INSERT INTO taxa_staging (
-        import_id,
-        name,
-        authorship,
-        rank,
-        status,
-        parent_source,
-        parent_taxa_id,
-        parent_gbif_id,
-        parent_input_name
-    )
-SELECT @import_id,
-    @name,
-    @authorship,
-    @rank,
-    @status,
-    @parent_source,
-    @parent_taxa_id,
-    @parent_gbif_id,
-    @parent_input_name;
-
--- name: MaterializeTaxaStaging :exec
--- INSERT INTO taxa (
---         name,
---         authorship,
---         rank,
---         status,
---         parent_id
---     )
--- SELECT s.name,
---     s.authorship,
---     s.rank,
---     s.status,
---     parent.id
--- FROM taxa_staging s
---     JOIN taxon_resolution r ON r.staging_id = s.id
---     LEFT JOIN taxa parent ON parent.id = s.parent_taxa_id
---     OR parent.gbif_id = s.parent_gbif_id
--- WHERE r.import_id = @import_id
---     AND r.source = 'manual'
---     AND s.rank = @rank

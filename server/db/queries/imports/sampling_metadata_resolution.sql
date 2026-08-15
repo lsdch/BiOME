@@ -1,7 +1,8 @@
 -- name: GetMethodsResolution :many
 SELECT *
 FROM sampling_methods_resolution
-WHERE import_id = @import_id;
+WHERE import_id = @import_id
+ORDER BY input_text;
 
 -- name: InitMethodsResolution :many
 WITH input_methods AS (
@@ -26,7 +27,7 @@ SELECT @import_id,
     input_text,
     resolved_method_id,
     CASE
-        WHEN resolved_method_id IS NOT NULL THEN 'auto'
+        WHEN resolved_method_id IS NOT NULL THEN 'auto_resolved'
         ELSE 'pending'
     END::vocab_resolution_status
 FROM resolved
@@ -46,7 +47,8 @@ RETURNING *;
 -- name: GetSamplingFixativesResolution :many
 SELECT *
 FROM sampling_fixatives_resolution
-WHERE import_id = @import_id;
+WHERE import_id = @import_id
+ORDER BY input_text;
 
 -- name: InitSamplingFixativesResolution :many
 WITH input_fixatives AS (
@@ -71,7 +73,7 @@ SELECT @import_id,
     input_text,
     resolved_fixative_id,
     CASE
-        WHEN resolved_fixative_id IS NOT NULL THEN 'auto'
+        WHEN resolved_fixative_id IS NOT NULL THEN 'auto_resolved'
         ELSE 'pending'
     END::vocab_resolution_status
 FROM resolved

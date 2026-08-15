@@ -8,48 +8,62 @@ import {
 } from './client'
 import { client } from './client.gen'
 import {
+  addBibliographyCsvResponseTransformer,
   createOccurrenceAtSamplingResponseTransformer,
   createOccurrenceResponseTransformer,
   createSamplingResponseTransformer,
   getDatasetByIdResponseTransformer,
+  getImportBatchResponseTransformer,
+  getImportBatchWithContentResponseTransformer,
+  getImportStatusResponseTransformer,
   getOccurrenceResponseTransformer,
   importOccurrencesCsvResponseTransformer,
-  importStatusResponseTransformer,
   listDatasetsResponseTransformer,
   listGeoapifyUsageResponseTransformer,
+  listImportBatchesResponseTransformer,
+  listImportBatchesWithContentResponseTransformer,
   listImportsForCurrentUserResponseTransformer,
   listImportsResponseTransformer,
   listOccurrencesAtProximityResponseTransformer,
   listOccurrencesResponseTransformer,
   listSamplingsAtProximityResponseTransformer,
+  listSamplingsWithOccurrencesAtCellResponseTransformer,
+  listSamplingsWithOccurrencesResponseTransformer,
   loadDatasetsForOccurrenceResponseTransformer,
   loadOccurrencesForDatasetResponseTransformer,
   loginResponseTransformer,
   materializeBatchResponseTransformer,
-  refreshSessionResponseTransformer
+  refreshSessionResponseTransformer,
+  trackImportStatusResponseTransformer
 } from './transformers.gen'
 import type {
+  AddBibliographyCsvData,
+  AddBibliographyCsvErrors,
+  AddBibliographyCsvResponses,
   BatchReverseGeocodeData,
   BatchReverseGeocodeErrors,
   BatchReverseGeocodeResponses,
   CoordinatesToCountryData,
   CoordinatesToCountryErrors,
   CoordinatesToCountryResponses,
-  CreateArticleData,
-  CreateArticleErrors,
-  CreateArticleResponses,
   CreateFixativeData,
   CreateFixativeErrors,
   CreateFixativeResponses,
   CreateHabitatGroupData,
   CreateHabitatGroupErrors,
   CreateHabitatGroupResponses,
+  CreateManualTaxonCandidateData,
+  CreateManualTaxonCandidateErrors,
+  CreateManualTaxonCandidateResponses,
   CreateOccurrenceAtSamplingData,
   CreateOccurrenceAtSamplingErrors,
   CreateOccurrenceAtSamplingResponses,
   CreateOccurrenceData,
   CreateOccurrenceErrors,
   CreateOccurrenceResponses,
+  CreatePublicationData,
+  CreatePublicationErrors,
+  CreatePublicationResponses,
   CreateSamplingData,
   CreateSamplingErrors,
   CreateSamplingMethodData,
@@ -59,36 +73,63 @@ import type {
   CreateTaxonData,
   CreateTaxonErrors,
   CreateTaxonResponses,
-  DeleteArticleData,
-  DeleteArticleErrors,
-  DeleteArticleResponses,
+  DeleteBatchWorkflowData,
+  DeleteBatchWorkflowErrors,
+  DeleteBatchWorkflowResponses,
   DeleteFixativeData,
   DeleteFixativeErrors,
   DeleteFixativeResponses,
   DeleteHabitatGroupData,
   DeleteHabitatGroupErrors,
   DeleteHabitatGroupResponses,
+  DeleteImportBatchData,
+  DeleteImportBatchErrors,
+  DeleteImportBatchResponses,
+  DeletePublicationData,
+  DeletePublicationErrors,
+  DeletePublicationResponses,
   DeleteSamplingMethodData,
   DeleteSamplingMethodErrors,
   DeleteSamplingMethodResponses,
-  DeleteWorkflowData,
-  DeleteWorkflowErrors,
-  DeleteWorkflowResponses,
+  DeleteTaxonData,
+  DeleteTaxonErrors,
+  DeleteTaxonResponses,
+  ExportSamplingsWithOccurrencesData,
+  ExportSamplingsWithOccurrencesErrors,
+  ExportSamplingsWithOccurrencesResponses,
+  GetBibliographyResolutionsData,
+  GetBibliographyResolutionsErrors,
+  GetBibliographyResolutionsResponses,
   GetCurrentUserData,
   GetCurrentUserErrors,
   GetCurrentUserResponses,
+  GetDashboardMessageData,
+  GetDashboardMessageErrors,
+  GetDashboardMessageResponses,
   GetDatasetByIdData,
   GetDatasetByIdErrors,
   GetDatasetByIdResponses,
   GetFixativesResolutionData,
   GetFixativesResolutionErrors,
   GetFixativesResolutionResponses,
+  GetGbifKingdomsData,
+  GetGbifKingdomsErrors,
+  GetGbifKingdomsResponses,
   GetGeoapifyStatusData,
   GetGeoapifyStatusErrors,
   GetGeoapifyStatusResponses,
   GetHabitatGroupsData,
   GetHabitatGroupsErrors,
   GetHabitatGroupsResponses,
+  GetImportBatchData,
+  GetImportBatchErrors,
+  GetImportBatchResponses,
+  GetImportBatchWithContentData,
+  GetImportBatchWithContentErrors,
+  GetImportBatchWithContentResponses,
+  GetImportStatusData,
+  GetImportStatusErrors,
+  GetImportStatusResponses,
   GetInstanceSettingsData,
   GetInstanceSettingsErrors,
   GetInstanceSettingsResponses,
@@ -110,16 +151,12 @@ import type {
   ImportOccurrencesCsvData,
   ImportOccurrencesCsvErrors,
   ImportOccurrencesCsvResponses,
-  ImportStatusData,
-  ImportStatusErrors,
-  ImportStatusResponse,
-  ImportStatusResponses,
+  ListAbioticParametersData,
+  ListAbioticParametersErrors,
+  ListAbioticParametersResponses,
   ListAccessPointsData,
   ListAccessPointsErrors,
   ListAccessPointsResponses,
-  ListArticlesData,
-  ListArticlesErrors,
-  ListArticlesResponses,
   ListCollectionNamesData,
   ListCollectionNamesErrors,
   ListCollectionNamesResponses,
@@ -138,6 +175,12 @@ import type {
   ListGeoapifyUsageData,
   ListGeoapifyUsageErrors,
   ListGeoapifyUsageResponses,
+  ListImportBatchesData,
+  ListImportBatchesErrors,
+  ListImportBatchesResponses,
+  ListImportBatchesWithContentData,
+  ListImportBatchesWithContentErrors,
+  ListImportBatchesWithContentResponses,
   ListImportsData,
   ListImportsErrors,
   ListImportsForCurrentUserData,
@@ -149,7 +192,16 @@ import type {
   ListOccurrencesAtProximityResponses,
   ListOccurrencesData,
   ListOccurrencesErrors,
+  ListOccurrencesH3Data,
+  ListOccurrencesH3Errors,
+  ListOccurrencesH3Responses,
   ListOccurrencesResponses,
+  ListOccurringTaxaAtCellData,
+  ListOccurringTaxaAtCellErrors,
+  ListOccurringTaxaAtCellResponses,
+  ListPublicationsData,
+  ListPublicationsErrors,
+  ListPublicationsResponses,
   ListSamplingMethodsData,
   ListSamplingMethodsErrors,
   ListSamplingMethodsResponses,
@@ -159,6 +211,15 @@ import type {
   ListSamplingsH3AtProximityData,
   ListSamplingsH3AtProximityErrors,
   ListSamplingsH3AtProximityResponses,
+  ListSamplingsH3Data,
+  ListSamplingsH3Errors,
+  ListSamplingsH3Responses,
+  ListSamplingsWithOccurrencesAtCellData,
+  ListSamplingsWithOccurrencesAtCellErrors,
+  ListSamplingsWithOccurrencesAtCellResponses,
+  ListSamplingsWithOccurrencesData,
+  ListSamplingsWithOccurrencesErrors,
+  ListSamplingsWithOccurrencesResponses,
   ListUsersData,
   ListUsersErrors,
   ListUsersResponses,
@@ -189,6 +250,9 @@ import type {
   ResolveMethodData,
   ResolveMethodErrors,
   ResolveMethodResponses,
+  ResolvePublicationData,
+  ResolvePublicationErrors,
+  ResolvePublicationResponses,
   ResolveTaxonData,
   ResolveTaxonErrors,
   ResolveTaxonResponses,
@@ -201,6 +265,9 @@ import type {
   SetAppIconData,
   SetAppIconErrors,
   SetAppIconResponses,
+  SetDashboardMessageData,
+  SetDashboardMessageErrors,
+  SetDashboardMessageResponses,
   TestSmtpConnectionData,
   TestSmtpConnectionErrors,
   TestSmtpConnectionResponses,
@@ -210,6 +277,10 @@ import type {
   TogglePublicRegistrationData,
   TogglePublicRegistrationErrors,
   TogglePublicRegistrationResponses,
+  TrackImportStatusData,
+  TrackImportStatusErrors,
+  TrackImportStatusResponse,
+  TrackImportStatusResponses,
   UpdateFixativeData,
   UpdateFixativeErrors,
   UpdateFixativeResponses,
@@ -240,6 +311,32 @@ export type Options<
    * used to access values that aren't defined as part of the SDK function.
    */
   meta?: Record<string, unknown>
+}
+
+export class AbioticsService {
+  /**
+   * List abiotic parameters
+   */
+  public static listAbioticParameters<ThrowOnError extends boolean = false>(
+    options?: Options<ListAbioticParametersData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListAbioticParametersResponses,
+      ListAbioticParametersErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/abiotics/parameters',
+      ...options
+    })
+  }
 }
 
 export class SamplingsService {
@@ -373,82 +470,6 @@ export class AccountsService {
         }
       ],
       url: '/accounts',
-      ...options
-    })
-  }
-}
-
-export class BibliographyService {
-  /**
-   * List bibliography
-   */
-  public static listArticles<ThrowOnError extends boolean = false>(
-    options?: Options<ListArticlesData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListArticlesResponses, ListArticlesErrors, ThrowOnError>(
-      {
-        security: [
-          { scheme: 'bearer', type: 'http' },
-          {
-            in: 'cookie',
-            name: 'auth_token',
-            type: 'apiKey'
-          }
-        ],
-        url: '/articles',
-        ...options
-      }
-    )
-  }
-
-  /**
-   * Create a new article
-   */
-  public static createArticle<ThrowOnError extends boolean = false>(
-    options: Options<CreateArticleData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateArticleResponses,
-      CreateArticleErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/articles',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete an article by ID
-   */
-  public static deleteArticle<ThrowOnError extends boolean = false>(
-    options: Options<DeleteArticleData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteArticleResponses,
-      DeleteArticleErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/articles/{id}',
       ...options
     })
   }
@@ -1044,9 +1065,160 @@ export class HabitatsService {
   }
 }
 
+export class ImportsService {
+  /**
+   * List import batches
+   */
+  public static listImportBatches<ThrowOnError extends boolean = false>(
+    options?: Options<ListImportBatchesData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListImportBatchesResponses,
+      ListImportBatchesErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listImportBatchesResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import-batches',
+      ...options
+    })
+  }
+
+  /**
+   * List import batches with content summary
+   */
+  public static listImportBatchesWithContent<ThrowOnError extends boolean = false>(
+    options?: Options<ListImportBatchesWithContentData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListImportBatchesWithContentResponses,
+      ListImportBatchesWithContentErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listImportBatchesWithContentResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import-batches/with-content',
+      ...options
+    })
+  }
+
+  /**
+   * Delete an import batch
+   */
+  public static deleteImportBatch<ThrowOnError extends boolean = false>(
+    options: Options<DeleteImportBatchData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<
+      DeleteImportBatchResponses,
+      DeleteImportBatchErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import-batches/{id}',
+      ...options
+    })
+  }
+
+  /**
+   * Get a specific import batch
+   */
+  public static getImportBatch<ThrowOnError extends boolean = false>(
+    options: Options<GetImportBatchData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      GetImportBatchResponses,
+      GetImportBatchErrors,
+      ThrowOnError
+    >({
+      responseTransformer: getImportBatchResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import-batches/{id}',
+      ...options
+    })
+  }
+
+  /**
+   * Get a specific import batch with content summary
+   */
+  public static getImportBatchWithContent<ThrowOnError extends boolean = false>(
+    options: Options<GetImportBatchWithContentData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      GetImportBatchWithContentResponses,
+      GetImportBatchWithContentErrors,
+      ThrowOnError
+    >({
+      responseTransformer: getImportBatchWithContentResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import-batches/{id}/with-content',
+      ...options
+    })
+  }
+}
+
 export class BatchImportsService {
   /**
-   * List import workflows
+   * Get import status updates via Server-Sent Events (SSE)
+   */
+  public static trackImportStatus<ThrowOnError extends boolean = false>(
+    options: Options<TrackImportStatusData, ThrowOnError, TrackImportStatusResponse>
+  ) {
+    return (options.client ?? client).sse.get<
+      TrackImportStatusResponses,
+      TrackImportStatusErrors,
+      ThrowOnError
+    >({
+      responseTransformer: trackImportStatusResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/{id}/status/track',
+      ...options
+    })
+  }
+
+  /**
+   * List import batchs
    */
   public static listImports<ThrowOnError extends boolean = false>(
     options?: Options<ListImportsData, ThrowOnError>
@@ -1061,7 +1233,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch',
+      url: '/imports/batches',
       ...options
     })
   }
@@ -1087,7 +1259,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch',
+      url: '/imports/batches',
       ...options,
       headers: {
         'Content-Type': null,
@@ -1097,7 +1269,7 @@ export class BatchImportsService {
   }
 
   /**
-   * List import workflows for the current user
+   * List import batchs for the current user
    */
   public static listImportsForCurrentUser<ThrowOnError extends boolean = false>(
     options?: Options<ListImportsForCurrentUserData, ThrowOnError>
@@ -1116,8 +1288,60 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/by-user',
+      url: '/imports/batches/by-user',
       ...options
+    })
+  }
+
+  /**
+   * Get bibliography resolution state and candidates
+   */
+  public static getBibliographyResolutions<ThrowOnError extends boolean = false>(
+    options: Options<GetBibliographyResolutionsData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      GetBibliographyResolutionsResponses,
+      GetBibliographyResolutionsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batches/imports/batch/{id}/bibliography',
+      ...options
+    })
+  }
+
+  /**
+   * Resolve publication for import ID
+   */
+  public static resolvePublication<ThrowOnError extends boolean = false>(
+    options: Options<ResolvePublicationData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      ResolvePublicationResponses,
+      ResolvePublicationErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batches/imports/batch/{id}/bibliography',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
     })
   }
 
@@ -1140,7 +1364,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/imports/batch/{id}/fixatives',
+      url: '/imports/batches/imports/batch/{id}/fixatives',
       ...options
     })
   }
@@ -1164,7 +1388,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/imports/batch/{id}/fixatives',
+      url: '/imports/batches/imports/batch/{id}/fixatives',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -1192,7 +1416,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/imports/batch/{id}/sampling-methods',
+      url: '/imports/batches/imports/batch/{id}/sampling-methods',
       ...options
     })
   }
@@ -1216,7 +1440,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/imports/batch/{id}/sampling-methods',
+      url: '/imports/batches/imports/batch/{id}/sampling-methods',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -1244,7 +1468,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/imports/batch/{id}/taxonomy',
+      url: '/imports/batches/imports/batch/{id}/taxonomy',
       ...options
     })
   }
@@ -1268,7 +1492,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/imports/batch/{id}/taxonomy',
+      url: '/imports/batches/imports/batch/{id}/taxonomy',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -1278,16 +1502,14 @@ export class BatchImportsService {
   }
 
   /**
-   * Delete the import workflow
-   *
-   * Delete the import workflow and all associated data, including staging tables and taxon resolutions. This operation is irreversible.
+   * Create a manual taxon candidate for import ID
    */
-  public static deleteWorkflow<ThrowOnError extends boolean = false>(
-    options: Options<DeleteWorkflowData, ThrowOnError>
+  public static createManualTaxonCandidate<ThrowOnError extends boolean = false>(
+    options: Options<CreateManualTaxonCandidateData, ThrowOnError>
   ) {
-    return (options.client ?? client).delete<
-      DeleteWorkflowResponses,
-      DeleteWorkflowErrors,
+    return (options.client ?? client).post<
+      CreateManualTaxonCandidateResponses,
+      CreateManualTaxonCandidateErrors,
       ThrowOnError
     >({
       security: [
@@ -1298,8 +1520,70 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/{id}',
+      url: '/imports/batches/imports/batch/{id}/taxonomy/candidates',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Delete the import batch
+   *
+   * Delete the import batch and all associated data, including staging tables and taxon resolutions. This operation is irreversible.
+   */
+  public static deleteBatchWorkflow<ThrowOnError extends boolean = false>(
+    options: Options<DeleteBatchWorkflowData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<
+      DeleteBatchWorkflowResponses,
+      DeleteBatchWorkflowErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batches/{id}',
       ...options
+    })
+  }
+
+  /**
+   * Add bibliography to occurrences batch
+   *
+   * Add bibliography to occurrences batch. This operation will stage the publications and generate candidates for resolution.
+   */
+  public static addBibliographyCsv<ThrowOnError extends boolean = false>(
+    options: Options<AddBibliographyCsvData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      AddBibliographyCsvResponses,
+      AddBibliographyCsvErrors,
+      ThrowOnError
+    >({
+      ...formDataBodySerializer,
+      responseTransformer: addBibliographyCsvResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batches/{id}/bibliography',
+      ...options,
+      headers: {
+        'Content-Type': null,
+        ...options.headers
+      }
     })
   }
 
@@ -1325,23 +1609,23 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/{id}/materialize',
+      url: '/imports/batches/{id}/materialize',
       ...options
     })
   }
 
   /**
-   * Get import status updates via Server-Sent Events (SSE)
+   * Get the current status of the import batch
    */
-  public static importStatus<ThrowOnError extends boolean = false>(
-    options: Options<ImportStatusData, ThrowOnError, ImportStatusResponse>
+  public static getImportStatus<ThrowOnError extends boolean = false>(
+    options: Options<GetImportStatusData, ThrowOnError>
   ) {
-    return (options.client ?? client).sse.get<
-      ImportStatusResponses,
-      ImportStatusErrors,
+    return (options.client ?? client).get<
+      GetImportStatusResponses,
+      GetImportStatusErrors,
       ThrowOnError
     >({
-      responseTransformer: importStatusResponseTransformer,
+      responseTransformer: getImportStatusResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -1350,7 +1634,7 @@ export class BatchImportsService {
           type: 'apiKey'
         }
       ],
-      url: '/imports/batch/{id}/status',
+      url: '/imports/batches/{id}/status',
       ...options
     })
   }
@@ -1443,7 +1727,13 @@ export class OccurrencesService {
       ThrowOnError
     >({
       querySerializer: {
-        parameters: { datasets: { array: { explode: false } }, taxa: { array: { explode: false } } }
+        parameters: {
+          batches: { array: { explode: false } },
+          target_taxa: { array: { explode: false } },
+          countries: { array: { explode: false } },
+          datasets: { array: { explode: false } },
+          taxa: { array: { explode: false } }
+        }
       },
       responseTransformer: listOccurrencesResponseTransformer,
       security: [
@@ -1489,6 +1779,40 @@ export class OccurrencesService {
   }
 
   /**
+   * List samplings with occurrences
+   */
+  public static listSamplingsWithOccurrences<ThrowOnError extends boolean = false>(
+    options?: Options<ListSamplingsWithOccurrencesData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListSamplingsWithOccurrencesResponses,
+      ListSamplingsWithOccurrencesErrors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        parameters: {
+          batches: { array: { explode: false } },
+          target_taxa: { array: { explode: false } },
+          countries: { array: { explode: false } },
+          datasets: { array: { explode: false } },
+          taxa: { array: { explode: false } }
+        }
+      },
+      responseTransformer: listSamplingsWithOccurrencesResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/by-sampling',
+      ...options
+    })
+  }
+
+  /**
    * List all unique collection names
    */
   public static listCollectionNames<ThrowOnError extends boolean = false>(
@@ -1508,6 +1832,170 @@ export class OccurrencesService {
         }
       ],
       url: '/occurrences/collection-names',
+      ...options
+    })
+  }
+
+  /**
+   * Export samplings with occurrences
+   */
+  public static exportSamplingsWithOccurrences<ThrowOnError extends boolean = false>(
+    options?: Options<ExportSamplingsWithOccurrencesData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ExportSamplingsWithOccurrencesResponses,
+      ExportSamplingsWithOccurrencesErrors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        parameters: {
+          batches: { array: { explode: false } },
+          target_taxa: { array: { explode: false } },
+          countries: { array: { explode: false } },
+          datasets: { array: { explode: false } },
+          taxa: { array: { explode: false } }
+        }
+      },
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/export',
+      ...options
+    })
+  }
+
+  /**
+   * List samplings aggregated by H3 cells
+   */
+  public static listSamplingsH3<ThrowOnError extends boolean = false>(
+    options: Options<ListSamplingsH3Data, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      ListSamplingsH3Responses,
+      ListSamplingsH3Errors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        parameters: {
+          batches: { array: { explode: false } },
+          target_taxa: { array: { explode: false } },
+          countries: { array: { explode: false } }
+        }
+      },
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/h3-samplings/{resolution}',
+      ...options
+    })
+  }
+
+  /**
+   * List occurrences aggregated by H3 cells
+   */
+  public static listOccurrencesH3<ThrowOnError extends boolean = false>(
+    options: Options<ListOccurrencesH3Data, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      ListOccurrencesH3Responses,
+      ListOccurrencesH3Errors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        parameters: {
+          batches: { array: { explode: false } },
+          target_taxa: { array: { explode: false } },
+          countries: { array: { explode: false } },
+          datasets: { array: { explode: false } },
+          taxa: { array: { explode: false } }
+        }
+      },
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/h3/{resolution}',
+      ...options
+    })
+  }
+
+  /**
+   * List samplings with occurrences at a specific H3 cell
+   */
+  public static listSamplingsWithOccurrencesAtCell<ThrowOnError extends boolean = false>(
+    options: Options<ListSamplingsWithOccurrencesAtCellData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      ListSamplingsWithOccurrencesAtCellResponses,
+      ListSamplingsWithOccurrencesAtCellErrors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        parameters: {
+          batches: { array: { explode: false } },
+          target_taxa: { array: { explode: false } },
+          countries: { array: { explode: false } },
+          datasets: { array: { explode: false } },
+          taxa: { array: { explode: false } }
+        }
+      },
+      responseTransformer: listSamplingsWithOccurrencesAtCellResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/h3/{resolution}/{cell}/data',
+      ...options
+    })
+  }
+
+  /**
+   * List taxa occurring at a specific H3 cell with optional filters and pagination
+   */
+  public static listOccurringTaxaAtCell<ThrowOnError extends boolean = false>(
+    options: Options<ListOccurringTaxaAtCellData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      ListOccurringTaxaAtCellResponses,
+      ListOccurringTaxaAtCellErrors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        parameters: {
+          batches: { array: { explode: false } },
+          target_taxa: { array: { explode: false } },
+          countries: { array: { explode: false } },
+          datasets: { array: { explode: false } },
+          taxa: { array: { explode: false } }
+        }
+      },
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/h3/{resolution}/{cell}/taxa',
       ...options
     })
   }
@@ -1642,6 +2130,84 @@ export class OccurrencesService {
   }
 }
 
+export class BibliographyService {
+  /**
+   * List bibliography
+   */
+  public static listPublications<ThrowOnError extends boolean = false>(
+    options?: Options<ListPublicationsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListPublicationsResponses,
+      ListPublicationsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/publications',
+      ...options
+    })
+  }
+
+  /**
+   * Create a new publication
+   */
+  public static createPublication<ThrowOnError extends boolean = false>(
+    options: Options<CreatePublicationData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      CreatePublicationResponses,
+      CreatePublicationErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/publications',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Delete a publication by ID
+   */
+  public static deletePublication<ThrowOnError extends boolean = false>(
+    options: Options<DeletePublicationData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<
+      DeletePublicationResponses,
+      DeletePublicationErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/publications/{id}',
+      ...options
+    })
+  }
+}
+
 export class SettingsService {
   /**
    * Get instance settings
@@ -1715,6 +2281,58 @@ export class SettingsService {
       ...options,
       headers: {
         'Content-Type': null,
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Get the dashboard message
+   */
+  public static getDashboardMessage<ThrowOnError extends boolean = false>(
+    options?: Options<GetDashboardMessageData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      GetDashboardMessageResponses,
+      GetDashboardMessageErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/instance/dashboard-message',
+      ...options
+    })
+  }
+
+  /**
+   * Set the dashboard message
+   */
+  public static setDashboardMessage<ThrowOnError extends boolean = false>(
+    options?: Options<SetDashboardMessageData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).put<
+      SetDashboardMessageResponses,
+      SetDashboardMessageErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/instance/dashboard-message',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
         ...options?.headers
       }
     })
@@ -1803,6 +2421,32 @@ export class SettingsService {
 
 export class TaxonomyService {
   /**
+   * Get GBIF kingdoms
+   *
+   * Retrieves a list of all GBIF kingdoms. Response is cached to avoid repeated calls to the GBIF API.
+   */
+  public static getGbifKingdoms<ThrowOnError extends boolean = false>(
+    options?: Options<GetGbifKingdomsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      GetGbifKingdomsResponses,
+      GetGbifKingdomsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/taxonomy/gbif/kingdoms',
+      ...options
+    })
+  }
+
+  /**
    * Get all taxa at a specific rank
    */
   public static getTaxaAtRank<ThrowOnError extends boolean = false>(
@@ -1869,6 +2513,30 @@ export class TaxonomyService {
         ...options?.headers
       }
     })
+  }
+
+  /**
+   * Delete a taxon by ID
+   *
+   * Deletes a taxon and all of its descendants. This operation will also delete all occurrences associated with the taxon and its descendants.
+   */
+  public static deleteTaxon<ThrowOnError extends boolean = false>(
+    options: Options<DeleteTaxonData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<DeleteTaxonResponses, DeleteTaxonErrors, ThrowOnError>(
+      {
+        security: [
+          { scheme: 'bearer', type: 'http' },
+          {
+            in: 'cookie',
+            name: 'auth_token',
+            type: 'apiKey'
+          }
+        ],
+        url: '/taxonomy/taxa/{id}',
+        ...options
+      }
+    )
   }
 
   /**

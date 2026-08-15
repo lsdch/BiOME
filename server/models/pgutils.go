@@ -5,6 +5,14 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+func PtrIfZero[T comparable](v T) *T {
+	var zero T
+	if v == zero {
+		return nil
+	}
+	return &v
+}
+
 func ValueOrZero[T any](p *T) T {
 	if p == nil {
 		var zero T

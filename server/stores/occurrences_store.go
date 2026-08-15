@@ -2,17 +2,17 @@ package stores
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	. "github.com/go-jet/jet/v2/postgres"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/db/biomedb/biomedb/public/table"
 	"github.com/lsdch/biome/models"
-	"github.com/lsdch/biome/types"
 	"github.com/sirupsen/logrus"
+	"github.com/uber/h3-go/v4"
 )
 
 const MIN_FULL_TEXT_SEARCH_TERM_LENGTH = 3
@@ -24,28 +24,422 @@ func NewOccurrenceStore() *OccurrenceStore {
 	return &OccurrenceStore{}
 }
 
-func (s *OccurrenceStore) fromOccurrenceCoreTables(stmt SelectStatement) SelectStatement {
-	return stmt.
+func (s *OccurrenceStore) OccurrenceCoreTables() ReadableTable {
+	return table.Occurrences.
+		INNER_JOIN(table.Taxa,
+			table.Occurrences.TaxonID.EQ(table.Taxa.ID)).
+		INNER_JOIN(table.Samplings,
+			table.Occurrences.SamplingID.EQ(table.Samplings.ID)).
+		LEFT_JOIN(table.Countries,
+			table.Samplings.SiteCountryCode.EQ(table.Countries.Code))
+
+}
+
+func (s *OccurrenceStore) H3CellFilter(resolution int64, cell h3.Cell) BoolExpression {
+	resolutionExpr := RawInt(fmt.Sprintf("%d", resolution))
+	h3CellEq := table.Samplings.H3Index.EQ(Int(int64(cell)))
+	if resolution < 12 {
+		h3CellEq = CAST(Func("h3_cell_to_parent", CAST(table.Samplings.H3Index).AS("h3index"), resolutionExpr)).AS_BIGINT().EQ(Int(int64(cell)))
+	}
+	return h3CellEq
+}
+
+func (s *OccurrenceStore) ListOccurringTaxaAtCell(ctx context.Context, q db.Querier, cell h3.Cell, resolution int64, params ListOccurrencesParams) ([]models.OccurrenceOverviewItem, error) {
+	h3CellFilter := s.H3CellFilter(resolution, cell)
+
+	countStmt := SELECT(
+		table.Taxa.ID.AS("taxon_id"),
+		COUNT(table.Occurrences.ID).AS("occurrences"),
+	).
+		FROM(s.OccurrenceCoreTables()).
+		GROUP_BY(table.Taxa.ID)
+	countStmt = params.ApplyFilters(countStmt, h3CellFilter)
+
+	counts := countStmt.AsTable("counts")
+
+	countOccurrences := IntegerColumn("occurrences").From(counts)
+	countTaxonID := StringColumn("taxon_id").From(counts)
+
+	ancestor := table.Taxa.AS("ancestor")
+
+	occurrencesExpr := MAX(
+		CASE().
+			WHEN(
+				ancestor.ID.EQ(countTaxonID),
+			).THEN(countOccurrences).
+			ELSE(
+				Int32(0),
+			),
+	).AS("occurrences")
+
+	stmt := SELECT(
+		ancestor.ID,
+		ancestor.Name,
+		ancestor.Authorship,
+		ancestor.Rank,
+		ancestor.ParentID,
+		occurrencesExpr,
+	).
 		FROM(
-			table.Occurrences.
-				INNER_JOIN(table.Taxa,
-					table.Occurrences.TaxonID.EQ(table.Taxa.ID)).
-				INNER_JOIN(table.Samplings,
-					table.Occurrences.SamplingID.EQ(table.Samplings.ID)).
-				INNER_JOIN(table.Countries,
-					table.Samplings.SiteCountryCode.EQ(table.Countries.Code)),
+			counts.
+				INNER_JOIN(
+					table.TaxaClosure,
+					table.TaxaClosure.DescendantID.EQ(countTaxonID),
+				).
+				INNER_JOIN(
+					ancestor,
+					ancestor.ID.EQ(table.TaxaClosure.AncestorID),
+				),
+		).
+		GROUP_BY(
+			ancestor.ID,
+			ancestor.Name,
+			ancestor.Authorship,
+			ancestor.Rank,
+			ancestor.ParentID,
+		).ORDER_BY(ancestor.Rank.DESC())
+
+	sql, args := stmt.Sql()
+	// logrus.Infof("SQL Query: %s", sql)
+	// logrus.Infof("args: %+v", args)
+	rows, err := q.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make([]models.OccurrenceOverviewItem, 0)
+	for rows.Next() {
+		var (
+			row biomedb.OccurrencesByTaxaOverviewRow
 		)
+		err := rows.Scan(
+			&row.ID,
+			&row.Name,
+			&row.Authorship,
+			&row.Rank,
+			&row.ParentID,
+			&row.OccurrencesCount,
+		)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, models.OccurrenceOverviewItemFromDB(row))
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+
+}
+
+func (s *OccurrenceStore) ListSamplingsAtCell(ctx context.Context, q db.Querier, cell h3.Cell, resolution int64, params ListOccurrencesParams) ([]models.Sampling, error) {
+	h3CellFilter := s.H3CellFilter(resolution, cell)
+	return s.ListSamplings(ctx, q, params, h3CellFilter)
+}
+
+func (s *OccurrenceStore) ListSamplings(ctx context.Context, q db.Querier, params ListOccurrencesParams, filters ...BoolExpression) ([]models.Sampling, error) {
+
+	logrus.Debugf("ListSamplingsAtCell called with params: %+v", params)
+
+	stmt := SELECT(
+		table.Samplings.AllColumns,
+		table.Countries.AllColumns,
+	).
+		FROM(s.OccurrenceCoreTables()).
+		GROUP_BY(table.Samplings.ID, table.Countries.Code)
+
+	stmt = params.ApplyFilters(stmt, filters...)
+	stmt = params.ApplySorting(stmt)
+	// stmt = params.ApplySorting(stmt, RawFloat("0.0"))
+	// stmt = params.ApplyPagination(stmt)
+
+	sql, args := stmt.Sql()
+	logrus.Infof("SQL Query: %s", sql)
+	logrus.Infof("args: %+v", args)
+	rows, err := q.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	result := make([]models.Sampling, 0)
+	for rows.Next() {
+		var (
+			sampling biomedb.SamplingsWithCountry
+		)
+		err := rows.Scan(
+			&sampling.ID,
+			&sampling.SourceSamplingHash,
+			&sampling.Comments,
+			&sampling.SiteCode,
+			&sampling.SiteName,
+			&sampling.SiteLocality,
+			&sampling.SiteCountryCode,
+			&sampling.CoordinatesPrecision,
+			&sampling.Latitude,
+			&sampling.Longitude,
+			&sampling.Altitude,
+			&sampling.EventDate,
+			&sampling.EventDatePrecision,
+			&sampling.PerformedBy,
+			&sampling.Duration,
+			&sampling.AccessPoints,
+			&sampling.ImportBatchID,
+			&sampling.H3Index,
+			&sampling.SearchVector,
+			&sampling.CountryCode,
+			&sampling.CountryName,
+			&sampling.CountryContinent,
+			&sampling.CountrySubcontinent,
+		)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, models.NewSamplingFromDB(sampling))
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *OccurrenceStore) ListOccurrencesAtCell(ctx context.Context, q db.Querier, cell h3.Cell, resolution int64, params ListOccurrencesParams) ([]models.BaseOccurrenceWithSamplingID, error) {
+	h3CellFilter := s.H3CellFilter(resolution, cell)
+	return s.ListBaseOccurrences(ctx, q, params, h3CellFilter)
+}
+
+func (s *OccurrenceStore) ListBaseOccurrences(ctx context.Context, q db.Querier, params ListOccurrencesParams, filters ...BoolExpression) ([]models.BaseOccurrenceWithSamplingID, error) {
+	logrus.Debugf("ListOccurrencesAtCell called with params: %+v", params)
+
+	stmt := SELECT(
+		table.Occurrences.AllColumns,
+		table.Taxa.AllColumns,
+	).FROM(s.OccurrenceCoreTables())
+
+	stmt = params.ApplyFilters(stmt, filters...)
+	stmt = params.ApplySorting(stmt)
+	// stmt = params.ApplySorting(stmt, RawFloat("0.0"))
+	// stmt = params.ApplyPagination(stmt)
+
+	sql, args := stmt.Sql()
+	// logrus.Infof("SQL Query: %s", sql)
+	// logrus.Infof("args: %+v", args)
+	rows, err := q.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	results := make([]models.BaseOccurrenceWithSamplingID, 0)
+	for rows.Next() {
+		var (
+			o biomedb.Occurrence
+			t biomedb.Taxon
+		)
+		err := rows.Scan(
+			&o.ID,
+			&o.Code,
+			&o.SamplingID,
+			&o.TypeStatus,
+			&o.Comments,
+			&o.TaxonID,
+			&o.VerbatimIdentification,
+			&o.IdentifiedBy,
+			&o.IdentificationDate,
+			&o.IdentificationDatePrecision,
+			&o.IdentificationConfer,
+			&o.IdentificationAddendum,
+			&o.ContentDescription,
+			&o.QuantityExact,
+			&o.QuantityLower,
+			&o.QuantityUpper,
+			&o.Sources,
+			&o.CreatedAt,
+			&o.UpdatedAt,
+			&o.ImportBatchID,
+			&t.ID,
+			&t.GBIFID,
+			&t.Name,
+			&t.ScientificName,
+			&t.Rank,
+			&t.Status,
+			&t.Authorship,
+			&t.AcceptedTaxonID,
+			&t.ParentID,
+			&t.SearchVector,
+			&t.Comments,
+		)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, models.BaseOccurrenceFromDB(o, t).WithSamplingID(o.SamplingID))
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+func (s *OccurrenceStore) listH3CellsWithSummaryAtResolution(ctx context.Context, q db.Querier, fromTables ReadableTable, resolution int64, params FilterParams) ([]models.H3CellWithRichness, error) {
+	logrus.Debugf("listH3CellsAtResolution called with params: %+v", params)
+
+	resolutionExpr := RawInt(fmt.Sprintf("%d", resolution))
+	h3Cell := Func("h3_cell_to_parent", CAST(table.Samplings.H3Index).AS("h3index"), resolutionExpr)
+
+	stmt := SELECT(
+		h3Cell.AS("h3_index"),
+		COUNT(DISTINCT(table.Occurrences.ID)).AS("occurrences_count"),
+		COUNT(DISTINCT(table.Occurrences.SamplingID)).AS("samplings_count"),
+		Raw(`
+			COUNT(DISTINCT ancestor.id)
+			FILTER (WHERE ancestor.rank = 'species')
+		`).AS("species_richness"),
+		Raw(`
+			COUNT(DISTINCT ancestor.id)
+			FILTER (WHERE ancestor.rank = 'genus')
+		`).AS("genus_richness"),
+		Raw(`
+			COUNT(DISTINCT ancestor.id)
+			FILTER (WHERE ancestor.rank = 'family')
+		`).AS("family_richness"),
+	).FROM(fromTables).
+		GROUP_BY(h3Cell)
+
+	stmt = params.ApplyFilters(stmt)
+
+	sql, args := stmt.Sql()
+	logrus.Infof("SQL Query: %s", sql)
+	logrus.Infof("args: %+v", args)
+	rows, err := q.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	result := make([]models.H3CellWithRichness, 0)
+	for rows.Next() {
+		var (
+			cellIndex string
+			cell      models.H3CellWithRichness
+		)
+		err := rows.Scan(
+			&cellIndex,
+			&cell.OccurrencesCount,
+			&cell.SamplingsCount,
+			&cell.SpeciesRichness,
+			&cell.GenusRichness,
+			&cell.FamilyRichness,
+		)
+		cell.H3Index = h3.CellFromString(cellIndex)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, cell)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (s *OccurrenceStore) ListSamplingsH3(ctx context.Context, q db.Querier, resolution int64, params ListSamplingsParams) ([]models.H3CellWithRichness, error) {
+	tables := table.Samplings.
+		LEFT_JOIN(table.Countries, table.Samplings.SiteCountryCode.EQ(table.Countries.Code)).
+		LEFT_JOIN(table.Occurrences, table.Occurrences.SamplingID.EQ(table.Samplings.ID)).
+		LEFT_JOIN(table.Taxa, table.Occurrences.TaxonID.EQ(table.Taxa.ID)).
+		LEFT_JOIN(table.TaxaClosure, table.TaxaClosure.DescendantID.EQ(table.Taxa.ID)).
+		LEFT_JOIN(table.Taxa.AS("ancestor"), table.TaxaClosure.AncestorID.EQ(table.Taxa.AS("ancestor").ID))
+	return s.listH3CellsWithSummaryAtResolution(ctx, q, tables, resolution, params)
+}
+
+func (s *OccurrenceStore) ListOccurrencesH3(ctx context.Context, q db.Querier, resolution int64, params ListOccurrencesParams) ([]models.H3CellWithRichness, error) {
+
+	logrus.Debugf("ListOccurrencesH3 called with params: %+v", params)
+
+	tables := s.OccurrenceCoreTables().
+		INNER_JOIN(table.TaxaClosure, table.TaxaClosure.DescendantID.EQ(table.Taxa.ID)).
+		INNER_JOIN(table.Taxa.AS("ancestor"), table.TaxaClosure.AncestorID.EQ(table.Taxa.AS("ancestor").ID))
+	return s.listH3CellsWithSummaryAtResolution(ctx, q, tables, resolution, params)
+
+	// resolutionExpr := RawInt(fmt.Sprintf("%d", resolution))
+	// h3Cell := Func("h3_cell_to_parent", CAST(table.Samplings.H3Index).AS("h3index"), resolutionExpr)
+	// // h3CellBigInt := CAST(h3Cell).AS_BIGINT()
+	// stmt := SELECT(
+	// 	h3Cell.AS("h3_index"),
+	// 	COUNT(DISTINCT(table.Occurrences.ID)).AS("occurrences_count"),
+	// 	COUNT(DISTINCT(table.Occurrences.SamplingID)).AS("samplings_count"),
+	// 	Raw(`
+	// 		COUNT(DISTINCT ancestor.id)
+	// 		FILTER (WHERE ancestor.rank = 'species')
+	// 	`).AS("species_richness"),
+	// 	Raw(`
+	// 		COUNT(DISTINCT ancestor.id)
+	// 		FILTER (WHERE ancestor.rank = 'genus')
+	// 	`).AS("genus_richness"),
+	// 	Raw(`
+	// 		COUNT(DISTINCT ancestor.id)
+	// 		FILTER (WHERE ancestor.rank = 'family')
+	// 	`).AS("family_richness"),
+	// ).FROM(
+	// 	s.OccurrenceCoreTables().
+	// 		INNER_JOIN(table.TaxaClosure, table.TaxaClosure.DescendantID.EQ(table.Taxa.ID)).
+	// 		INNER_JOIN(table.Taxa.AS("ancestor"), table.TaxaClosure.AncestorID.EQ(table.Taxa.AS("ancestor").ID)),
+	// ).GROUP_BY(h3Cell)
+
+	// searchParts := buildSearchParts(params.SearchTerm)
+	// stmt = params.ApplyFilters(stmt, searchParts)
+
+	// sql, args := stmt.Sql()
+	// // logrus.Infof("SQL Query: %s", sql)
+	// // logrus.Infof("args: %+v", args)
+	// rows, err := q.Query(ctx, sql, args...)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// defer rows.Close()
+	// result := make([]models.H3CellWithRichness, 0)
+	// for rows.Next() {
+	// 	var (
+	// 		cellIndex string
+	// 		cell      models.H3CellWithRichness
+	// 	)
+	// 	err := rows.Scan(
+	// 		&cellIndex,
+	// 		&cell.OccurrencesCount,
+	// 		&cell.SamplingsCount,
+	// 		&cell.SpeciesRichness,
+	// 		&cell.GenusRichness,
+	// 		&cell.FamilyRichness,
+	// 	)
+	// 	cell.H3Index = h3.CellFromString(cellIndex)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// 	result = append(result, cell)
+	// }
+
+	// if err := rows.Err(); err != nil {
+	// 	return nil, err
+	// }
+
+	// return result, nil
 }
 
 func (s *OccurrenceStore) ListOccurrencesCount(ctx context.Context, q db.Querier, params ListOccurrencesParams) (int64, error) {
 
 	logrus.Debugf("ListOccurrencesCount called with params: %+v", params)
-	stmt := s.fromOccurrenceCoreTables(SELECT(COUNT(STAR)))
-	searchParts := buildSearchParts(params.SearchTerm)
-	stmt = params.ApplyFilters(stmt, searchParts)
+	stmt := SELECT(COUNT(STAR)).FROM(s.OccurrenceCoreTables())
+	stmt = params.ApplyFilters(stmt)
 
 	sql, args := stmt.Sql()
-	logrus.Infof("args: %+v", args)
+	// logrus.Infof("args: %+v", args)
 	row := q.QueryRow(ctx, sql, args...)
 	var count int64
 	err := row.Scan(&count)
@@ -63,20 +457,20 @@ func (s *OccurrenceStore) ListOccurrences(ctx context.Context, q db.Querier, par
 	searchParts := buildSearchParts(strings.TrimSpace(params.SearchTerm))
 	score = searchParts.toScoreProjection()
 
-	stmt := s.fromOccurrenceCoreTables(SELECT(
+	stmt := SELECT(
 		table.Occurrences.AllColumns,
 		table.Samplings.AllColumns,
 		table.Taxa.AllColumns,
 		table.Countries.AllColumns,
 		score.AS("score"),
-	))
-	stmt = params.ApplyFilters(stmt, searchParts)
-	stmt = params.ApplySorting(stmt, score)
+	).FROM(s.OccurrenceCoreTables())
+	stmt = params.ApplyFilters(stmt)
+	stmt = params.ApplySortingWithScore(stmt, FloatColumn("score"))
 	stmt = params.ApplyPagination(stmt)
 
 	sql, args := stmt.Sql()
-	logrus.Infof("SQL Query: %s", sql)
-	logrus.Infof("args: %+v", args)
+	// logrus.Infof("SQL Query: %s", sql)
+	// logrus.Infof("args: %+v", args)
 	occurrencesRows, err := q.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, err
@@ -118,24 +512,25 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 			&i.Occurrence.CreatedAt,
 			&i.Occurrence.UpdatedAt,
 			&i.Occurrence.ImportBatchID,
-			&i.Sampling.ID,
-			&i.Sampling.Comments,
-			&i.Sampling.SiteCode,
-			&i.Sampling.SiteName,
-			&i.Sampling.SiteLocality,
-			&i.Sampling.SiteCountryCode,
-			&i.Sampling.CoordinatesPrecision,
-			&i.Sampling.Latitude,
-			&i.Sampling.Longitude,
-			&i.Sampling.Altitude,
-			&i.Sampling.EventDate,
-			&i.Sampling.EventDatePrecision,
-			&i.Sampling.PerformedBy,
-			&i.Sampling.Duration,
-			&i.Sampling.AccessPoints,
-			&i.Sampling.ImportBatchID,
-			&i.Sampling.H3Index,
-			&i.Sampling.SearchVector,
+			&i.SamplingsWithCountry.ID,
+			&i.SamplingsWithCountry.SourceSamplingHash,
+			&i.SamplingsWithCountry.Comments,
+			&i.SamplingsWithCountry.SiteCode,
+			&i.SamplingsWithCountry.SiteName,
+			&i.SamplingsWithCountry.SiteLocality,
+			&i.SamplingsWithCountry.SiteCountryCode,
+			&i.SamplingsWithCountry.CoordinatesPrecision,
+			&i.SamplingsWithCountry.Latitude,
+			&i.SamplingsWithCountry.Longitude,
+			&i.SamplingsWithCountry.Altitude,
+			&i.SamplingsWithCountry.EventDate,
+			&i.SamplingsWithCountry.EventDatePrecision,
+			&i.SamplingsWithCountry.PerformedBy,
+			&i.SamplingsWithCountry.Duration,
+			&i.SamplingsWithCountry.AccessPoints,
+			&i.SamplingsWithCountry.ImportBatchID,
+			&i.SamplingsWithCountry.H3Index,
+			&i.SamplingsWithCountry.SearchVector,
 			&i.Taxon.ID,
 			&i.Taxon.GBIFID,
 			&i.Taxon.Name,
@@ -147,16 +542,16 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 			&i.Taxon.ParentID,
 			&i.Taxon.SearchVector,
 			&i.Taxon.Comments,
-			&i.Country.Code,
-			&i.Country.Name,
-			&i.Country.Continent,
-			&i.Country.Subcontinent,
+			&i.SamplingsWithCountry.CountryCode,
+			&i.SamplingsWithCountry.CountryName,
+			&i.SamplingsWithCountry.CountryContinent,
+			&i.SamplingsWithCountry.CountrySubcontinent,
 			&score,
 		)
 		if err != nil {
 			return nil, err
 		}
-		occurrences = append(occurrences, models.OccurrenceFromDB(i.Occurrence, i.Taxon, i.Sampling, i.Country))
+		occurrences = append(occurrences, models.OccurrenceFromDB(i.Occurrence, i.Taxon, i.SamplingsWithCountry))
 	}
 
 	if err := rows.Err(); err != nil {
@@ -164,213 +559,4 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 	}
 
 	return occurrences, nil
-}
-
-type ListOccurrencesParams struct {
-	SearchTerm        string                              `json:"search_term,omitempty" query:"search_term"`
-	Datasets          []types.ULID                        `json:"datasets,omitempty" query:"datasets"`
-	Taxa              []uuid.UUID                         `json:"taxa,omitempty" query:"taxa"`
-	WholeClade        bool                                `json:"whole_clade,omitempty" query:"whole_clade"`
-	Confer            models.Optional[bool]               `json:"confer,omitempty" query:"confer"`
-	TaxonRank         models.Optional[models.TaxonRank]   `json:"taxon_rank,omitempty" query:"taxon_rank"`
-	TaxonStatus       models.Optional[models.TaxonStatus] `json:"taxon_status,omitempty" query:"taxon_status"`
-	models.Pagination `json:"pagination" query:"pagination"`
-	OrderBy           models.Optional[models.SortBy[models.OccurrenceSortKey]] `json:"order_by" query:"order_by"`
-}
-
-func (p *ListOccurrencesParams) ApplyFilters(stmt SelectStatement, parts searchParts) SelectStatement {
-	stmt = p.applyDatasetFilter(stmt)
-	stmt = parts.applySearchTermFilter(stmt)
-	stmt = p.applyTaxonomyFilter(stmt)
-	return stmt
-}
-
-func (p *ListOccurrencesParams) ApplySorting(stmt SelectStatement, score FloatExpression) SelectStatement {
-	orderBy, ok := p.OrderBy.Get()
-	if ok {
-		stmt = stmt.ORDER_BY(FloatColumn("score").DESC(), orderBy.ToOrderByClause())
-	} else {
-		// Default sorting by occurrence code if no order_by is provided
-		stmt = stmt.ORDER_BY(FloatColumn("score").DESC(), table.Occurrences.Code.ASC())
-	}
-	return stmt
-}
-
-func (p *ListOccurrencesParams) ApplyPagination(stmt SelectStatement) SelectStatement {
-	if p.Pagination.Limit > 0 {
-		stmt = stmt.LIMIT(int64(p.Pagination.Limit))
-	}
-	stmt = stmt.OFFSET(int64(p.Pagination.Offset))
-	return stmt
-}
-
-func (p *ListOccurrencesParams) applyDatasetFilter(stmt SelectStatement) SelectStatement {
-	if len(p.Datasets) == 0 {
-		return stmt
-	}
-
-	var datasetsExpr = make([]Expression, 0, len(p.Datasets))
-	for _, id := range p.Datasets {
-		datasetsExpr = append(datasetsExpr, String(id.String()))
-	}
-
-	od := table.OccurrencesDatasets
-	return stmt.WHERE(
-		EXISTS(
-			SELECT(Bool(true)).
-				FROM(od).
-				WHERE(
-					od.OccurrenceID.EQ(table.Occurrences.ID).
-						AND(od.DatasetID.IN(datasetsExpr...)),
-				),
-		),
-	)
-}
-
-func (p *ListOccurrencesParams) applyTaxonomyFilter(stmt SelectStatement) SelectStatement {
-	hasTaxaFilter := len(p.Taxa) > 0
-	hasRankFilter := p.TaxonRank.IsSet
-	hasStatusFilter := p.TaxonStatus.IsSet
-	hasConferFilter := p.Confer.IsSet
-
-	if !hasTaxaFilter && !hasRankFilter && !hasStatusFilter && !hasConferFilter {
-		return stmt
-	}
-
-	if hasTaxaFilter {
-		var taxaExpr = make([]Expression, 0, len(p.Taxa))
-		for _, id := range p.Taxa {
-			taxaExpr = append(taxaExpr, UUID(id))
-		}
-		if p.WholeClade {
-			stmt = stmt.WHERE(
-				EXISTS(
-					SELECT(Int(1)).
-						FROM(table.TaxaClosure).
-						WHERE(
-							table.TaxaClosure.DescendantID.EQ(table.Taxa.ID).
-								AND(table.TaxaClosure.AncestorID.IN(taxaExpr...)),
-						),
-				),
-			)
-		} else {
-			stmt = stmt.WHERE(
-				table.Taxa.ID.IN(taxaExpr...),
-			)
-		}
-	}
-
-	// 2. rank
-	if hasRankFilter {
-		stmt = stmt.WHERE(
-			table.Taxa.Rank.EQ(StringExp(CAST(String(string(p.TaxonRank.Value))).AS("public.taxon_rank"))),
-		)
-	}
-
-	// 3. status
-	if hasStatusFilter {
-		stmt = stmt.WHERE(
-			table.Taxa.Status.EQ(StringExp(CAST(String(string(p.TaxonStatus.Value))).AS("public.taxon_status"))),
-		)
-	}
-
-	// 4. confer (occurrences)
-	if hasConferFilter {
-		stmt = stmt.WHERE(
-			table.Occurrences.IdentificationConfer.EQ(Bool(p.Confer.Value)),
-		)
-	}
-
-	return stmt
-}
-
-type searchParts struct {
-	term     string
-	exact    BoolExpression
-	prefix   BoolExpression
-	fts      BoolExpression
-	fts_rank FloatExpression
-}
-
-func buildSearchParts(term string) searchParts {
-
-	if len(term) == 0 {
-		return searchParts{}
-	}
-
-	t := Text(term)
-	like := Text("%" + term + "%")
-
-	return searchParts{
-		term: term,
-		exact: OR(
-			table.Occurrences.Code.EQ(t),
-			table.Taxa.Name.EQ(t),
-			table.Samplings.SiteCode.EQ(t),
-		),
-		prefix: OR(
-			table.Occurrences.Code.LIKE(like),
-			table.Taxa.Name.LIKE(like),
-			table.Samplings.SiteCode.LIKE(like),
-			table.Samplings.SiteName.LIKE(like),
-		),
-		fts: RawBool(`
-			taxa.search_vector @@ plainto_tsquery('simple', #term)
-			OR samplings.search_vector @@ plainto_tsquery('simple', #term)
-		`, RawArgs{"#term": term}),
-		fts_rank: RawFloat(`
-			(ts_rank_cd(taxa.search_vector, plainto_tsquery('simple', #term)) * 0.6)
-			+ (ts_rank_cd(samplings.search_vector, plainto_tsquery('simple', #term)) * 0.4)
-		`, RawArgs{"#term": term}),
-	}
-}
-
-func (s *searchParts) hasTerm() bool {
-	return s.term != ""
-}
-
-func (s *searchParts) hasFullTextSearch() bool {
-	return len(s.term) >= MIN_FULL_TEXT_SEARCH_TERM_LENGTH
-}
-
-func (s searchParts) toExpression() BoolExpression {
-	if !s.hasTerm() {
-		return Bool(true)
-	}
-	components := []BoolExpression{s.exact, s.prefix}
-	if s.hasFullTextSearch() {
-		components = append(components, s.fts)
-	}
-	return OR(components...)
-}
-
-func (s searchParts) toScoreProjection() FloatExpression {
-	if !s.hasTerm() {
-		return RawFloat("0.0")
-	}
-
-	exact := RawFloat("100.0")
-	prefixScore := RawFloat("60.0")
-	ftsScore := RawFloat("30.0")
-
-	score := FloatExp(
-		CAST(
-			CASE().
-				WHEN(s.exact).THEN(exact).
-				WHEN(s.prefix).THEN(prefixScore).
-				ELSE(RawFloat("0.0")),
-		).AS("float"),
-	)
-
-	if s.hasFullTextSearch() {
-		score = score.ADD(FloatExp(LEAST(s.fts_rank)).MUL(ftsScore))
-	}
-	return score
-}
-
-func (s searchParts) applySearchTermFilter(stmt SelectStatement) SelectStatement {
-	if s.hasTerm() {
-		return stmt.WHERE(s.toExpression())
-	}
-	return stmt
 }

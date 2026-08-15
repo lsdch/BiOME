@@ -33,11 +33,55 @@ type TaxonGBIF struct {
 	AcceptedName            Optional[string] `json:"accepted,omitempty"`
 }
 
-func (taxon *TaxonGBIF) IsAcceptable() bool {
-	return taxon.GetRank().Valid() && taxon.GetStatus().Valid()
+// GetParentRank returns the rank of the parent taxon based on the available parent keys.
+func (taxon TaxonGBIF) GetParentRank() *TaxonRank {
+	rank := new(TaxonRank)
+	parentKey, ok := taxon.ParentKey.Get()
+	if !ok {
+		return rank
+	}
+	switch parentKey {
+	case taxon.KingdomKey.GetWithDefault(-1):
+		*rank = biomedb.TaxonRankKingdom
+	case taxon.PhylumKey.GetWithDefault(-1):
+		*rank = biomedb.TaxonRankPhylum
+	case taxon.ClassKey.GetWithDefault(-1):
+		*rank = biomedb.TaxonRankClass
+	case taxon.OrderKey.GetWithDefault(-1):
+		*rank = biomedb.TaxonRankOrder
+	case taxon.FamilyKey.GetWithDefault(-1):
+		*rank = biomedb.TaxonRankFamily
+	case taxon.GenusKey.GetWithDefault(-1):
+		*rank = biomedb.TaxonRankGenus
+	case taxon.SpeciesKey.GetWithDefault(-1):
+		*rank = biomedb.TaxonRankSpecies
+	default:
+		return nil
+	}
+	return rank
 }
 
-func (taxon *TaxonGBIF) GetParentKeysList() []int32 {
+// HasConsistentParent checks if the taxon's parent rank is one level above its own rank.
+func (taxon TaxonGBIF) HasConsistentParent() bool {
+	if taxon.GetRank() == biomedb.TaxonRankKingdom {
+		// Kingdoms have no parent, so they are considered consistent.
+		return true
+	}
+	gbifParentRank := taxon.GetParentRank()
+	if gbifParentRank == nil {
+		return false
+	}
+	expectedParentRank := ParentRank(taxon.GetRank())
+	return *gbifParentRank == expectedParentRank
+}
+
+// IsAcceptable checks if the taxon has a valid rank, status, and consistent parent
+// (parent rank must be one level above the current taxon's rank).
+func (taxon TaxonGBIF) IsAcceptable() bool {
+	return taxon.GetRank().Valid() && taxon.GetStatus().Valid() && taxon.HasConsistentParent()
+}
+
+func (taxon TaxonGBIF) GetParentKeysList() []int32 {
 	parents := []int32{}
 
 	addKeys := func(keys ...Optional[int32]) {
@@ -63,24 +107,30 @@ func (taxon *TaxonGBIF) GetParentKeysList() []int32 {
 	return parents
 }
 
-func (taxon *TaxonGBIF) GetRank() TaxonRank {
-	return TaxonRank(taxon.Rank)
+// GetRank returns the taxon's GBIF rank as a TaxonRank type.
+func (taxon TaxonGBIF) GetRank() TaxonRank {
+	return TaxonRank(strings.ToLower(taxon.Rank))
 }
 
-func (taxon *TaxonGBIF) GetStatus() TaxonStatus {
-	switch strings.ToUpper(taxon.Status) {
+// GetStatus returns the taxon's GBIF status as a TaxonStatus type.
+func (taxon TaxonGBIF) GetStatus() TaxonStatus {
+	upperStr := strings.ToUpper(taxon.Status)
+	if strings.Contains(upperStr, "SYNONYM") {
+		return biomedb.TaxonStatusSynonym
+	}
+	switch upperStr {
 	case "ACCEPTED":
-		return biomedb.TaxonStatusACCEPTED
+		return biomedb.TaxonStatusAccepted
 	case "SYNONYM":
-		return biomedb.TaxonStatusSYNONYM
+		return biomedb.TaxonStatusSynonym
 	case "DOUBTFUL":
-		return biomedb.TaxonStatusDOUBTFUL
+		return biomedb.TaxonStatusDoubtful
 	default:
-		return biomedb.TaxonStatusUNCLASSIFIED
+		return biomedb.TaxonStatusUnclassified
 	}
 }
 
-func (taxon *TaxonGBIF) ToStaging() biomedb.InsertGBIFBatchParams {
+func (taxon TaxonGBIF) ToStaging() biomedb.InsertGBIFBatchParams {
 	return biomedb.InsertGBIFBatchParams{
 		Key:              taxon.Key,
 		Parent:           taxon.Parent.ToPtr(),
@@ -106,24 +156,33 @@ func (taxon *TaxonGBIF) ToStaging() biomedb.InsertGBIFBatchParams {
 	}
 }
 
+type TaxonGBIFPriority int32
+
+//generate:enum
+const (
+	TaxonGBIFPriorityExactAccepted    TaxonGBIFPriority = 100
+	TaxonGBIFPriorityExactNonAccepted TaxonGBIFPriority = 80
+	TaxonGBIFPriorityNonExact         TaxonGBIFPriority = 50
+)
+
 type TaxonGBIFWithPriority struct {
 	TaxonGBIF
-	Priority int32 `json:"priority"`
+	Priority TaxonGBIFPriority `json:"priority"`
 }
 
-func (t TaxonGBIF) ComputePriority(res TaxonResolution) int32 {
-	var priority int32
-	if t.Name == res.InputName || t.ScientificName == res.ScientificName {
-		if t.GetStatus() == biomedb.TaxonStatusACCEPTED {
+func (t TaxonGBIF) ComputePriority(res TaxonResolution) TaxonGBIFPriority {
+	var priority TaxonGBIFPriority
+	if strings.EqualFold(t.Name, res.InputName) || strings.EqualFold(t.ScientificName, res.ScientificName) {
+		if t.GetStatus() == biomedb.TaxonStatusAccepted {
 			// Accepted exact matches
-			priority = 100
+			priority = TaxonGBIFPriorityExactAccepted
 		} else {
 			// Synonyms and other non-accepted exact matches
-			priority = 80
+			priority = TaxonGBIFPriorityExactNonAccepted
 		}
 	} else {
 		// Non-exact matches
-		priority = 50
+		priority = TaxonGBIFPriorityNonExact
 	}
 	return priority
 }
@@ -145,16 +204,7 @@ func (taxon TaxonGBIFWithPriority) ToCandidate(importID uuid.UUID, resolutionID 
 		Status:       taxon.GetStatus(),
 		Source:       biomedb.TaxonMatchSourceGBIF,
 		MatchType:    biomedb.TaxonMatchTypeExact,
-		Priority:     taxon.Priority,
+		Priority:     int32(taxon.Priority),
 		GBIFID:       &taxon.Key,
 	}
-}
-
-func (taxon *TaxonGBIF) Normalize() *TaxonGBIF {
-	if authorship, isSet := taxon.Authorship.Get(); isSet && authorship == "" {
-		taxon.Authorship.Clear()
-	}
-	taxon.Status = string(taxon.GetStatus())
-	taxon.Rank = string(taxon.GetRank())
-	return taxon
 }

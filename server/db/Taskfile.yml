@@ -10,6 +10,8 @@ tasks:
     cmds: 
     -  psql {{.DB_URL}} -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
   generate:
+    desc: "Generate database related code for backend"
+    failfast: true
     cmds: 
       - go generate ./      
       - go run generators/enums/generate_enums.go ./biomedb
@@ -26,9 +28,14 @@ tasks:
     cmds: 
       - go run generators/jet-gen/jet_generator.go --dsn={{.DB_URL}} --schema=public --dest=./biomedb
   bootstrap:
-    cmds: 
-      - mkdir -p migrations
-      - for f in schema/*.sql; do psql {{.DB_URL}} -f "$f"; done
+    cmds:  
+    - |
+      set -euo pipefail
+      mkdir -p migrations
+      for f in schema/*.sql; do
+        echo "Applying $f..."
+        psql --set ON_ERROR_STOP=1 {{.DB_URL}} -f "$f"
+      done
   reset:
     cmds:
       - task: drop

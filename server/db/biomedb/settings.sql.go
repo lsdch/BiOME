@@ -10,7 +10,7 @@ import (
 )
 
 const getSettings = `-- name: GetSettings :one
-SELECT id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name, molecular_data_enabled
+SELECT id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name, molecular_data_enabled, frontpage_message_md
 FROM settings
 `
 
@@ -28,6 +28,7 @@ func (q *Queries) GetSettings(ctx context.Context) (Setting, error) {
 		&i.MailFromAddress,
 		&i.MailFromName,
 		&i.MolecularDataEnabled,
+		&i.FrontpageMessageMD,
 	)
 	return i, err
 }
@@ -86,6 +87,20 @@ func (q *Queries) InitSettings(ctx context.Context, arg InitSettingsParams) erro
 	return err
 }
 
+const setDashboardMessage = `-- name: SetDashboardMessage :one
+UPDATE settings
+SET frontpage_message_md = $1
+WHERE id = 1
+RETURNING frontpage_message_md
+`
+
+func (q *Queries) SetDashboardMessage(ctx context.Context, frontpageMessageMd *string) (*string, error) {
+	row := q.db.QueryRow(ctx, setDashboardMessage, frontpageMessageMd)
+	var frontpage_message_md *string
+	err := row.Scan(&frontpage_message_md)
+	return frontpage_message_md, err
+}
+
 const updateInstanceSettings = `-- name: UpdateInstanceSettings :one
 UPDATE settings
 SET app_name = COALESCE($1, app_name),
@@ -110,9 +125,13 @@ SET app_name = COALESCE($1, app_name),
     mail_from_name = COALESCE(
         $10,
         mail_from_name
-    )
+    ),
+    frontpage_message_md = CASE
+        WHEN $11::boolean THEN $12
+        ELSE frontpage_message_md
+    END
 WHERE id = 1
-RETURNING id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name, molecular_data_enabled
+RETURNING id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name, molecular_data_enabled, frontpage_message_md
 `
 
 type UpdateInstanceSettingsParams struct {
@@ -126,6 +145,8 @@ type UpdateInstanceSettingsParams struct {
 	AccountRequestsEnabled *bool   `json:"account_requests_enabled"`
 	MailFromAddress        *string `json:"mail_from_address"`
 	MailFromName           *string `json:"mail_from_name"`
+	SetFrontpageMessageMD  bool    `json:"set_frontpage_message_md"`
+	FrontpageMessageMD     *string `json:"frontpage_message_md"`
 }
 
 func (q *Queries) UpdateInstanceSettings(ctx context.Context, arg UpdateInstanceSettingsParams) (Setting, error) {
@@ -140,6 +161,8 @@ func (q *Queries) UpdateInstanceSettings(ctx context.Context, arg UpdateInstance
 		arg.AccountRequestsEnabled,
 		arg.MailFromAddress,
 		arg.MailFromName,
+		arg.SetFrontpageMessageMD,
+		arg.FrontpageMessageMD,
 	)
 	var i Setting
 	err := row.Scan(
@@ -153,6 +176,7 @@ func (q *Queries) UpdateInstanceSettings(ctx context.Context, arg UpdateInstance
 		&i.MailFromAddress,
 		&i.MailFromName,
 		&i.MolecularDataEnabled,
+		&i.FrontpageMessageMD,
 	)
 	return i, err
 }

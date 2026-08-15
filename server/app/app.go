@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"path/filepath"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/lsdch/biome/config"
@@ -15,6 +15,7 @@ import (
 	"github.com/lsdch/biome/middleware"
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services"
+	"github.com/lsdch/biome/services/crossref"
 	"github.com/lsdch/biome/services/gbif"
 	"github.com/lsdch/biome/services/geoapify"
 	"github.com/lsdch/biome/stores"
@@ -73,40 +74,50 @@ func NewApp(config config.Config) *App {
 	router := makeRouter(config.API)
 
 	appServices := &AppServices{
+		AbioticService:     services.NewAbioticService(),
 		ImportBatchService: services.NewImportBatchService(),
 		AuthService:        services.NewAuthService(config.AuthTokens),
 		SettingsService:    services.NewSettingsService(config),
 		SamplingsService:   services.NewSamplingService(),
 		HabitatService:     services.NewHabitatService(),
-		ArticleService:     services.NewArticleService(),
+		ArticleService:     services.NewPublicationService(),
 		DatasetService:     services.NewDatasetsService(),
-		TaxonomyService:    services.NewTaxonomyService(),
 		LocationService:    services.NewLocationService(),
 		GeoapifyService:    geoapify.NewGeoapifyService(http.DefaultClient, config.Geoapify),
 	}
 
 	appServices.AccountsService = services.NewAccountService(appServices.AuthService, config.Bootstrap)
 
+	authMiddleware := middleware.NewAuthMiddleware(router.API, database, config.AuthTokens, appServices.AuthService)
+	router.API.UseMiddleware(authMiddleware.AuthN, authMiddleware.AuthZ)
+
+	gbifClient := gbif.NewClient(config.GBIF)
+	appServices.TaxonomyService = services.NewTaxonomyService(gbifClient)
+	appServices.TaxonResolver = imports.NewTaxonResolutionService(gbifClient)
+
 	appServices.OccurrencesService = services.NewOccurrencesService(
 		appServices.SamplingsService,
 		appServices.DatasetService,
 		appServices.ImportBatchService,
 		appServices.TaxonomyService,
+		stores.NewOccurrenceStore(),
 	)
 
-	authMiddleware := middleware.NewAuthMiddleware(router.API, database, config.AuthTokens, appServices.AuthService)
-	router.API.UseMiddleware(authMiddleware.AuthN, authMiddleware.AuthZ)
-
-	gbifClient := gbif.NewClient(config)
-	taxonResolver := imports.NewTaxonResolutionService(gbifClient)
+	crossrefClient := crossref.NewClient(config.CrossRef)
+	bibliographyResolver := imports.NewBibliographyResolver(crossrefClient)
 
 	return &App{
-		DB:             database,
-		Config:         config,
-		Router:         router,
-		Services:       appServices,
-		bootstrap:      NewAppBootstrap(database, config.Bootstrap, appServices),
-		importsManager: imports.NewImportManager(database, stores.NewWorkflowStore(), taxonResolver, appServices.SamplingsService),
+		DB:        database,
+		Config:    config,
+		Router:    router,
+		Services:  appServices,
+		bootstrap: NewAppBootstrap(database, config.Bootstrap, appServices),
+		importsManager: imports.NewImportManager(database,
+			stores.NewBatchesStore(), appServices.TaxonResolver,
+			bibliographyResolver,
+			appServices.SamplingsService,
+			appServices.OccurrencesService,
+		),
 	}
 }
 
@@ -122,8 +133,9 @@ func (a *App) Bootstrap() {
 }
 
 func (a *App) RegisterRoutes() {
-
+	logrus.Infof("Registering routes...")
 	a.Controllers = []controllers.Controller{
+		controllers.NewAbioticsController(a.DB, a.Services.AbioticService),
 		controllers.NewImportController(a.DB, a.importsManager),
 		controllers.NewArticlesController(a.DB, a.Services.ArticleService),
 		controllers.NewGeoapifyController(a.DB, a.Services.GeoapifyService),
@@ -136,13 +148,22 @@ func (a *App) RegisterRoutes() {
 		controllers.NewSamplingController(a.DB, a.Services.SamplingsService),
 		controllers.NewTaxonomyController(a.DB, a.Services.TaxonomyService),
 		controllers.NewDatasetController(a.DB, a.Services.DatasetService),
+		controllers.NewImportBatchController(a.DB, a.Services.ImportBatchService),
 	}
 	for _, controller := range a.Controllers {
 		controller.RegisterRoutes(a.Router)
 	}
-	if err := a.Router.WriteSpecJSON("../client/openapi.json"); err != nil {
-		panic(err)
+}
+
+func (a *App) WriteOpenAPISpec(outputPath string) error {
+	absPath, err := filepath.Abs(outputPath)
+	if err != nil {
+		return fmt.Errorf("failed to get absolute path for OpenAPI spec: %v", err)
 	}
+	logrus.Infof("Writing OpenAPI spec to %s", absPath)
+	// registry := a.Router.API.OpenAPI().Components.Schemas
+	// registry.Map()["ListOccurrencesParams"] = registry.Schema(reflect.TypeFor[stores.ListOccurrencesParams](), false, "ListOccurrencesParams")
+	return a.Router.WriteSpecJSON(outputPath)
 }
 
 func (a *App) Run() {
@@ -164,28 +185,4 @@ func makeRouter(cfg config.APIConfig) *router.Router {
 	apiRouter := router.New(r, cfg.BasePath, cfg.ToHumaConfig())
 	apiRouter.BaseAPI.Static("/assets/", "./assets")
 	return &apiRouter
-}
-
-func main() {
-	huma.DefaultArrayNullable = false
-
-	cfg, err := config.LoadConfig(".", "config")
-	if err != nil {
-		log.Fatalf("Failed to load config file: %v", err)
-	}
-
-	logrus.Infof("Loaded backend configuration")
-
-	if gin.Mode() == gin.DebugMode {
-		log.SetLevel(log.DebugLevel)
-	}
-	// Disable logging all routes
-	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {}
-
-	app := NewApp(cfg)
-	app.Bootstrap()
-	app.RegisterRoutes()
-
-	defer app.Close()
-	app.Run()
 }

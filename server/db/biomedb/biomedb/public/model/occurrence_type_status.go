@@ -12,9 +12,9 @@ import "errors"
 type OccurrenceTypeStatus string
 
 const (
-	OccurrenceTypeStatus_Holotype OccurrenceTypeStatus = "HOLOTYPE"
-	OccurrenceTypeStatus_Neotype  OccurrenceTypeStatus = "NEOTYPE"
-	OccurrenceTypeStatus_Topotype OccurrenceTypeStatus = "TOPOTYPE"
+	OccurrenceTypeStatus_Holotype OccurrenceTypeStatus = "holotype"
+	OccurrenceTypeStatus_Neotype  OccurrenceTypeStatus = "neotype"
+	OccurrenceTypeStatus_Topotype OccurrenceTypeStatus = "topotype"
 )
 
 var OccurrenceTypeStatusAllValues = []OccurrenceTypeStatus{
@@ -35,11 +35,11 @@ func (e *OccurrenceTypeStatus) Scan(value interface{}) error {
 	}
 
 	switch enumValue {
-	case "HOLOTYPE":
+	case "holotype":
 		*e = OccurrenceTypeStatus_Holotype
-	case "NEOTYPE":
+	case "neotype":
 		*e = OccurrenceTypeStatus_Neotype
-	case "TOPOTYPE":
+	case "topotype":
 		*e = OccurrenceTypeStatus_Topotype
 	default:
 		return errors.New("jet: Invalid scan value '" + enumValue + "' for OccurrenceTypeStatus enum")

@@ -11,11 +11,11 @@ import (
 	"reflect"
 	"slices"
 
+	"github.com/lsdch/biome/lib/app_errors"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/middleware"
-	"github.com/lsdch/biome/services/crossref"
+	"github.com/lsdch/biome/stores"
 
-	"github.com/caltechlibrary/crossrefapi"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humagin"
 	"github.com/gin-gonic/gin"
@@ -34,15 +34,58 @@ func SchemaNamer(t reflect.Type, hint string) string {
 }
 
 func New(r *gin.Engine, basePath string, config huma.Config) Router {
+
+	huma.NewError = func(status int, msg string, errs ...error) huma.StatusError {
+		details := make([]*huma.ErrorDetail, len(errs))
+
+		for i, err := range errs {
+			if err == nil {
+				continue
+			}
+
+			if converted, ok := err.(huma.ErrorDetailer); ok {
+				details[i] = converted.ErrorDetail()
+			} else {
+				details[i] = &huma.ErrorDetail{
+					Message: err.Error(),
+				}
+			}
+		}
+
+		return &app_errors.AppError{
+			ErrorModel: huma.ErrorModel{
+				Status: status,
+				Title:  http.StatusText(status),
+				Detail: msg,
+				Errors: details,
+			},
+		}
+	}
 	baseAPI := r.Group(basePath)
+	// config.Transformers = append(config.Transformers, func(ctx huma.Context, status string, v any) (any, error) {
+	// 	if err, ok := v.(error); ok {
+	// 		logrus.Errorf("[Transformer] Error: %v", err)
+	// 		var appErr app_errors.AppErrorProvider
+	// 		if errors.As(err, &appErr) {
+	// 			logrus.Errorf("[Transformer] AppError: %v", appErr.AppError())
+	// 			return appErr.AppError(), nil
+	// 		}
+	// 		// if appErr, ok := err.(app_errors.AppErrorProvider); ok {
+	// 		// 	logrus.Errorf("[Transformer] AppError: %v", appErr.AppError())
+	// 		// 	return appErr.AppError(), nil
+	// 		// }
+	// 	}
+	// 	return v, nil
+	// })
 	API := humagin.NewWithGroup(r, baseAPI, config)
 
 	registry := huma.NewMapRegistry("#/components/schemas/", SchemaNamer)
 
-	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.Person](), reflect.TypeFor[crossref.CrossRefPerson]())
-	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.DateRange](), reflect.TypeFor[crossref.CrossRefDateRange]())
+	// registry.Map()["ListOccurrencesParams"] = registry.Schema(reflect.TypeFor[stores.ListOccurrencesParams](), false, "ListOccurrencesParams")
+	// registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.Person](), reflect.TypeFor[crossref.CrossRefPerson]())
+	// registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.DateRange](), reflect.TypeFor[crossref.CrossRefDateRange]())
 
-	API.OpenAPI().Components.Schemas = registry
+	API.OpenAPI().Components.Schemas.Map()["ListOccurrencesParams"] = registry.Schema(reflect.TypeFor[stores.ListOccurrencesParams](), false, "ListOccurrencesParams")
 
 	return Router{
 		BasePath: basePath,
@@ -134,7 +177,16 @@ type routeSpec[I, O any] struct {
 }
 
 func (spec routeSpec[I, O]) Register(r *Router) RouteSpec {
-	Register(spec.Group, spec.OperationID, spec.Operation, spec.Handler)
+	// Wrap the handler to catch errors and convert them to AppError if applicable
+	wrappedHandler := func(ctx context.Context, input *I) (*O, error) {
+		output, err := spec.Handler(ctx, input)
+		if err != nil {
+			appErr := app_errors.AsAppError(err)
+			return output, appErr
+		}
+		return output, nil
+	}
+	Register(spec.Group, spec.OperationID, spec.Operation, wrappedHandler)
 	return spec
 }
 

@@ -26,7 +26,11 @@
           <v-checkbox-btn color="primary" v-model="roadsVisible" hide-details />
         </template>
       </v-list-item>
-      <v-list-item v-if="hexgrid" title="Hexagons" prepend-icon="mdi-hexagon-multiple">
+      <v-list-item
+        v-if="hexgrid"
+        :title="hexgrid.name ?? 'Cells'"
+        prepend-icon="mdi-hexagon-multiple"
+      >
         <template #append>
           <v-checkbox-btn
             color="primary"
@@ -70,10 +74,8 @@
   </v-menu>
 </template>
 
-<script setup lang="ts" generic="Item extends ItemWithCoordinates">
-import SvgCircle from '@/components/toolkit/ui/SvgCircle.vue'
-import { ItemWithCoordinates } from '../../coordinates'
-import { HexgridLayer, MarkerLayer } from '../layers-manager/map-layers'
+<script setup lang="ts" generic="HexData extends H3Cell, MarkerData extends H3Cell">
+import { H3Cell, HexgridLayer, MarkerLayer } from '../layers-manager/map-layers'
 
 const regions = defineModel<boolean>('regions', {
   required: true
@@ -87,8 +89,8 @@ const siteMarkersVisible = defineModel<boolean>('siteMarkersVisible', {
 })
 
 const { markerLayers, hexgrid } = defineProps<{
-  markerLayers?: MarkerLayer<Item>[]
-  hexgrid?: HexgridLayer<Item>
+  markerLayers?: MarkerLayer<MarkerData>[]
+  hexgrid?: HexgridLayer<HexData>
   hasSiteMarkers?: boolean
 }>()
 

@@ -71,6 +71,30 @@ func (c *TaxonomyController) CreateTaxon(
 	return &BodyTransporter[*models.Taxon]{Body: taxon}, nil
 }
 
+func (c *TaxonomyController) DeleteTaxon(
+	ctx context.Context,
+	input *UUIDInput,
+) (*struct{}, error) {
+	err := c.db.WithTx(ctx, func(tx *db.Tx) error {
+		return c.service.DeleteTaxonWithOccurrences(ctx, tx, input.ID, true)
+	})
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (c *TaxonomyController) GetGBIFKingdoms(
+	ctx context.Context,
+	input *struct{},
+) (*BodyTransporter[[]models.TaxonGBIF], error) {
+	kingdoms, err := c.service.GetGBIFKingdoms(ctx, c.db)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]models.TaxonGBIF]{Body: kingdoms}, nil
+}
+
 func (c *TaxonomyController) RegisterRoutes(r *router.Router) {
 	group := r.RouteGroup("/taxonomy").WithTags([]string{"Taxonomy"})
 
@@ -117,4 +141,29 @@ func (c *TaxonomyController) RegisterRoutes(r *router.Router) {
 		},
 		c.GetTaxaAtRank,
 	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(
+		group,
+		"DeleteTaxon",
+		huma.Operation{
+			Method:      http.MethodDelete,
+			Path:        "/taxa/{id}",
+			Summary:     "Delete a taxon by ID",
+			Description: "Deletes a taxon and all of its descendants. This operation will also delete all occurrences associated with the taxon and its descendants.",
+		},
+		c.DeleteTaxon,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
+
+	router.NewSpec(
+		group,
+		"GetGBIFKingdoms",
+		huma.Operation{
+			Method:      http.MethodGet,
+			Path:        "/gbif/kingdoms",
+			Summary:     "Get GBIF kingdoms",
+			Description: "Retrieves a list of all GBIF kingdoms. Response is cached to avoid repeated calls to the GBIF API.",
+		},
+		c.GetGBIFKingdoms,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
 }

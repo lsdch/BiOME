@@ -6,6 +6,7 @@
     persistent
     scrollable
     :activator
+    :attach
     v-bind="$attrs"
   >
     <!-- Expose activator slot -->
@@ -74,6 +75,7 @@ export type CardDialogProps = {
   closeText?: string
   prependIcon?: IconValue
   activator?: (string & {}) | Element | 'parent' | ComponentPublicInstance
+  attach?: string | boolean | Element
 }
 
 withDefaults(defineProps<CardDialogProps>(), { closeText: 'Close' })

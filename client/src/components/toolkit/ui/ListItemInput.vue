@@ -9,7 +9,7 @@
 <script setup lang="ts">
 const { label } = defineProps<{
   label?: string
-  subtitle?: string
+  subtitle?: string | number
   lines?: false | 'one' | 'two' | 'three'
 }>()
 </script>

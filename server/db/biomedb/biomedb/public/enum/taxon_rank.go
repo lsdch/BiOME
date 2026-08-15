@@ -20,13 +20,13 @@ var TaxonRank = &struct {
 	Phylum     postgres.StringExpression
 	Kingdom    postgres.StringExpression
 }{
-	Subspecies: postgres.NewEnumValue("SUBSPECIES"),
-	Species:    postgres.NewEnumValue("SPECIES"),
-	Subgenus:   postgres.NewEnumValue("SUBGENUS"),
-	Genus:      postgres.NewEnumValue("GENUS"),
-	Family:     postgres.NewEnumValue("FAMILY"),
-	Order:      postgres.NewEnumValue("ORDER"),
-	Class:      postgres.NewEnumValue("CLASS"),
-	Phylum:     postgres.NewEnumValue("PHYLUM"),
-	Kingdom:    postgres.NewEnumValue("KINGDOM"),
+	Subspecies: postgres.NewEnumValue("subspecies"),
+	Species:    postgres.NewEnumValue("species"),
+	Subgenus:   postgres.NewEnumValue("subgenus"),
+	Genus:      postgres.NewEnumValue("genus"),
+	Family:     postgres.NewEnumValue("family"),
+	Order:      postgres.NewEnumValue("order"),
+	Class:      postgres.NewEnumValue("class"),
+	Phylum:     postgres.NewEnumValue("phylum"),
+	Kingdom:    postgres.NewEnumValue("kingdom"),
 }

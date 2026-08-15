@@ -16,36 +16,39 @@
 </template>
 
 <script setup lang="ts">
-import { $ArticleInput, $ArticleUpdate, Article, ArticleUpdate } from '@/api'
-import { createArticleMutation, updateArticleMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import { $PublicationInput, $PublicationUpdate, Publication, PublicationUpdate } from '@/api'
+import {
+  createPublicationMutation,
+  updatePublicationMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
-import { ArticleModel } from '@/models'
+import { PublicationModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
 import ArticleFormDialog from './ArticleFormDialog.vue'
 
 const dialog = defineModel<boolean>('dialog')
-const item = defineModel<Article>('item')
+const item = defineModel<Publication>('item')
 
 defineProps<FormDialogProps>()
 
-const create = defineFormCreate(createArticleMutation(), {
-  initial: ArticleModel.initialModel,
-  schema: $ArticleInput,
-  requestData: (model) => ({ body: ArticleModel.toRequestBody(model) })
+const create = defineFormCreate(createPublicationMutation(), {
+  initial: PublicationModel.initialModel,
+  schema: $PublicationInput,
+  requestData: (model) => ({ body: PublicationModel.toRequestBody(model) })
 })
 
-const update = defineFormUpdate(updateArticleMutation(), {
-  itemToModel: ArticleModel.fromArticle,
-  schema: $ArticleUpdate,
+const update = defineFormUpdate(updatePublicationMutation(), {
+  itemToModel: PublicationModel.fromPublication,
+  schema: $PublicationUpdate,
   requestData: ({ code }, model) => ({
     path: { code },
-    body: ArticleModel.toRequestBody(model)
+    body: PublicationModel.toRequestBody(model)
   })
 })
 
 const { feedback } = useFeedback()
-const emit = defineEmits<{ success: [item: Article] }>()
+const emit = defineEmits<{ success: [item: Publication] }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
@@ -54,7 +57,7 @@ const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
     emit('success', item)
     feedback({
       type: 'success',
-      message: mode === 'Create' ? `Article created` : `Article updated`
+      message: mode === 'Create' ? `Publication created` : `Publication updated`
     })
   }
 })

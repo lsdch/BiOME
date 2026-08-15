@@ -38,7 +38,7 @@ func (s *LocationService) ListCountriesSummary(ctx context.Context, q db.Querier
 	return result, nil
 }
 
-func (s *LocationService) CoordinatesToCountry(ctx context.Context, q db.Querier, latitude, longitude float32) (*models.Country, error) {
+func (s *LocationService) CoordinatesToCountry(ctx context.Context, q db.Querier, latitude, longitude float64) (*models.Country, error) {
 	countryDB, err := q.Queries().CoordinatesToCountry(ctx, latitude, longitude)
 	if err != nil {
 		return nil, err

@@ -1,12 +1,10 @@
 -- name: GetOccurrenceByID :one
 SELECT sqlc.embed(o),
     sqlc.embed(s),
-    sqlc.embed(t),
-    sqlc.embed(c)
+    sqlc.embed(t)
 FROM occurrences o
-    JOIN samplings s ON s.id = o.sampling_id
+    JOIN samplings_with_country s ON s.id = o.sampling_id
     JOIN taxa t ON t.id = o.taxon_id
-    JOIN countries c ON c.code = s.site_country_code
 WHERE o.id = @occurrence_id;
 
 -- name: GetOccurrenceDatasets :many
@@ -25,7 +23,9 @@ ORDER BY h.created_at DESC;
 
 
 -- name: OccurrencesByTaxaOverview :many
+-- Returns the number of occurrences and samplings for each taxon, along with the taxon's details and its parent's details.
 SELECT t.id AS id,
+    parent.id AS parent_id,
     t.name AS name,
     t.authorship AS authorship,
     t.rank AS rank,
@@ -40,6 +40,7 @@ FROM taxa t
     LEFT JOIN occurrences o ON o.taxon_id = t.id
     LEFT JOIN samplings s ON s.id = o.sampling_id
 GROUP BY t.id,
+    parent.id,
     t.name,
     t.authorship,
     t.rank,
@@ -386,3 +387,58 @@ SELECT sqlc.embed(o),
 FROM occurrences o
     JOIN taxa t ON t.id = o.taxon_id
 WHERE o.sampling_id = ANY(@sampling_ids::uuid []);
+
+
+
+-- name: DeleteOccurrence :exec
+WITH deleted_occurrence AS (
+    DELETE FROM occurrences o
+    WHERE o.id = @occurrence_id
+    RETURNING sampling_id
+)
+DELETE FROM samplings s
+WHERE @orphan_sampling::boolean = true
+    AND s.id = (
+        SELECT sampling_id
+        FROM deleted_occurrence
+        WHERE NOT EXISTS (
+                SELECT 1
+                FROM occurrences o
+                WHERE o.sampling_id = deleted_occurrence.sampling_id
+            )
+    );
+
+-- name: DeleteOccurrencesOfTaxon :exec
+WITH deleted_occurrences AS (
+    DELETE FROM occurrences
+    WHERE taxon_id = @taxon_id
+    RETURNING sampling_id
+)
+DELETE FROM samplings
+WHERE @orphan_sampling::boolean = true
+    AND id IN (
+        SELECT sampling_id
+        FROM deleted_occurrences
+    );
+
+-- name: DeleteOccurrencesOfTaxonLineage :exec
+WITH deleted_occurrences AS (
+    DELETE FROM occurrences o
+    WHERE o.taxon_id IN (
+            SELECT tc.descendant_id
+            FROM taxa_closure tc
+            WHERE tc.ancestor_id = @taxon_id
+        )
+    RETURNING sampling_id
+)
+DELETE FROM samplings s
+WHERE @orphan_sampling::boolean = true
+    AND s.id IN (
+        SELECT sampling_id
+        FROM deleted_occurrences
+        WHERE NOT EXISTS (
+                SELECT 1
+                FROM occurrences o
+                WHERE o.sampling_id = deleted_occurrences.sampling_id
+            )
+    );

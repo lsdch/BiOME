@@ -6,7 +6,7 @@
     </ListItemInput>
     <ListItemInput
       label="Cluster radius scale"
-      subtitle="Scale factor applied to cluster radius based on the number of sites in the cluster"
+      subtitle="Scale factor applied to marker radius based on the number of occurrences in the cluster"
       lines="three"
     >
       <v-slider
@@ -44,10 +44,10 @@
     >
       <v-switch v-model="saveLayers" color="primary" hide-details />
     </ListItemInput>
-    <CardDialog v-if="userStore.isGranted('Contributor')" title="Map presets">
+    <CardDialog v-if="userStore.isGranted('contributor')" title="Map presets">
       <template #append>
         <v-switch
-          v-if="userStore.isGranted('Maintainer')"
+          v-if="userStore.isGranted('maintainer')"
           v-model="showAllPresets"
           label="Maintainer view"
           hide-details
@@ -62,7 +62,7 @@
           v-bind="props"
         />
       </template>
-      <MapPresetManager :all="showAllPresets" />
+      <!-- <MapPresetManager :all="showAllPresets" /> -->
     </CardDialog>
   </v-list>
 </template>
@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
-import MapPresetManager from './map-presets/MapPresetManager.vue'
+// import MapPresetManager from './map-presets/MapPresetManager.vue'
 import { useUserStore } from '@/stores/user'
 import { reactive, ref } from 'vue'
 import { GlobalMarkerOptions } from './DeckGlMap.vue'

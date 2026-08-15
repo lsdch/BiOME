@@ -37,6 +37,27 @@ func (c *SettingsController) GetInstanceSettings(
 	return &BodyTransporter[models.InstanceSettings]{Body: settings}, nil
 }
 
+func (c *SettingsController) GetDashboardMessage(
+	ctx context.Context,
+	input *struct{},
+) (*BodyTransporter[*string], error) {
+	message, err := c.service.GetDashboardMessage(ctx, c.db)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[*string]{Body: message}, nil
+}
+func (c *SettingsController) SetDashboardMessage(
+	ctx context.Context,
+	input *BodyTransporter[*string],
+) (*struct{}, error) {
+	err := c.service.SetDashboardMessage(ctx, c.db, input.Body)
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 func (c *SettingsController) UpdateInstanceSettings(
 	ctx context.Context,
 	input *BodyTransporter[models.InstanceSettingsUpdate],
@@ -202,6 +223,32 @@ func (c *SettingsController) RegisterRoutes(r *router.Router) {
 			Summary: "Set the application icon",
 		},
 		c.SetAppIcon,
+	).
+		WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).
+		Register(r)
+
+	router.NewSpec(
+		settingsAPI,
+		"GetDashboardMessage",
+		huma.Operation{
+			Path:    "/instance/dashboard-message",
+			Method:  http.MethodGet,
+			Summary: "Get the dashboard message",
+		},
+		c.GetDashboardMessage,
+	).
+		WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).
+		Register(r)
+
+	router.NewSpec(
+		settingsAPI,
+		"SetDashboardMessage",
+		huma.Operation{
+			Path:    "/instance/dashboard-message",
+			Method:  http.MethodPut,
+			Summary: "Set the dashboard message",
+		},
+		c.SetDashboardMessage,
 	).
 		WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).
 		Register(r)

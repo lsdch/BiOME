@@ -15,21 +15,22 @@ import (
 
 type Samplings struct {
 	ID                   uuid.UUID `sql:"primary_key"`
+	SourceSamplingHash   *string
 	Comments             *string
 	SiteCode             *string
 	SiteName             *string
 	SiteLocality         *string
 	SiteCountryCode      *string
 	CoordinatesPrecision *int32
-	Latitude             float32
-	Longitude            float32
+	Latitude             float64
+	Longitude            float64
 	Altitude             *int32
 	EventDate            *time.Time
 	EventDatePrecision   *EventDatePrecision
 	PerformedBy          *pq.StringArray
 	Duration             *int32
 	AccessPoints         *pq.StringArray
-	ImportBatchID        *string
+	ImportBatchID        *uuid.UUID
 	H3Index              int64
 	SearchVector         *string
 }

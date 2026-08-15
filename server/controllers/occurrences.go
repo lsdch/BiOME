@@ -2,7 +2,11 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/lsdch/biome/db"
@@ -13,6 +17,7 @@ import (
 	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
+	"github.com/uber/h3-go/v4"
 )
 
 type OccurrenceController struct {
@@ -94,12 +99,133 @@ func (c *OccurrenceController) OccurrencesTaxaOverview(ctx context.Context, inpu
 	return &BodyTransporter[[]models.OccurrenceOverviewItem]{Body: overview}, nil
 }
 
+func (c *OccurrenceController) OccurringTaxaAtCell(ctx context.Context, input *struct {
+	stores.ListOccurrencesParams
+	Resolution int64  `path:"resolution" minimum:"0" maximum:"12"`
+	Cell       string `path:"cell"`
+}) (*BodyTransporter[[]models.OccurrenceOverviewItem], error) {
+	cell := h3.CellFromString(input.Cell)
+	overview, err := c.service.ListOccurringTaxaAtCell(ctx, c.db, cell, input.Resolution, input.ListOccurrencesParams)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]models.OccurrenceOverviewItem]{Body: overview}, nil
+}
+
 func (c *OccurrenceController) ListCollectionNames(ctx context.Context, input *struct{}) (*BodyTransporter[[]string], error) {
 	collections, err := c.service.ListCollectionNames(ctx, c.db)
 	if err != nil {
 		return nil, err
 	}
 	return &BodyTransporter[[]string]{Body: collections}, nil
+}
+
+func (c *OccurrenceController) ListOccurrencesH3(ctx context.Context, input *struct {
+	stores.ListOccurrencesParams
+	Resolution int64 `path:"resolution" minimum:"0" maximum:"12"`
+}) (*BodyTransporter[[]models.H3CellWithRichness], error) {
+	cells, err := c.service.ListOccurrencesH3(ctx, c.db, input.Resolution, input.ListOccurrencesParams)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]models.H3CellWithRichness]{Body: cells}, nil
+}
+
+func (c *OccurrenceController) ListSamplingsH3(ctx context.Context, input *struct {
+	stores.ListSamplingsParams
+	Resolution int64 `path:"resolution" minimum:"0" maximum:"12"`
+}) (*BodyTransporter[[]models.H3CellWithRichness], error) {
+	cells, err := c.service.ListSamplingsH3(ctx, c.db, input.Resolution, input.ListSamplingsParams)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]models.H3CellWithRichness]{Body: cells}, nil
+}
+
+func (c *OccurrenceController) ListSamplingsWithOccurrences(ctx context.Context, input *struct {
+	stores.ListOccurrencesParams
+}) (*BodyTransporter[[]models.SamplingWithOccurrences], error) {
+	samplings, err := c.service.ListSamplingsWithOccurrences(ctx, c.db, input.ListOccurrencesParams)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]models.SamplingWithOccurrences]{Body: samplings}, nil
+}
+
+func (c *OccurrenceController) ExportSamplingsWithOccurrences(ctx context.Context, input *struct {
+	stores.ListOccurrencesParams
+	Format string `query:"format" enum:"csv,tsv,json,darwinCore" default:"json"`
+}) (*huma.StreamResponse, error) {
+	data, err := c.service.ListSamplingsWithOccurrences(ctx, c.db, input.ListOccurrencesParams)
+	if err != nil {
+		return nil, err
+	}
+	switch input.Format {
+	case "json":
+		return &huma.StreamResponse{
+			Body: func(ctx huma.Context) {
+				writer := ctx.BodyWriter()
+				ctx.SetHeader("Content-Type", "application/json")
+				ctx.SetHeader("Content-Disposition", "attachment; filename=\"samplings_with_occurrences.json\"")
+				json.NewEncoder(writer).Encode(data)
+			},
+		}, nil
+	case "csv", "tsv":
+		return &huma.StreamResponse{
+			Body: func(ctx huma.Context) {
+				writer := ctx.BodyWriter()
+				ctx.SetHeader("Content-Type", "text/tab-separated-values")
+				ctx.SetHeader("Content-Disposition", fmt.Sprintf("attachment; filename=\"samplings_with_occurrences.%s\"", input.Format))
+				header := []string{"sampling_id", "site_name", "site_code", "latitude", "longitude", "coordinates_precision_m", "sampling_date", "occurrence_id", "taxon_id", "taxon_name", "taxon_rank"}
+				_, err := writer.Write(
+					[]byte(strings.Join(header, ",") + "\n"),
+				)
+				if err != nil {
+					logrus.Error("Error writing CSV header:", err)
+				}
+				for _, row := range data {
+					line := []string{
+						row.Sampling.ID.String(),
+						row.Sampling.Site.Name.GetWithDefault(""),
+						row.Sampling.Site.Code.GetWithDefault(""),
+						strconv.FormatFloat(row.Sampling.Coordinates.Latitude, 'f', -1, 64),
+						strconv.FormatFloat(row.Sampling.Coordinates.Longitude, 'f', -1, 64),
+						models.MapOptional(row.Sampling.Coordinates.Precision, func(v int32) string { return strconv.Itoa(int(v)) }).GetWithDefault(""),
+						models.MapOptional(row.Sampling.PerformedOn, func(v models.DateWithPrecision) string { return v.String() }).GetWithDefault(""),
+					}
+					for _, occ := range row.Occurrences {
+						occLine := append(line,
+							occ.ID.String(),
+							occ.Identification.Taxon.ID.String(),
+							occ.Identification.Taxon.Name,
+							string(occ.Identification.Taxon.Rank),
+						)
+						_, err := writer.Write(
+							[]byte(strings.Join(occLine, ",") + "\n"),
+						)
+						if err != nil {
+							logrus.Error("Error writing CSV line:", err)
+						}
+					}
+				}
+			},
+		}, nil
+	default:
+		return nil, fmt.Errorf("unsupported format: %s", input.Format)
+	}
+}
+
+func (c *OccurrenceController) ListSamplingsWithOccurrencesAtCell(ctx context.Context, input *struct {
+	stores.ListOccurrencesParams
+	Resolution int64  `path:"resolution" minimum:"0" maximum:"12"`
+	Cell       string `path:"cell"`
+}) (*BodyTransporter[[]models.SamplingWithOccurrences], error) {
+	cell := h3.CellFromString(input.Cell)
+	samplings, err := c.service.ListSamplingsWithOccurrencesAtCell(ctx, c.db, cell, input.Resolution, input.ListOccurrencesParams)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]models.SamplingWithOccurrences]{Body: samplings}, nil
 }
 
 func (c *OccurrenceController) RegisterRoutes(r *router.Router) {
@@ -126,6 +252,33 @@ func (c *OccurrenceController) RegisterRoutes(r *router.Router) {
 			Summary: "List occurrences with optional filters and pagination",
 		},
 		c.ListOccurrences,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(
+		occurrencesGroup,
+		"ListSamplingsWithOccurrences",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/by-sampling/",
+			Summary: "List samplings with occurrences",
+		},
+		c.ListSamplingsWithOccurrences,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(
+		occurrencesGroup,
+		"ExportSamplingsWithOccurrences",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/export/",
+			Summary: "Export samplings with occurrences",
+			// Responses: map[string]*huma.Response{
+			// 	"200": {
+			// 		Content: map[string]*huma.MediaType{},
+			// 	},
+			// },
+		},
+		c.ExportSamplingsWithOccurrences,
 	).WithAccessPolicy(auth.Public()).Register(r)
 
 	router.NewSpec(
@@ -182,4 +335,49 @@ func (c *OccurrenceController) RegisterRoutes(r *router.Router) {
 		},
 		c.ListCollectionNames,
 	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(
+		occurrencesGroup,
+		"ListOccurrencesH3",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/h3/{resolution}",
+			Summary: "List occurrences aggregated by H3 cells",
+		},
+		c.ListOccurrencesH3,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(
+		occurrencesGroup,
+		"ListSamplingsH3",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/h3-samplings/{resolution}",
+			Summary: "List samplings aggregated by H3 cells",
+		},
+		c.ListSamplingsH3,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(
+		occurrencesGroup,
+		"ListSamplingsWithOccurrencesAtCell",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/h3/{resolution}/{cell}/data",
+			Summary: "List samplings with occurrences at a specific H3 cell",
+		},
+		c.ListSamplingsWithOccurrencesAtCell,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(
+		occurrencesGroup,
+		"ListOccurringTaxaAtCell",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/h3/{resolution}/{cell}/taxa",
+			Summary: "List taxa occurring at a specific H3 cell with optional filters and pagination",
+		},
+		c.OccurringTaxaAtCell,
+	).WithAccessPolicy(auth.Public()).Register(r)
+
 }

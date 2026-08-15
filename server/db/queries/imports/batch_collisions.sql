@@ -98,7 +98,7 @@ WITH resolved_staging AS (
     END AS resolved_taxon_key
     FROM import_samplings_occurrences i
         JOIN taxon_resolution r ON r.import_id = i.import_id
-        LEFT JOIN taxon_candidates c ON c.id = r.resolved_to
+        LEFT JOIN taxon_candidates c ON c.id = r.resolved_candidate_id
         AND r.input_name = i.taxon_scientific_name
     WHERE i.import_id = @import_id
 ),

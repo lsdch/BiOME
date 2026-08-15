@@ -2,19 +2,19 @@ import { UserRole } from '@/api/adapters'
 import { VIcon } from 'vuetify/components'
 
 export const RoleIcon : Record<UserRole, { icon: string; color: string }> = {
-  Admin: {
+  admin: {
     icon: 'mdi-star-cog',
     color: 'red'
   },
-  Maintainer: {
+  maintainer: {
     icon: 'mdi-star-circle',
     color: 'orange'
   },
-  Contributor: {
+  contributor: {
     icon: 'mdi-star',
     color: 'primary'
   },
-  Visitor: {
+  visitor: {
     icon: 'mdi-circle-medium',
     color: 'green'
   }
@@ -36,7 +36,7 @@ export function UserRoleIcon({ role, ...props }: UserRoleIconProps, context: { a
       {{
         default: () => `${role || 'No user account'}`,
         activator: ({ props }: { props: any }) => (
-          <v-icon icon={icon} color={color} title={role} {...{ ...props, ...context.attrs }} />
+          <v-icon icon={icon} color={color} {...{ ...props, ...context.attrs }} />
         )
       }}
     </v-tooltip>

@@ -26,11 +26,11 @@ CREATE INDEX occurrences_datasets_occurrence_idx ON occurrences_datasets (occurr
 -- association dataset <-> article (publications)
 CREATE TABLE datasets_publications (
 	dataset_id ULID NOT NULL REFERENCES datasets (id) ON DELETE CASCADE,
-	article_id UUID NOT NULL REFERENCES articles (id) ON DELETE RESTRICT,
-	PRIMARY KEY (dataset_id, article_id)
+	publication_id UUID NOT NULL REFERENCES publications (id) ON DELETE RESTRICT,
+	PRIMARY KEY (dataset_id, publication_id)
 );
 
-CREATE INDEX datasets_publications_article_idx ON datasets_publications (article_id);
+CREATE INDEX datasets_publications_publication_idx ON datasets_publications (publication_id);
 
 -- association dataset <-> users (curators)
 CREATE TABLE datasets_curators (

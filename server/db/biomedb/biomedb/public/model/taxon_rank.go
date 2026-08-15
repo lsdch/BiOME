@@ -12,15 +12,15 @@ import "errors"
 type TaxonRank string
 
 const (
-	TaxonRank_Subspecies TaxonRank = "SUBSPECIES"
-	TaxonRank_Species    TaxonRank = "SPECIES"
-	TaxonRank_Subgenus   TaxonRank = "SUBGENUS"
-	TaxonRank_Genus      TaxonRank = "GENUS"
-	TaxonRank_Family     TaxonRank = "FAMILY"
-	TaxonRank_Order      TaxonRank = "ORDER"
-	TaxonRank_Class      TaxonRank = "CLASS"
-	TaxonRank_Phylum     TaxonRank = "PHYLUM"
-	TaxonRank_Kingdom    TaxonRank = "KINGDOM"
+	TaxonRank_Subspecies TaxonRank = "subspecies"
+	TaxonRank_Species    TaxonRank = "species"
+	TaxonRank_Subgenus   TaxonRank = "subgenus"
+	TaxonRank_Genus      TaxonRank = "genus"
+	TaxonRank_Family     TaxonRank = "family"
+	TaxonRank_Order      TaxonRank = "order"
+	TaxonRank_Class      TaxonRank = "class"
+	TaxonRank_Phylum     TaxonRank = "phylum"
+	TaxonRank_Kingdom    TaxonRank = "kingdom"
 )
 
 var TaxonRankAllValues = []TaxonRank{
@@ -47,23 +47,23 @@ func (e *TaxonRank) Scan(value interface{}) error {
 	}
 
 	switch enumValue {
-	case "SUBSPECIES":
+	case "subspecies":
 		*e = TaxonRank_Subspecies
-	case "SPECIES":
+	case "species":
 		*e = TaxonRank_Species
-	case "SUBGENUS":
+	case "subgenus":
 		*e = TaxonRank_Subgenus
-	case "GENUS":
+	case "genus":
 		*e = TaxonRank_Genus
-	case "FAMILY":
+	case "family":
 		*e = TaxonRank_Family
-	case "ORDER":
+	case "order":
 		*e = TaxonRank_Order
-	case "CLASS":
+	case "class":
 		*e = TaxonRank_Class
-	case "PHYLUM":
+	case "phylum":
 		*e = TaxonRank_Phylum
-	case "KINGDOM":
+	case "kingdom":
 		*e = TaxonRank_Kingdom
 	default:
 		return errors.New("jet: Invalid scan value '" + enumValue + "' for TaxonRank enum")

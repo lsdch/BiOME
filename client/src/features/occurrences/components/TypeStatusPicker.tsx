@@ -11,7 +11,7 @@ export function OccurrenceTypeStatusPicker<Multiple extends boolean | undefined>
   modelValue,
   ...props
 }: OccurrenceTypeStatusPickerProps<Multiple>) {
-  return <v-select items={$OccurrenceTypeStatus.enum} model-value={modelValue} {...props} />
+  return <v-select items={$OccurrenceTypeStatus.enum} model-value={modelValue} {...props} style={{ 'text-transform': 'capitalize' }} />
 }
 
 export default OccurrenceTypeStatusPicker

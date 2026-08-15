@@ -9,7 +9,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const cleanUpGBIFDependencies = `-- name: CleanUpGBIFDependencies :exec
@@ -73,58 +72,8 @@ func (q *Queries) ExpandGBIFDependencies(ctx context.Context, importID uuid.UUID
 	return err
 }
 
-const insertTaxonStaging = `-- name: InsertTaxonStaging :exec
-INSERT INTO taxa_staging (
-        import_id,
-        name,
-        authorship,
-        rank,
-        status,
-        parent_source,
-        parent_taxa_id,
-        parent_gbif_id,
-        parent_input_name
-    )
-SELECT $1,
-    $2,
-    $3,
-    $4,
-    $5,
-    $6,
-    $7,
-    $8,
-    $9
-`
-
-type InsertTaxonStagingParams struct {
-	ImportID        uuid.UUID        `json:"import_id"`
-	Name            string           `json:"name"`
-	Authorship      *string          `json:"authorship"`
-	Rank            TaxonRank        `json:"rank"`
-	Status          TaxonStatus      `json:"status"`
-	ParentSource    TaxonMatchSource `json:"parent_source"`
-	ParentTaxaID    pgtype.UUID      `json:"parent_taxa_id"`
-	ParentGBIFID    *int32           `json:"parent_gbif_id"`
-	ParentInputName *string          `json:"parent_input_name"`
-}
-
-func (q *Queries) InsertTaxonStaging(ctx context.Context, arg InsertTaxonStagingParams) error {
-	_, err := q.db.Exec(ctx, insertTaxonStaging,
-		arg.ImportID,
-		arg.Name,
-		arg.Authorship,
-		arg.Rank,
-		arg.Status,
-		arg.ParentSource,
-		arg.ParentTaxaID,
-		arg.ParentGBIFID,
-		arg.ParentInputName,
-	)
-	return err
-}
-
 const listMissingGBIFKeys = `-- name: ListMissingGBIFKeys :many
-SELECT d.key
+SELECT DISTINCT d.key
 FROM gbif_dependencies d
 WHERE d.import_id = $1
     AND NOT EXISTS (
@@ -178,7 +127,7 @@ SELECT g.key,
     accepted.id as accepted_taxon_id
 FROM taxon_resolution r
     JOIN taxon_candidates c ON (
-        r.resolved_to = c.id
+        r.resolved_candidate_id = c.id
         AND r.import_id = c.import_id
     )
     JOIN gbif_dependencies d ON (

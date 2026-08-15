@@ -14,11 +14,14 @@ import (
 )
 
 type ImportBatches struct {
-	ID          string `sql:"primary_key"`
-	Label       string
-	Description *string
-	AssembledBy *pq.StringArray
-	CreatedBy   uuid.UUID
-	CreatedAt   time.Time
-	WorkflowID  *uuid.UUID
+	ID             uuid.UUID `sql:"primary_key"`
+	Label          string
+	Description    *string
+	Status         ImportBatchStatus
+	AssembledBy    *pq.StringArray
+	CreatedBy      uuid.UUID
+	CreatedAt      time.Time
+	CompletedAt    *time.Time
+	CompletedBy    *uuid.UUID
+	TaxonomicScope int32
 }

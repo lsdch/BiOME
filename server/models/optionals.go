@@ -106,6 +106,16 @@ func NewOptionalFromUUID(u pgtype.UUID) Optional[uuid.UUID] {
 	}
 }
 
+func MapOptional[T any, U any](opt Optional[T], f func(T) U) Optional[U] {
+	if !opt.IsSet {
+		return Optional[U]{}
+	}
+	return Optional[U]{
+		Value: f(opt.Value),
+		IsSet: true,
+	}
+}
+
 func NewOptionalFromTimestamp(t pgtype.Timestamptz) Optional[time.Time] {
 	if !t.Valid {
 		var zero time.Time

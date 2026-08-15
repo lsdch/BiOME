@@ -8,16 +8,24 @@
         <v-tab value="samplings">
           Sampling Events
           <template #append>
-            <v-badge :content="samplings.length" :color="samplings.length ? 'warning' : ''" inline />
+            <v-badge
+              :content="samplings.length"
+              :color="samplings.length ? 'warning' : ''"
+              inline
+            />
           </template>
         </v-tab>
         <v-tab value="occurrences">
           Occurrences
           <template #append>
-            <v-badge :content="occurrences.length" :color="occurrences.length ? 'success' : ''" inline />
+            <v-badge
+              :content="occurrences.length"
+              :color="occurrences.length ? 'success' : ''"
+              inline
+            />
           </template>
         </v-tab>
-        <v-tab value="sampled_taxa"> Sampled taxa </v-tab>
+        <v-tab value="sampled_taxa" :disabled="!taxa"> Sampled taxa </v-tab>
       </v-tabs>
     </template>
     <slot name="prepend-body" />
@@ -37,9 +45,9 @@
           <OccurrencesTable with-site :occurrences />
         </slot>
       </v-tabs-window-item>
-      <v-tabs-window-item value="sampled_taxa">
+      <v-tabs-window-item value="sampled_taxa" v-if="taxa">
         <slot name="sampled-taxa-table" :occurrences>
-          <!-- <OccurringTaxa :occurrences /> -->
+          <OccurringTaxa :taxa />
           <!-- <SampledTaxaTable :occurrences /> -->
         </slot>
       </v-tabs-window-item>
@@ -48,18 +56,19 @@
 </template>
 
 <script setup lang="ts" generic="Data extends Sampling & { occurrences?: BaseOccurrence[] }">
-import { BaseOccurrence, Occurrence, Sampling, } from '@/api'
+import { BaseOccurrence, Occurrence, OccurrenceOverviewItem, Sampling } from '@/api'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
 import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
 import { computed, useSlots } from 'vue'
-// import OccurringTaxa from '../OccurringTaxa.vue'
+import OccurringTaxa from '../OccurringTaxa.vue'
 
 const dialog = defineModel<boolean>({ default: false })
 
 const { data, ...props } = defineProps<
   {
     data: Data[]
+    taxa?: OccurrenceOverviewItem[]
   } & CardDialogProps
 >()
 
@@ -70,10 +79,8 @@ const samplings = computed<Array<Data>>(() => data)
 
 // type Occurrence = OccurrenceTableItem<Omit<Data, 'samplings'>>
 const occurrences = computed<Array<Occurrence>>(() =>
-  data.flatMap<Occurrence>(({ occurrences, ...sampling }) =>
-    occurrences?.flatMap((o) =>
-      ({ ...o, sampling })
-    ) ?? []
+  data.flatMap<Occurrence>(
+    ({ occurrences, ...sampling }) => occurrences?.flatMap((o) => ({ ...o, sampling })) ?? []
   )
 )
 

@@ -23,10 +23,10 @@ type ImportSamplingsOccurrences struct {
 	SiteCode                    *string
 	SiteName                    *string
 	SiteLocality                *string
-	SiteCountryCode             string
+	SiteCountryCode             *string
 	CoordinatesPrecision        *int32
-	Longitude                   float32
-	Latitude                    float32
+	Longitude                   float64
+	Latitude                    float64
 	Altitude                    *int32
 	EventDate                   *time.Time
 	EventDatePrecision          *EventDatePrecision
@@ -38,11 +38,12 @@ type ImportSamplingsOccurrences struct {
 	SamplingMethods             *pq.StringArray
 	Habitats                    *pq.StringArray
 	OccurrenceCode              *string
+	GeneratedCode               *string
 	TypeStatus                  *OccurrenceTypeStatus
 	TaxonName                   string
 	TaxonAuthorship             *string
 	TaxonScientificName         string
-	TaxonRank                   *string
+	TaxonRank                   *TaxonRank
 	VerbatimIdentification      *string
 	IdentifiedBy                *pq.StringArray
 	IdentificationDate          *time.Time

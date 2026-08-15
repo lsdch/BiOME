@@ -6,6 +6,9 @@
     <div class="d-flex align-center ga-1">
       <TaxonChip v-for="taxon in sampling.target_taxa" :taxon />
     </div>
+    <v-list-item-subtitle v-if="!sampling.target_taxa?.length" class="font-italic">
+      NA
+    </v-list-item-subtitle>
   </v-list-item>
 
   <v-list-item prepend-icon="mdi-update">
@@ -15,16 +18,16 @@
     <code v-if="sampling.duration">
       {{ Duration.fromObject({ minutes: sampling.duration }).toFormat("hh'h' mm'm'") }}
     </code>
-    <v-list-item-subtitle v-else class="font-italic"> Unknown </v-list-item-subtitle>
+    <v-list-item-subtitle v-else class="font-italic"> NA </v-list-item-subtitle>
   </v-list-item>
 
   <v-list-item prepend-icon="mdi-snowflake">
     <template #append>
       <span class="text-caption text-muted">Fixative(s)</span>
     </template>
-    <v-chip v-for="f in sampling.fixatives" :text="f.label" size="small" />
+    <v-chip v-for="f in sampling.fixatives" :text="f.name" size="small" />
     <v-list-item-subtitle v-if="!sampling.fixatives?.length" class="font-italic">
-      Unknown
+      NA
     </v-list-item-subtitle>
   </v-list-item>
 
@@ -32,9 +35,9 @@
     <template #append>
       <span class="text-caption text-muted">Methods</span>
     </template>
-    <v-chip v-for="m in sampling.methods" :text="m.label" size="small" />
+    <v-chip v-for="m in sampling.methods" :text="m.name" size="small" />
     <v-list-item-subtitle v-if="!sampling.methods?.length" class="font-italic">
-      Unknown
+      NA
     </v-list-item-subtitle>
   </v-list-item>
   <v-list-item prepend-icon="mdi-image-filter-hdr-outline">
@@ -43,12 +46,12 @@
         <span class="text-caption text-muted">Habitat</span>
       </template>
       <v-list-item-subtitle v-if="!sampling.habitats?.length" class="font-italic">
-        Unknown
+        NA
       </v-list-item-subtitle>
       <v-chip
         v-for="h in sampling.habitats"
         class="ma-1"
-        :text="h.label"
+        :text="h.name"
         :title="h.description"
         size="small"
       />
@@ -58,7 +61,7 @@
         <span class="text-caption text-muted">Access points</span>
       </template>
       <v-list-item-subtitle v-if="!sampling.access_points?.length" class="font-italic">
-        Unknown
+        NA
       </v-list-item-subtitle>
       <v-chip v-for="access in sampling.access_points" class="ma-1" :text="access" size="small" />
     </v-list-item>
@@ -76,20 +79,12 @@
 </template>
 
 <script setup lang="ts">
-import { DateWithPrecision, DateWithPrecisionInput, HabitatRecord, Sampling } from '@/api'
+import { SamplingWithDetails } from '@/api'
 import TaxonChip from '@/features/taxonomy/components/TaxonChip'
-import { DateWithPrecisionModel } from '@/models/date_with_precision'
 import { Duration } from 'luxon'
-import { Optional } from 'ts-toolbelt/out/Object/Optional'
 
 const { sampling } = defineProps<{
-  sampling: Omit<
-    Optional<Sampling, 'id' | 'meta' | 'number' | 'code'>,
-    'habitats' | 'performed_on'
-  > & {
-    habitats?: Array<HabitatRecord>
-    performed_on?: DateWithPrecisionInput | DateWithPrecisionModel | DateWithPrecision
-  }
+  sampling: SamplingWithDetails
 }>()
 </script>
 

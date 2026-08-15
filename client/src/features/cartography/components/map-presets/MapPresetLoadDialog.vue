@@ -6,7 +6,7 @@
     <v-card-text class="bg-main">
       <v-chip-group v-model="include" multiple mandatory>
         <v-chip
-          v-if="isGranted('Contributor')"
+          v-if="isGranted('contributor')"
           value="personal"
           text="My presets"
           color="primary"

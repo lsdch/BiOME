@@ -55,7 +55,7 @@ func (s *DatasetsService) LoadOccurrencesForDataset(ctx context.Context, q db.Qu
 	}
 	result := make([]models.Occurrence, len(occurrences))
 	for i, o := range occurrences {
-		result[i] = models.OccurrenceFromDB(o.Occurrence, o.Taxon, o.Sampling, o.Country)
+		result[i] = models.OccurrenceFromDB(o.Occurrence, o.Taxon, o.SamplingsWithCountry)
 	}
 	return result, nil
 }

@@ -21,23 +21,19 @@
       </v-input>
     </template>
     <v-card>
-      <v-color-picker v-model="model" v-bind="props" />
+      <v-color-picker v-model="model" v-bind="$attrs" />
     </v-card>
   </v-menu>
 </template>
 
 <script setup lang="ts">
-import { ComponentProps } from 'vue-component-type-helpers'
 import { VColorPicker } from 'vuetify/components'
 
 const model = defineModel<string>()
 
-interface ColorPickerProps extends /* @vue-ignore */ ComponentProps<VColorPicker> {}
-const { label, ...props } = defineProps<
-  {
-    label?: string
-  } & Omit<ColorPickerProps, 'modelValue' | 'onUpdate:modelValue'>
->()
+const { label } = defineProps<{
+  label?: string
+}>()
 </script>
 
 <style scoped lang="scss">

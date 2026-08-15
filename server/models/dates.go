@@ -16,7 +16,7 @@ type DateWithPrecision struct {
 	Precision EventDatePrecision `json:"precision"`
 }
 
-func (d DateWithPrecision) ToCode() string {
+func (d DateWithPrecision) String() string {
 	switch d.Precision {
 	case biomedb.EventDatePrecisionYear:
 		return d.Date.Format("2006")
@@ -97,6 +97,13 @@ func (d *EventDateInput) UnmarshalCSV(data []byte) error {
 		return nil
 	}
 	date, err := time.Parse("2006-01-02", str)
+	if err == nil {
+		d.Date = date
+		d.Precision = biomedb.EventDatePrecisionDay
+		d.IsSet = true
+		return nil
+	}
+	date, err = time.Parse("2006-01-2", str)
 	if err == nil {
 		d.Date = date
 		d.Precision = biomedb.EventDatePrecisionDay

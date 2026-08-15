@@ -37,7 +37,7 @@ export const accountRoutes: Record<string, RouteRecordRaw> = {
 }
 
 export default {
-  settings: guardRole('Admin', {
+  settings: guardRole('admin', {
     label: 'Settings',
     icon: 'mdi-tools',
     path: '/settings/:category',

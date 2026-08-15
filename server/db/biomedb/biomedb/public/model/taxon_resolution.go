@@ -12,13 +12,15 @@ import (
 )
 
 type TaxonResolution struct {
-	ID              uuid.UUID `sql:"primary_key"`
-	ImportID        uuid.UUID
-	InputName       string
-	InputAuthorship *string
-	InputRank       *string
-	ScientificName  string
-	Status          *ResolutionStatus
-	GbifStatus      *TaxonGbifStatus
-	ResolvedTo      *uuid.UUID
+	ID                  uuid.UUID `sql:"primary_key"`
+	ImportID            uuid.UUID
+	InputName           string
+	InputAuthorship     *string
+	InputRank           *string
+	ScientificName      string
+	Status              *ResolutionStatus
+	GbifStatus          *TaxonGbifStatus
+	FromResolutionID    *uuid.UUID
+	SamplingTarget      bool
+	ResolvedCandidateID *uuid.UUID
 }

@@ -15,8 +15,8 @@ var UserRole = &struct {
 	Maintainer  postgres.StringExpression
 	Admin       postgres.StringExpression
 }{
-	Visitor:     postgres.NewEnumValue("Visitor"),
-	Contributor: postgres.NewEnumValue("Contributor"),
-	Maintainer:  postgres.NewEnumValue("Maintainer"),
-	Admin:       postgres.NewEnumValue("Admin"),
+	Visitor:     postgres.NewEnumValue("visitor"),
+	Contributor: postgres.NewEnumValue("contributor"),
+	Maintainer:  postgres.NewEnumValue("maintainer"),
+	Admin:       postgres.NewEnumValue("admin"),
 }

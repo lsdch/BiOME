@@ -5,7 +5,7 @@
         {{ qualifier[0].toLocaleUpperCase() + qualifier.substring(1) }} datasets
       </v-list-subheader>
       <v-btn-toggle
-        v-if="isGranted('Admin')"
+        v-if="isGranted('admin')"
         v-model="editPin"
         :rounded="true"
         variant="text"

@@ -19,6 +19,7 @@ type TaxonCandidates struct {
 	MatchType    TaxonMatchType
 	TaxonID      *uuid.UUID
 	GbifID       *int32
+	StagingID    *uuid.UUID
 	Score        *float64
 	Priority     int32
 	Name         string

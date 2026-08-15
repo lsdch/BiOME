@@ -81,10 +81,13 @@ ORDER BY scientific_name ASC,
     name ASC;
 
 -- name: GetTaxonLineage :many
+-- Returns the lineage of a taxon, including all its ancestors up to the root of the taxonomy tree.
+-- The lineage is ordered from the root ancestor to the specified taxon.
 With parents AS (
     SELECT ancestor_id AS id
     FROM taxa_closure
     WHERE descendant_id = @taxon_id
+        AND depth > 0
 )
 SELECT t.*
 FROM taxa t
@@ -102,3 +105,9 @@ SELECT t.*
 FROM taxa t
     JOIN descendants d ON d.id = t.id
 ORDER BY t.name ASC;
+
+-- name: GetGBIFKingdoms :many
+SELECT *
+FROM gbif_staging
+WHERE rank = 'kingdom'
+ORDER BY canonical_name ASC;

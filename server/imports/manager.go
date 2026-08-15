@@ -6,30 +6,45 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/stores"
 )
 
 type ImportManager struct {
-	db            *db.DB
-	mu            sync.RWMutex
-	workflowStore *stores.WorkflowStore
+	db *db.DB
+	mu sync.RWMutex
+
+	batchStore *stores.BatchesStore
+
 	taxonResolver TaxonResolver
-	samplings     *services.SamplingService
-	runners       map[uuid.UUID]*ImportRunner
-	broker        *EventBroker[ImportEvent]
+	bibliography  *BibliographyResolver
+
+	samplings   *services.SamplingService
+	occurrences *services.OccurrencesService
+
+	runners map[uuid.UUID]*ImportRunner
+	broker  *EventBroker[BatchSnapshot]
 }
 
-func NewImportManager(db *db.DB, workflowStore *stores.WorkflowStore, taxonResolver TaxonResolver, samplings *services.SamplingService) *ImportManager {
+func NewImportManager(db *db.DB,
+	batchStore *stores.BatchesStore,
+	taxonResolver TaxonResolver,
+	bibliography *BibliographyResolver,
+	samplings *services.SamplingService,
+	occurrences *services.OccurrencesService,
+) *ImportManager {
 	return &ImportManager{
 		mu:            sync.RWMutex{},
 		db:            db,
-		workflowStore: workflowStore,
+		batchStore:    batchStore,
 		taxonResolver: taxonResolver,
+		bibliography:  bibliography,
 		samplings:     samplings,
+		occurrences:   occurrences,
 		runners:       make(map[uuid.UUID]*ImportRunner),
-		broker:        NewEventBroker[ImportEvent](),
+		broker:        NewEventBroker[BatchSnapshot](),
 	}
 }
 
@@ -37,26 +52,29 @@ func (m *ImportManager) addRunner(runner *ImportRunner) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	m.runners[runner.Workflow().ImportID] = runner
+	m.runners[runner.Batch().ID] = runner
 }
 
-func (m *ImportManager) NewWorkflow(ctx context.Context, userID uuid.UUID, w models.ImportWorkflowInput) (*ImportRunner, error) {
-	workflow, err := m.workflowStore.CreateWorkflow(ctx, m.db, userID, w)
+func (m *ImportManager) NewBatch(ctx context.Context, userID uuid.UUID, w models.ImportBatchInput) (*ImportRunner, error) {
+	batch, err := m.batchStore.CreateBatch(ctx, m.db, userID, w)
 	if err != nil {
 		return nil, err
 	}
-	runner := NewImportRunner(context.Background(), m.db, m.broker, workflow, m.workflowStore, m.samplings, m.taxonResolver)
+	runner := NewImportRunner(context.Background(), m.db, m.broker, batch, m.batchStore, m.samplings, m.taxonResolver, m.bibliography, m.occurrences)
 	m.addRunner(runner)
 	return runner, nil
 }
 
 func (m *ImportManager) Restore(ctx context.Context) error {
-	workflows, err := m.workflowStore.ListWorkflows(ctx, m.db)
+	batchs, err := m.batchStore.ListBatches(ctx, m.db)
 	if err != nil {
 		return err
 	}
-	for _, workflow := range workflows {
-		runner := NewImportRunner(ctx, m.db, m.broker, workflow, m.workflowStore, m.samplings, m.taxonResolver)
+	for _, batch := range batchs {
+		if batch.Status == biomedb.ImportBatchStatusCompleted {
+			continue
+		}
+		runner := NewImportRunner(ctx, m.db, m.broker, batch, m.batchStore, m.samplings, m.taxonResolver, m.bibliography, m.occurrences)
 		runner.Run()
 		m.addRunner(runner)
 	}
@@ -80,6 +98,9 @@ func (m *ImportManager) ListRunners() []*ImportRunner {
 	return runners
 }
 
+// RemoveRunner stops and removes the ImportRunner associated with the given importID from the manager.
+//
+// It does not delete the import batch from the database; it only stops the runner and removes it from the manager's internal map.
 func (m *ImportManager) RemoveRunner(importID uuid.UUID) {
 	m.mu.Lock()
 	runner, ok := m.runners[importID]
@@ -91,23 +112,23 @@ func (m *ImportManager) RemoveRunner(importID uuid.UUID) {
 	}
 }
 
-func (m *ImportManager) Subscribe() (events <-chan ImportEvent, unsubscribe func()) {
+func (m *ImportManager) Subscribe() (events <-chan BatchSnapshot, unsubscribe func()) {
 	return m.broker.Subscribe()
 }
 
-func (m *ImportManager) Snapshots() []ImportEvent {
-	snapshots := make([]ImportEvent, len(m.runners))
+func (m *ImportManager) Snapshots() []BatchSnapshot {
+	snapshots := make([]BatchSnapshot, len(m.runners))
 	for _, runner := range m.runners {
 		snapshots = append(snapshots, runner.Snapshot())
 	}
 	return snapshots
 }
 
-func (m *ImportManager) SnapshotsForUser(userID uuid.UUID) []ImportEvent {
-	snapshots := make([]ImportEvent, 0, len(m.runners))
+func (m *ImportManager) SnapshotsForUser(userID uuid.UUID) []BatchSnapshot {
+	snapshots := make([]BatchSnapshot, 0, len(m.runners))
 	for _, runner := range m.runners {
 		snapshot := runner.Snapshot()
-		if snapshot.Workflow.CreatedBy == userID {
+		if snapshot.Batch.CreatedBy == userID {
 			snapshots = append(snapshots, snapshot)
 		}
 	}

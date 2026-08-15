@@ -1,4 +1,4 @@
-import { Coordinates } from '@/api'
+import { Coordinates } from '@/features/cartography/coordinates'
 import { useFeedback } from '@/stores/feedback'
 import { useClipboard } from '@vueuse/core'
 import { VChip } from 'vuetify/components'

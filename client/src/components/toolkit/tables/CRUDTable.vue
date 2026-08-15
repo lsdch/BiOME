@@ -30,7 +30,7 @@
           id="table-toolbar"
           v-model:search="search.term"
           v-bind="toolbar"
-          @reload="loadItems().then(() => feedback.show('Data reloaded'))"
+          @reload="emit('reload')"
         >
           <template #extension>
             <slot name="toolbar-extension" />
@@ -43,7 +43,7 @@
             <v-btn
               v-if="
                 !!currentUser &&
-                UserRole.isGranted(currentUser, 'Maintainer') &&
+                UserRole.isGranted(currentUser, 'maintainer') &&
                 hasSlotContent($slots['form'])
               "
               style="min-width: 30px"
@@ -189,14 +189,13 @@
                     <!-- <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" /> -->
                     <v-btn
                       prepend-icon="mdi-content-copy"
-                      text="UUID"
+                      text="ID"
                       variant="plain"
                       size="small"
                       rounded="sm"
                       class="ma-1 text-caption font-monospace"
                       @click="copyUUID(item)"
                     />
-                    <slot name="expanded-row-footer-append" :item />
                     <v-spacer />
 
                     <!-- Item actions -->
@@ -204,7 +203,7 @@
                       v-if="
                         !!currentUser &&
                         // (
-                        UserRole.isGranted(currentUser, 'Maintainer')
+                        UserRole.isGranted(currentUser, 'maintainer')
                         // || User.isOwner(currentUser, item))
                         // )
                       "
@@ -219,16 +218,7 @@
                         prepend-icon="mdi-pencil"
                         @click="actions.edit(item)"
                       />
-                      <v-btn
-                        v-if="actions.delete"
-                        text="Delete"
-                        color="error"
-                        variant="tonal"
-                        size="small"
-                        class="ma-1"
-                        prepend-icon="mdi-delete"
-                        @click="actions.delete(item)"
-                      />
+                      <slot name="expanded-row-footer-append" :item></slot>
                     </template>
                   </div>
                 </slot>
@@ -263,7 +253,7 @@
     Filters extends { owned?: boolean; term?: string }
   "
 >
-import { User, UserRole } from '@/api'
+import { AppError, User, UserRole } from '@/api'
 import CRUDFeedback from '@/components/toolkit/CRUDFeedback.vue'
 import MetaChip from '@/components/toolkit/MetaChip'
 import ExportDialog from '@/components/toolkit/ui/ExportDialog.vue'
@@ -286,6 +276,8 @@ type Props = TableProps<ItemType, ItemsQueryData, ItemsDeleteData> & {
   filterMode?: VDataTable['filterMode']
   mobile?: boolean
   showExpand?: boolean
+  loading?: boolean
+  error?: AppError | null
 }
 
 const { xs, smAndUp } = useDisplay()
@@ -301,15 +293,12 @@ const { showExpand = true, ...props } = defineProps<Props>()
 const emit = defineEmits<{
   itemCreated: [item: ItemType, index: number]
   itemEdited: [item: ItemType, index: number]
+  reload: []
 }>()
 
 const { user: currentUser } = storeToRefs(useUserStore())
 
-const { actions, feedback, form, processedHeaders, loading, loadItems, error } = useTable(
-  items,
-  props,
-  emit
-)
+const { actions, feedback, form, processedHeaders } = useTable(items, props, emit)
 
 const [menu, toggleMenu] = useToggle(false)
 
@@ -368,9 +357,9 @@ async function copyUUID(item: ItemType) {
   if (item.id === undefined) return
   try {
     await copy(item.id)
-    feedback.value.show(`UUID copied to clipboard\n${item.id}`, 'primary')
+    feedback.value.show(`ID copied to clipboard: ${item.id}`, 'primary')
   } catch (err) {
-    feedback.value.show('Failed to copy UUID to clipboard', 'warning')
+    feedback.value.show('Failed to copy ID to clipboard', 'warning')
   }
 }
 </script>

@@ -7,10 +7,9 @@ import (
 	"github.com/lsdch/biome/models"
 )
 
-type AbioticService struct {
-}
+type AbioticService struct{}
 
-func NewAbioticService(db *db.DB) *AbioticService {
+func NewAbioticService() *AbioticService {
 	return &AbioticService{}
 }
 

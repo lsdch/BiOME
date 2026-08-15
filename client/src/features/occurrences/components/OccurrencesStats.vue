@@ -1,16 +1,11 @@
 <template>
   <v-list>
-    <v-list-item title="Sites">
-      <template #append>
-        <v-badge inline :content="sites?.length ?? 0" color="primary"></v-badge>
-      </template>
-    </v-list-item>
     <v-list-item title="Sampling events">
       <template #append>
         <v-badge
           inline
-          :content="sites?.reduce((sum, s) => sum + s.samplings.length, 0) ?? 0"
-          color="warning"
+          :content="cells?.reduce((sum, s) => sum + s.samplings_count, 0) ?? 0"
+          color="info"
         ></v-badge>
       </template>
     </v-list-item>
@@ -18,11 +13,7 @@
       <template #append>
         <v-badge
           inline
-          :content="
-            sites
-              ?.flatMap(({ samplings }) => samplings)
-              .reduce((sum, s) => sum + s.occurrences.length, 0) ?? 0
-          "
+          :content="cells?.reduce((sum, s) => sum + s.occurrences_count, 0) ?? 0"
           color="success"
         />
       </template>
@@ -31,10 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import { SiteWithOccurrences } from '@/api'
+import { H3CellWithRichness } from '@/api'
 
-const { sites } = defineProps<{
-  sites?: SiteWithOccurrences[]
+const { cells } = defineProps<{
+  cells?: H3CellWithRichness[]
 }>()
 </script>
 

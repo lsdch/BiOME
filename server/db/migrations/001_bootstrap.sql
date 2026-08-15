@@ -44,7 +44,7 @@ CREATE TYPE taxon_status AS ENUM(
 CREATE TYPE occurrence_type_status AS ENUM('HOLOTYPE', 'NEOTYPE', 'TOPOTYPE');
 
 -- Roles for platform users
-CREATE TYPE user_role AS ENUM('Visitor', 'Contributor', 'Maintainer', 'Admin');
+CREATE TYPE user_role AS ENUM('visitor', 'contributor', 'maintainer', 'admin');
 
 
 CREATE TYPE sort_direction AS ENUM('asc', 'desc');
@@ -135,7 +135,7 @@ CREATE TABLE users (
     login CITEXT NOT NULL UNIQUE,
     email CITEXT NOT NULL,
     password_hash TEXT NOT NULL,
-    role user_role NOT NULL DEFAULT 'Visitor',
+    role user_role NOT NULL DEFAULT 'visitor',
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     organisation TEXT,
@@ -175,7 +175,7 @@ CREATE TABLE invitations (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     email CITEXT NOT NULL,
     invitee_name TEXT NOT NULL,
-    role user_role NOT NULL DEFAULT 'Visitor',
+    role user_role NOT NULL DEFAULT 'visitor',
     message TEXT,
     inviter_id UUID REFERENCES users (id) ON DELETE
     SET NULL,

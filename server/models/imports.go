@@ -1,10 +1,12 @@
 package models
 
 import (
-	"time"
+	"net/http"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db/biomedb"
+	"github.com/lsdch/biome/lib/app_errors"
 )
 
 type TaxonMatchSource = biomedb.TaxonMatchSource
@@ -14,80 +16,119 @@ type ResolutionStatus = biomedb.ResolutionStatus
 
 type TaxonGBIFStatus = biomedb.TaxonGBIFStatus
 
-type ImportWorkflow struct {
-	ImportID    uuid.UUID           `json:"import_id"`
-	Label       string              `json:"label"`
-	Description Optional[string]    `json:"description,omitempty"`
-	CreatedBy   uuid.UUID           `json:"created_by"`
-	CreatedAt   time.Time           `json:"created_at"`
-	CompletedAt Optional[time.Time] `json:"completed_at,omitempty"`
+type TaxonDefinition struct {
+	Name       string              `json:"name"`
+	Authorship Optional[string]    `json:"authorship,omitempty"`
+	Rank       Optional[TaxonRank] `json:"rank,omitempty"`
 }
 
-func ImportWorkflowFromDB(res biomedb.ImportWorkflow) ImportWorkflow {
-	return ImportWorkflow{
-		ImportID:    res.ImportID,
-		Label:       res.Label,
-		Description: NewOptionalFromPtr(res.Description),
-		CreatedBy:   res.CreatedBy,
-		CreatedAt:   res.CreatedAt,
-		CompletedAt: NewOptionalFromTimestamp(res.CompletedAt),
-	}
-}
+// type ImportBatch struct {
+// 	ImportID    uuid.UUID           `json:"id"`
+// 	Label       string              `json:"label"`
+// 	Description Optional[string]    `json:"description,omitempty"`
+// 	CreatedBy   uuid.UUID           `json:"created_by"`
+// 	CreatedAt   time.Time           `json:"created_at"`
+// 	CompletedAt Optional[time.Time] `json:"completed_at,omitempty"`
+// }
 
-type ImportWorkflowInput struct {
-	Label       string           `json:"label" form:"label" required:"true"`
-	Description Optional[string] `json:"description,omitempty" form:"description"`
-	AssembledBy []string         `json:"assembled_by,omitempty" form:"assembled_by"`
-}
-
-func (i ImportWorkflowInput) ToParams(userID uuid.UUID) biomedb.InitImportWorkflowParams {
-	return biomedb.InitImportWorkflowParams{
-		Label:       i.Label,
-		Description: i.Description.ToPtr(),
-		AssembledBy: i.AssembledBy,
-		CreatedBy:   userID,
-	}
-}
+// func ImportBatchFromDB(res biomedb.ImportBatch) ImportBatch {
+// 	return ImportBatch{
+// 		ImportID:    res.ImportID,
+// 		Label:       res.Label,
+// 		Description: NewOptionalFromPtr(res.Description),
+// 		CreatedBy:   res.CreatedBy,
+// 		CreatedAt:   res.CreatedAt,
+// 		CompletedAt: NewOptionalFromTimestamp(res.CompletedAt),
+// 	}
+// }
 
 type MaterializationReadyCheck struct {
-	Taxonomy bool `json:"taxonomy"`
-	Methods  bool `json:"methods"`
+	Taxonomy     bool `json:"taxonomy"`
+	Methods      bool `json:"methods"`
+	Fixatives    bool `json:"fixatives"`
+	Bibliography bool `json:"bibliography"`
 }
 
 func (c MaterializationReadyCheck) IsReady() bool {
-	return c.Taxonomy && c.Methods
+	return c.Taxonomy && c.Methods && c.Bibliography && c.Fixatives
 }
 
 func MaterializationReadyCheckFromDB(res biomedb.CheckReadyToMaterializeRow) MaterializationReadyCheck {
 	return MaterializationReadyCheck{
-		Taxonomy: res.Taxonomy,
-		Methods:  res.Methods,
+		Taxonomy:     res.Taxonomy,
+		Methods:      res.Methods,
+		Bibliography: res.Bibliography,
+		Fixatives:    res.Fixatives,
+	}
+}
+
+func (c MaterializationReadyCheck) AppError() *app_errors.AppError {
+	taxonomyErrorDetail := &app_errors.AppErrorDetail{
+		Message: "Taxonomy materialization is not ready. Please ensure that all taxa have been resolved and staged.",
+	}
+	methodsErrorDetail := &app_errors.AppErrorDetail{
+		Message: "Sampling methods materialization is not ready. Please ensure that all sampling methods have been resolved and staged.",
+	}
+	fixativesErrorDetail := &app_errors.AppErrorDetail{
+		Message: "Sampling fixatives materialization is not ready. Please ensure that all sampling fixatives have been resolved and staged.",
+	}
+	bibliographyErrorDetail := &app_errors.AppErrorDetail{
+		Message: "Bibliography materialization is not ready. Please ensure that all publications have been resolved and staged.",
+	}
+
+	errorDetails := []*app_errors.AppErrorDetail{}
+	if !c.Taxonomy {
+		errorDetails = append(errorDetails, taxonomyErrorDetail)
+	}
+	if !c.Methods {
+		errorDetails = append(errorDetails, methodsErrorDetail)
+	}
+	if !c.Fixatives {
+		errorDetails = append(errorDetails, fixativesErrorDetail)
+	}
+	if !c.Bibliography {
+		errorDetails = append(errorDetails, bibliographyErrorDetail)
+	}
+	return &app_errors.AppError{
+		Code:     "materialization_not_ready",
+		Category: "imports",
+		ErrorModel: huma.ErrorModel{
+			Status: http.StatusUnprocessableEntity,
+			Title:  "Materialization not ready",
+			Detail: "",
+			Errors: errorDetails,
+		},
 	}
 }
 
 type TaxonResolution struct {
-	ID              uuid.UUID                  `json:"id"`
-	ImportID        uuid.UUID                  `json:"import_id"`
-	InputName       string                     `json:"input_name"`
-	InputAuthorship Optional[string]           `json:"input_authorship,omitempty"`
-	InputRank       Optional[string]           `json:"input_rank,omitempty"`
-	ScientificName  string                     `json:"scientific_name"`
-	ResolvedTo      Optional[uuid.UUID]        `json:"resolved_to,omitempty"`
-	Status          Optional[ResolutionStatus] `json:"status,omitempty"`
-	GBIFStatus      Optional[TaxonGBIFStatus]  `json:"gbif_status,omitempty"`
+	ID                 uuid.UUID                  `json:"id"`
+	ImportID           uuid.UUID                  `json:"import_id"`
+	InputName          string                     `json:"input_name"`
+	InputAuthorship    Optional[string]           `json:"input_authorship,omitempty"`
+	InputRank          Optional[string]           `json:"input_rank,omitempty"`
+	ScientificName     string                     `json:"scientific_name"`
+	ResolvedTo         Optional[uuid.UUID]        `json:"resolved_to,omitempty"`
+	Status             Optional[ResolutionStatus] `json:"status,omitempty"`
+	GBIFStatus         Optional[TaxonGBIFStatus]  `json:"gbif_status,omitempty"`
+	FromResolutionID   Optional[uuid.UUID]        `json:"from_resolution_id,omitempty"`
+	FromResolutionName Optional[string]           `json:"from_resolution_name,omitempty"`
+	SamplingTarget     bool                       `json:"sampling_target"`
 }
 
 func TaxonResolutionFromDB(res biomedb.TaxonResolution) TaxonResolution {
 	return TaxonResolution{
-		ID:              res.ID,
-		ImportID:        res.ImportID,
-		InputName:       res.InputName,
-		InputAuthorship: NewOptionalFromPtr(res.InputAuthorship),
-		InputRank:       NewOptionalFromPtr(res.InputRank),
-		ScientificName:  res.ScientificName,
-		ResolvedTo:      NewOptionalFromUUID(res.ResolvedTo),
-		Status:          NewOptionalFromPtr(res.Status),
-		GBIFStatus:      NewOptionalFromPtr(res.GBIFStatus),
+		ID:               res.ID,
+		ImportID:         res.ImportID,
+		InputName:        res.InputName,
+		InputAuthorship:  NewOptionalFromPtr(res.InputAuthorship),
+		InputRank:        NewOptionalFromPtr(res.InputRank),
+		ScientificName:   res.ScientificName,
+		ResolvedTo:       NewOptionalFromUUID(res.ResolvedCandidateID),
+		Status:           NewOptionalFromPtr(res.Status),
+		GBIFStatus:       NewOptionalFromPtr(res.GBIFStatus),
+		FromResolutionID: NewOptionalFromUUID(res.FromResolutionID),
+		SamplingTarget:   res.SamplingTarget,
 	}
 }
 
@@ -99,12 +140,16 @@ func TaxonResolutionFromDBSlice(res []biomedb.TaxonResolution) []TaxonResolution
 	return result
 }
 
+func (t *TaxonResolution) SetFromResolutionName(fromResolutionName *string) {
+	t.FromResolutionName = NewOptionalFromPtr(fromResolutionName)
+}
+
 type TaxonResolutionWithCandidates struct {
 	TaxonResolution
 	Candidates []TaxonCandidate `json:"candidates"`
 }
 
-type ResolveTaxonInput struct {
+type ResolveInput struct {
 	ResolutionID uuid.UUID `json:"resolution_id"`
 	CandidateID  uuid.UUID `json:"candidate_id"`
 }
@@ -129,7 +174,7 @@ func TaxonCandidateFromDB(candidate biomedb.ListAllTaxonCandidatesRow) TaxonCand
 		ID:           candidate.ID,
 		ResolutionID: candidate.ResolutionID,
 		Name:         candidate.ResolvedName,
-		Rank:         candidate.ResolvedRank,
+		Rank:         TaxonRank(candidate.ResolvedRank),
 		Authorship:   NewOptionalFromPtr(candidate.ResolvedAuthorship),
 		Status:       candidate.ResolvedStatus,
 		Source:       candidate.Source,
@@ -142,27 +187,25 @@ func TaxonCandidateFromDB(candidate biomedb.ListAllTaxonCandidatesRow) TaxonCand
 }
 
 type TaxonStagingParams struct {
-	Name            string              `json:"name"`
-	Authorship      Optional[string]    `json:"authorship,omitempty"`
-	Rank            TaxonRank           `json:"rank"`
-	Status          TaxonStatus         `json:"status"`
-	ParentSource    TaxonMatchSource    `json:"parent_source"`
-	ParentID        Optional[uuid.UUID] `json:"parent_taxa_id,omitempty"`
-	ParentGbifID    Optional[int32]     `json:"parent_gbif_id,omitempty"`
-	ParentInputName Optional[string]    `json:"parent_input_name,omitempty"`
+	ResolutionID uuid.UUID        `json:"resolution_id"`
+	Name         string           `json:"name"`
+	Authorship   Optional[string] `json:"authorship,omitempty"`
+	Rank         TaxonRank        `json:"rank"`
+	Status       TaxonStatus      `json:"status"`
+	ParentName   string           `json:"parent_name"`
 }
 
-func (p TaxonStagingParams) ToParams(importID uuid.UUID) biomedb.InsertTaxonStagingParams {
-	return biomedb.InsertTaxonStagingParams{
-		ImportID:        importID,
-		Name:            p.Name,
-		Authorship:      p.Authorship.ToPtr(),
-		Rank:            p.Rank,
-		Status:          p.Status,
-		ParentSource:    p.ParentSource,
-		ParentTaxaID:    UUIDOpt(p.ParentID),
-		ParentGBIFID:    p.ParentGbifID.ToPtr(),
-		ParentInputName: p.ParentInputName.ToPtr(),
+func (p TaxonStagingParams) ToParams(importID uuid.UUID) biomedb.InsertTaxaStagingParams {
+	parentRank := string(ParentRank(p.Rank))
+	return biomedb.InsertTaxaStagingParams{
+		ImportID:     importID,
+		ResolutionID: p.ResolutionID,
+		Name:         p.Name,
+		Authorship:   p.Authorship.ToPtr(),
+		TaxonRank:    p.Rank,
+		TaxonStatus:  p.Status,
+		ParentName:   p.ParentName,
+		ParentRank:   &parentRank,
 	}
 }
 

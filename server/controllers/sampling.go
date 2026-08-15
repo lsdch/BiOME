@@ -39,12 +39,12 @@ func (c *SamplingController) ListSamplingsAtProximity(
 func (c *SamplingController) ListSamplingsH3AtProximity(
 	ctx context.Context,
 	input *models.ListSamplingsAtProximityInput,
-) (*BodyTransporter[[]models.CellH3WithDistance], error) {
+) (*BodyTransporter[[]models.H3CellWithRichnessAndDistance], error) {
 	samplings, err := c.service.ListSamplingsH3AtProximity(ctx, c.db, *input)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[[]models.CellH3WithDistance]{Body: samplings}, nil
+	return &BodyTransporter[[]models.H3CellWithRichnessAndDistance]{Body: samplings}, nil
 }
 
 func (c *SamplingController) CreateSampling(

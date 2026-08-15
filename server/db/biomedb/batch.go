@@ -12,11 +12,126 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/lsdch/biome/types"
 )
 
 var (
 	ErrBatchAlreadyClosed = errors.New("batch already closed")
 )
+
+const initBibliographyResolution = `-- name: InitBibliographyResolution :batchone
+WITH resolution AS (
+    INSERT INTO publication_resolution (
+            import_id,
+            verbatim,
+            doi,
+            year,
+            authors_raw,
+            authors,
+            title,
+            journal
+        )
+    VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8
+        )
+    RETURNING id
+),
+staging_occurrences AS (
+    SELECT DISTINCT i.id AS occurrence_id,
+        i.row_number
+    FROM import_samplings_occurrences i
+    WHERE i.import_id = $1
+        AND i.row_number = ANY($9::int [])
+),
+resolution_links AS (
+    INSERT INTO occurrences_staging_publications (import_id, occurrence_id, resolution_id)
+    SELECT $1,
+        o.occurrence_id,
+        r.id
+    FROM resolution r
+        CROSS JOIN staging_occurrences o
+    RETURNING id, import_id, occurrence_id, resolution_id
+),
+missing_rows AS (
+    SELECT rn
+    FROM unnest($9::int []) AS rn
+    WHERE NOT EXISTS (
+            SELECT 1
+            FROM staging_occurrences o
+            WHERE o.row_number = rn
+        )
+)
+SELECT COALESCE(array_agg(rn), '{}'::int [])::int [] AS missing_rows
+FROM missing_rows
+`
+
+type InitBibliographyResolutionBatchResults struct {
+	br     pgx.BatchResults
+	tot    int
+	closed bool
+}
+
+type InitBibliographyResolutionParams struct {
+	ImportID   uuid.UUID  `json:"import_id"`
+	Verbatim   *string    `json:"verbatim"`
+	DOI        *types.DOI `json:"doi"`
+	Year       *int32     `json:"year"`
+	AuthorsRaw *string    `json:"authors_raw"`
+	Authors    []string   `json:"authors"`
+	Title      *string    `json:"title"`
+	Journal    *string    `json:"journal"`
+	RowNumbers []int32    `json:"row_numbers"`
+}
+
+func (q *Queries) InitBibliographyResolution(ctx context.Context, arg []InitBibliographyResolutionParams) *InitBibliographyResolutionBatchResults {
+	batch := &pgx.Batch{}
+	for _, a := range arg {
+		vals := []interface{}{
+			a.ImportID,
+			a.Verbatim,
+			a.DOI,
+			a.Year,
+			a.AuthorsRaw,
+			a.Authors,
+			a.Title,
+			a.Journal,
+			a.RowNumbers,
+		}
+		batch.Queue(initBibliographyResolution, vals...)
+	}
+	br := q.db.SendBatch(ctx, batch)
+	return &InitBibliographyResolutionBatchResults{br, len(arg), false}
+}
+
+func (b *InitBibliographyResolutionBatchResults) QueryRow(f func(int, []int32, error)) {
+	defer b.br.Close()
+	for t := 0; t < b.tot; t++ {
+		var missing_rows []int32
+		if b.closed {
+			if f != nil {
+				f(t, missing_rows, ErrBatchAlreadyClosed)
+			}
+			continue
+		}
+		row := b.br.QueryRow()
+		err := row.Scan(&missing_rows)
+		if f != nil {
+			f(t, missing_rows, err)
+		}
+	}
+}
+
+func (b *InitBibliographyResolutionBatchResults) Close() error {
+	b.closed = true
+	return b.br.Close()
+}
 
 const insertGBIFBatch = `-- name: InsertGBIFBatch :batchexec
 INSERT INTO gbif_staging (
@@ -146,6 +261,145 @@ func (b *InsertGBIFBatchBatchResults) Exec(f func(int, error)) {
 }
 
 func (b *InsertGBIFBatchBatchResults) Close() error {
+	b.closed = true
+	return b.br.Close()
+}
+
+const insertTaxaStaging = `-- name: InsertTaxaStaging :batchexec
+WITH inserted_parent_resolution AS (
+    INSERT INTO taxon_resolution (
+            import_id,
+            input_name,
+            input_authorship,
+            input_rank,
+            status,
+            from_resolution_id
+        )
+    VALUES (
+            $1,
+            $3,
+            NULL,
+            $4,
+            'pending',
+            $2
+        ) ON CONFLICT (import_id, input_name) DO NOTHING
+    RETURNING id
+),
+staged_taxon AS (
+    INSERT INTO taxa_staging (
+            import_id,
+            name,
+            authorship,
+            rank,
+            status,
+            parent_resolution_id
+        )
+    VALUES (
+            $1,
+            $5,
+            $6,
+            $7,
+            $8,
+            COALESCE(
+                (
+                    SELECT id
+                    FROM inserted_parent_resolution
+                ),
+                (
+                    SELECT parent_res.id
+                    FROM taxon_resolution parent_res
+                    WHERE import_id = $1
+                        AND input_name = $3
+                    LIMIT 1
+                )
+            )
+        )
+    RETURNING id, import_id, name, authorship, rank, status, parent_resolution_id
+)
+INSERT INTO taxon_candidates (
+        import_id,
+        resolution_id,
+        source,
+        match_type,
+        staging_id,
+        priority,
+        name,
+        authorship,
+        rank,
+        status
+    )
+SELECT $1,
+    $2,
+    'manual',
+    'exact',
+    s.id,
+    100,
+    s.name,
+    s.authorship,
+    s.rank,
+    s.status
+FROM staged_taxon s
+`
+
+type InsertTaxaStagingBatchResults struct {
+	br     pgx.BatchResults
+	tot    int
+	closed bool
+}
+
+type InsertTaxaStagingParams struct {
+	ImportID     uuid.UUID   `json:"import_id"`
+	ResolutionID uuid.UUID   `json:"resolution_id"`
+	ParentName   string      `json:"parent_name"`
+	ParentRank   *string     `json:"parent_rank"`
+	Name         string      `json:"name"`
+	Authorship   *string     `json:"authorship"`
+	TaxonRank    TaxonRank   `json:"taxon_rank"`
+	TaxonStatus  TaxonStatus `json:"taxon_status"`
+}
+
+// Insert a new record into the taxa_staging table for a given taxon resolution,
+// and create a corresponding taxon_candidates record for it.
+// This is used when a user manually adds a new taxon that is not found in the existing taxa or GBIF data.
+// Resolution for the parent taxon is also created if it does not already exist,
+// or linked to the existing resolution if it does, based on the provided parent name and rank.
+// AutoResolveUnambiguousCandidates should be run after this to resolve any unambiguous candidates that may have been created.
+func (q *Queries) InsertTaxaStaging(ctx context.Context, arg []InsertTaxaStagingParams) *InsertTaxaStagingBatchResults {
+	batch := &pgx.Batch{}
+	for _, a := range arg {
+		vals := []interface{}{
+			a.ImportID,
+			a.ResolutionID,
+			a.ParentName,
+			a.ParentRank,
+			a.Name,
+			a.Authorship,
+			a.TaxonRank,
+			a.TaxonStatus,
+		}
+		batch.Queue(insertTaxaStaging, vals...)
+	}
+	br := q.db.SendBatch(ctx, batch)
+	return &InsertTaxaStagingBatchResults{br, len(arg), false}
+}
+
+func (b *InsertTaxaStagingBatchResults) Exec(f func(int, error)) {
+	defer b.br.Close()
+	for t := 0; t < b.tot; t++ {
+		if b.closed {
+			if f != nil {
+				f(t, ErrBatchAlreadyClosed)
+			}
+			continue
+		}
+		_, err := b.br.Exec()
+		if f != nil {
+			f(t, err)
+		}
+	}
+}
+
+func (b *InsertTaxaStagingBatchResults) Close() error {
 	b.closed = true
 	return b.br.Close()
 }

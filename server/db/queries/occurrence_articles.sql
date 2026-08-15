@@ -1,17 +1,17 @@
--- name: GetOccurrenceArticles :many
+-- name: GetOccurrencePublications :many
 SELECT a.*
-FROM articles a
-    JOIN occurrences_articles oa ON oa.article_id = a.id
+FROM publications a
+    JOIN occurrences_publications oa ON oa.publication_id = a.id
 WHERE oa.occurrence_id = @occurrence_id;
 
--- name: AddArticleToOccurrence :exec
-INSERT INTO occurrences_articles (occurrence_id, article_id)
+-- name: AddPublicationToOccurrence :exec
+INSERT INTO occurrences_publications (occurrence_id, publication_id)
 VALUES (
         @occurrence_id::ulid,
-        @article_id::uuid
+        @publications_id::uuid
     );
 
--- name: RemoveArticleFromOccurrence :exec
-DELETE FROM occurrences_articles
+-- name: RemovePublicationFromOccurrence :exec
+DELETE FROM occurrences_publications
 WHERE occurrence_id = @occurrence_id::ulid
-    AND article_id = @article_id::uuid;
+    AND publication_id = @publication_id::uuid;

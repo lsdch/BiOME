@@ -10,7 +10,8 @@
     :density
     v-bind="$attrs"
   >
-    <template #append>
+    <template #append v-if="model.binding !== 'constant'">
+      <!-- :disabled="model.binding === 'constant'" -->
       <v-btn
         icon="mdi-math-log"
         :variant="model.log ? 'elevated' : 'text'"
@@ -39,7 +40,7 @@ const model = defineModel<ScaleBindingSpec>({
 })
 
 const items = [
-  { title: 'Sites', value: 'sites', subtitle: 'Scale with the number of sites' },
+  { title: 'Constant', value: 'constant', subtitle: 'Uniform color scale' },
   {
     title: 'Sampling events',
     value: 'samplings',

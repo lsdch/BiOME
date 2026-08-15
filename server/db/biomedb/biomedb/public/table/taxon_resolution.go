@@ -17,15 +17,17 @@ type taxonResolutionTable struct {
 	postgres.Table
 
 	// Columns
-	ID              postgres.ColumnString
-	ImportID        postgres.ColumnString
-	InputName       postgres.ColumnString
-	InputAuthorship postgres.ColumnString
-	InputRank       postgres.ColumnString
-	ScientificName  postgres.ColumnString
-	Status          postgres.ColumnString
-	GbifStatus      postgres.ColumnString
-	ResolvedTo      postgres.ColumnString
+	ID                  postgres.ColumnString
+	ImportID            postgres.ColumnString
+	InputName           postgres.ColumnString
+	InputAuthorship     postgres.ColumnString
+	InputRank           postgres.ColumnString
+	ScientificName      postgres.ColumnString
+	Status              postgres.ColumnString
+	GbifStatus          postgres.ColumnString
+	FromResolutionID    postgres.ColumnString
+	SamplingTarget      postgres.ColumnBool
+	ResolvedCandidateID postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -67,33 +69,37 @@ func newTaxonResolutionTable(schemaName, tableName, alias string) *TaxonResoluti
 
 func newTaxonResolutionTableImpl(schemaName, tableName, alias string) taxonResolutionTable {
 	var (
-		IDColumn              = postgres.StringColumn("id")
-		ImportIDColumn        = postgres.StringColumn("import_id")
-		InputNameColumn       = postgres.StringColumn("input_name")
-		InputAuthorshipColumn = postgres.StringColumn("input_authorship")
-		InputRankColumn       = postgres.StringColumn("input_rank")
-		ScientificNameColumn  = postgres.StringColumn("scientific_name")
-		StatusColumn          = postgres.StringColumn("status")
-		GbifStatusColumn      = postgres.StringColumn("gbif_status")
-		ResolvedToColumn      = postgres.StringColumn("resolved_to")
-		allColumns            = postgres.ColumnList{IDColumn, ImportIDColumn, InputNameColumn, InputAuthorshipColumn, InputRankColumn, ScientificNameColumn, StatusColumn, GbifStatusColumn, ResolvedToColumn}
-		mutableColumns        = postgres.ColumnList{ImportIDColumn, InputNameColumn, InputAuthorshipColumn, InputRankColumn, StatusColumn, GbifStatusColumn, ResolvedToColumn}
-		defaultColumns        = postgres.ColumnList{IDColumn, ScientificNameColumn, StatusColumn, GbifStatusColumn}
+		IDColumn                  = postgres.StringColumn("id")
+		ImportIDColumn            = postgres.StringColumn("import_id")
+		InputNameColumn           = postgres.StringColumn("input_name")
+		InputAuthorshipColumn     = postgres.StringColumn("input_authorship")
+		InputRankColumn           = postgres.StringColumn("input_rank")
+		ScientificNameColumn      = postgres.StringColumn("scientific_name")
+		StatusColumn              = postgres.StringColumn("status")
+		GbifStatusColumn          = postgres.StringColumn("gbif_status")
+		FromResolutionIDColumn    = postgres.StringColumn("from_resolution_id")
+		SamplingTargetColumn      = postgres.BoolColumn("sampling_target")
+		ResolvedCandidateIDColumn = postgres.StringColumn("resolved_candidate_id")
+		allColumns                = postgres.ColumnList{IDColumn, ImportIDColumn, InputNameColumn, InputAuthorshipColumn, InputRankColumn, ScientificNameColumn, StatusColumn, GbifStatusColumn, FromResolutionIDColumn, SamplingTargetColumn, ResolvedCandidateIDColumn}
+		mutableColumns            = postgres.ColumnList{ImportIDColumn, InputNameColumn, InputAuthorshipColumn, InputRankColumn, StatusColumn, GbifStatusColumn, FromResolutionIDColumn, SamplingTargetColumn, ResolvedCandidateIDColumn}
+		defaultColumns            = postgres.ColumnList{IDColumn, ScientificNameColumn, StatusColumn, GbifStatusColumn, SamplingTargetColumn}
 	)
 
 	return taxonResolutionTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:              IDColumn,
-		ImportID:        ImportIDColumn,
-		InputName:       InputNameColumn,
-		InputAuthorship: InputAuthorshipColumn,
-		InputRank:       InputRankColumn,
-		ScientificName:  ScientificNameColumn,
-		Status:          StatusColumn,
-		GbifStatus:      GbifStatusColumn,
-		ResolvedTo:      ResolvedToColumn,
+		ID:                  IDColumn,
+		ImportID:            ImportIDColumn,
+		InputName:           InputNameColumn,
+		InputAuthorship:     InputAuthorshipColumn,
+		InputRank:           InputRankColumn,
+		ScientificName:      ScientificNameColumn,
+		Status:              StatusColumn,
+		GbifStatus:          GbifStatusColumn,
+		FromResolutionID:    FromResolutionIDColumn,
+		SamplingTarget:      SamplingTargetColumn,
+		ResolvedCandidateID: ResolvedCandidateIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

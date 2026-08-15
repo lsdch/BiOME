@@ -11,6 +11,7 @@ type Pagination struct {
 
 type SortOrder string
 
+//generate:enum
 const (
 	SortAsc  SortOrder = "asc"
 	SortDesc SortOrder = "desc"
@@ -21,15 +22,22 @@ type SortKey interface {
 }
 
 type SortBy[T SortKey] struct {
-	Key      T    `query:"sort" json:"key,omitempty"`
-	OrderAsc bool `query:"sortAsc" json:"order,omitempty" doc:"ASC if true, default is DESC"`
+	Key   Optional[T] `query:"sort" json:"key,omitempty"`
+	Order SortOrder   `query:"sort_direction" json:"order,omitempty"`
+}
+
+func (s SortBy[T]) IsSet() bool {
+	return s.Key.IsSet
 }
 
 func (s SortBy[T]) ToOrderByClause() OrderByClause {
-	if s.OrderAsc == false {
-		return s.Key.Column().DESC()
+	column := (s.Key).Value.Column()
+	switch s.Order {
+	case SortDesc:
+		return column.DESC().NULLS_LAST()
+	default:
+		return column.ASC().NULLS_LAST()
 	}
-	return s.Key.Column().ASC()
 }
 
 type Filter struct {

@@ -12,10 +12,10 @@ import "errors"
 type UserRole string
 
 const (
-	UserRole_Visitor     UserRole = "Visitor"
-	UserRole_Contributor UserRole = "Contributor"
-	UserRole_Maintainer  UserRole = "Maintainer"
-	UserRole_Admin       UserRole = "Admin"
+	UserRole_Visitor     UserRole = "visitor"
+	UserRole_Contributor UserRole = "contributor"
+	UserRole_Maintainer  UserRole = "maintainer"
+	UserRole_Admin       UserRole = "admin"
 )
 
 var UserRoleAllValues = []UserRole{
@@ -37,13 +37,13 @@ func (e *UserRole) Scan(value interface{}) error {
 	}
 
 	switch enumValue {
-	case "Visitor":
+	case "visitor":
 		*e = UserRole_Visitor
-	case "Contributor":
+	case "contributor":
 		*e = UserRole_Contributor
-	case "Maintainer":
+	case "maintainer":
 		*e = UserRole_Maintainer
-	case "Admin":
+	case "admin":
 		*e = UserRole_Admin
 	default:
 		return errors.New("jet: Invalid scan value '" + enumValue + "' for UserRole enum")

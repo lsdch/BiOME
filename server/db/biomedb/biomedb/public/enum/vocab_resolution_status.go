@@ -10,13 +10,13 @@ package enum
 import "github.com/go-jet/jet/v2/postgres"
 
 var VocabResolutionStatus = &struct {
-	Auto            postgres.StringExpression
+	AutoResolved    postgres.StringExpression
 	Selected        postgres.StringExpression
 	Pending         postgres.StringExpression
 	RequestCreation postgres.StringExpression
 	Discard         postgres.StringExpression
 }{
-	Auto:            postgres.NewEnumValue("auto"),
+	AutoResolved:    postgres.NewEnumValue("auto_resolved"),
 	Selected:        postgres.NewEnumValue("selected"),
 	Pending:         postgres.NewEnumValue("pending"),
 	RequestCreation: postgres.NewEnumValue("request_creation"),

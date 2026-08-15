@@ -1,7 +1,7 @@
 <template>
   <v-range-slider v-bind="props" :model-value @update:model-value="setValue" :max :step>
     <template #thumb-label="{ modelValue }">
-      {{ $TaxonRank.enum[modelValue] }}
+      {{ TaxonRank.enumNoSubgenus[modelValue] }}
     </template>
   </v-range-slider>
 </template>
@@ -17,7 +17,7 @@ type TaxonRankSliderProps = /* @vue-ignore */ Omit<RangeSliderProps, 'modelValue
 
 const {
   step = 1,
-  max = $TaxonRank.enum.length - 1,
+  max = TaxonRank.enumNoSubgenus.length - 1,
   ...props
 } = defineProps<
   {
@@ -28,9 +28,9 @@ const {
 
 const inverseEnumIndex = computed(() => {
   const index: Record<string, number> = {}
-  for (const [i, v] of Object.entries($TaxonRank.enum)) {
-    index[v] = Number(i)
-  }
+  TaxonRank.enumNoSubgenus.forEach((rank, i) => {
+    index[rank] = i
+  })
   return index
 })
 
@@ -40,7 +40,7 @@ const modelValue = computed(() => {
 })
 
 function setValue([start, end]: [number, number]) {
-  model.value = [$TaxonRank.enum[start], $TaxonRank.enum[end]]
+  model.value = [TaxonRank.enumNoSubgenus[start], TaxonRank.enumNoSubgenus[end]]
 }
 </script>
 

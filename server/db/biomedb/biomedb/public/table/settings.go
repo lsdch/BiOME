@@ -27,6 +27,7 @@ type settingsTable struct {
 	MailFromAddress        postgres.ColumnString
 	MailFromName           postgres.ColumnString
 	MolecularDataEnabled   postgres.ColumnBool
+	FrontpageMessageMd     postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -78,8 +79,9 @@ func newSettingsTableImpl(schemaName, tableName, alias string) settingsTable {
 		MailFromAddressColumn        = postgres.StringColumn("mail_from_address")
 		MailFromNameColumn           = postgres.StringColumn("mail_from_name")
 		MolecularDataEnabledColumn   = postgres.BoolColumn("molecular_data_enabled")
-		allColumns                   = postgres.ColumnList{IDColumn, AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, MailFromAddressColumn, MailFromNameColumn, MolecularDataEnabledColumn}
-		mutableColumns               = postgres.ColumnList{AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, MailFromAddressColumn, MailFromNameColumn, MolecularDataEnabledColumn}
+		FrontpageMessageMdColumn     = postgres.StringColumn("frontpage_message_md")
+		allColumns                   = postgres.ColumnList{IDColumn, AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, MailFromAddressColumn, MailFromNameColumn, MolecularDataEnabledColumn, FrontpageMessageMdColumn}
+		mutableColumns               = postgres.ColumnList{AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, MailFromAddressColumn, MailFromNameColumn, MolecularDataEnabledColumn, FrontpageMessageMdColumn}
 		defaultColumns               = postgres.ColumnList{IDColumn, AppNameColumn, IsPublicColumn, AccountRequestsEnabledColumn, MolecularDataEnabledColumn}
 	)
 
@@ -97,6 +99,7 @@ func newSettingsTableImpl(schemaName, tableName, alias string) settingsTable {
 		MailFromAddress:        MailFromAddressColumn,
 		MailFromName:           MailFromNameColumn,
 		MolecularDataEnabled:   MolecularDataEnabledColumn,
+		FrontpageMessageMd:     FrontpageMessageMdColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

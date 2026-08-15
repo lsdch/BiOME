@@ -12,14 +12,16 @@ type ProgressReporter interface {
 	Increment(int32)
 	Complete()
 	Fail(error)
+	AddToTotal(int32)
 }
 
 type NoopProgressReporter struct{}
 
-func (n *NoopProgressReporter) Start(int32)     {}
-func (n *NoopProgressReporter) Increment(int32) {}
-func (n *NoopProgressReporter) Complete()       {}
-func (n *NoopProgressReporter) Fail(error)      {}
+func (n *NoopProgressReporter) Start(int32)      {}
+func (n *NoopProgressReporter) Increment(int32)  {}
+func (n *NoopProgressReporter) Complete()        {}
+func (n *NoopProgressReporter) Fail(error)       {}
+func (n *NoopProgressReporter) AddToTotal(int32) {}
 
 type ProgressStatus string
 
@@ -62,9 +64,6 @@ func (g *ProgressTracker) notify() {
 
 func (g *ProgressTracker) Increment(n int32) {
 	g.mu.Lock()
-	if g.status != Running {
-		return
-	}
 	g.completed += n
 	g.mu.Unlock()
 	g.notify()
@@ -79,6 +78,13 @@ func (g *ProgressTracker) Start(total int32) {
 	g.total = total
 	g.errorMsg = ""
 
+	g.mu.Unlock()
+	g.notify()
+}
+
+func (g *ProgressTracker) AddToTotal(n int32) {
+	g.mu.Lock()
+	g.total += n
 	g.mu.Unlock()
 	g.notify()
 }

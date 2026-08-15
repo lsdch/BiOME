@@ -33,5 +33,5 @@ type Occurrences struct {
 	Sources                     *pq.StringArray
 	CreatedAt                   time.Time
 	UpdatedAt                   *time.Time
-	ImportBatchID               *string
+	ImportBatchID               *uuid.UUID
 }

@@ -37,7 +37,7 @@ CREATE TYPE taxon_status AS ENUM(
 CREATE TYPE occurrence_type_status AS ENUM('Holotype', 'Neotype', 'Topotype');
 
 -- Roles for platform users (aligned with EdgeDB `people::UserRole`)
-CREATE TYPE user_role AS ENUM('Visitor', 'Contributor', 'Maintainer', 'Admin');
+CREATE TYPE user_role AS ENUM('visitor', 'contributor', 'maintainer', 'admin');
 CREATE TABLE countries (
 	code TEXT PRIMARY KEY CHECK (code ~ '^[A-Z]{3}$'),
 	name TEXT NOT NULL UNIQUE,
@@ -77,7 +77,7 @@ CREATE TABLE users (
 	login CITEXT NOT NULL UNIQUE,
 	email CITEXT NOT NULL,
 	password_hash TEXT NOT NULL,
-	role user_role NOT NULL DEFAULT 'Visitor',
+	role user_role NOT NULL DEFAULT 'visitor',
 	first_name TEXT NOT NULL,
 	last_name TEXT NOT NULL,
 	organisation TEXT,
@@ -117,7 +117,7 @@ CREATE TABLE invitations (
 	email CITEXT NOT NULL,
 	invitee_name TEXT,
 	organisation TEXT,
-	role user_role NOT NULL DEFAULT 'Visitor',
+	role user_role NOT NULL DEFAULT 'visitor',
 	message TEXT,
 	inviter_id UUID REFERENCES users (id) ON DELETE
 	SET NULL,

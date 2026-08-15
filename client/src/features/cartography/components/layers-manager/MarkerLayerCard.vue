@@ -43,7 +43,16 @@
           </template>
           <v-card>
             <v-list density="compact">
-              <v-list-item prepend-icon="mdi-content-copy" title="Duplicate" />
+              <v-list-item
+                prepend-icon="mdi-refresh"
+                title="Reload data"
+                @click="remote.refetch()"
+              />
+              <v-list-item
+                prepend-icon="mdi-content-copy"
+                title="Duplicate"
+                @click="emit('duplicate')"
+              />
               <v-list-item prepend-icon="mdi-delete" title="Delete" @click="emit('delete')" />
             </v-list>
           </v-card>
@@ -104,7 +113,7 @@
             <MarkerLayerStylePanel v-model="layer" />
           </v-tabs-window-item>
           <v-tabs-window-item value="stats">
-            <OccurrencesStats :sites="remote.data.value" />
+            <OccurrencesStats :cells="remote.data.value" />
           </v-tabs-window-item>
         </v-tabs-window>
       </div>
@@ -113,19 +122,20 @@
 </template>
 
 <script setup lang="ts">
-import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { listOccurrencesH3Options } from '@/api/gen/@tanstack/vue-query.gen.ts'
 import SvgCircle from '@/components/toolkit/ui/SvgCircle.vue'
+import OccurrencesStats from '@/features/occurrences/components/OccurrencesStats.vue'
 import { withOpacity } from '@/lib/color_brewer'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, nextTick, onMounted, ref } from 'vue'
-import LayerDataFeed from './LayerDataFeed.vue'
-import { MarkerLayerSpec } from './map-layers'
-import MarkerLayerStylePanel from './MarkerLayerStylePanel.vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useLayerData } from './layer-data'
-import OccurrencesStats from '@/features/occurrences/components/OccurrencesStats.vue'
+import LayerDataFeed from './LayerDataFeed.vue'
+import { automaticResolution, MarkerLayerSpec } from './map-layers'
+import MarkerLayerStylePanel from './MarkerLayerStylePanel.vue'
 
-const { index } = defineProps<{
+const { index, zoom } = defineProps<{
   index: number
+  zoom: number
 }>()
 
 const layer = defineModel<MarkerLayerSpec>('layer', { required: true })
@@ -141,18 +151,33 @@ const expanded = defineModel<boolean>('expanded', { default: false })
 const emit = defineEmits<{
   delete: []
   'draghandle-down': []
+  duplicate: []
 }>()
 
 const { registerLayer } = useLayerData()
 
+watch(
+  () => zoom,
+  (newZoom) => {
+    if (layer.value.resolutionMode === 'auto') {
+      console.log('Updating marker resolution based on zoom', newZoom)
+      layer.value.resolution = automaticResolution(layer.value, newZoom)
+    }
+  },
+  { immediate: true }
+)
+
 const remote = useQuery(
   computed(() => {
     return {
-      enabled: layer.value.ready,
-      ...occurrencesBySiteOptions({
-        body: {
-          ...layer.value.filters,
-          habitats: layer.value.filters.habitats?.map(({ label }) => label)
+      enabled: layer.value.ready && layer.value.active,
+      initialData: [],
+      refetchOnMount: true,
+      gcTime: 1000 * 60 * 10, // 10 minutes
+      ...listOccurrencesH3Options({
+        path: { resolution: layer.value.resolution },
+        query: {
+          ...layer.value.filters
         }
       })
     }

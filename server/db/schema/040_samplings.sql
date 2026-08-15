@@ -1,5 +1,6 @@
 CREATE TABLE samplings (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+	source_sampling_hash TEXT,
 	comments CITEXT,
 	-- LOCATION FIELDS
 	site_code CITEXT CHECK (site_code ~ '^[A-Za-z0-9.-]{3,32}$'),
@@ -8,8 +9,8 @@ CREATE TABLE samplings (
 	site_country_code CHAR(3) REFERENCES countries (code),
 	coordinates_precision INTEGER,
 	coordinates geometry (Point, 4326) NOT NULL,
-	latitude REAL NOT NULL GENERATED ALWAYS AS (ST_Y (coordinates)) STORED,
-	longitude REAL NOT NULL GENERATED ALWAYS AS (ST_X (coordinates)) STORED,
+	latitude DOUBLE PRECISION NOT NULL GENERATED ALWAYS AS (ST_Y (coordinates)) STORED,
+	longitude DOUBLE PRECISION NOT NULL GENERATED ALWAYS AS (ST_X (coordinates)) STORED,
 	altitude INTEGER,
 	-- DATE FIELDS
 	event_date DATE,
@@ -18,7 +19,7 @@ CREATE TABLE samplings (
 	performed_by CITEXT [],
 	duration INTEGER,
 	access_points CITEXT [],
-	import_batch_id ULID REFERENCES import_batches (id) ON DELETE
+	import_batch_id UUID REFERENCES import_batches (id) ON DELETE
 	SET NULL,
 		-- R ~ 500m
 		h3_index BIGINT NOT NULL GENERATED ALWAYS AS (
@@ -36,7 +37,8 @@ CREATE TABLE samplings (
 				coordinates_precision >= 0
 				AND coordinates_precision <= 100000
 			)
-		)
+		),
+		CONSTRAINT unique_sampling_hash_per_batch UNIQUE (source_sampling_hash, import_batch_id)
 );
 
 
@@ -66,3 +68,14 @@ CREATE TABLE sampling_target_taxa (
 
 CREATE INDEX sampling_target_taxa_taxon_idx ON sampling_target_taxa (taxon_id);
 CREATE INDEX sampling_search_vector_idx ON samplings USING gin (search_vector);
+
+
+CREATE VIEW samplings_with_country AS (
+	SELECT s.*,
+		c.code AS country_code,
+		c.name AS country_name,
+		c.continent AS country_continent,
+		c.subcontinent AS country_subcontinent
+	FROM samplings s
+		LEFT JOIN countries c ON c.code = s.site_country_code
+);

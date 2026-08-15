@@ -3,7 +3,7 @@ import { createEventHook, useEventBus, useLocalStorage } from '@vueuse/core'
 import { nextTick, reactive, Reactive, ref, ToRefs, toRefs } from 'vue'
 import { TaxonomyElement } from '../components/TaxonomyItem.vue'
 
-export const maxRankDisplay = useLocalStorage<TaxonRank>('max-taxon-rank', 'KINGDOM')
+export const maxRankDisplay = useLocalStorage<TaxonRank>('max-taxon-rank', 'kingdom')
 
 const selectedTaxon = ref<Taxon>()
 const selectHook = createEventHook<Taxon>()
@@ -82,15 +82,15 @@ export function useTaxonFoldState(taxon: TaxonomyElement, initial?: boolean) {
 }
 
 const rankFoldState = ref<{ [k in TaxonRank]: boolean | undefined }>({
-  KINGDOM: true,
-  PHYLUM: true,
-  CLASS: true,
-  ORDER: true,
-  FAMILY: true,
-  GENUS: true,
-  SPECIES: true,
-  SUBGENUS: true,
-  SUBSPECIES: true
+  kingdom: true,
+  phylum: true,
+  class: true,
+  order: true,
+  family: true,
+  genus: true,
+  species: true,
+  subgenus: true,
+  subspecies: true
 })
 
 const { emit: emitFold, on: onFold } = useEventBus<TaxonRank>('fold')

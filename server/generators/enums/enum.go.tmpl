@@ -39,7 +39,7 @@ func (u {{.EnumType}}) IsGreaterEqual(v {{.EnumType}}) bool {
 // Register enum in OpenAPI specification
 func (u {{ .EnumType }}) Schema(r huma.Registry) *huma.Schema {
   if r.Map()["{{.EnumType}}"] == nil {
-    schemaRef := r.Schema(reflect.TypeOf(""), true, "{{.EnumType}}")
+    schemaRef := r.Schema(reflect.TypeFor[{{.UnderlyingType}}](), true, "{{.EnumType}}")
     schemaRef.Title = "{{.EnumType}}"
     for _, v := range {{$enumSlice}} {
       schemaRef.Enum = append(schemaRef.Enum, string(v))
@@ -53,17 +53,4 @@ func (u {{ .EnumType }}) Schema(r huma.Registry) *huma.Schema {
 func (m *{{.EnumType}}) Fake(f *gofakeit.Faker) (any, error) {
 	return string({{$enumSlice}}[f.IntN(len({{$enumSlice}}) - 1)]), nil
 }
-
-// Gel Marshalling
-func (m {{.EnumType}}) MarshalEdgeDBStr() ([]byte, error) {
-	return []byte(m), nil
-}
-
-{{- if not .SkipGelUnmarshal }}
-
-func (m *{{.EnumType}}) UnmarshalEdgeDBStr(data []byte) error {
-	*m = {{.EnumType}}(string(data))
-	return nil
-}
-{{- end}}
 {{- end }}

@@ -7,7 +7,184 @@ package biomedb
 
 import (
 	"context"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/lsdch/biome/types"
 )
+
+const checkStagingCodesGenerated = `-- name: CheckStagingCodesGenerated :many
+SELECT o.id, import_id, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, generated_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments, taxon_resolution_id, materialized_sampling_id, materialized_occurrence_id, b.id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
+FROM import_samplings_occurrences o
+    JOIN import_batches b ON b.id = o.import_id
+WHERE o.generated_code IS NULL
+    AND b.id = $1
+`
+
+type CheckStagingCodesGeneratedRow struct {
+	ID                          types.ULID            `json:"id"`
+	ImportID                    uuid.UUID             `json:"import_id"`
+	ImportedAt                  time.Time             `json:"imported_at"`
+	RowNumber                   int32                 `json:"row_number"`
+	SamplingHash                string                `json:"sampling_hash"`
+	SamplingComments            *string               `json:"sampling_comments"`
+	SiteCode                    *string               `json:"site_code"`
+	SiteName                    *string               `json:"site_name"`
+	SiteLocality                *string               `json:"site_locality"`
+	SiteCountryCode             *string               `json:"site_country_code"`
+	CoordinatesPrecision        *int32                `json:"coordinates_precision"`
+	Longitude                   float64               `json:"longitude"`
+	Latitude                    float64               `json:"latitude"`
+	Coordinates                 interface{}           `json:"coordinates"`
+	Altitude                    *int32                `json:"altitude"`
+	EventDate                   pgtype.Date           `json:"event_date"`
+	EventDatePrecision          *EventDatePrecision   `json:"event_date_precision"`
+	PerformedBy                 []string              `json:"performed_by"`
+	Duration                    *int32                `json:"duration"`
+	AccessPoints                []string              `json:"access_points"`
+	SamplingTargets             []string              `json:"sampling_targets"`
+	SamplingFixatives           []string              `json:"sampling_fixatives"`
+	SamplingMethods             []string              `json:"sampling_methods"`
+	Habitats                    []string              `json:"habitats"`
+	OccurrenceCode              *string               `json:"occurrence_code"`
+	GeneratedCode               *string               `json:"generated_code"`
+	TypeStatus                  *OccurrenceTypeStatus `json:"type_status"`
+	TaxonName                   string                `json:"taxon_name"`
+	TaxonAuthorship             *string               `json:"taxon_authorship"`
+	TaxonScientificName         string                `json:"taxon_scientific_name"`
+	TaxonRank                   *TaxonRank            `json:"taxon_rank"`
+	VerbatimIdentification      *string               `json:"verbatim_identification"`
+	IdentifiedBy                []string              `json:"identified_by"`
+	IdentificationDate          pgtype.Date           `json:"identification_date"`
+	IdentificationDatePrecision *EventDatePrecision   `json:"identification_date_precision"`
+	IdentificationConfer        bool                  `json:"identification_confer"`
+	IdentificationAddendum      *string               `json:"identification_addendum"`
+	ContentDescription          *string               `json:"content_description"`
+	QuantityExact               *int32                `json:"quantity_exact"`
+	QuantityLower               *int32                `json:"quantity_lower"`
+	QuantityUpper               *int32                `json:"quantity_upper"`
+	Sources                     []string              `json:"sources"`
+	OccurrenceComments          *string               `json:"occurrence_comments"`
+	TaxonResolutionID           pgtype.UUID           `json:"taxon_resolution_id"`
+	MaterializedSamplingID      pgtype.UUID           `json:"materialized_sampling_id"`
+	MaterializedOccurrenceID    interface{}           `json:"materialized_occurrence_id"`
+	ID_2                        uuid.UUID             `json:"id_2"`
+	Label                       string                `json:"label"`
+	Description                 *string               `json:"description"`
+	Status                      ImportBatchStatus     `json:"status"`
+	AssembledBy                 []string              `json:"assembled_by"`
+	CreatedBy                   uuid.UUID             `json:"created_by"`
+	CreatedAt                   time.Time             `json:"created_at"`
+	CompletedAt                 pgtype.Timestamptz    `json:"completed_at"`
+	CompletedBy                 pgtype.UUID           `json:"completed_by"`
+	TaxonomicScope              int32                 `json:"taxonomic_scope"`
+}
+
+func (q *Queries) CheckStagingCodesGenerated(ctx context.Context, batchID uuid.UUID) ([]CheckStagingCodesGeneratedRow, error) {
+	rows, err := q.db.Query(ctx, checkStagingCodesGenerated, batchID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CheckStagingCodesGeneratedRow{}
+	for rows.Next() {
+		var i CheckStagingCodesGeneratedRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ImportID,
+			&i.ImportedAt,
+			&i.RowNumber,
+			&i.SamplingHash,
+			&i.SamplingComments,
+			&i.SiteCode,
+			&i.SiteName,
+			&i.SiteLocality,
+			&i.SiteCountryCode,
+			&i.CoordinatesPrecision,
+			&i.Longitude,
+			&i.Latitude,
+			&i.Coordinates,
+			&i.Altitude,
+			&i.EventDate,
+			&i.EventDatePrecision,
+			&i.PerformedBy,
+			&i.Duration,
+			&i.AccessPoints,
+			&i.SamplingTargets,
+			&i.SamplingFixatives,
+			&i.SamplingMethods,
+			&i.Habitats,
+			&i.OccurrenceCode,
+			&i.GeneratedCode,
+			&i.TypeStatus,
+			&i.TaxonName,
+			&i.TaxonAuthorship,
+			&i.TaxonScientificName,
+			&i.TaxonRank,
+			&i.VerbatimIdentification,
+			&i.IdentifiedBy,
+			&i.IdentificationDate,
+			&i.IdentificationDatePrecision,
+			&i.IdentificationConfer,
+			&i.IdentificationAddendum,
+			&i.ContentDescription,
+			&i.QuantityExact,
+			&i.QuantityLower,
+			&i.QuantityUpper,
+			&i.Sources,
+			&i.OccurrenceComments,
+			&i.TaxonResolutionID,
+			&i.MaterializedSamplingID,
+			&i.MaterializedOccurrenceID,
+			&i.ID_2,
+			&i.Label,
+			&i.Description,
+			&i.Status,
+			&i.AssembledBy,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.CompletedAt,
+			&i.CompletedBy,
+			&i.TaxonomicScope,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const generateCodesStaging = `-- name: GenerateCodesStaging :exec
+UPDATE import_samplings_occurrences
+SET generated_code = o.computed_code
+FROM (
+        SELECT o.id,
+            generate_occurrence_code(
+                t.name::text,
+                o.site_code,
+                o.latitude,
+                o.longitude,
+                o.event_date,
+                o.event_date_precision
+            ) AS computed_code
+        FROM import_samplings_occurrences o
+            JOIN taxon_resolution r ON r.id = o.taxon_resolution_id
+            JOIN taxon_candidates c ON r.resolved_candidate_id = c.id
+            JOIN taxa t ON t.id = c.taxon_id
+            JOIN import_batches b ON b.id = o.import_id
+        WHERE b.id = $1
+    ) AS o(id, computed_code)
+WHERE import_samplings_occurrences.id = o.id
+`
+
+func (q *Queries) GenerateCodesStaging(ctx context.Context, batchID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, generateCodesStaging, batchID)
+	return err
+}
 
 const refreshOccurrenceCodes = `-- name: RefreshOccurrenceCodes :exec
 WITH history AS (

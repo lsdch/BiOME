@@ -1,23 +1,23 @@
--- name: ListArticles :many
+-- name: ListPublications :many
 SELECT *
-FROM articles
+FROM publications
 ORDER BY authors [1] ASC,
     year DESC;
--- name: GetArticleByID :one
+-- name: GetPublicationByID :one
 SELECT *
-FROM articles
+FROM publications
 WHERE id = @id
 LIMIT 1;
 
 
--- name: GetArticleByDOI :one
+-- name: GetPublicationByDOI :one
 SELECT *
-FROM articles
+FROM publications
 WHERE doi = @doi
 LIMIT 1;
 
--- name: CreateArticle :one
-INSERT INTO articles (
+-- name: CreatePublication :one
+INSERT INTO publications (
         authors,
         year,
         title,
@@ -37,8 +37,8 @@ VALUES (
     )
 RETURNING *;
 
--- name: UpdateArticleByID :one
-UPDATE articles
+-- name: UpdatePublicationByID :one
+UPDATE publications
 SET authors = COALESCE(sqlc.narg('authors'), authors),
     year = COALESCE(sqlc.narg('year'), year),
     title = CASE
@@ -65,7 +65,7 @@ WHERE id = @id
 RETURNING *;
 
 
--- name: DeleteArticleByID :one
-DELETE FROM articles
+-- name: DeletePublicationByID :one
+DELETE FROM publications
 WHERE id = @id
 RETURNING *;

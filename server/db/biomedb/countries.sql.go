@@ -16,8 +16,8 @@ WHERE ST_Contains(
         c.geom,
         ST_SetSRID(
             ST_Point(
-                $1::real,
-                $2::real
+                $1::double precision,
+                $2::double precision
             ),
             4326
         )
@@ -25,7 +25,7 @@ WHERE ST_Contains(
 LIMIT 1
 `
 
-func (q *Queries) CoordinatesToCountry(ctx context.Context, latitude float32, longitude float32) ([]Country, error) {
+func (q *Queries) CoordinatesToCountry(ctx context.Context, latitude float64, longitude float64) ([]Country, error) {
 	rows, err := q.db.Query(ctx, coordinatesToCountry, latitude, longitude)
 	if err != nil {
 		return nil, err

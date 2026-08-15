@@ -16,6 +16,7 @@ const getMethodsResolution = `-- name: GetMethodsResolution :many
 SELECT import_id, input_text, resolved_method_id, status
 FROM sampling_methods_resolution
 WHERE import_id = $1
+ORDER BY input_text
 `
 
 func (q *Queries) GetMethodsResolution(ctx context.Context, importID uuid.UUID) ([]SamplingMethodsResolution, error) {
@@ -47,6 +48,7 @@ const getSamplingFixativesResolution = `-- name: GetSamplingFixativesResolution 
 SELECT import_id, input_text, resolved_fixative_id, status
 FROM sampling_fixatives_resolution
 WHERE import_id = $1
+ORDER BY input_text
 `
 
 // =============================================
@@ -100,7 +102,7 @@ SELECT $1,
     input_text,
     resolved_method_id,
     CASE
-        WHEN resolved_method_id IS NOT NULL THEN 'auto'
+        WHEN resolved_method_id IS NOT NULL THEN 'auto_resolved'
         ELSE 'pending'
     END::vocab_resolution_status
 FROM resolved
@@ -155,7 +157,7 @@ SELECT $1,
     input_text,
     resolved_fixative_id,
     CASE
-        WHEN resolved_fixative_id IS NOT NULL THEN 'auto'
+        WHEN resolved_fixative_id IS NOT NULL THEN 'auto_resolved'
         ELSE 'pending'
     END::vocab_resolution_status
 FROM resolved

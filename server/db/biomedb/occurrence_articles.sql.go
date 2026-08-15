@@ -12,35 +12,35 @@ import (
 	"github.com/lsdch/biome/types"
 )
 
-const addArticleToOccurrence = `-- name: AddArticleToOccurrence :exec
-INSERT INTO occurrences_articles (occurrence_id, article_id)
+const addPublicationToOccurrence = `-- name: AddPublicationToOccurrence :exec
+INSERT INTO occurrences_publications (occurrence_id, publication_id)
 VALUES (
         $1::ulid,
         $2::uuid
     )
 `
 
-func (q *Queries) AddArticleToOccurrence(ctx context.Context, occurrenceID types.ULID, articleID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, addArticleToOccurrence, occurrenceID, articleID)
+func (q *Queries) AddPublicationToOccurrence(ctx context.Context, occurrenceID types.ULID, publicationsID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, addPublicationToOccurrence, occurrenceID, publicationsID)
 	return err
 }
 
-const getOccurrenceArticles = `-- name: GetOccurrenceArticles :many
+const getOccurrencePublications = `-- name: GetOccurrencePublications :many
 SELECT a.id, a.authors, a.year, a.title, a.journal, a.verbatim, a.doi, a.comments
-FROM articles a
-    JOIN occurrences_articles oa ON oa.article_id = a.id
+FROM publications a
+    JOIN occurrences_publications oa ON oa.publication_id = a.id
 WHERE oa.occurrence_id = $1
 `
 
-func (q *Queries) GetOccurrenceArticles(ctx context.Context, occurrenceID types.ULID) ([]Article, error) {
-	rows, err := q.db.Query(ctx, getOccurrenceArticles, occurrenceID)
+func (q *Queries) GetOccurrencePublications(ctx context.Context, occurrenceID types.ULID) ([]Publication, error) {
+	rows, err := q.db.Query(ctx, getOccurrencePublications, occurrenceID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Article{}
+	items := []Publication{}
 	for rows.Next() {
-		var i Article
+		var i Publication
 		if err := rows.Scan(
 			&i.ID,
 			&i.Authors,
@@ -48,7 +48,7 @@ func (q *Queries) GetOccurrenceArticles(ctx context.Context, occurrenceID types.
 			&i.Title,
 			&i.Journal,
 			&i.Verbatim,
-			&i.Doi,
+			&i.DOI,
 			&i.Comments,
 		); err != nil {
 			return nil, err
@@ -61,13 +61,13 @@ func (q *Queries) GetOccurrenceArticles(ctx context.Context, occurrenceID types.
 	return items, nil
 }
 
-const removeArticleFromOccurrence = `-- name: RemoveArticleFromOccurrence :exec
-DELETE FROM occurrences_articles
+const removePublicationFromOccurrence = `-- name: RemovePublicationFromOccurrence :exec
+DELETE FROM occurrences_publications
 WHERE occurrence_id = $1::ulid
-    AND article_id = $2::uuid
+    AND publication_id = $2::uuid
 `
 
-func (q *Queries) RemoveArticleFromOccurrence(ctx context.Context, occurrenceID types.ULID, articleID uuid.UUID) error {
-	_, err := q.db.Exec(ctx, removeArticleFromOccurrence, occurrenceID, articleID)
+func (q *Queries) RemovePublicationFromOccurrence(ctx context.Context, occurrenceID types.ULID, publicationID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removePublicationFromOccurrence, occurrenceID, publicationID)
 	return err
 }

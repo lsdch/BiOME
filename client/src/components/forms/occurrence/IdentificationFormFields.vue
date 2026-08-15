@@ -4,7 +4,7 @@
       v-model="model.taxon_id"
       :min-width="500"
       item-value="id"
-      :ranks="TaxonRank.ranksUpTo('FAMILY')"
+      :ranks="TaxonRank.ranksUpTo('family')"
       v-bind="schema('taxon_id')"
     >
       <template #append-inner>

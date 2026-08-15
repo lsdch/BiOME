@@ -13,10 +13,27 @@
             label="Color binding"
             density="compact"
             class="my-1"
+            hide-details
           />
         </v-list-item>
-        <v-list-item>
-          <ColorPalettePicker v-model="layer.config.colorRange" label="Palette" class="my-1" />
+        <ListItemInput
+          v-if="layer.colorBinding.binding === 'constant'"
+          label="Fill color"
+          subtitle="Hue"
+        >
+          <ColorPickerMenu
+            v-model="layer.config.fillColor"
+            hide-details
+            :modes="['hex', 'rgb', 'hsl']"
+          />
+        </ListItemInput>
+        <v-list-item v-else>
+          <ColorPalettePicker
+            v-model="layer.config.colorRange"
+            label="Palette"
+            class="my-1"
+            hide-details
+          />
         </v-list-item>
         <ListItemInput title="Opacity">
           <v-slider
@@ -35,7 +52,8 @@
     </v-tabs-window-item>
     <v-tabs-window-item value="radius">
       <v-list>
-        <v-list-item
+        <ResolutionInputGroup v-model="layer" />
+        <!-- <v-list-item
           title="Radius"
           :subtitle="`${layer.config.radius} km (area ${Math.round(hexagonArea(layer.config.radius))} km²)`"
           lines="two"
@@ -53,8 +71,11 @@
               hide-details
             />
           </template>
-        </v-list-item>
-        <ListItemInput title="Coverage" :subtitle="`${(layer.config.coverage ?? 1) * 100}%`">
+        </v-list-item> -->
+        <ListItemInput
+          title="Coverage"
+          :subtitle="`${((layer.config.coverage ?? 1) * 100).toFixed(0)}%`"
+        >
           <v-slider
             v-model="layer.config.coverage"
             :min="0.5"
@@ -65,6 +86,10 @@
             show-ticks
             hide-details
           />
+          <InlineHelp>
+            The percentage of the cell area that is displayed. Use it to control the visible spacing
+            between cells.
+          </InlineHelp>
         </ListItemInput>
       </v-list>
     </v-tabs-window-item>
@@ -84,19 +109,19 @@
 <script setup lang="ts">
 import ColorPalettePicker from '@/components/toolkit/ui/ColorPalettePicker.vue'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
+import { getHexagonAreaAvg, getHexagonEdgeLengthAvg, UNITS } from 'h3-js'
 import { ref } from 'vue'
 import { HexLayerSpec } from './map-layers'
 import ScaleBindingSelect from './ScaleBindingSelect.vue'
+import ResolutionInputGroup from './ResolutionInputGroup.vue'
+import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
+import ColorPickerMenu from '@/components/toolkit/ui/ColorPickerMenu.vue'
 
 const layer = defineModel<HexLayerSpec>({
   required: true
 })
 
 const tab = ref<'color' | 'radius' | 'hover'>('color')
-
-function hexagonArea(radius: number) {
-  return (3 * Math.sqrt(3) * radius ** 2) / 2
-}
 </script>
 
 <style scoped lang="scss"></style>

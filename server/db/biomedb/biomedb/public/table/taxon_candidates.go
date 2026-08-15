@@ -24,6 +24,7 @@ type taxonCandidatesTable struct {
 	MatchType    postgres.ColumnString
 	TaxonID      postgres.ColumnString
 	GbifID       postgres.ColumnInteger
+	StagingID    postgres.ColumnString
 	Score        postgres.ColumnFloat
 	Priority     postgres.ColumnInteger
 	Name         postgres.ColumnString
@@ -78,14 +79,15 @@ func newTaxonCandidatesTableImpl(schemaName, tableName, alias string) taxonCandi
 		MatchTypeColumn    = postgres.StringColumn("match_type")
 		TaxonIDColumn      = postgres.StringColumn("taxon_id")
 		GbifIDColumn       = postgres.IntegerColumn("gbif_id")
+		StagingIDColumn    = postgres.StringColumn("staging_id")
 		ScoreColumn        = postgres.FloatColumn("score")
 		PriorityColumn     = postgres.IntegerColumn("priority")
 		NameColumn         = postgres.StringColumn("name")
 		AuthorshipColumn   = postgres.StringColumn("authorship")
 		RankColumn         = postgres.StringColumn("rank")
 		StatusColumn       = postgres.StringColumn("status")
-		allColumns         = postgres.ColumnList{IDColumn, ImportIDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
-		mutableColumns     = postgres.ColumnList{ImportIDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
+		allColumns         = postgres.ColumnList{IDColumn, ImportIDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, StagingIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
+		mutableColumns     = postgres.ColumnList{ImportIDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, StagingIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
 		defaultColumns     = postgres.ColumnList{IDColumn}
 	)
 
@@ -100,6 +102,7 @@ func newTaxonCandidatesTableImpl(schemaName, tableName, alias string) taxonCandi
 		MatchType:    MatchTypeColumn,
 		TaxonID:      TaxonIDColumn,
 		GbifID:       GbifIDColumn,
+		StagingID:    StagingIDColumn,
 		Score:        ScoreColumn,
 		Priority:     PriorityColumn,
 		Name:         NameColumn,

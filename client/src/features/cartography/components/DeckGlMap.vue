@@ -1,37 +1,85 @@
 <template>
-  <div ref="mapContainer" id="map-container" class="deck-map-container fill-height"
-    @mouseleave="cursorCoordinates = undefined">
+  <div
+    ref="mapContainer"
+    id="map-container"
+    class="deck-map-container fill-height"
+    @mouseleave="cursorCoordinates = undefined"
+  >
     <div ref="mapHost" class="deck-map"></div>
 
     <div class="map-control top-left">
-      <div class="d-flex flex-column ga-1">
-        <layers-control :hexgrid :marker-layers :hasSiteMarkers="!!pinMarkers?.length"
-          v-model:site-markers-visible="siteMarkersVisible" v-model:regions="regions" v-model:roads="roads"
+      <div class="d-flex flex-column ga-1 screenshot-exclude">
+        <layers-control
+          :hexgrid
+          :marker-layers
+          :hasSiteMarkers="!!pinMarkers?.length"
+          v-model:site-markers-visible="siteMarkersVisible"
+          v-model:regions="regions"
+          v-model:roads="roads"
           @toggleHexgrid="(v) => emit('toggleHexgrid', v)"
-          @toggleMarkers="(index, v) => emit('toggleMarkers', index, v)" />
-        <v-btn v-tooltip="{ text: 'Fit view', openDelay: 300 }" class="bg-white" color="white" :rounded="false"
-          icon="mdi-fit-to-screen" :width="30" density="compact"
-          @click="fitMapView(typeof autoFit === 'number' ? autoFit : 0)" />
-        <v-btn v-tooltip="{ text: 'Toggle fullscreen', openDelay: 300 }" color="white" class="bg-white" :rounded="false"
-          :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'" :width="30" density="compact"
-          @click="toggleFullscreen" />
+          @toggleMarkers="(index, v) => emit('toggleMarkers', index, v)"
+        />
+        <v-btn
+          v-tooltip="{ text: 'Fit view', openDelay: 300 }"
+          class="bg-white screenshot-exclude"
+          color="white"
+          :rounded="false"
+          icon="mdi-fit-to-screen"
+          :width="30"
+          density="compact"
+          @click="fitMapView(typeof autoFit === 'number' ? autoFit : 0)"
+        />
+        <v-btn
+          v-tooltip="{ text: 'Toggle fullscreen', openDelay: 300 }"
+          color="white"
+          class="bg-white screenshot-exclude"
+          :rounded="false"
+          :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
+          :width="30"
+          density="compact"
+          @click="toggleFullscreen"
+        />
+        <v-btn
+          v-tooltip="{ text: 'Screenshot', openDelay: 300 }"
+          color="white"
+          class="bg-white screenshot-exclude"
+          :rounded="false"
+          icon="mdi-camera"
+          :width="30"
+          density="compact"
+          @click="downloadMapScreenshot()"
+        />
       </div>
     </div>
 
     <div v-if="closable" class="map-control top-right">
-      <v-btn title="Close" color="white" class="bg-white" :rounded="false" icon="mdi-close" :width="35" :height="35"
-        density="compact" @click="emit('close')" />
+      <v-btn
+        title="Close"
+        color="white"
+        class="bg-white screenshot-exclude"
+        :rounded="false"
+        icon="mdi-close"
+        :width="35"
+        :height="35"
+        density="compact"
+        @click="emit('close')"
+      />
     </div>
 
     <div class="d-flex top-right ga-2 map-control">
-      <div v-if="hexgrid?.active && hexgridColorDomain">
-        <color-scale-widget :min="hexgridColorDomain.min" :max="hexgridColorDomain.max" :color-range="hexgridColorRange"
-          :binding-spec="hexgrid.colorBinding" :hidden="false" />
+      <div v-if="hexgrid?.active && hexgrid.colorBinding.binding !== 'constant'">
+        <color-scale-widget
+          :min="colorDomain.min"
+          :max="colorDomain.max"
+          :color-range="colorScale.range()"
+          :binding-spec="hexgrid.colorBinding"
+          :hidden="false"
+        />
       </div>
     </div>
 
     <div class="d-flex bottom-right ga-2 map-control">
-      <div v-if="cursorCoordinates" class="pointer-events-none">
+      <div v-if="cursorCoordinates" class="pointer-events-none screenshot-exclude">
         <v-card density="compact" class="pa-2 opacity-70" theme="light" rounded="0">
           <code class="text-label-small font-monospace d-block">
             <div class="d-flex justify-space-between ga-2">
@@ -49,30 +97,50 @@
     </div>
 
     <div class="map-popup bottom-left">
-      <div v-if="selected?.type === 'item' && selected.info.object">
-        <slot name="popup" :item="selected.info.object" :zoom="currentZoom" />
+      <div v-if="selected" class="screenshot-exclude">
+        <slot name="popup" :selection="selected" />
       </div>
-      <div v-else-if="selected?.type === 'site'">
+      <!-- <div v-else-if="selected?.type === 'site'">
         <slot name="pin-popup" :item="selected.info" :zoom="currentZoom" />
-      </div>
-      <div v-else-if="selected?.type === 'cluster' && selected?.info.object">
-        <slot name="cluster-popup" :data="selected.info.object.items" :type="selected.type" />
-      </div>
-      <div v-else-if="
-        selected?.type === 'hexagon' &&
-        selected?.info.object &&
-        selected.info.object.points?.length === 1
-      ">
-        <slot name="popup" :item="selected.info.object.points[0]" :zoom="currentZoom" />
-      </div>
+      </div> -->
+      <!-- <div v-else-if="selected?.type === 'cluster' && selected?.info.object">
+        <slot name="cluster-popup" :data="selected.info.object" :type="selected.type" />
+      </div> -->
+      <!-- <div
+        v-else-if="
+          selected?.type === 'hexagon' &&
+          selected?.info.object &&
+          selected.info.object.points?.length === 1
+        "
+      >
+        <slot name="popup" :item="selected.info.object" :zoom="currentZoom" />
+      </div> -->
 
-      <div v-else-if="selected?.type === 'hexagon' && selected?.info.object">
-        <slot name="cluster-popup" :data="selected.info.object.points" :type="selected.type" />
+      <!-- <div v-else-if="selected?.type === 'hexagon' && selected?.info.object">
+        <slot
+          name="cluster-popup"
+          :data="selected.info.object"
+          :resolution="selected.resolution"
+          :params="selected.params"
+          :type="selected.type"
+        />
       </div>
+      <div v-else-if="selected?.type === 'marker' && selected?.info.object">
+        <slot
+          name="cluster-popup"
+          :data="selected.info.object"
+          :resolution="12"
+          :params="selected.params"
+          :type="selected.type"
+        />
+      </div> -->
     </div>
 
-    <div v-if="hoverTooltip" class="map-popup hex-hover-tooltip pointer-events-none"
-      :style="{ left: `${hoverTooltip.x}px`, top: `${hoverTooltip.y}px` }">
+    <div
+      v-if="hoverTooltip"
+      class="map-popup hex-hover-tooltip pointer-events-none"
+      :style="{ left: `${hoverTooltip.x}px`, top: `${hoverTooltip.y}px` }"
+    >
       <div class="hex-hover-tooltip__content text-label-small font-monospace">
         {{ hoverTooltip.text }}
       </div>
@@ -94,10 +162,16 @@ export default {
 }
 </script>
 
-<script setup lang="ts" generic="PinMarkerData, Item extends ItemWithCoordinates">
+<script setup lang="ts" generic="PinMarkerData, MarkerData extends H3Cell">
 import type { Layer } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
-import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
+import {
+  computedAsync,
+  onKeyStroke,
+  useDebounceFn,
+  useFullscreen,
+  useThrottleFn
+} from '@vueuse/core'
 import maplibregl, { LngLatBounds, type StyleSpecification } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import {
@@ -111,15 +185,20 @@ import {
   watchEffect
 } from 'vue'
 
-// import { type SiteWithOccurrences } from '@/api'
 import type { Coordinates, ItemWithCoordinates } from '@/features/cartography/coordinates'
 import { useMarkerLayers } from '../composables/useMarkerLayers'
-import type { HexgridLayer, MarkerLayer, PinMarker } from './layers-manager/map-layers'
+import {
+  markerLayerFromSpec,
+  type H3Cell,
+  type HexgridLayer,
+  type MarkerLayer,
+  type PinMarker
+} from './layers-manager/map-layers'
 
 import '@deck.gl/widgets/stylesheet.css'
 import * as turf from '@turf/turf'
-import { useHexgridLayer } from '../composables/hexgrid-layer'
-import { useMarkerSelection } from '../composables/marker-selection'
+import { useHexgridLayer, useHexgridMarkersLayer } from '../composables/hexgrid-layer'
+import { MarkerSelectionInfo, useMarkerSelection } from '../composables/marker-selection'
 import {
   createRegionLayers,
   createRoadsLayers,
@@ -130,6 +209,15 @@ import {
 import ColorScaleWidget from './controls/ColorScaleWidget.vue'
 import LayersControl from './controls/LayersControl.vue'
 
+// import { H3CellWithRichness } from '@/api/adapters.ts'
+import { H3CellWithRichness } from '@/api/adapters.ts'
+import { listOccurrencesH3Options } from '@/api/gen/@tanstack/vue-query.gen.ts'
+import { useQuery } from '@tanstack/vue-query'
+import { Position } from 'geojson'
+import { cellToLatLng } from 'h3-js'
+
+import { toBlob } from 'html-to-image'
+
 export type GlobalMarkerOptions = {
   cluster: {
     radiusScaleFactor: number
@@ -137,6 +225,9 @@ export type GlobalMarkerOptions = {
   }
   tooltips?: boolean
 }
+
+type HexData = H3CellWithRichness
+// type MarkerData = HexData
 
 // type Item = {
 //   // distance_meters: number;
@@ -156,33 +247,41 @@ const roads = defineModel<boolean>('roads', { default: false })
 watch(regions, (value) => updateRegionsLayerVisibility(map, value), { immediate: true })
 watch(roads, (value) => updateRoadsLayerVisibility(map, value), { immediate: true })
 
+const currentZoom = defineModel<number>('zoom', { default: 2 })
 const {
   hexgrid,
   minZoom = 1,
   maxZoom = 18,
   autoFit = true,
   center = [0, 0],
-  zoom = 2,
+  // zoom = 2,
   markerOptions = DEFAULT_MARKER_OPTIONS,
   ...props
 } = defineProps<{
-  hexgrid?: HexgridLayer<Item>
+  hexgrid?: HexgridLayer<HexData>
   pinMarkers?: PinMarker<PinMarkerData>[]
-  markerLayers?: MarkerLayer<Item>[]
+  markerLayers?: MarkerLayer<MarkerData>[]
   autoFit?: boolean | number
   closable?: boolean
   regions?: boolean
   center?: [number, number]
   minZoom?: number
   maxZoom?: number
-  zoom?: number
+  // zoom?: number
   markerOptions?: GlobalMarkerOptions
 }>()
 
 defineSlots<{
-  popup: (props: { item: Item; zoom: number }) => any
-  'pin-popup': (props: { item: PinMarker<PinMarkerData>; zoom: number }) => any
-  'cluster-popup': (props: { data?: Item[]; type: 'cluster' | 'hexagon' }) => any
+  popup: (props: {
+    selection: MarkerSelectionInfo<MarkerData, HexData, PinMarker<PinMarkerData>>
+  }) => any
+  // 'pin-popup': (props: { item: PinMarker<PinMarkerData>; zoom: number }) => any
+  // 'cluster-popup': (props: {
+  //   data?: HexData | MarkerData
+  //   type: 'marker' | 'hexagon'
+  //   resolution: number
+  //   params: MappingFilters
+  // }) => any
 }>()
 
 const emit = defineEmits<{
@@ -193,7 +292,7 @@ const emit = defineEmits<{
 }>()
 
 const cursorCoordinates = ref<{ lat: number; lng: number }>()
-const currentZoom = ref(zoom)
+// const currentZoom = ref(zoom)
 const hoverTooltip = ref<{ x: number; y: number; text: string }>()
 
 const { isFullscreen, exit, toggle } = useFullscreen(mapContainer)
@@ -231,7 +330,8 @@ const mapStyle: StyleSpecification = {
 }
 
 const { selected, select, highlightLayer, clear } = useMarkerSelection<
-  Item,
+  MarkerData,
+  HexData,
   PinMarker<PinMarkerData>
 >()
 
@@ -275,39 +375,75 @@ function removeSiteRadius(mapInstance: maplibregl.Map) {
 watch(selected, () => {
   if (!map.value) return
   removeSiteRadius(map.value)
-  if (selected.value?.type === 'item') displaySiteRadius(selected.value.info.object!)
-  else if (selected.value?.type === 'site') displaySiteRadius(selected.value.info)
+  // if (selected.value?.type === 'item') displaySiteRadius(selected.value.info.object!)
+  // else if (selected.value?.type === 'site') displaySiteRadius(selected.value.info)
 })
 
-const { markerDeckLayers } = useMarkerLayers(
+const { markerDeckLayers } = useMarkerLayers<MarkerData>(
   {
-    markerLayers: () => props.markerLayers ?? [],
-    markerOptions: () => markerOptions
+    markerLayers: () => props.markerLayers ?? []
   },
   {
     currentZoom,
     hoverTooltip,
-    selected,
-    select
+    select,
+    markerOptions
   }
 )
 
-const { hexgridLayer, hexgridMarkersLayer, hexgridColorDomain, hexgridColorRange } =
-  useHexgridLayer<Item>(
-    { hexgrid: () => hexgrid, markerOptions: () => markerOptions },
+const { hexgridLayer, colorScale, colorDomain } = useHexgridLayer<HexData>(
+  { hexgrid: () => hexgrid },
+  {
+    selected,
+    select,
+    currentZoom,
+    hoverTooltip
+  }
+)
+
+const { data: hexMarkersData } = useQuery(
+  computed(() => ({
+    enabled: !!hexgrid?.active,
+    ...listOccurrencesH3Options({
+      query: hexgrid?.filters ?? {},
+      path: { resolution: hexgrid?.markers.resolution ?? 12 }
+    })
+  }))
+)
+
+const hexMarkersLayer = computed(() => {
+  if (!hexgrid || !hexgrid.active) return []
+
+  const hexMarkers = markerLayerFromSpec(hexgrid.markers, hexMarkersData.value ?? [], {
+    radius: (item: HexData) => item.occurrences_count,
+    getText: (item: HexData) => {
+      return item.occurrences_count > 1 ? item.occurrences_count.toString() : ''
+    },
+    getPosition: (item: HexData) => {
+      const [lat, lng] = cellToLatLng(item.h3_index)
+      return [lng, lat]
+    }
+  })
+
+  const { hexMarkersLayer } = useHexgridMarkersLayer<HexData>(
+    { hexgrid: () => hexgrid, markers: () => hexMarkers },
     {
-      selected,
       select,
       currentZoom,
-      hoverTooltip
+      hoverTooltip,
+      markerOptions: () => {
+        return markerOptions
+      }
     }
   )
+  return hexMarkersLayer.value ?? []
+})
 
-const deckLayers = computed<Layer[]>(() => {
+const deckLayers = computedAsync<Layer[]>(async () => {
   console.debug('Recomputing deck layers')
   const layers = [
     hexgridLayer.value,
-    ...hexgridMarkersLayer.value,
+    ...hexMarkersLayer.value,
     ...markerDeckLayers.value,
     ...highlightLayer.value
   ].filter((layer) => layer !== undefined)
@@ -315,23 +451,18 @@ const deckLayers = computed<Layer[]>(() => {
 })
 
 const fitSignature = computed(() => {
-  const hexSignature = hexgrid
-    ? [
-      hexgrid.data?.length ?? 0,
-      hexgrid.data?.[0]?.coordinates.latitude ?? '',
-      hexgrid.data?.[0]?.coordinates.longitude ?? ''
-    ].join(':')
-    : 'none'
+  const hexSignature = [hexgrid?.active].join(':')
+  // hexgrid
+  //   ? [
+  //       hexgrid.data?.length ?? 0,
+  //       hexgrid.data?.[0] ?? ''
+  //       // hexgrid.data?.[0]?.coordinates.longitude ?? ''
+  //     ].join(':')
+  //   : 'none'
 
   const markerSignature = (props.markerLayers ?? [])
-    .filter((layer) => layer.active)
-    .map((layer) =>
-      [
-        layer.data?.length ?? 0,
-        layer.data?.[0]?.coordinates.latitude ?? '',
-        layer.data?.[0]?.coordinates.longitude ?? ''
-      ].join(':')
-    )
+    .map((layer) => layer.active)
+    // .map((layer) => [layer.data?.length ?? 0, layer.data?.[0]?.h3_index ?? ''].join(':'))
     .join('|')
 
   const markerSignatureSingle = (props.pinMarkers ?? []).length
@@ -339,17 +470,23 @@ const fitSignature = computed(() => {
   return [autoFit, hexSignature, markerSignature, markerSignatureSingle].join('::')
 })
 
-function computeAllPoints() {
+function computeAllPoints(): Position[] {
   const hexPoints = hexgrid?.active ? (hexgrid.data ?? []) : []
   const markerLayerPoints = (props.markerLayers ?? [])
     .filter((layer) => layer.active)
     .flatMap((layer) => layer.data ?? [])
   const singleMarkers = props.pinMarkers ?? []
-
-  return [...hexPoints, ...markerLayerPoints, ...singleMarkers].map(({ coordinates }) => [
-    coordinates.longitude,
-    coordinates.latitude
-  ]) as [number, number][]
+  return [
+    ...hexPoints.map(({ h3_index }) => {
+      const [lat, lng] = cellToLatLng(h3_index)
+      return [lng, lat]
+    }),
+    ...markerLayerPoints.map(({ h3_index }) => {
+      const [lat, lng] = cellToLatLng(h3_index)
+      return [lng, lat]
+    }),
+    ...singleMarkers.map(({ coordinates }) => [coordinates.longitude, coordinates.latitude])
+  ]
 }
 
 function fitMapView(radiusMeters = 0) {
@@ -426,6 +563,69 @@ const scheduleOverlayUpdate = useDebounceFn(async () => {
   updateOverlayLayers()
 }, 16)
 
+async function downloadMapScreenshot() {
+  const blob = await captureMap().catch((err) => {
+    console.error('Error capturing map screenshot:', err)
+    return undefined
+  })
+  if (!blob) return
+
+  const url = URL.createObjectURL(blob)
+
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'map.png'
+  link.click()
+
+  URL.revokeObjectURL(url)
+}
+
+async function waitForMapIdle(mapInstance: maplibregl.Map) {
+  if (mapInstance.loaded() && !mapInstance.isMoving() && !mapInstance.isZooming()) {
+    return
+  }
+
+  await new Promise<void>((resolve) => {
+    mapInstance.once('idle', () => resolve())
+  })
+}
+
+async function nextFrame() {
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+}
+
+async function captureMap(): Promise<Blob> {
+  if (!map.value || !mapInitialized.value || !mapContainer.value) {
+    throw new Error('Map is not initialized')
+  }
+
+  const mapInstance = map.value
+  const container = mapContainer.value
+
+  // Make sure the current MapLibre/DeckGL rendering is complete.
+  await waitForMapIdle(mapInstance)
+  await nextFrame()
+
+  const blob = await toBlob(container, {
+    pixelRatio: 2,
+    filter: (node) => {
+      if (!(node instanceof HTMLElement)) return true
+
+      // Don't include interactive controls in the screenshot.
+      return (
+        !node.classList.contains('screenshot-exclude') &&
+        !node.classList.contains('maplibregl-ctrl-attrib')
+      )
+    }
+  })
+
+  if (!blob) {
+    throw new Error('Unable to capture map')
+  }
+
+  return blob
+}
+
 onMounted(() => {
   void nextTick(() => {
     if (!mapHost.value || !mapContainer.value) return
@@ -436,9 +636,13 @@ onMounted(() => {
       container: mapHost.value,
       style: mapStyle,
       center: [lng, lat],
-      zoom: zoom,
+      zoom: currentZoom.value,
       minZoom: minZoom,
       maxZoom: maxZoom,
+      pixelRatio: 2,
+      canvasContextAttributes: {
+        preserveDrawingBuffer: true
+      },
       attributionControl: {
         compact: true
       }
@@ -475,6 +679,7 @@ onMounted(() => {
           if (isHovering) return 'pointer'
           return 'grab'
         },
+        // useDevicePixels: 1,
         interleaved: true,
         layers: deckLayers.value
       })

@@ -12,7 +12,7 @@
         label="Maintainers"
         v-model="proxy.value.maintainers"
         multiple
-        restrict="Contributor"
+        restrict="contributor"
         return-objects
         v-bind="schema('maintainers')"
         clearable

@@ -113,22 +113,20 @@ func (q *Queries) ListDatasets(ctx context.Context) ([]Dataset, error) {
 
 const listOccurrencesForDataset = `-- name: ListOccurrencesForDataset :many
 SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
-    s.id, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector,
-    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
-    c.code, c.name, c.continent, c.subcontinent, c.geom
+    s.id, s.source_sampling_hash, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector, s.country_code, s.country_name, s.country_continent, s.country_subcontinent,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
 FROM occurrences o
     JOIN occurrences_datasets od ON od.occurrence_id = o.id
-    JOIN samplings s ON s.id = o.sampling_id
+    JOIN samplings_with_country s ON s.id = o.sampling_id
     JOIN countries c ON c.code = s.site_country_code
     JOIN taxa t ON t.id = o.taxon_id
 WHERE od.dataset_id = $1
 `
 
 type ListOccurrencesForDatasetRow struct {
-	Occurrence Occurrence `json:"occurrence"`
-	Sampling   Sampling   `json:"sampling"`
-	Taxon      Taxon      `json:"taxon"`
-	Country    Country    `json:"country"`
+	Occurrence           Occurrence           `json:"occurrence"`
+	SamplingsWithCountry SamplingsWithCountry `json:"samplings_with_country"`
+	Taxon                Taxon                `json:"taxon"`
 }
 
 func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID types.ULID) ([]ListOccurrencesForDatasetRow, error) {
@@ -161,25 +159,30 @@ func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID types
 			&i.Occurrence.CreatedAt,
 			&i.Occurrence.UpdatedAt,
 			&i.Occurrence.ImportBatchID,
-			&i.Sampling.ID,
-			&i.Sampling.Comments,
-			&i.Sampling.SiteCode,
-			&i.Sampling.SiteName,
-			&i.Sampling.SiteLocality,
-			&i.Sampling.SiteCountryCode,
-			&i.Sampling.CoordinatesPrecision,
-			&i.Sampling.Coordinates,
-			&i.Sampling.Latitude,
-			&i.Sampling.Longitude,
-			&i.Sampling.Altitude,
-			&i.Sampling.EventDate,
-			&i.Sampling.EventDatePrecision,
-			&i.Sampling.PerformedBy,
-			&i.Sampling.Duration,
-			&i.Sampling.AccessPoints,
-			&i.Sampling.ImportBatchID,
-			&i.Sampling.H3Index,
-			&i.Sampling.SearchVector,
+			&i.SamplingsWithCountry.ID,
+			&i.SamplingsWithCountry.SourceSamplingHash,
+			&i.SamplingsWithCountry.Comments,
+			&i.SamplingsWithCountry.SiteCode,
+			&i.SamplingsWithCountry.SiteName,
+			&i.SamplingsWithCountry.SiteLocality,
+			&i.SamplingsWithCountry.SiteCountryCode,
+			&i.SamplingsWithCountry.CoordinatesPrecision,
+			&i.SamplingsWithCountry.Coordinates,
+			&i.SamplingsWithCountry.Latitude,
+			&i.SamplingsWithCountry.Longitude,
+			&i.SamplingsWithCountry.Altitude,
+			&i.SamplingsWithCountry.EventDate,
+			&i.SamplingsWithCountry.EventDatePrecision,
+			&i.SamplingsWithCountry.PerformedBy,
+			&i.SamplingsWithCountry.Duration,
+			&i.SamplingsWithCountry.AccessPoints,
+			&i.SamplingsWithCountry.ImportBatchID,
+			&i.SamplingsWithCountry.H3Index,
+			&i.SamplingsWithCountry.SearchVector,
+			&i.SamplingsWithCountry.CountryCode,
+			&i.SamplingsWithCountry.CountryName,
+			&i.SamplingsWithCountry.CountryContinent,
+			&i.SamplingsWithCountry.CountrySubcontinent,
 			&i.Taxon.ID,
 			&i.Taxon.GBIFID,
 			&i.Taxon.Name,
@@ -191,11 +194,6 @@ func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID types
 			&i.Taxon.ParentID,
 			&i.Taxon.SearchVector,
 			&i.Taxon.Comments,
-			&i.Country.Code,
-			&i.Country.Name,
-			&i.Country.Continent,
-			&i.Country.Subcontinent,
-			&i.Country.Geom,
 		); err != nil {
 			return nil, err
 		}

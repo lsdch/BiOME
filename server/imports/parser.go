@@ -2,7 +2,6 @@ package imports
 
 import (
 	"encoding/csv"
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -10,20 +9,6 @@ import (
 	"github.com/jszwec/csvutil"
 	csvmodels "github.com/lsdch/biome/models/csv"
 )
-
-type CSVParseError struct {
-	RowNumber int32
-	Err       error
-}
-
-func (e *CSVParseError) Error() string {
-	return fmt.Sprintf("error parsing CSV at row %d: %v", e.RowNumber, e.Err)
-}
-
-type CSVImportParams struct {
-	Reader    io.Reader
-	Separator rune
-}
 
 type SanitizingReader struct {
 	reader   *csv.Reader
@@ -41,24 +26,14 @@ func (r *SanitizingReader) Read() ([]string, error) {
 
 type CSVParser interface {
 	ParseCSV(reader io.Reader, separator rune) ([]csvmodels.OccurrenceImportRow, error)
+	ParseBibCSV(reader io.Reader, separator rune) ([]csvmodels.PublicationImportRow, error)
 }
 
 func NewCSVParser() CSVParser {
-	return &csvParser{}
-}
-
-type csvParser struct{}
-
-func (p *csvParser) ParseCSV(reader io.Reader, separator rune) ([]csvmodels.OccurrenceImportRow, error) {
-	csvReader := csv.NewReader(reader)
-	csvReader.TrimLeadingSpace = true
-	csvReader.Comma = separator
-
-	sanitizingReader := &SanitizingReader{
-		reader: csvReader,
-		sanitize: func(record []string) []string {
+	return &csvParser{
+		sanitizer: func(record []string) []string {
 			for i, v := range record {
-				record[i] = strings.TrimSpace(v)
+				record[i] = strings.Trim(strings.TrimSpace(v), ",;")
 
 				switch record[i] {
 				case "NULL", "N/A", "NA", "-":
@@ -68,6 +43,27 @@ func (p *csvParser) ParseCSV(reader io.Reader, separator rune) ([]csvmodels.Occu
 			return record
 		},
 	}
+}
+
+type csvParser struct {
+	sanitizer func([]string) []string
+}
+
+func (p *csvParser) readerWithSanitization(reader io.Reader, separator rune) *SanitizingReader {
+	csvReader := csv.NewReader(reader)
+	// Disabled to prevent reader from messing without tab-separated files with empty fields
+	csvReader.TrimLeadingSpace = false
+	csvReader.Comma = separator
+	csvReader.FieldsPerRecord = -1
+
+	return &SanitizingReader{
+		reader:   csvReader,
+		sanitize: p.sanitizer,
+	}
+}
+
+func (p *csvParser) decoderWithSanitization(reader io.Reader, separator rune) (*csvutil.Decoder, error) {
+	sanitizingReader := p.readerWithSanitization(reader, separator)
 
 	dec, err := csvutil.NewDecoder(sanitizingReader)
 	if err != nil {
@@ -89,6 +85,15 @@ func (p *csvParser) ParseCSV(reader io.Reader, separator rune) ([]csvmodels.Occu
 		}),
 	)
 
+	return dec, nil
+}
+
+func (p *csvParser) ParseCSV(reader io.Reader, separator rune) ([]csvmodels.OccurrenceImportRow, error) {
+	dec, err := p.decoderWithSanitization(reader, separator)
+	if err != nil {
+		return nil, err
+	}
+
 	// Sanitize fields
 	// dec.Map = func(field, column string, v any) string {
 	// 	if !utf8.ValidString(field) {
@@ -103,10 +108,39 @@ func (p *csvParser) ParseCSV(reader io.Reader, separator rune) ([]csvmodels.Occu
 	row := int32(2) // Start counting from 2 to account for the header row
 	for {
 		u := csvmodels.OccurrenceImportRow{}
+		u.SetRowNumber(row)
+		getCSVConfigurator[csvmodels.OccurrenceImportRow]()(&u)
 		if err := dec.Decode(&u); err == io.EOF {
 			break
 		} else if err != nil {
-			return nil, &CSVParseError{
+			return nil, &csvmodels.CSVParseError{
+				RowNumber: row,
+				Err:       err,
+			}
+		}
+		rows = append(rows, u)
+		row++
+	}
+	return rows, nil
+}
+
+func (p *csvParser) ParseBibCSV(reader io.Reader, separator rune) ([]csvmodels.PublicationImportRow, error) {
+	dec, err := p.decoderWithSanitization(reader, separator)
+	if err != nil {
+		return nil, err
+	}
+
+	var rows []csvmodels.PublicationImportRow
+
+	_ = dec.Header()
+	row := int32(2) // Start counting from 2 to account for the header row
+	for {
+		u := csvmodels.PublicationImportRow{}
+		u.SetRowNumber(row)
+		if err := dec.Decode(&u); err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, &csvmodels.CSVParseError{
 				RowNumber: row,
 				Err:       err,
 			}

@@ -9,7 +9,7 @@
       <div class="fill-height d-flex flex-column">
         <v-tabs v-model="tab" class="flex-shrink-0">
           <v-tab value="layers" prepend-icon="mdi-layers"> Layers </v-tab>
-          <v-tab value="sites" prepend-icon="mdi-map-marker">
+          <!-- <v-tab value="sites" prepend-icon="mdi-map-marker">
             Sites
             <v-badge
               v-if="layerSpecs.sites?.length"
@@ -18,7 +18,7 @@
               inline
               class="ml-1"
             />
-          </v-tab>
+          </v-tab> -->
           <v-tab value="config">
             <v-icon icon="mdi-cog" />
           </v-tab>
@@ -38,9 +38,11 @@
             <LayersManager
               v-model:hex-layer="layerSpecs.hexgrid"
               v-model:marker-layers="layerSpecs.markers"
+              :zoom
+              :global-opts="markerOptions"
             />
           </v-tabs-window-item>
-          <v-tabs-window-item value="sites">
+          <!-- <v-tabs-window-item value="sites">
             <SiteSearchPanel
               v-model="layerSpecs.sites"
               @focus-site="
@@ -51,7 +53,7 @@
                 }
               "
             />
-          </v-tabs-window-item>
+          </v-tabs-window-item> -->
           <v-tabs-window-item value="config">
             <MapViewConfig v-model:save-layers="saveLayers" v-model:markerOptions="markerOptions" />
           </v-tabs-window-item>
@@ -63,7 +65,7 @@
         <v-divider />
         <div class="d-flex justify-space-between pa-2">
           <div>
-            <MapPresetSaveDialog
+            <!-- <MapPresetSaveDialog
               v-if="userStore.isAuthenticated"
               :specs="{
                 hexgrid: layerSpecs.hexgrid,
@@ -96,7 +98,7 @@
                   v-bind="props"
                 />
               </template>
-            </MapPresetLoadDialog>
+            </MapPresetLoadDialog> -->
             <v-btn
               icon="mdi-share"
               variant="text"
@@ -129,7 +131,7 @@
           </template>
           <v-sheet :height="48" class="my-0 d-flex align-center"> Layers </v-sheet>
         </v-tooltip>
-        <v-tooltip content-class="bg-surface text-overline py-0" :height="48">
+        <!-- <v-tooltip content-class="bg-surface text-overline py-0" :height="48">
           <template #activator="{ props }">
             <v-list-item
               v-bind="props"
@@ -141,7 +143,7 @@
             />
           </template>
           <v-sheet :height="48" class="my-0 d-flex align-center"> Sites </v-sheet>
-        </v-tooltip>
+        </v-tooltip> -->
       </v-list>
     </v-navigation-drawer>
 
@@ -151,25 +153,36 @@
         <DeckGlMap
           ref="map"
           :auto-fit="!anyLoading"
-          :pinMarkers="siteMarkers"
           :hexgrid="hexgridLayer"
           @toggle-hexgrid="(v) => (layerSpecs.hexgrid.active = v)"
           @toggle-markers="(i, v) => (layerSpecs.markers[i].active = v)"
           :marker-layers
           :marker-options
+          v-model:zoom="zoom"
         >
-          <template #cluster-popup="{ data }">
-            <SiteClusterPopup :data />
-          </template>
+          <!-- :pinMarkers="siteMarkers" -->
+          <!-- <template #cluster-popup="{ data, resolution, params }"> </template>
           <template #pin-popup="{ item }">
             <KeepAlive>
               <SitePopupWithOccurrences :item="item.data" />
             </KeepAlive>
-          </template>
-          <template #popup="{ item }">
-            <KeepAlive>
-              <SitePopupWithOccurrences :item />
-            </KeepAlive>
+          </template> -->
+          <template #popup="{ selection }">
+            <SiteClusterPopup
+              v-if="selection.type === 'hexagon' && !!selection.info.object"
+              :data="selection.info.object"
+              :resolution="selection.resolution"
+              :params="selection.params"
+              :attach="map?.el"
+            />
+
+            <SiteClusterPopup
+              v-else-if="selection.type === 'marker' && !!selection.info.object"
+              :data="selection.info.object"
+              :resolution="selection.resolution"
+              :params="selection.params"
+              :attach="map?.el"
+            />
           </template>
         </DeckGlMap>
       </div>
@@ -180,8 +193,6 @@
 <script setup lang="ts">
 import DeckGlMap, { GlobalMarkerOptions } from '@/features/cartography/components/DeckGlMap.vue'
 
-import { SiteItem, SiteSamplingStatus, SiteWithOccurrences } from '@/api'
-import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import {
   HexgridLayer,
   HexLayerSpec,
@@ -191,11 +202,10 @@ import {
   MarkerLayerSpec,
   PinMarker
 } from '@/features/cartography/components/layers-manager/map-layers'
-import MapPresetLoadDialog from '@/features/cartography/components/map-presets/MapPresetLoadDialog.vue'
-import MapPresetSaveDialog from '@/features/cartography/components/map-presets/MapPresetSaveDialog.vue'
+// import MapPresetLoadDialog from '@/features/cartography/components/map-presets/MapPresetLoadDialog.vue'
+// import MapPresetSaveDialog from '@/features/cartography/components/map-presets/MapPresetSaveDialog.vue'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
-import { useQuery } from '@tanstack/vue-query'
 import {
   computedAsync,
   useClipboard,
@@ -204,23 +214,25 @@ import {
   useToggle
 } from '@vueuse/core'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { onMounted, ref, useTemplateRef, watch } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useRoute } from 'vue-router'
-import { useLayerData } from '../components/layers-manager/layer-data'
+import { CellMarkerData, useLayerData } from '../components/layers-manager/layer-data'
 import LayersManager from '../components/layers-manager/LayersManager.vue'
 import MapViewConfig from '../components/MapViewConfig.vue'
-import SiteClusterPopup from '../components/popups/SiteClusterPopup.vue'
-import SitePopupWithOccurrences from '../components/popups/SitePopupWithOccurrences.vue'
-import SiteSearchPanel from '../components/SiteSearchPanel.vue'
+import SiteClusterPopup from '../components/popups/MultiSamplingsPopup.vue'
+import { H3CellWithRichness } from '@/api/adapters.ts'
+import { cellToLatLng } from 'h3-js'
 import { hexgridLayerFromSpec } from '../composables/hexgrid-layer'
 
 const route = useRoute()
 
+const zoom = ref(2)
+
 type LayerSpecs = {
   hexgrid: HexLayerSpec
   markers: MarkerLayerSpec[]
-  sites: PinMarker<SiteItem>[]
+  sites: PinMarker<CellMarkerData>[]
 }
 
 const layerSpecs = useSessionStorage<LayerSpecs>(
@@ -252,28 +264,28 @@ watch(
   { deep: true }
 )
 
-const singleSites = useQuery(
-  computed(() => {
-    return {
-      enabled: layerSpecs.value.sites.length > 0,
-      ...occurrencesBySiteOptions({
-        body: {
-          site_codes: layerSpecs.value.sites.map((s) => s.data.code),
-          sampling_target: {}
-        }
-      })
-    }
-  })
-)
-const siteMarkers = computed(() => {
-  if (!layerSpecs.value.sites?.length) return []
-  const colorMap = new Map(layerSpecs.value.sites.map((s) => [s.data.code, s.options?.color]))
-  return singleSites.data.value?.map<PinMarker<SiteWithOccurrences>>((site) => ({
-    data: site,
-    coordinates: site.coordinates,
-    options: { color: colorMap.get(site.code) }
-  }))
-})
+// const singleSites = useQuery(
+//   computed(() => {
+//     return {
+//       enabled: layerSpecs.value.sites.length > 0,
+//       ...occurrencesBySiteOptions({
+//         body: {
+//           site_codes: layerSpecs.value.sites.map((s) => s.data.code),
+//           sampling_target: {}
+//         }
+//       })
+//     }
+//   })
+// )
+// const siteMarkers = computed(() => {
+//   if (!layerSpecs.value.sites?.length) return []
+//   const colorMap = new Map(layerSpecs.value.sites.map((s) => [s.data.code, s.options?.color]))
+//   return singleSites.data.value?.map<PinMarker<SiteWithOccurrences>>((site) => ({
+//     data: site,
+//     coordinates: site.coordinates,
+//     options: { color: colorMap.get(site.code) }
+//   }))
+// })
 
 const drawerPinned = useLocalStorage('mapping-tool-drawer-pinned', false, {
   initOnMounted: true
@@ -285,7 +297,7 @@ const userStore = useUserStore()
 
 const [drawer, toggleDrawer] = useToggle(false)
 
-type MappingToolTab = 'layers' | 'sites' | 'config'
+type MappingToolTab = 'layers' | 'config'
 
 const tab = ref<MappingToolTab>('layers')
 
@@ -296,34 +308,35 @@ function toggleTab(newTab: MappingToolTab) {
 
 const { feedback } = useFeedback()
 
-const { allPending, anyLoading, layerData, data } = useLayerData()
+const { allPending, anyLoading, layerData, data, H3CellToMarkerData } = useLayerData()
 
-function applySiteFilter(sites: SiteWithOccurrences[] | undefined, filter: SiteSamplingStatus) {
-  if (filter === 'Sampled') {
-    return sites?.filter((site) => site.samplings.length > 0)
-  } else if (filter === 'Occurrences') {
-    return sites?.filter((site) => site.samplings.some((s) => s.occurrences.length > 0))
-  } else {
-    return sites
-  }
-}
-
-const hexgridLayer = computedAsync<HexgridLayer<SiteWithOccurrences>>(async () => {
+const hexgridLayer = computedAsync<HexgridLayer<H3CellWithRichness>>(async () => {
   console.debug('Recomputing hexgrid layer with spec', layerSpecs.value.hexgrid)
   const remote = data.get(layerSpecs.value.hexgrid.id)
   if (remote?.isFetching?.value) await remote?.suspense()
-  return hexgridLayerFromSpec(
+  return hexgridLayerFromSpec<H3CellWithRichness>(
     layerSpecs.value.hexgrid,
-    applySiteFilter(remote?.data.value, layerSpecs.value.hexgrid.include_sites)
+    remote?.data.value
+    // applySiteFilter(remote?.data.value, layerSpecs.value.hexgrid.include_sites)
   )
 })
 
-const markerLayers = computedAsync<MarkerLayer<SiteWithOccurrences>[]>(async () => {
+const markerLayers = computedAsync<MarkerLayer<H3CellWithRichness>[]>(async () => {
+  console.log('Recomputing marker layers')
   return Promise.all(
     layerSpecs.value.markers.map(async (layer) => {
       const remote = data.get(layer.id)
       if (remote?.isFetching?.value) await remote?.suspense()
-      return markerLayerFromSpec(layer, applySiteFilter(remote?.data.value, layer.include_sites))
+      return markerLayerFromSpec(layer, remote?.data.value ?? [], {
+        radius(item) {
+          return item.occurrences_count
+        },
+        getPosition: (item) => {
+          const [lat, lng] = cellToLatLng(item.h3_index)
+          return [lng, lat]
+        }
+      })
+      // return markerLayerFromSpec(layer, applySiteFilter(remote?.data.value, layer.include_sites))
     })
   )
 })

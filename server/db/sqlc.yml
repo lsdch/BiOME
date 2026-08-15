@@ -29,6 +29,8 @@ sql:
           - "http"
           - "https"
           - "json"
+          - "md"
+          - "doi"
         rename: 
           taxa: "Taxon"
           taxa_closure: "TaxonClosure"
@@ -60,3 +62,18 @@ sql:
             import: "github.com/lsdch/biome/types"
             type: "ULID"
             slice: true
+        - db_type: "doi"
+          go_type:
+            import: "github.com/lsdch/biome/types"
+            type: "DOI"
+        - db_type: "doi[]"
+          go_type:
+            import: "github.com/lsdch/biome/types"
+            type: "DOI"
+            slice: true
+        - db_type: "doi"
+          nullable: true
+          go_type:
+            import: "github.com/lsdch/biome/types"
+            type: "DOI"
+            pointer: true

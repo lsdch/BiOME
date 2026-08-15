@@ -51,6 +51,14 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
           icon: 'mdi-crosshairs-gps',
           component: () => import('@/features/datasets/views/OccurrenceDatasetsView.vue'),
           meta: { title: 'Occurrence datasets' }
+        },
+        {
+          label: 'Import batches',
+          path: '/datasets/import-batches',
+          name: 'import-batches',
+          icon: 'mdi-file-table-outline',
+          component: () => import('@/features/import/views/ImportBatchesTableView.vue'),
+          meta: { title: 'Import batches' }
         }
         // {
         //   label: 'Sequences',
@@ -91,7 +99,7 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
       label: 'Data inputs',
       icon: 'mdi-file-upload',
       routes: [
-        guardRole('Contributor', {
+        guardRole('contributor', {
           label: 'Register item',
           path: '/import/item',
           name: 'import-item',
@@ -99,7 +107,7 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
           component: () => import('@/features/import/views/CreateOccurrencesView.vue'),
           meta: { title: 'Create sampling/occurrences' }
         }),
-        guardRole('Contributor', {
+        guardRole('contributor', {
           label: 'Import batch',
           path: '/import/batch',
           name: 'import-batch',
@@ -129,14 +137,14 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
       },
       meta: { title: 'Taxonomy' }
     },
-    {
+    guardRole('admin', {
       label: 'Users',
       path: '/users',
       name: 'users',
       icon: 'mdi-account',
-      component: () => import('@/features/people/views/UsersView.vue'),
-      meta: { title: 'Persons' }
-    },
+      component: () => import('@/features/users/views/UsersView.vue'),
+      meta: { title: 'Users' }
+    }),
     {
       label: 'Metadata registries',
       icon: 'mdi-book-alphabet',
@@ -190,17 +198,17 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
           icon: 'mdi-newspaper-variant-multiple',
           name: 'bibliography',
           path: '/articles',
-          component: () => import('@/features/registries/views/ArticlesView.vue'),
+          component: () => import('@/features/registries/views/BibliographyView.vue'),
           meta: { title: 'Bibliography' }
-        },
-        {
-          label: 'Data sources',
-          path: '/data-sources',
-          name: 'data-sources',
-          icon: 'mdi-database-sync',
-          component: () => import('@/features/registries/views/DataSourcesView.vue'),
-          meta: { title: 'Data sources' }
         }
+        // {
+        //   label: 'Data sources',
+        //   path: '/data-sources',
+        //   name: 'data-sources',
+        //   icon: 'mdi-database-sync',
+        //   component: () => import('@/features/registries/views/DataSourcesView.vue'),
+        //   meta: { title: 'Data sources' }
+        // }
         // {
         //   label: "Collections",
         //   path: "/collections",
@@ -213,9 +221,9 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
     {
       label: 'Admin',
       icon: 'mdi-cog',
-      granted: 'Admin',
+      granted: 'admin',
       routes: [
-        guardRole('Admin', {
+        guardRole('admin', {
           label: 'Account requests',
           path: '/admin/account-requests',
           name: 'account-requests',

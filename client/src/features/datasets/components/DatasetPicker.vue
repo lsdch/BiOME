@@ -13,6 +13,7 @@
     :item-value
     v-bind="$attrs"
     :error-messages="error?.detail"
+    no-data-text="No datasets found"
   >
     <template v-for="(_, name) in $slots" #[name]="slotData">
       <slot :name="name" v-bind="slotData" />

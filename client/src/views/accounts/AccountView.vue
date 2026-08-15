@@ -10,7 +10,7 @@
               <UserRole.Icon :role="model.role" class="mr-3" />
             </template>
             <v-divider/>
-            <template v-if="model.role === 'Admin'">
+            <template v-if="model.role === 'admin'">
               <v-card-text>
               <p>
                 As an <b class="text-red">administrator</b> you have

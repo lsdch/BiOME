@@ -6,12 +6,22 @@
           <div class="font-monospace text-wrap w-auto d-flex align-center">
             <v-menu :close-on-content-click="false" target="parent">
               <template #activator="{ props }">
-                <span class="cursor-pointer hover:opacity-70 transition-opacity" @click="copyCodeToClipboard"
-                  v-tooltip="'Click to copy'">
+                <span
+                  class="cursor-pointer hover:opacity-70 transition-opacity"
+                  @click="copyCodeToClipboard"
+                  v-tooltip="'Click to copy'"
+                >
                   {{ code }}
                 </span>
-                <v-btn v-if="item?.code_history" icon="mdi-history" variant="plain" size="small" color="" class="ml-2"
-                  v-bind="props" />
+                <v-btn
+                  v-if="item?.code_history"
+                  icon="mdi-history"
+                  variant="plain"
+                  size="small"
+                  color=""
+                  class="ml-2"
+                  v-bind="props"
+                />
               </template>
               <CodeHistoryCard v-if="item?.code_history" :codeHistory="item.code_history" />
             </v-menu>
@@ -24,16 +34,30 @@
           <v-icon icon="mdi-package-variant"></v-icon>
         </v-avatar> -->
       </template>
-      <template #append>
+      <!-- <template #append>
         <v-btn-group size="small" divided variant="outlined">
           <v-btn icon="mdi-dna"></v-btn>
           <v-btn icon="mdi-pencil" />
         </v-btn-group>
-      </template>
+      </template> -->
       <template v-if="item" #subtitle>
         <div class="d-flex align-center ga-2">
-          <v-chip v-if="item.type_status" :text="item.type_status" prepend-icon="mdi-star-four-points" size="small"
-            label />
+          <v-chip
+            v-if="item?.import_batch"
+            prepend-icon="mdi-file-table"
+            :to="{ name: 'import-batch-item', params: { uuid: item.import_batch.id } }"
+            size="small"
+            label
+          >
+            Imported in batch:&nbsp; <code>{{ item.import_batch.label }}</code>
+          </v-chip>
+          <v-chip
+            v-if="item.type_status"
+            :text="item.type_status"
+            prepend-icon="mdi-star-four-points"
+            size="small"
+            label
+          />
           <!-- <v-chip v-if="!item.has_sequences" prepend-icon="mdi-dna" size="small" label text="No sequences"
             variant="tonal" color="#777" /> -->
           <!-- <MetaChip :meta="item.meta" size="small" /> -->
@@ -47,7 +71,8 @@
       </v-card-text>
       <v-card-text v-else-if="error">
         <v-alert color="error" icon="mdi-alert">
-          Failed to retrieve bio material informations
+          <span v-if="error.status === StatusCodes.NOT_FOUND">Occurrence not found.</span>
+          <span v-else>Failed to retrieve occurrence informations.</span>
         </v-alert>
       </v-card-text>
       <template v-else-if="item">
@@ -63,7 +88,12 @@
           <v-tab value="datasets" prepend-icon="mdi-folder-table" :disabled="!item.datasets">
             Datasets
             <template #append>
-              <v-badge v-if="item.datasets?.length" :content="item.datasets.length" color="primary" inline>
+              <v-badge
+                v-if="item.datasets?.length"
+                :content="item.datasets.length"
+                color="primary"
+                inline
+              >
               </v-badge>
             </template>
           </v-tab>
@@ -79,26 +109,42 @@
                       <span class="text-muted text-caption">Comments</span>
                     </v-card-text>
                   </v-card>
-                  <v-card title="Identification" class="small-card-title" prepend-icon="mdi-microscope"
-                    :subtitle="DateWithPrecision.format(item.identification.identified_on)">
+                  <v-card
+                    title="Identification"
+                    class="small-card-title"
+                    prepend-icon="mdi-microscope"
+                    :subtitle="DateWithPrecision.format(item.identification.identified_on)"
+                  >
                     <v-card-text>
                       <div class="d-flex align-center justify-space-between ga-1">
                         <IdentificationChip :identification="item.identification" class="my-1" />
                         <span v-if="item.identification.identified_by" class="text-no-wrap">
                           by
-                          <v-chip v-for="person in item.identification.identified_by" :key="person" :text="person" />
+                          <v-chip
+                            v-for="person in item.identification.identified_by"
+                            :key="person"
+                            :text="person"
+                          />
                         </span>
                         <span class="text-muted" v-else>Curator unspecified</span>
                       </div>
-                      <div v-if="item.identification.verbatim" class="d-flex align-center ga-2 mt-3 text-muted">
+                      <div
+                        v-if="item.identification.verbatim"
+                        class="d-flex align-center ga-2 mt-3 text-muted"
+                      >
                         Verbatim&nbsp;:
                         <span class="font-monospace">{{ item.identification.verbatim }}</span>
                         <InlineHelp
-                          text="Verbatim name from the source. For traceability purpose only. This is always superseded by the identification above." />
+                          text="Verbatim name from the source. For traceability purpose only. This is always superseded by the identification above."
+                        />
                       </div>
                     </v-card-text>
                   </v-card>
-                  <v-card title="Content" class="small-card-title" prepend-icon="mdi-hexagon-multiple">
+                  <v-card
+                    title="Content"
+                    class="small-card-title"
+                    prepend-icon="mdi-hexagon-multiple"
+                  >
                     <!-- <template #append>
                     <v-tooltip
                       :text="
@@ -133,8 +179,8 @@
                     <v-list>
                       <v-list-item>
                         <template #title>
-                          <QuantityChip v-if="item.quantity" :quantity="item.quantity" size="small" />
-                          <span v-else class="text-muted text-caption">Unknown</span>
+                          <QuantityChip v-if="item.quantity" :quantity="item.quantity" />
+                          <span v-else class="text-muted text-caption">NA</span>
                         </template>
                         <template #append>
                           <span class="text-muted text-caption">Quantity</span>
@@ -149,23 +195,28 @@
                       </v-card-text>
                     </v-list>
                   </v-card>
-                  <v-card class="small-card-title" title="References" prepend-icon="mdi-newspaper-variant">
+                  <v-card
+                    class="small-card-title"
+                    title="References"
+                    prepend-icon="mdi-newspaper-variant"
+                  >
                     <v-divider />
-                    <!-- <v-list>
+                    <v-list>
                       <v-list-item>
-                        <span v-if="!item.published_in" class="text-muted text-caption">
-                          Unknown
-                        </span>
+                        <span v-if="!item.references" class="text-muted text-caption"> NA </span>
                         <div v-else class="d-flex ga-2">
-                          <ArticleChip v-for="article in item.published_in" :article />
+                          <ArticleChip v-for="article in item.references" :article />
                         </div>
                         <template #append>
                           <span class="text-muted text-caption">Publication(s)</span>
                         </template>
                       </v-list-item>
+                      <v-divider></v-divider>
                       <v-list-item>
-                        <DataSourceChip v-for="source in item.sources" :source />
-                        <span v-if="!item.sources" class="text-muted text-caption"> Unknown </span>
+                        <div class="d-flex ga-2">
+                          <v-chip v-for="source in item.sources" :text="source" />
+                        </div>
+                        <span v-if="!item.sources" class="text-muted text-caption"> NA </span>
                         <template #append>
                           <span class="text-muted text-caption">Data source(s)</span>
                         </template>
@@ -173,27 +224,38 @@
                       <v-divider></v-divider>
                       <v-list-item>
                         <v-list class="mr-2">
-                          <v-list-item v-for="col in item.collections" class="text-wrap text-caption rounded-sm" link>
+                          <v-list-item
+                            v-for="col in item.collections"
+                            class="text-wrap text-caption rounded-sm"
+                            link
+                          >
                             {{ col.name }}
-                            <v-chip v-for="voucher in col.vouchers" size="small" prepend-icon="mdi-pound">
+                            <v-chip
+                              v-for="voucher in col.vouchers"
+                              size="small"
+                              prepend-icon="mdi-pound"
+                            >
                               {{ voucher }}
                             </v-chip>
                           </v-list-item>
                         </v-list>
                         <span v-if="!item.collections?.length" class="text-muted text-caption">
-                          None/unknown
+                          NA
                         </span>
                         <template #append>
                           <span class="text-muted text-caption">Collection(s)</span>
                         </template>
                       </v-list-item>
-                    </v-list> -->
+                    </v-list>
                   </v-card>
                 </v-col>
 
                 <v-col cols="12" lg="6">
                   <div class="w-100">
-                    <OccurrenceSamplingCard :item="item.sampling" @edit="toggleSamplingEdit(true)" />
+                    <OccurrenceSamplingCard
+                      :item="item.sampling"
+                      @edit="toggleSamplingEdit(true)"
+                    />
                   </div>
                 </v-col>
               </v-row>
@@ -215,7 +277,12 @@
             </CRUDTable>
           </v-tabs-window-item> -->
           <v-tabs-window-item value="datasets">
-            <CRUDTable v-if="item.datasets" :headers="datasetTable.headers" entityName="Dataset" :items="item.datasets">
+            <CRUDTable
+              v-if="item.datasets"
+              :headers="datasetTable.headers"
+              entityName="Dataset"
+              :items="item.datasets"
+            >
               <template #item.label="{ value, item }">
                 <RouterLink :to="{ name: 'occurrence-dataset-item', params: { slug: item.slug } }">
                   {{ value }}
@@ -243,10 +310,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  Dataset,
-  DateWithPrecision
-} from '@/api/adapters'
+import { Dataset, DateWithPrecision } from '@/api/adapters'
 import { getOccurrenceOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
@@ -261,6 +325,8 @@ import { useToggle } from '@vueuse/core'
 import { nextTick, ref, watch } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
 import QuantityChip from '../components/QuantityChip'
+import ArticleChip from '@/features/registries/components/ArticleChip.tsx'
+import { StatusCodes } from 'http-status-codes'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
@@ -269,10 +335,21 @@ nextTick(() => {
   document.title = code ?? `Occurrence item`
 })
 
-const { data: item, error, isPending, refetch } = useQuery({
-  ...getOccurrenceOptions({ path: { ulid: id }, })
+const {
+  data: item,
+  error,
+  isPending,
+  refetch,
+  isEnabled
+} = useQuery({
+  ...getOccurrenceOptions({ path: { ulid: id } }),
+  retry(failureCount, error) {
+    if (error.status === StatusCodes.NOT_FOUND) {
+      return false
+    }
+    return failureCount < 3
+  }
 })
-
 
 watch(item, (newItem) => {
   if (newItem) {

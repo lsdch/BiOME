@@ -1,5 +1,5 @@
 <template>
-  <HexLayerCard :layer="hexLayer" flat class="ma-1" />
+  <HexLayerCard :layer="hexLayer" :zoom flat class="ma-1" />
   <v-toolbar density="compact" class="bg-surface">
     <template #prepend v-if="!!markerLayers.length">
       <ConfirmDialog
@@ -75,6 +75,8 @@
             @delete="markerLayers.splice(i, 1)"
             @update:expanded="toggle?.()"
             @draghandle-down="expandedCard = undefined"
+            @duplicate="() => markerLayers.splice(i + 1, 0, { ...markerLayers[i] })"
+            :zoom
           />
         </v-item>
       </VueDraggable>
@@ -89,6 +91,7 @@ import { HexLayerSpec, makeHexLayer, makeMarkerLayer, MarkerLayerSpec } from './
 import MarkerLayerCard from './MarkerLayerCard.vue'
 import HexLayerCard from './HexLayerCard.vue'
 import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
+import { GlobalMarkerOptions } from '../DeckGlMap.vue'
 
 const hexLayer = defineModel<HexLayerSpec>('hex-layer', {
   default: () => {
@@ -99,8 +102,14 @@ const markerLayers = defineModel<MarkerLayerSpec[]>('marker-layers', {
   default: () => reactive([])
 })
 
+const { zoom, globalOpts } = defineProps<{ zoom: number; globalOpts?: GlobalMarkerOptions }>()
+
 function addLayer() {
-  markerLayers.value.push(makeMarkerLayer())
+  markerLayers.value.push(
+    makeMarkerLayer(undefined, {
+      config: { radiusScaleFactor: globalOpts?.cluster.radiusScaleFactor ?? 1 }
+    })
+  )
 }
 
 const expandedCard = ref<unknown[]>()

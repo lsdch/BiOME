@@ -46,8 +46,8 @@ type EnumDecl struct {
 }
 
 func parseDir(path string) {
-	// Parse current directory and its subdirectories for Go files
 	fset := token.NewFileSet()
+
 	pkgs, err := parser.ParseDir(
 		fset,
 		path,
@@ -56,7 +56,6 @@ func parseDir(path string) {
 		},
 		parser.ParseComments,
 	)
-
 	if err != nil {
 		fmt.Println("Error parsing directory:", err)
 		return
@@ -64,7 +63,8 @@ func parseDir(path string) {
 
 	for _, pkg := range pkgs {
 		for fileName, file := range pkg.Files {
-			var foundEnums []EnumDecl // Stores enum value declarations
+			var foundEnums []EnumDecl
+
 			for _, decl := range file.Decls {
 				if genEnum, ok := decl.(*ast.GenDecl); ok && genEnum.Doc != nil {
 					for _, comment := range genEnum.Doc.List {
@@ -74,7 +74,10 @@ func parseDir(path string) {
 								SkipGelUnmarshal: strings.Contains(comment.Text, "skip-gel-unmarshal"),
 							})
 						} else if strings.Contains(comment.Text, "generate:order-enum") {
-							foundEnums = append(foundEnums, EnumDecl{Decl: genEnum, Ordered: true})
+							foundEnums = append(foundEnums, EnumDecl{
+								Decl:    genEnum,
+								Ordered: true,
+							})
 						}
 					}
 				}
@@ -86,9 +89,32 @@ func parseDir(path string) {
 	}
 }
 
+func findTypeSpec(pkg *ast.Package, typeName string) *ast.TypeSpec {
+	for _, file := range pkg.Files {
+		for _, decl := range file.Decls {
+			genDecl, ok := decl.(*ast.GenDecl)
+			if !ok || genDecl.Tok != token.TYPE {
+				continue
+			}
+
+			for _, spec := range genDecl.Specs {
+				typeSpec, ok := spec.(*ast.TypeSpec)
+				if !ok || typeSpec.Name.Name != typeName {
+					continue
+				}
+
+				return typeSpec
+			}
+		}
+	}
+
+	return nil
+}
+
 type EnumData struct {
 	EnumType         string
 	EnumValues       []string
+	UnderlyingType   string
 	Ordered          bool
 	SkipGelUnmarshal bool
 }
@@ -107,32 +133,78 @@ func generateFileName(fileName string) string {
 	return fmt.Sprintf("%s_gen%s", strippedPath, fileExtension)
 }
 
-func generateEnumTemplateData(decls []EnumDecl) []EnumData {
+func underlyingTypeExpr(
+	file *ast.File,
+	typeName string,
+) ast.Expr {
+	var underlying ast.Expr
+
+	ast.Inspect(file, func(n ast.Node) bool {
+		spec, ok := n.(*ast.TypeSpec)
+		if !ok || spec.Name.Name != typeName {
+			return true
+		}
+
+		underlying = spec.Type
+		return false
+	})
+
+	return underlying
+}
+
+func typeExprName(expr ast.Expr) string {
+	switch expr := expr.(type) {
+	case *ast.Ident:
+		return expr.Name
+
+	case *ast.SelectorExpr:
+		if pkg, ok := expr.X.(*ast.Ident); ok {
+			return pkg.Name + "." + expr.Sel.Name
+		}
+
+	case *ast.StarExpr:
+		return "*" + typeExprName(expr.X)
+	}
+
+	return ""
+}
+
+func generateEnumTemplateData(
+	pkg *ast.Package,
+	decls []EnumDecl,
+) []EnumData {
 	var enums []EnumData
 
 	for _, decl := range decls {
 		var enumType string
+		var underlyingType string
 		var values []string
 
 		for _, spec := range decl.Decl.Specs {
 			if valueSpec, ok := spec.(*ast.ValueSpec); ok {
 				if t, ok := valueSpec.Type.(*ast.Ident); ok {
 					enumType = t.Name
+					if typeSpec := findTypeSpec(pkg, enumType); typeSpec != nil {
+						underlyingType = typeExprName(typeSpec.Type)
+					}
 				}
 				for _, enumValue := range valueSpec.Names {
 					values = append(values, enumValue.String())
 				}
 			}
 		}
+
 		if enumType != "" && len(values) > 0 {
 			enums = append(enums, EnumData{
 				EnumType:         enumType,
+				UnderlyingType:   underlyingType,
 				EnumValues:       values,
 				Ordered:          decl.Ordered,
 				SkipGelUnmarshal: decl.SkipGelUnmarshal,
 			})
 		}
 	}
+
 	return enums
 }
 
@@ -142,7 +214,7 @@ func generateEnumCode(pkg *ast.Package, fileName string, decls []EnumDecl) {
 
 	data := EnumTemplateData{
 		Pkg:   pkg.Name,
-		Enums: generateEnumTemplateData(decls),
+		Enums: generateEnumTemplateData(pkg, decls),
 	}
 
 	tmpl := template.Must(template.New("wrapper").Parse(enumTemplate))

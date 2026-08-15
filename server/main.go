@@ -30,6 +30,9 @@ func main() {
 	biome := app.NewApp(cfg)
 	biome.Bootstrap()
 	biome.RegisterRoutes()
+	if err := biome.WriteOpenAPISpec("../client/openapi.json"); err != nil {
+		logrus.Fatalf("Failed to write OpenAPI spec: %v", err)
+	}
 
 	defer biome.Close()
 	biome.Run()

@@ -1,23 +1,26 @@
 package app
 
 import (
+	"github.com/lsdch/biome/imports"
 	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/services/geoapify"
 )
 
 type AppServices struct {
+	AbioticService     *services.AbioticService
 	ImportBatchService *services.ImportBatchService
 	AuthService        *services.AuthService
 	SettingsService    *services.SettingsService
 	SamplingsService   *services.SamplingService
 	HabitatService     *services.HabitatService
-	ArticleService     *services.ArticleService
+	ArticleService     *services.PublicationService
 	DatasetService     *services.DatasetsService
 	GeoapifyService    *geoapify.GeoapifyService
 	OccurrencesService *services.OccurrencesService
 	AccountsService    *services.AccountService
 	LocationService    *services.LocationService
 	TaxonomyService    *services.TaxonomyService
+	TaxonResolver      imports.TaxonResolver
 }
 
 // type ServiceFactory struct {

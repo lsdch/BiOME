@@ -4,7 +4,7 @@ CREATE TABLE users (
 	login CITEXT NOT NULL UNIQUE,
 	email CITEXT NOT NULL,
 	password_hash TEXT NOT NULL,
-	role user_role NOT NULL DEFAULT 'Visitor',
+	role user_role NOT NULL DEFAULT 'visitor',
 	first_name TEXT NOT NULL,
 	last_name TEXT NOT NULL,
 	organisation TEXT,

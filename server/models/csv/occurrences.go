@@ -1,6 +1,7 @@
 package csvmodels
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -11,10 +12,15 @@ import (
 	"github.com/lsdch/biome/types"
 )
 
-var validate = validator.New(validator.WithRequiredStructEnabled())
+const STRING_LIST_DEFAULT_SEPARATOR = "|"
 
 type StringListInput struct {
 	Values []string `csv:"values"`
+	Sep    string
+}
+
+func (s *StringListInput) SetSeparator(sep string) {
+	s.Sep = sep
 }
 
 func (s *StringListInput) UnmarshalCSV(data []byte) error {
@@ -23,7 +29,11 @@ func (s *StringListInput) UnmarshalCSV(data []byte) error {
 		s.Values = []string{}
 		return nil
 	}
-	s.Values = strings.Split(str, ";")
+	sep := s.Sep
+	if sep == "" {
+		sep = STRING_LIST_DEFAULT_SEPARATOR
+	}
+	s.Values = strings.Split(str, sep)
 	for i := range s.Values {
 		s.Values[i] = strings.TrimSpace(s.Values[i])
 	}
@@ -31,7 +41,8 @@ func (s *StringListInput) UnmarshalCSV(data []byte) error {
 }
 
 type OccurrenceImportRow struct {
-	RowNumber int32 `csv:"row_number"`
+	rowNumber int32      `csv:"-"`
+	ID        types.ULID `csv:"-"`
 
 	// Sampling
 
@@ -39,14 +50,14 @@ type OccurrenceImportRow struct {
 	SiteCode          *string                       `csv:"site_code,omitempty"`
 	SiteName          *string                       `csv:"site_name,omitempty"`
 	SiteLocality      *string                       `csv:"locality,omitempty"`
-	SiteCountryCode   string                        `csv:"country" validate:"required,iso3166_1_alpha3"`
-	Coordinates       CoordinatesWithPrecisionInput `csv:",inline"`
+	SiteCountryCode   *string                       `csv:"country,omitempty" validate:"omitempty,iso3166_1_alpha3"`
+	Coordinates       CoordinatesWithPrecisionInput `csv:",inline" validate:"required"`
 	Altitude          *int32                        `csv:"altitude,omitempty"`
 	EventDate         models.EventDateInput         `csv:"event_date,omitempty"`
 	PerformedBy       StringListInput               `csv:"sampling_participants,omitempty"`
 	Duration          *int32                        `csv:"sampling_duration,omitempty" validate:"omitempty,gt=0"`
-	AccessPoints      StringListInput               `csv:"access_points,omitempty"`
-	Habitats          StringListInput               `csv:"habitats,omitempty"`
+	AccessPoints      StringListInput               `csv:"access_points,omitempty" sep:","`
+	Habitat           StringListInput               `csv:"habitat,omitempty"`
 	SamplingTargets   StringListInput               `csv:"sampling_targets,omitempty"`
 	SamplingMethods   StringListInput               `csv:"sampling_methods,omitempty"`
 	SamplingFixatives StringListInput               `csv:"sampling_fixatives,omitempty"`
@@ -54,14 +65,14 @@ type OccurrenceImportRow struct {
 
 	// Occurrence
 
-	OccurrenceCode     *string `csv:"occurrence_code,omitempty"`
-	TypeStatus         *string `csv:"type_status,omitempty"`
-	OccurrenceComments *string `csv:"comments,omitempty"`
+	OccurrenceCode     *string                      `csv:"occurrence_code,omitempty"`
+	TypeStatus         *models.OccurrenceTypeStatus `csv:"type_status,omitempty"`
+	OccurrenceComments *string                      `csv:"occurrence_comments,omitempty"`
 
 	// Identification
 
-	TaxonName              string                `csv:"taxon_name"`
-	TaxonRank              *string               `csv:"taxon_rank,omitempty"`
+	TaxonName              string                `csv:"taxon_name" validate:"required"`
+	TaxonRank              *models.TaxonRank     `csv:"taxon_rank,omitempty"`
 	TaxonAuthorship        *string               `csv:"taxon_authorship,omitempty"`
 	VerbatimIdentification *string               `csv:"verbatim_identification,omitempty"`
 	IdentifiedBy           StringListInput       `csv:"identified_by,omitempty"`
@@ -76,20 +87,39 @@ type OccurrenceImportRow struct {
 
 	// References
 
-	Sources StringListInput `csv:"sources,omitempty"`
+	Collections models.CollectionArrayInput `csv:"collections,omitempty"`
+	Sources     StringListInput             `csv:"sources,omitempty"`
 
 	// Publication fields
-
-	PubAuthors  StringListInput `csv:"pub_authors,omitempty"`
-	PubYear     *int32          `csv:"pub_year,omitempty"`
-	PubTitle    *string         `csv:"pub_title,omitempty"`
-	PubJournal  *string         `csv:"pub_journal,omitempty"`
-	PubVerbatim *string         `csv:"pub_verbatim,omitempty"`
-	PubDOI      *string         `csv:"pub_DOI,omitempty"`
+	Publication PublicationImportRow `csv:"pub_,inline"`
 }
 
-func (r *OccurrenceImportRow) Validate() error {
-	return validate.Struct(r)
+func (r *OccurrenceImportRow) WithTaxonDefinition(taxonDefinition models.TaxonDefinition) {
+	r.TaxonRank = taxonDefinition.Rank.ToPtr()
+	r.TaxonAuthorship = taxonDefinition.Authorship.ToPtr()
+}
+
+func (r OccurrenceImportRow) HasPublication() bool {
+	return r.Publication.DOI != nil || r.Publication.Verbatim != nil
+}
+
+func (r OccurrenceImportRow) Validate(v *validator.Validate) error {
+	if r.TaxonRank != nil && *r.TaxonRank == biomedb.TaxonRankSubspecies {
+		fields := strings.Fields(r.TaxonName)
+		if len(fields) < 3 {
+			return &CSVParseError{RowNumber: r.rowNumber, Err: errors.New("subspecies taxon name must have at least 3 fields")}
+		}
+	}
+	return v.Struct(r)
+}
+
+func (r OccurrenceImportRow) RowNumber() int32 {
+	return r.rowNumber
+}
+
+func (r *OccurrenceImportRow) SetRowNumber(rowNumber int32) *OccurrenceImportRow {
+	r.rowNumber = rowNumber
+	return r
 }
 
 func (r *OccurrenceImportRow) SamplingHash() string {
@@ -102,38 +132,30 @@ func (r *OccurrenceImportRow) SamplingHash() string {
 	datePart := r.EventDate.String()
 	// If the date is not set, use the row number as a fallback to ensure uniqueness
 	if datePart == "" {
-		datePart = string(r.RowNumber)
+		datePart = string(r.rowNumber)
 	}
-
-	coordsPart := fmt.Sprintf("%f|%f|%d", r.Coordinates.Latitude, r.Coordinates.Longitude, r.Coordinates.PrecisionM)
 
 	return strings.Join([]string{
 		models.ValueOrZero(r.SiteCode),
 		models.ValueOrZero(r.SiteName),
 		models.ValueOrZero(r.SiteLocality),
-		r.SiteCountryCode,
-		coordsPart,
+		models.ValueOrZero(r.SiteCountryCode),
+		r.Coordinates.String(),
 		datePart,
 		fmt.Sprintf("%d", models.ValueOrZero(r.Duration)),
-		strings.Join(r.PerformedBy.Values, ";"),
-		strings.Join(r.AccessPoints.Values, ";"),
-		strings.Join(r.Habitats.Values, ";"),
-		strings.Join(r.SamplingTargets.Values, ";"),
-		strings.Join(r.SamplingMethods.Values, ";"),
-		strings.Join(r.SamplingFixatives.Values, ";"),
+		strings.Join(r.PerformedBy.Values, "|"),
+		strings.Join(r.AccessPoints.Values, "|"),
+		strings.Join(r.Habitat.Values, "|"),
+		strings.Join(r.SamplingTargets.Values, "|"),
+		strings.Join(r.SamplingMethods.Values, "|"),
+		strings.Join(r.SamplingFixatives.Values, "|"),
 	}, "|")
 }
 
 func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID) biomedb.CopyImportStagingParams {
 
-	var typeStatus *models.OccurrenceTypeStatus = nil
-	if r.TypeStatus != nil {
-		typeStatus = new(models.OccurrenceTypeStatus)
-		*typeStatus = models.OccurrenceTypeStatus(strings.ToUpper(*r.TypeStatus))
-	}
-
 	return biomedb.CopyImportStagingParams{
-		RowNumber: r.RowNumber,
+		RowNumber: r.rowNumber,
 		ImportID:  importID,
 		ID:        types.MakeULID(),
 
@@ -153,7 +175,7 @@ func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID) biomedb.CopyImportSt
 		Duration:             r.Duration,
 		PerformedBy:          r.PerformedBy.Values,
 		AccessPoints:         r.AccessPoints.Values,
-		Habitats:             r.Habitats.Values,
+		Habitats:             r.Habitat.Values,
 		SamplingTargets:      r.SamplingTargets.Values,
 		SamplingFixatives:    r.SamplingFixatives.Values,
 		SamplingMethods:      r.SamplingMethods.Values,
@@ -161,13 +183,13 @@ func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID) biomedb.CopyImportSt
 		// Occurrence fields
 
 		OccurrenceCode:     r.OccurrenceCode,
-		TypeStatus:         typeStatus,
+		TypeStatus:         (r.TypeStatus),
 		OccurrenceComments: r.OccurrenceComments,
 
 		// Identification fields
 
 		TaxonName:                   r.TaxonName,
-		TaxonRank:                   r.TaxonRank,
+		TaxonRank:                   (r.TaxonRank),
 		TaxonAuthorship:             r.TaxonAuthorship,
 		VerbatimIdentification:      r.VerbatimIdentification,
 		IdentifiedBy:                r.IdentifiedBy.Values,

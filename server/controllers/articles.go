@@ -15,38 +15,38 @@ import (
 
 type ArticlesController struct {
 	db      *db.DB
-	service *services.ArticleService
+	service *services.PublicationService
 }
 
-func NewArticlesController(db *db.DB, service *services.ArticleService) *ArticlesController {
+func NewArticlesController(db *db.DB, service *services.PublicationService) *ArticlesController {
 	return &ArticlesController{
 		db:      db,
 		service: service,
 	}
 }
 
-func (c *ArticlesController) ListArticles(ctx context.Context, _ *struct{}) (*BodyTransporter[[]models.Article], error) {
-	articles, err := c.service.ListArticles(ctx, c.db)
+func (c *ArticlesController) ListPublications(ctx context.Context, _ *struct{}) (*BodyTransporter[[]models.Publication], error) {
+	articles, err := c.service.ListPublications(ctx, c.db)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[[]models.Article]{
+	return &BodyTransporter[[]models.Publication]{
 		Body: articles,
 	}, nil
 }
 
-func (c *ArticlesController) CreateArticle(ctx context.Context, input *BodyTransporter[models.CreateArticleParams]) (*BodyTransporter[models.Article], error) {
-	article, err := c.service.CreateArticle(ctx, c.db, input.Body)
+func (c *ArticlesController) CreatePublication(ctx context.Context, input *BodyTransporter[models.CreatePublicationParams]) (*BodyTransporter[models.Publication], error) {
+	article, err := c.service.CreatePublication(ctx, c.db, input.Body)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[models.Article]{
+	return &BodyTransporter[models.Publication]{
 		Body: article,
 	}, nil
 }
 
-func (c *ArticlesController) DeleteArticle(ctx context.Context, input *UUIDInput) (*struct{}, error) {
-	_, err := c.service.DeleteArticleByID(ctx, c.db, input.ID)
+func (c *ArticlesController) DeletePublication(ctx context.Context, input *UUIDInput) (*struct{}, error) {
+	_, err := c.service.DeletePublicationByID(ctx, c.db, input.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,23 +54,23 @@ func (c *ArticlesController) DeleteArticle(ctx context.Context, input *UUIDInput
 }
 
 func (c *ArticlesController) RegisterRoutes(r *router.Router) {
-	articlesAPI := r.RouteGroup("/articles").WithTags([]string{"Bibliography"})
+	publicationsAPI := r.RouteGroup("/publications").WithTags([]string{"Bibliography"})
 
-	router.NewSpec(articlesAPI, "ListArticles", huma.Operation{
+	router.NewSpec(publicationsAPI, "ListPublications", huma.Operation{
 		Method:  http.MethodGet,
 		Path:    "/",
 		Summary: "List bibliography",
-	}, c.ListArticles).WithAccessPolicy(auth.Public()).Register(r)
+	}, c.ListPublications).WithAccessPolicy(auth.Public()).Register(r)
 
-	router.NewSpec(articlesAPI, "CreateArticle", huma.Operation{
+	router.NewSpec(publicationsAPI, "CreatePublication", huma.Operation{
 		Method:  http.MethodPost,
 		Path:    "/",
-		Summary: "Create a new article",
-	}, c.CreateArticle).WithAccessPolicy(auth.Role(biomedb.UserRoleContributor)).Register(r)
+		Summary: "Create a new publication",
+	}, c.CreatePublication).WithAccessPolicy(auth.Role(biomedb.UserRoleContributor)).Register(r)
 
-	router.NewSpec(articlesAPI, "DeleteArticle", huma.Operation{
+	router.NewSpec(publicationsAPI, "DeletePublication", huma.Operation{
 		Method:  http.MethodDelete,
 		Path:    "/{id}",
-		Summary: "Delete an article by ID",
-	}, c.DeleteArticle).WithAccessPolicy(auth.Role(biomedb.UserRoleMaintainer)).Register(r)
+		Summary: "Delete a publication by ID",
+	}, c.DeletePublication).WithAccessPolicy(auth.Role(biomedb.UserRoleMaintainer)).Register(r)
 }

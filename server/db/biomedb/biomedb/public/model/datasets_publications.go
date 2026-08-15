@@ -12,6 +12,6 @@ import (
 )
 
 type DatasetsPublications struct {
-	DatasetID string    `sql:"primary_key"`
-	ArticleID uuid.UUID `sql:"primary_key"`
+	DatasetID     string    `sql:"primary_key"`
+	PublicationID uuid.UUID `sql:"primary_key"`
 }

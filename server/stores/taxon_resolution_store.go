@@ -2,14 +2,75 @@ package stores
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"net/http"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
+	"github.com/lsdch/biome/lib/app_errors"
 	"github.com/lsdch/biome/models"
 	"github.com/sirupsen/logrus"
 )
+
+type InconsistentTaxon struct {
+	Name        string   `json:"name"`
+	Authorships []string `json:"authorships"`
+	Ranks       []string `json:"ranks"`
+}
+
+func InconsistentTaxonFromDB(t biomedb.CheckTaxaConsistencyInImportRow) InconsistentTaxon {
+	return InconsistentTaxon{
+		Name:        t.InputName,
+		Authorships: t.Authorships,
+		Ranks:       t.Ranks,
+	}
+}
+
+func (t InconsistentTaxon) ErrorDetail() *app_errors.AppErrorDetail {
+	return &app_errors.AppErrorDetail{
+		Message:  fmt.Sprintf("Taxon %s has inconsistent authorships or ranks", t.Name),
+		Value:    t,
+		Location: t.Name,
+	}
+}
+
+type ErrInconsistentTaxa struct {
+	Taxa []InconsistentTaxon
+}
+
+func ErrInconsistentTaxaFromDB(rows []biomedb.CheckTaxaConsistencyInImportRow) ErrInconsistentTaxa {
+	taxa := make([]InconsistentTaxon, len(rows))
+	for i, row := range rows {
+		taxa[i] = InconsistentTaxonFromDB(row)
+	}
+	return ErrInconsistentTaxa{Taxa: taxa}
+}
+
+func (e ErrInconsistentTaxa) Error() string {
+	b, _ := json.MarshalIndent(e, "", "  ")
+	return fmt.Sprintf("inconsistent taxa: %s", string(b))
+}
+
+func (e ErrInconsistentTaxa) AppError() *app_errors.AppError {
+	errs := make([]*app_errors.AppErrorDetail, len(e.Taxa))
+	for i, taxon := range e.Taxa {
+		errs[i] = taxon.ErrorDetail()
+	}
+	return &app_errors.AppError{
+		Code:     app_errors.ErrRegistry[app_errors.ErrorCategoryImport][app_errors.ErrorCodeInconsistentTaxa],
+		Category: app_errors.ErrorCategoryImport,
+		ErrorModel: huma.ErrorModel{
+			Status: http.StatusUnprocessableEntity,
+			Title:  "Inconsistent taxa in import",
+			Detail: "Some taxa in the import have inconsistent authorship or rank information. Please review the import data and correct any inconsistencies before proceeding.",
+			Errors: errs,
+		},
+	}
+}
 
 type TaxonResolutionStore struct {
 }
@@ -19,11 +80,21 @@ func NewTaxonResolutionStore() *TaxonResolutionStore {
 }
 
 func (r *TaxonResolutionStore) InitTaxonResolution(ctx context.Context, q db.Querier, importID uuid.UUID) ([]models.TaxonResolution, error) {
+	check, err := q.Queries().CheckTaxaConsistencyInImport(ctx, importID)
+	if err != nil {
+		return nil, err
+	}
+	if len(check) > 0 {
+		return nil, ErrInconsistentTaxaFromDB(check)
+	}
 	resolution, err := q.Queries().InitTaxonResolution(ctx, importID)
 	if err != nil {
 		return nil, err
 	}
 	return models.TaxonResolutionFromDBSlice(resolution), nil
+}
+func (r *TaxonResolutionStore) InitSamplingTargetResolution(ctx context.Context, q db.Querier, importID uuid.UUID) error {
+	return q.Queries().InitSamplingTargetResolution(ctx, importID)
 }
 
 func (r *TaxonResolutionStore) LinkTaxonResolutions(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
@@ -62,8 +133,29 @@ func (r *TaxonResolutionStore) InsertGBIFCandidatesBatch(ctx context.Context, q 
 	return errs
 }
 
-func (r *TaxonResolutionStore) InsertTaxonStaging(ctx context.Context, q db.Querier, importID uuid.UUID, params models.TaxonStagingParams) (err error) {
-	return q.Queries().InsertTaxonStaging(ctx, params.ToParams(importID))
+func (r *TaxonResolutionStore) ListTaxonResolutionsWithoutCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (resolutions []models.TaxonResolution, err error) {
+	res, err := q.Queries().ListTaxonResolutionsWithoutCandidates(ctx, importID)
+	if err != nil {
+		return nil, err
+	}
+	resolutions = make([]models.TaxonResolution, len(res))
+	for i, res := range res {
+		resolutions[i] = models.TaxonResolutionFromDB(res)
+	}
+	return resolutions, nil
+}
+
+func (r *TaxonResolutionStore) InsertTaxaStaging(ctx context.Context, q db.Querier, importID uuid.UUID, toStage []models.TaxonStagingParams) (err error) {
+	params := make([]biomedb.InsertTaxaStagingParams, len(toStage))
+	for i, param := range toStage {
+		params[i] = param.ToParams(importID)
+	}
+	batch := q.Queries().InsertTaxaStaging(ctx, params)
+	var errs error = nil
+	batch.Exec(func(i int, err error) {
+		errs = errors.Join(errs, err)
+	})
+	return errs
 }
 
 func (r *TaxonResolutionStore) UpsertTaxonResolution(ctx context.Context, q db.Querier, params biomedb.UpsertTaxonResolutionParams) (err error) {
@@ -85,15 +177,26 @@ func (r *TaxonResolutionStore) ListMissingGBIFDependencies(ctx context.Context, 
 
 // Inserts taxa from GBIF staging into the main taxa table, for a given import and rank.
 // This is done in two steps: first insert non-synonyms, then insert synonyms (which depend on the accepted taxa being present).
-func (r *TaxonResolutionStore) MaterializeTaxaFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID, rank models.TaxonRank) (err error) {
+func (r *TaxonResolutionStore) MaterializeTaxaFromGBIF(ctx context.Context, tx *db.Tx, importID uuid.UUID, rank models.TaxonRank) (err error) {
 	logrus.Infof("Materializing non synonym taxa for import ID %s at rank %s", importID, rank)
-	err = q.Queries().MaterializeTaxaFromGBIF(ctx, biomedb.MaterializeTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: false})
+	err = tx.Queries().MaterializeTaxaFromGBIF(ctx, biomedb.MaterializeTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: false})
 	if err != nil {
 		return err
 	}
 	logrus.Infof("Materializing synonym taxa for import ID %s at rank %s", importID, rank)
-	err = q.Queries().MaterializeTaxaFromGBIF(ctx, biomedb.MaterializeTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: true})
+	err = tx.Queries().MaterializeTaxaFromGBIF(ctx, biomedb.MaterializeTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: true})
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *TaxonResolutionStore) MaterializeTaxaStaging(ctx context.Context, tx *db.Tx, importID uuid.UUID, rank models.TaxonRank) (err error) {
+	logrus.Infof("Materializing taxa from staging for import ID %s at rank %s", importID, rank)
+	if err = tx.Queries().MaterializeTaxaStaging(ctx, importID, rank); err != nil {
+		return err
+	}
+	if err := tx.Queries().SyncMaterializedTaxa(ctx, importID, rank); err != nil {
 		return err
 	}
 	return nil
@@ -103,8 +206,8 @@ func (r *TaxonResolutionStore) MarkTaxaNeedingGBIFCandidates(ctx context.Context
 	return q.Queries().MarkTaxaNeedingGBIFCandidates(ctx, importID)
 }
 
-func (r *TaxonResolutionStore) MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID, resolutionIDs []uuid.UUID) (err error) {
-	return q.Queries().MarkTaxaGBIFImportCompleted(ctx, importID, resolutionIDs)
+func (r *TaxonResolutionStore) MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	return q.Queries().MarkTaxaGBIFImportCompleted(ctx, importID)
 }
 
 func (r *TaxonResolutionStore) ListTaxnamesToFetchFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID) (toFetch []models.TaxonResolution, err error) {
@@ -135,18 +238,18 @@ func (r *TaxonResolutionStore) GenerateLocalTaxonCandidates(ctx context.Context,
 
 func (r *TaxonResolutionStore) ListTaxonCandidates(
 	ctx context.Context, q db.Querier, importID uuid.UUID,
-) (candidatesByName map[uuid.UUID][]models.TaxonCandidate, err error) {
+) (candidatesByResolution map[uuid.UUID][]models.TaxonCandidate, err error) {
 
 	candidates, err := q.Queries().ListAllTaxonCandidates(ctx, importID)
 	if err != nil {
 		return nil, err
 	}
 
-	candidatesByName = make(map[uuid.UUID][]models.TaxonCandidate)
+	candidatesByResolution = make(map[uuid.UUID][]models.TaxonCandidate)
 	for _, candidate := range candidates {
-		candidatesByName[candidate.ResolutionID] = append(candidatesByName[candidate.ResolutionID], models.TaxonCandidateFromDB(candidate))
+		candidatesByResolution[candidate.ResolutionID] = append(candidatesByResolution[candidate.ResolutionID], models.TaxonCandidateFromDB(candidate))
 	}
-	return candidatesByName, nil
+	return candidatesByResolution, nil
 }
 
 func (r *TaxonResolutionStore) GetTaxonResolutions(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.TaxonResolutionWithCandidates, err error) {
@@ -161,27 +264,29 @@ func (r *TaxonResolutionStore) GetTaxonResolutions(ctx context.Context, q db.Que
 
 	state = make([]models.TaxonResolutionWithCandidates, len(resolutions))
 	for i, resolution := range resolutions {
+		model := models.TaxonResolutionFromDB(resolution.TaxonResolution)
+		model.SetFromResolutionName(resolution.FromResolutionName)
 		state[i] = models.TaxonResolutionWithCandidates{
-			TaxonResolution: models.TaxonResolutionFromDB(resolution),
-			Candidates:      candidates[resolution.ID],
+			TaxonResolution: model,
+			Candidates:      candidates[resolution.TaxonResolution.ID],
 		}
 	}
 	return state, nil
 }
 
-func (r *TaxonResolutionStore) AutoResolveUnambiguousCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
-	err = q.Queries().AutoResolveUnambiguousCandidates(ctx, importID)
+func (r *TaxonResolutionStore) AutoResolveUnambiguousCandidates(ctx context.Context, q db.Querier, importID uuid.UUID, threshold int32) (err error) {
+	err = q.Queries().AutoResolveUnambiguousCandidates(ctx, importID, threshold)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *TaxonResolutionStore) ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveTaxonInput) (err error) {
+func (r *TaxonResolutionStore) ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveInput) (err error) {
 	err = q.Queries().ResolveTaxon(ctx, biomedb.ResolveTaxonParams{
 		ImportID:     importID,
 		ResolutionID: input.ResolutionID,
-		ResolvedTo:   input.CandidateID,
+		CandidateID:  input.CandidateID,
 	})
 	if err != nil {
 		return err

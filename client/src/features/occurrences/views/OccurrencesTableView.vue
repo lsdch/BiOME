@@ -1,16 +1,28 @@
 <template>
-  <!-- :delete="{
-      mutation: deleteOccurrenceMutation,
-      params: ({ code }: OccurrenceListItem) => ({ path: { code } })
-    }" -->
-  <v-data-table-server id="table" class="crud-table fill-height" :headers="headers" :items="data?.items"
-    :items-length="data?.total_count ?? 0" item-key="id" :loading :items-per-page-options="[5, 10, 15, 25, 50]"
-    v-model:items-per-page="pagination.itemsPerPage" v-model:page="pagination.page" v-model:sort-by="sortBy"
-    @update:page="prefetchNext">
+  <v-data-table-server
+    id="table"
+    class="crud-table fill-height"
+    :headers="headers"
+    :items="data?.items"
+    :items-length="data?.total_count ?? 0"
+    item-key="id"
+    :loading
+    :items-per-page-options="[5, 10, 15, 25, 50]"
+    v-model:items-per-page="pagination.itemsPerPage"
+    v-model:page="pagination.page"
+    v-model:sort-by="sortBy"
+    @update:page="prefetchNext"
+  >
     <!-- Toolbar -->
     <template #top>
-      <TableToolbar title="Occurrences" icon="mdi-package-variant" ref="toolbar" id="table-toolbar"
-        v-model:search="filters.search_term" @reload="refetch()">
+      <TableToolbar
+        title="Occurrences"
+        icon="mdi-package-variant"
+        ref="toolbar"
+        id="table-toolbar"
+        v-model:search="filters.search_term"
+        @reload="refetch()"
+      >
         <template #extension>
           <slot name="toolbar-extension" />
         </template>
@@ -44,20 +56,37 @@
           <slot name="search" v-bind="props" :toggleMenu :menu-open="menu">
             <CRUDTableSearchBar v-model="filters.search_term" v-if="$vuetify.display.smAndUp" />
 
-            <v-badge dot :color="Object.values(filters)
-              .concat(Object.values(filters))
-              .some((v) => v !== undefined && v !== null && v !== '')
-              ? 'success'
-              : 'transparent'
-              " class="mx-1">
-              <v-btn color="primary" variant="tonal" icon="mdi-menu" @click="toggleMenu(true)" :active="menu"
-                size="small" />
+            <v-badge
+              dot
+              :color="
+                Object.values(filters)
+                  .concat(Object.values(filters))
+                  .some((v) => v !== undefined && v !== null && v !== '')
+                  ? 'success'
+                  : 'transparent'
+              "
+              class="mx-1"
+            >
+              <v-btn
+                color="primary"
+                variant="tonal"
+                icon="mdi-menu"
+                @click="toggleMenu(true)"
+                :active="menu"
+                size="small"
+              />
             </v-badge>
           </slot>
         </template>
       </TableToolbar>
-      <v-menu id="search-menu" v-model="menu" location="bottom" target="#table-toolbar" attach="#table table"
-        :close-on-content-click="false">
+      <v-menu
+        id="search-menu"
+        v-model="menu"
+        location="bottom"
+        target="#table-toolbar"
+        attach="#table table"
+        :close-on-content-click="false"
+      >
         <v-card rounded="t-0">
           <v-card-text>
             <v-inline-search-bar v-model="filters.search_term" label="Search term" />
@@ -67,12 +96,43 @@
               <v-col cols="12" md="6">
                 <v-list>
                   <v-list-item prepend-icon="mdi-folder-table">
-                    <DatasetPicker v-model="filters.datasets" label="Datasets" class="mt-2" item-value="label" clearable
-                      multiple chips closable-chips density="compact" hide-details />
+                    <DatasetPicker
+                      v-model="filters.datasets"
+                      label="Datasets"
+                      class="mt-2"
+                      item-value="label"
+                      clearable
+                      multiple
+                      chips
+                      closable-chips
+                      density="compact"
+                      hide-details
+                    />
+                  </v-list-item>
+                  <v-list-item prepend-icon="mdi-file-table">
+                    <ImportBatchPicker
+                      v-model="filters.batches"
+                      label="Import batches"
+                      class="mt-2"
+                      item-value="id"
+                      clearable
+                      multiple
+                      chips
+                      closable-chips
+                      density="compact"
+                      hide-details
+                    />
                   </v-list-item>
                   <v-list-item prepend-icon="mdi-star-four-points">
-                    <TypeStatusPicker v-model="filters.type_status" class="mt-2" label="Type status" multiple clearable
-                      chips closable-chips density="compact" hide-details />
+                    <TypeStatusPicker
+                      v-model="filters.type_status"
+                      class="mt-2"
+                      label="Type status"
+                      clearable
+                      :multiple="false"
+                      density="compact"
+                      hide-details
+                    />
                   </v-list-item>
                   <!-- <v-list-item prepend-icon="mdi-dna">
                     <ClearableSwitch v-model="filters.has_sequences" class="pl-2" label="Sequences available"
@@ -103,22 +163,53 @@
               <v-col cols="12" md="6">
                 <v-list density="compact">
                   <v-list-item prepend-icon="mdi-family-tree">
-                    <TaxonFilterPicker v-model:taxa="filters.taxa" v-model:whole-clade="filters.whole_clade"
-                      item-value="id" label="Assigned taxon" density="compact" class="mt-1" clearable multiple chips
-                      closable-chips />
+                    <TaxonFilterPicker
+                      v-model:taxa="filters.taxa"
+                      v-model:whole-clade="filters.whole_clade"
+                      item-value="id"
+                      label="Assigned taxon"
+                      density="compact"
+                      class="mt-1"
+                      clearable
+                      multiple
+                      chips
+                      closable-chips
+                    />
                     <div class="d-flex align-center ga-3 flex-wrap">
-                      <v-select v-model="filters.rank" :items="$TaxonRank.enum" label="Rank" density="compact"
-                        hide-details clearable :min-width="200" />
-                      <v-select v-model="filters.status" :items="$TaxonStatus.enum" label="Status" density="compact"
-                        hide-details clearable :min-width="200" />
+                      <v-select
+                        v-model="filters.rank"
+                        :items="$TaxonRank.enum"
+                        label="Rank"
+                        density="compact"
+                        hide-details
+                        clearable
+                        :min-width="200"
+                      />
+                      <v-select
+                        v-model="filters.status"
+                        :items="$TaxonStatus.enum"
+                        label="Status"
+                        density="compact"
+                        hide-details
+                        clearable
+                        :min-width="200"
+                      />
                     </div>
-                    <ClearableSwitch v-model="filters.confer" class="pl-2" label="Confer (cf.)" color-true="primary"
-                      color-false="red" :hint="filters.confer
-                        ? 'Show only bio material with a confer identification'
-                        : filters.confer !== undefined
-                          ? 'Show only bio material without a confer identification'
-                          : undefined
-                        " density="compact" />
+                    <ClearableSwitch
+                      v-model="filters.confer"
+                      class="pl-2"
+                      label="Confer (cf.)"
+                      color-true="primary"
+                      color-false="red"
+                      :hint="
+                        filters.confer
+                          ? 'Show only bio material with a confer identification'
+                          : filters.confer !== undefined
+                            ? 'Show only bio material without a confer identification'
+                            : undefined
+                      "
+                      density="compact"
+                    />
                   </v-list-item>
                 </v-list>
               </v-col>
@@ -202,10 +293,18 @@
 
     <template #item.code="{ value, item }: { value: string; item: Occurrence }">
       <span class="d-flex justify-space-between align-center">
-        <RouterLink :text="value" :to="{ name: 'occurrence-item', params: { id: item.id, code: value } }" />
+        <RouterLink
+          :text="value"
+          :to="{ name: 'occurrence-item', params: { id: item.id, code: value } }"
+        />
         <span class="d-flex align-center ga-2 justify-end">
-          <v-icon v-if="item.type_status" icon="mdi-star-four-points" size="small" v-tooltip="item.type_status"
-            density="compact" />
+          <v-icon
+            v-if="item.type_status"
+            icon="mdi-star-four-points"
+            size="small"
+            v-tooltip="item.type_status"
+            density="compact"
+          />
           <!-- <v-icon v-if="item.has_sequences" size="small" icon="mdi-dna" v-tooltip="`Sequence(s) available`" /> -->
         </span>
       </span>
@@ -213,7 +312,7 @@
     <template #item.sampling.site="{ value: { code, name, country } }: { value: Site }">
       <div class="d-flex justify-space-between">
         <span class="font-size-small">{{ name }}</span>
-        <CountryChip :country="country" size=small />
+        <CountryChip v-if="country" :country size="small" class="flex-shrink-0" />
       </div>
     </template>
     <template #item.sampling.performed_on="{ value }: { value?: DateWithPrecision }">
@@ -237,7 +336,6 @@
       </span>
     </template>
   </v-data-table-server>
-
 </template>
 
 <script setup lang="ts">
@@ -254,7 +352,7 @@ import {
 import {
   // deleteOccurrenceMutation,
   listOccurrencesOptions,
-  listOccurrencesQueryKey,
+  listOccurrencesQueryKey
   // occurrencesDateRangeOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTableSearchBar from '@/components/toolkit/tables/CRUDTableSearchBar.vue'
@@ -264,6 +362,7 @@ import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
+import ImportBatchPicker from '@/features/import/components/ImportBatchPicker.vue'
 import TypeStatusPicker from '@/features/occurrences/components/TypeStatusPicker'
 import CountryChip from '@/features/site/components/CountryChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
@@ -291,12 +390,10 @@ const { xs } = useDisplay()
 //   _toggleYearRange(!!v)
 // }
 
-
 const { feedback } = useFeedback()
 const { user: currentUser } = storeToRefs(useUserStore())
 
 const [menu, toggleMenu] = useToggle(false)
-
 
 type Pagination = {
   itemsPerPage: number
@@ -308,13 +405,13 @@ const pagination = ref<Pagination>({
   page: 1
 })
 
-
 type BiomatTableFilters = {
   search_term?: string
   year?: number
   year_end?: number | null
   datasets?: string[]
-  type_status?: OccurrenceTypeStatus[]
+  batches?: UUID[]
+  type_status?: OccurrenceTypeStatus
   confer?: boolean
   whole_clade?: boolean
   rank?: TaxonRank
@@ -322,7 +419,9 @@ type BiomatTableFilters = {
   taxa?: string[]
 }
 
-const filters = toRef(useUrlSearchParams<BiomatTableFilters>('history', { removeNullishValues: true, }))
+const filters = toRef(
+  useUrlSearchParams<BiomatTableFilters>('history', { removeNullishValues: true })
+)
 
 const headers: DataTableHeader[] = [
   {
@@ -401,7 +500,6 @@ function invalidateQuery() {
 }
 onMounted(invalidateQuery)
 
-
 const { data, error, isPending, isFetching, refetch } = useQuery(
   computed(() => ({
     staleTime: Infinity,
@@ -411,10 +509,12 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
         offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
         confer: filters.value.confer,
         datasets: filters.value.datasets,
+        batches: filters.value.batches,
         taxon_rank: filters.value.rank,
         taxon_status: filters.value.status,
         taxa: filters.value.taxa,
         search_term: filters.value.search_term,
+        type_status: filters.value.type_status
       }
     }),
     // ...props.fetchItems({
@@ -433,7 +533,7 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
 
 const queryClient = useQueryClient()
 async function prefetchNext(currentPage: number) {
-  await setTimeout(() => { }, 500)
+  await setTimeout(() => {}, 500)
   await queryClient.prefetchQuery({
     staleTime: Infinity,
     ...listOccurrencesOptions({
@@ -445,7 +545,7 @@ async function prefetchNext(currentPage: number) {
         taxon_rank: filters.value.rank,
         taxon_status: filters.value.status,
         taxa: filters.value.taxa,
-        search_term: filters.value.search_term,
+        search_term: filters.value.search_term
         // order: sortBy.value?.[0]?.order,
         // sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
       }
@@ -470,7 +570,6 @@ const loading = computedAsync(async () => {
 function resetFilters() {
   filters.value = {}
 }
-
 </script>
 
 <style scoped lang="scss"></style>

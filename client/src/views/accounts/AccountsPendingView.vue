@@ -103,7 +103,7 @@ const [dialogOpen, toggleInvitationDialog] = useToggle(false)
 const selection = ref<string[]>([])
 
 const formContent = ref<InitialContent>({
-  role: 'Contributor'
+  role: 'contributor'
 })
 
 async function deleteSelectedItems() {

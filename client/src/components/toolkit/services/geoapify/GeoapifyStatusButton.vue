@@ -12,7 +12,7 @@
     >
       <v-card-text v-if="!status.has_api_key">
         <v-btn
-          v-if="isGranted('Admin')"
+          v-if="isGranted('admin')"
           block
           :rounded="0"
           :to="{ name: 'app-settings', params: { category: 'services' } }"

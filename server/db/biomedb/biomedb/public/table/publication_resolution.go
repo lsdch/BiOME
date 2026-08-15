@@ -17,11 +17,17 @@ type publicationResolutionTable struct {
 	postgres.Table
 
 	// Columns
-	StagingID       postgres.ColumnString
-	PublicationID   postgres.ColumnString
-	ResolutionType  postgres.ColumnString
-	Status          postgres.ColumnString
-	CrossrefPayload postgres.ColumnString
+	ID                  postgres.ColumnString
+	ImportID            postgres.ColumnString
+	Status              postgres.ColumnString
+	ResolvedCandidateID postgres.ColumnString
+	Doi                 postgres.ColumnString
+	Verbatim            postgres.ColumnString
+	Authors             postgres.ColumnStringArray
+	AuthorsRaw          postgres.ColumnString
+	Year                postgres.ColumnInteger
+	Title               postgres.ColumnString
+	Journal             postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -63,25 +69,37 @@ func newPublicationResolutionTable(schemaName, tableName, alias string) *Publica
 
 func newPublicationResolutionTableImpl(schemaName, tableName, alias string) publicationResolutionTable {
 	var (
-		StagingIDColumn       = postgres.StringColumn("staging_id")
-		PublicationIDColumn   = postgres.StringColumn("publication_id")
-		ResolutionTypeColumn  = postgres.StringColumn("resolution_type")
-		StatusColumn          = postgres.StringColumn("status")
-		CrossrefPayloadColumn = postgres.StringColumn("crossref_payload")
-		allColumns            = postgres.ColumnList{StagingIDColumn, PublicationIDColumn, ResolutionTypeColumn, StatusColumn, CrossrefPayloadColumn}
-		mutableColumns        = postgres.ColumnList{PublicationIDColumn, ResolutionTypeColumn, StatusColumn, CrossrefPayloadColumn}
-		defaultColumns        = postgres.ColumnList{StatusColumn}
+		IDColumn                  = postgres.StringColumn("id")
+		ImportIDColumn            = postgres.StringColumn("import_id")
+		StatusColumn              = postgres.StringColumn("status")
+		ResolvedCandidateIDColumn = postgres.StringColumn("resolved_candidate_id")
+		DoiColumn                 = postgres.StringColumn("doi")
+		VerbatimColumn            = postgres.StringColumn("verbatim")
+		AuthorsColumn             = postgres.StringArrayColumn("authors")
+		AuthorsRawColumn          = postgres.StringColumn("authors_raw")
+		YearColumn                = postgres.IntegerColumn("year")
+		TitleColumn               = postgres.StringColumn("title")
+		JournalColumn             = postgres.StringColumn("journal")
+		allColumns                = postgres.ColumnList{IDColumn, ImportIDColumn, StatusColumn, ResolvedCandidateIDColumn, DoiColumn, VerbatimColumn, AuthorsColumn, AuthorsRawColumn, YearColumn, TitleColumn, JournalColumn}
+		mutableColumns            = postgres.ColumnList{ImportIDColumn, StatusColumn, ResolvedCandidateIDColumn, DoiColumn, VerbatimColumn, AuthorsColumn, AuthorsRawColumn, YearColumn, TitleColumn, JournalColumn}
+		defaultColumns            = postgres.ColumnList{IDColumn, StatusColumn}
 	)
 
 	return publicationResolutionTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		StagingID:       StagingIDColumn,
-		PublicationID:   PublicationIDColumn,
-		ResolutionType:  ResolutionTypeColumn,
-		Status:          StatusColumn,
-		CrossrefPayload: CrossrefPayloadColumn,
+		ID:                  IDColumn,
+		ImportID:            ImportIDColumn,
+		Status:              StatusColumn,
+		ResolvedCandidateID: ResolvedCandidateIDColumn,
+		Doi:                 DoiColumn,
+		Verbatim:            VerbatimColumn,
+		Authors:             AuthorsColumn,
+		AuthorsRaw:          AuthorsRawColumn,
+		Year:                YearColumn,
+		Title:               TitleColumn,
+		Journal:             JournalColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

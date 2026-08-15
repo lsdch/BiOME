@@ -1,30 +1,47 @@
-import { SiteItem } from '@/api'
-import { HexagonLayerPickingInfo } from '@deck.gl/aggregation-layers'
 import { PickingInfo } from '@deck.gl/core'
-import { ColumnLayer, IconLayer } from '@deck.gl/layers'
+import { IconLayer } from '@deck.gl/layers'
 import { computed, ref } from 'vue'
-import { MarkerCluster } from './useMarkerLayers'
+import { MappingFilters } from '../components/layers-manager/map-layers'
+import { ItemWithCoordinates } from '../coordinates'
 
-export type MarkerSelectionInfo<Item, SiteMarker = Item> =
+export type HexagonSelection<Data> = {
+  type: 'hexagon'
+  info: PickingInfo<Data>
+  params: MappingFilters
+  resolution: number
+}
+
+export type MarkerSelection<Data> = {
+  type: 'marker'
+  info: PickingInfo<Data>
+  params: MappingFilters
+  resolution: number
+  coordinates: { latitude: number; longitude: number }
+}
+
+export type MarkerSelectionInfo<
+  MarkerData,
+  HexData,
+  SiteMarker extends ItemWithCoordinates = ItemWithCoordinates
+> =
   | { type: 'site'; info: SiteMarker }
   | {
       type: 'item'
-      info: PickingInfo<Item>
+      info: PickingInfo<MarkerData>
     }
-  | {
-      type: 'cluster'
-      info: PickingInfo<MarkerCluster<Item>>
-    }
-  | {
-      type: 'hexagon'
-      info: HexagonLayerPickingInfo<Item>
-    }
+  | MarkerSelection<MarkerData>
+  | MarkerSelection<HexData>
+  | HexagonSelection<HexData>
 
-export function useMarkerSelection<Item extends SiteItem, SiteMarker = Item>() {
-  const selected = ref<MarkerSelectionInfo<Item, SiteMarker>>()
+export function useMarkerSelection<
+  MarkerData,
+  HexData,
+  SiteMarker extends ItemWithCoordinates = ItemWithCoordinates
+>() {
+  const selected = ref<MarkerSelectionInfo<MarkerData, HexData, SiteMarker>>()
   const clickHandledByLayer = ref(false)
 
-  function select(info: MarkerSelectionInfo<Item, SiteMarker>) {
+  function select(info: MarkerSelectionInfo<MarkerData, HexData, SiteMarker>) {
     clickHandledByLayer.value = true
     console.debug('marker-selection: select()', info)
     selected.value = info
@@ -41,62 +58,66 @@ export function useMarkerSelection<Item extends SiteItem, SiteMarker = Item>() {
   const highlightLayer = computed(() => {
     if (!selected.value || selected.value.type === 'site') return []
 
-    // Hexagon picks expose aggregated points on the picked object.
-    if (selected.value.type === 'hexagon') {
-      return [makeHexagonHighlightLayer(selected.value.info as HexagonLayerPickingInfo<Item>)]
+    if (selected.value.type === 'marker') {
+      return [makeIconLayer(selected.value, MARKER_ICON_SIZE)]
     }
 
+    // Hexagon picks expose aggregated points on the picked object.
+    // if (selected.value.type === 'hexagon') {
+    //   return [makeHexagonHighlightLayer(selected.value.info as HexagonLayerPickingInfo<HexData>)]
+    // }
+
     // Otherwise it's a regular marker/item pick.
-    if (selected.value.info.object) {
-      return [makeIconLayer(selected.value.info, MARKER_ICON_SIZE)]
-    }
+    // if (selected.value.info.object) {
+    //   return [makeIconLayer(selected.value.info, MARKER_ICON_SIZE)]
+    // }
 
     return []
   })
 
-  const THIRD_PI = Math.PI / 3
-  const DIST_X = 2 * Math.sin(THIRD_PI)
-  const DIST_Y = 1.5
-  function getHexbinCentroid([i, j]: [number, number], radius: number): [number, number] {
-    return [(i + (j & 1) / 2) * radius * DIST_X, j * radius * DIST_Y]
-  }
+  // const THIRD_PI = Math.PI / 3
+  // const DIST_X = 2 * Math.sin(THIRD_PI)
+  // const DIST_Y = 1.5
+  // function getHexbinCentroid([i, j]: [number, number], radius: number): [number, number] {
+  //   return [(i + (j & 1) / 2) * radius * DIST_X, j * radius * DIST_Y]
+  // }
 
-  function makeHexagonHighlightLayer(
-    info: HexagonLayerPickingInfo<Item>
-  ): ColumnLayer<HexagonLayerPickingInfo<Item>> {
-    console.info('Creating highlight layer for hexagon with position', info.coordinate)
-    return new ColumnLayer<HexagonLayerPickingInfo<Item>>({
-      id: 'marker-hex-highlight',
-      data: [info],
-      diskResolution: 6,
-      // Use geographic coordinates and a visible radius (meters)
-      coordinateSystem: 'cartesian',
-      //   coordinateOrigin: [180, 90, 0],
-      extruded: false,
-      radius: 200000,
-      filled: true,
-      getLineColor: () => [255, 0, 0],
-      getLineWidth: () => 2,
-      getFillColor: () => [255, 0, 0, 128],
-      getElevation: () => 0,
-      getPosition: (d: HexagonLayerPickingInfo<Item>) => {
-        return d.object?.position as [number, number]
-      }
-    })
-  }
+  // function makeHexagonHighlightLayer(
+  //   info: HexagonLayerPickingInfo<HexData>
+  // ): ColumnLayer<HexagonLayerPickingInfo<HexData>> {
+  //   console.info('Creating highlight layer for hexagon with position', info.coordinate)
+  //   return new ColumnLayer<HexagonLayerPickingInfo<HexData>>({
+  //     id: 'marker-hex-highlight',
+  //     data: [info],
+  //     diskResolution: 6,
+  //     // Use geographic coordinates and a visible radius (meters)
+  //     coordinateSystem: 'cartesian',
+  //     //   coordinateOrigin: [180, 90, 0],
+  //     extruded: false,
+  //     radius: 200000,
+  //     filled: true,
+  //     getLineColor: () => [255, 0, 0],
+  //     getLineWidth: () => 2,
+  //     getFillColor: () => [255, 0, 0, 128],
+  //     getElevation: () => 0,
+  //     getPosition: (d: HexagonLayerPickingInfo<HexData>) => {
+  //       return d.object?.position as [number, number]
+  //     }
+  //   })
+  // }
 
   function makeIconLayer(
-    info: PickingInfo<Item> | PickingInfo<MarkerCluster<Item>>,
+    info: MarkerSelection<MarkerData | HexData>,
     size = MARKER_ICON_SIZE
-  ): IconLayer<Item | MarkerCluster<Item>> {
-    return new IconLayer<Item | MarkerCluster<Item>>({
+  ): IconLayer<MarkerData | HexData> {
+    return new IconLayer<MarkerData | HexData>({
       id: `marker-selected`,
-      data: [info.object],
+      data: [info.info.object],
       pickable: true,
       billboard: true,
       sizeUnits: 'pixels',
       sizeScale: 1,
-      getPosition: (item) => [item.coordinates.longitude, item.coordinates.latitude],
+      getPosition: () => [info.coordinates.longitude, info.coordinates.latitude],
       getIcon: () => ({
         url: createMarkerIcon(),
         width: size,

@@ -16,9 +16,9 @@ var TaxonStatus = &struct {
 	Unreferenced postgres.StringExpression
 	Unclassified postgres.StringExpression
 }{
-	Accepted:     postgres.NewEnumValue("ACCEPTED"),
-	Synonym:      postgres.NewEnumValue("SYNONYM"),
-	Doubtful:     postgres.NewEnumValue("DOUBTFUL"),
-	Unreferenced: postgres.NewEnumValue("UNREFERENCED"),
-	Unclassified: postgres.NewEnumValue("UNCLASSIFIED"),
+	Accepted:     postgres.NewEnumValue("accepted"),
+	Synonym:      postgres.NewEnumValue("synonym"),
+	Doubtful:     postgres.NewEnumValue("doubtful"),
+	Unreferenced: postgres.NewEnumValue("unreferenced"),
+	Unclassified: postgres.NewEnumValue("unclassified"),
 }

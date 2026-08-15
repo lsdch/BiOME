@@ -14,7 +14,7 @@ var OccurrenceTypeStatus = &struct {
 	Neotype  postgres.StringExpression
 	Topotype postgres.StringExpression
 }{
-	Holotype: postgres.NewEnumValue("HOLOTYPE"),
-	Neotype:  postgres.NewEnumValue("NEOTYPE"),
-	Topotype: postgres.NewEnumValue("TOPOTYPE"),
+	Holotype: postgres.NewEnumValue("holotype"),
+	Neotype:  postgres.NewEnumValue("neotype"),
+	Topotype: postgres.NewEnumValue("topotype"),
 }

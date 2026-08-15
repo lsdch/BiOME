@@ -1,21 +1,38 @@
 <template>
-  <div v-if="!TaxonRank.isAscendant(item.rank, maxRankDisplay)" class="taxon-item-container" ref="container"
-    :style="{ 'grid-column': item.rank === 'SUBGENUS' ? 'SPECIES' : item.rank }" :id="item.name">
+  <div
+    v-if="!TaxonRank.isAscendant(item.rank, maxRankDisplay)"
+    class="taxon-item-container"
+    ref="container"
+    :style="{ 'grid-column': item.rank === 'subgenus' ? 'species' : item.rank }"
+    :id="item.name"
+  >
     <div :class="['taxon-item', { hilight }]">
       <FTaxonStatusIndicator :status="item.status" />
       <span class="mr-3 text-no-wrap cursor-pointer" @click="select(item)">
         {{ item.name }}
       </span>
       <v-spacer />
-      <v-chip v-if="(item.children_count ?? 0) > 0" :color="expanded ? 'success' : 'primary'" size="small"
-        density="compact" @click="toggleAndScroll()" :rounded="100">
+      <v-chip
+        v-if="(item.children_count ?? 0) > 0"
+        :color="expanded ? 'success' : 'primary'"
+        size="small"
+        density="compact"
+        @click="toggleAndScroll()"
+        :rounded="100"
+      >
         {{ item.children_count }}
       </v-chip>
-      <span v-else-if="item.rank === 'SUBGENUS'" class="text-caption text-muted mr-1">Subgenus</span>
+      <span v-else-if="item.rank === 'subgenus'" class="text-caption text-muted mr-1"
+        >Subgenus</span
+      >
     </div>
   </div>
 
-  <FTaxaNestedList v-if="expanded && item.children?.length" :items="item.children" :rank="item.children[0]!.rank" />
+  <FTaxaNestedList
+    v-if="expanded && item.children?.length"
+    :items="item.children"
+    :rank="item.children[0]!.rank"
+  />
 </template>
 
 <script setup lang="ts">
@@ -30,7 +47,7 @@ import {
 } from '../composables'
 import { FTaxaNestedList, FTaxonStatusIndicator } from './functionals'
 
-export type TaxonomyElement = Taxon & { children?: TaxonomyElement[], children_count?: number }
+export type TaxonomyElement = Taxon & { children?: TaxonomyElement[]; children_count?: number }
 
 const props = defineProps<{ item: TaxonomyElement }>()
 
@@ -89,7 +106,7 @@ const containerVisible = useElementVisibility(container)
   margin-top: -1px;
   margin-left: -1px;
 
-  >div.taxon-item {
+  > div.taxon-item {
     position: sticky;
     top: 60px;
     display: flex;

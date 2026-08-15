@@ -5,62 +5,76 @@ import { computed, MaybeRefOrGetter, toValue, type Ref } from 'vue'
 import { parseHex } from 'vuetify/lib/util/colorUtils.mjs'
 import { GlobalMarkerOptions } from '../components/DeckGlMap.vue'
 import type { MarkerLayer } from '../components/layers-manager/map-layers'
-import { ItemWithCoordinates } from '../coordinates.ts'
-import { MarkerSelectionInfo } from './marker-selection'
+import { MarkerSelection } from './marker-selection'
 
-export type MarkerCluster<Item> = {
-  coordinates: { longitude: number; latitude: number }
-  count: number
-  items: Item[]
-}
+// export type MarkerCluster<Item> = {
+//   coordinates: { longitude: number; latitude: number }
+//   count: number
+//   items: Item[]
+// }
 
 const DEFAULT_HEX_COLOR = '#FF0000'
 const DEFAULT_RADIUS_SCALE_FACTOR = 0.5
 
-function groupItemsByCoordinate<
-  Item extends { coordinates: { latitude: number; longitude: number } }
->(items: Item[]) {
-  const groups = new Map<string, MarkerCluster<Item>>()
+// function groupItemsByCoordinate<
+//   Item extends { coordinates: { latitude: number; longitude: number } }
+// >(items: Item[]) {
+//   const groups = new Map<string, MarkerCluster<Item>>()
 
-  items.forEach((item) => {
-    const { latitude, longitude } = item.coordinates
-    const key = `${longitude}:${latitude}`
-    const existing = groups.get(key)
+//   items.forEach((item) => {
+//     const { latitude, longitude } = item.coordinates
+//     const key = `${longitude}:${latitude}`
+//     const existing = groups.get(key)
 
-    if (existing) {
-      existing.items.push(item)
-      existing.count += 1
-      return
-    }
+//     if (existing) {
+//       existing.items.push(item)
+//       existing.count += 1
+//       return
+//     }
 
-    groups.set(key, {
-      coordinates: { longitude, latitude },
-      count: 1,
-      items: [item]
-    })
-  })
+//     groups.set(key, {
+//       coordinates: { longitude, latitude },
+//       count: 1,
+//       items: [item]
+//     })
+//   })
 
-  return [...groups.values()]
-}
+//   return [...groups.values()]
+// }
 
-export function instanciateMarkerLayer<Item extends ItemWithCoordinates>(
-  layer: MarkerLayer<Item>,
+/*
+  Instantiates a marker layer for the given MarkerLayer specification
+  and returns an array of Deck.gl layers (ScatterplotLayer and optionally TextLayer) to be rendered on the map.
+  It uses the provided context to handle selection, hover tooltips, and marker options.
+*/
+export function instanciateMarkerLayer<MarkerData>(
+  layer: MarkerLayer<MarkerData>,
   index: number | string,
   ctx: {
-    selected: Ref<MarkerSelectionInfo<Item> | undefined>
-    select: (info: MarkerSelectionInfo<Item>) => void
-    currentZoom: Ref<number>
+    select: (info: MarkerSelection<MarkerData>) => void
     hoverTooltip: Ref<{ x: number; y: number; text: string } | undefined>
-    markerOptions?: GlobalMarkerOptions
     showClusterText?: boolean
   }
 ) {
-  const radiusFn = (item: Item) => {
-    const baseRadius = layer.config.radius?.(item) ?? 5
-    return (
-      baseRadius +
-      baseRadius * (ctx.markerOptions?.cluster.radiusScaleFactor ?? DEFAULT_RADIUS_SCALE_FACTOR)
-    )
+  // const radiusFn = (item: MarkerData) => {
+  //   const baseRadius = layer.config.baseRadius ?? 5
+  //   return (
+  //     baseRadius +
+  //     (layer.radius?.(item) ?? 0) *
+  //       (ctx.markerOptions?.cluster.radiusScaleFactor ?? DEFAULT_RADIUS_SCALE_FACTOR)
+  //   )
+  // }
+  const radiusFn = (item: MarkerData) => {
+    const baseRadius = layer.config.baseRadius ?? 5
+    // const value = layer.radius?.(item) ?? 0
+    const scaleFactor = layer.config.radiusScaleFactor ?? DEFAULT_RADIUS_SCALE_FACTOR
+
+    const densityFactor = Math.pow(2, (layer.resolution - 12) * 0.5)
+
+    const effectiveValue = (layer.radius?.(item) ?? 0) * densityFactor
+
+    return baseRadius + Math.log1p(effectiveValue) * scaleFactor * 10
+    // return baseRadius + Math.log1p(value) * scaleFactor
   }
   // const groups = groupItemsByCoordinate(layer.data ?? [])
   // const simpleRadius = Math.max(1, Number(layer.config.radius ?? 4))
@@ -75,11 +89,11 @@ export function instanciateMarkerLayer<Item extends ItemWithCoordinates>(
   // const singleItems = groups.filter((group) => group.count === 1).flatMap((group) => group.items)
   // const clusteredGroups = groups.filter((group) => group.count > 1)
 
-  const layers: Layer[] = []
+  const layers: (ScatterplotLayer<MarkerData> | TextLayer<MarkerData>)[] = []
 
   // if (singleItems.length) {
   layers.push(
-    new ScatterplotLayer<Item>({
+    new ScatterplotLayer<MarkerData>({
       id: `markers-${index}`,
       data: layer.data ?? [],
       pickable: true,
@@ -90,10 +104,25 @@ export function instanciateMarkerLayer<Item extends ItemWithCoordinates>(
       lineWidthMinPixels: Number(layer.config.weight ?? 1),
       radiusMinPixels: 4,
       getRadius: radiusFn,
-      getPosition: (item) => [item.coordinates.longitude, item.coordinates.latitude],
+      radiusMaxPixels: 50,
+      getPosition: layer.getPosition,
       getFillColor: () => fillColor,
       getLineColor: () => strokeColor,
-      onClick: (info) => ctx.select({ type: 'item', info })
+      updateTriggers: {
+        getRadius: [layer.config.radiusScaleFactor, layer.config.baseRadius],
+        getFillColor: [layer.config.fillColor],
+        getLineColor: [layer.config.color]
+      },
+      onClick: (info) => {
+        const [lng, lat] = layer.getPosition(info.object)
+        return ctx.select({
+          type: 'marker',
+          info,
+          params: layer.filters,
+          resolution: layer.resolution,
+          coordinates: { latitude: lat, longitude: lng }
+        })
+      }
       // onHover: ctx.markerOptions?.tooltips
       //   ? (info: PickingInfo<Item>) => {
       //       const object = info.object
@@ -114,9 +143,9 @@ export function instanciateMarkerLayer<Item extends ItemWithCoordinates>(
     })
   )
 
-  if (ctx.showClusterText && layer.config.getText) {
+  if (ctx.showClusterText && layer.getText) {
     layers.push(
-      new TextLayer<Item>({
+      new TextLayer<MarkerData>({
         id: `markers-${index}-count`,
         data: layer.data,
         pickable: false,
@@ -125,8 +154,8 @@ export function instanciateMarkerLayer<Item extends ItemWithCoordinates>(
         sizeUnits: 'pixels',
         fontWeight: 800,
 
-        getPosition: ({ coordinates: { longitude: lon, latitude: lat } }) => [lon, lat],
-        getText: layer.config.getText,
+        getPosition: layer.getPosition,
+        getText: layer.getText,
         getSize: 14,
         getColor: [255, 255, 255, 255],
         getTextAnchor: 'middle',
@@ -139,20 +168,19 @@ export function instanciateMarkerLayer<Item extends ItemWithCoordinates>(
   return layers
 }
 
-export function useMarkerLayers<Item extends ItemWithCoordinates>(
+export function useMarkerLayers<MarkerData>(
   props: {
-    markerLayers?: MaybeRefOrGetter<MarkerLayer<Item>[]>
-    markerOptions?: MaybeRefOrGetter<GlobalMarkerOptions>
+    markerLayers?: MaybeRefOrGetter<MarkerLayer<MarkerData>[]>
   },
   ctx: {
-    selected: Ref<MarkerSelectionInfo<Item, any> | undefined>
-    select: (info: MarkerSelectionInfo<Item, any>) => void
+    select: (info: MarkerSelection<MarkerData>) => void
     currentZoom: Ref<number>
     hoverTooltip: Ref<{ x: number; y: number; text: string } | undefined>
+    markerOptions?: MaybeRefOrGetter<GlobalMarkerOptions>
   }
 ) {
   const showClusterText = computed(() => {
-    return ctx.currentZoom.value >= (toValue(props.markerOptions)?.cluster.labelZoomThreshold ?? 8)
+    return ctx.currentZoom.value >= (toValue(ctx.markerOptions)?.cluster.labelZoomThreshold ?? 8)
   })
 
   const markerDeckLayers = computed<Layer[]>(() => {
@@ -165,11 +193,8 @@ export function useMarkerLayers<Item extends ItemWithCoordinates>(
 
     return activeLayers.flatMap((layer, index) => {
       return instanciateMarkerLayer(layer, index, {
-        selected: ctx.selected,
         select: ctx.select,
-        currentZoom: ctx.currentZoom,
         hoverTooltip: ctx.hoverTooltip,
-        markerOptions: toValue(props.markerOptions),
         showClusterText: showClusterText.value
       })
     })

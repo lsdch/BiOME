@@ -12,7 +12,7 @@ import "errors"
 type VocabResolutionStatus string
 
 const (
-	VocabResolutionStatus_Auto            VocabResolutionStatus = "auto"
+	VocabResolutionStatus_AutoResolved    VocabResolutionStatus = "auto_resolved"
 	VocabResolutionStatus_Selected        VocabResolutionStatus = "selected"
 	VocabResolutionStatus_Pending         VocabResolutionStatus = "pending"
 	VocabResolutionStatus_RequestCreation VocabResolutionStatus = "request_creation"
@@ -20,7 +20,7 @@ const (
 )
 
 var VocabResolutionStatusAllValues = []VocabResolutionStatus{
-	VocabResolutionStatus_Auto,
+	VocabResolutionStatus_AutoResolved,
 	VocabResolutionStatus_Selected,
 	VocabResolutionStatus_Pending,
 	VocabResolutionStatus_RequestCreation,
@@ -39,8 +39,8 @@ func (e *VocabResolutionStatus) Scan(value interface{}) error {
 	}
 
 	switch enumValue {
-	case "auto":
-		*e = VocabResolutionStatus_Auto
+	case "auto_resolved":
+		*e = VocabResolutionStatus_AutoResolved
 	case "selected":
 		*e = VocabResolutionStatus_Selected
 	case "pending":

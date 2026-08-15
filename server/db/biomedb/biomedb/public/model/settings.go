@@ -18,4 +18,5 @@ type Settings struct {
 	MailFromAddress        string
 	MailFromName           string
 	MolecularDataEnabled   bool
+	FrontpageMessageMd     *string
 }

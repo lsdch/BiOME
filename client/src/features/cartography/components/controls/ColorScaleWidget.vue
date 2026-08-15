@@ -1,6 +1,6 @@
 <template>
   <div v-if="!hidden" class="color-scale-widget">
-    <v-card density="compact" class="pa-2 opacity-70" theme="light" rounded="0">
+    <v-card density="compact" class="pa-2 opacity-80" theme="light" rounded="0">
       <div class="text-label-small d-flex ga-1">
         <span>{{ bindingLabels[bindingSpec.binding] }}</span>
         <span v-if="bindingSpec.log">(log scale)</span>
@@ -72,7 +72,11 @@ const {
   max,
   bindingSpec
 } = defineProps<{
-  colorRange?: Array<[number, number, number] | { r: number; g: number; b: number }>
+  colorRange?: Array<
+    | [number, number, number]
+    | [number, number, number, number]
+    | { r: number; g: number; b: number }
+  >
   min: number
   max: number
   bindingSpec: Required<ScaleBindingSpec>

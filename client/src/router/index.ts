@@ -61,7 +61,7 @@ function setupRouter(settings: InstanceSettings) {
       {
         path: '/import/batch/:uuid',
         name: 'import-batch-item',
-        component: () => import('@/features/import/views/ImportBatchView.vue'),
+        component: () => import('@/features/import/views/ImportBatchItemView.vue'),
         props: true
       },
       {

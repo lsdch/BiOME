@@ -8,23 +8,38 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/types"
 )
 
-const deleteImportBatch = `-- name: DeleteImportBatch :exec
+const deleteImportBatch = `-- name: DeleteImportBatch :one
 DELETE FROM import_batches
 WHERE id = $1
+RETURNING id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
 `
 
-func (q *Queries) DeleteImportBatch(ctx context.Context, importBatchID types.ULID) error {
-	_, err := q.db.Exec(ctx, deleteImportBatch, importBatchID)
-	return err
+func (q *Queries) DeleteImportBatch(ctx context.Context, importBatchID uuid.UUID) (ImportBatch, error) {
+	row := q.db.QueryRow(ctx, deleteImportBatch, importBatchID)
+	var i ImportBatch
+	err := row.Scan(
+		&i.ID,
+		&i.Label,
+		&i.Description,
+		&i.Status,
+		&i.AssembledBy,
+		&i.CreatedBy,
+		&i.CreatedAt,
+		&i.CompletedAt,
+		&i.CompletedBy,
+		&i.TaxonomicScope,
+	)
+	return i, err
 }
 
 const deleteOccurrencesFromBatch = `-- name: DeleteOccurrencesFromBatch :exec
 WITH deleted_occurrences AS (
     DELETE FROM occurrences o
-    WHERE o.import_batch_id = $1::ulid
+    WHERE o.import_batch_id = $1::uuid
     RETURNING sampling_id
 ),
 affected_events AS (
@@ -43,34 +58,37 @@ WHERE se.id IN (
     )
 `
 
-func (q *Queries) DeleteOccurrencesFromBatch(ctx context.Context, importBatchID types.ULID) error {
+func (q *Queries) DeleteOccurrencesFromBatch(ctx context.Context, importBatchID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, deleteOccurrencesFromBatch, importBatchID)
 	return err
 }
 
 const getImportBatch = `-- name: GetImportBatch :one
-SELECT id, label, description, assembled_by, created_by, created_at, workflow_id
+SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
 FROM import_batches ib
 WHERE ib.id = $1
 `
 
-func (q *Queries) GetImportBatch(ctx context.Context, importBatchID types.ULID) (ImportBatch, error) {
+func (q *Queries) GetImportBatch(ctx context.Context, importBatchID uuid.UUID) (ImportBatch, error) {
 	row := q.db.QueryRow(ctx, getImportBatch, importBatchID)
 	var i ImportBatch
 	err := row.Scan(
 		&i.ID,
 		&i.Label,
 		&i.Description,
+		&i.Status,
 		&i.AssembledBy,
 		&i.CreatedBy,
 		&i.CreatedAt,
-		&i.WorkflowID,
+		&i.CompletedAt,
+		&i.CompletedBy,
+		&i.TaxonomicScope,
 	)
 	return i, err
 }
 
 const getImportBatchForOccurrence = `-- name: GetImportBatchForOccurrence :one
-SELECT ib.id, ib.label, ib.description, ib.assembled_by, ib.created_by, ib.created_at, ib.workflow_id
+SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope
 FROM import_batches ib
     JOIN occurrences o ON o.import_batch_id = ib.id
 WHERE o.id = $1
@@ -83,16 +101,93 @@ func (q *Queries) GetImportBatchForOccurrence(ctx context.Context, occurrenceID 
 		&i.ID,
 		&i.Label,
 		&i.Description,
+		&i.Status,
 		&i.AssembledBy,
 		&i.CreatedBy,
 		&i.CreatedAt,
-		&i.WorkflowID,
+		&i.CompletedAt,
+		&i.CompletedBy,
+		&i.TaxonomicScope,
+	)
+	return i, err
+}
+
+const getImportBatchWithContent = `-- name: GetImportBatchWithContent :one
+SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope,
+    -- created by user
+    u.id, u.login, u.email, u.password_hash, u.role, u.first_name, u.last_name, u.organisation, u.contact, u.bio, u.full_name, u.active, u.email_verified_at,
+    -- completed by user
+    u2.id, u2.login, u2.email, u2.password_hash, u2.role, u2.first_name, u2.last_name, u2.organisation, u2.contact, u2.bio, u2.full_name, u2.active, u2.email_verified_at,
+    COUNT(DISTINCT o.id) AS occurrence_count,
+    COUNT(DISTINCT se.id) AS sampling_count
+FROM import_batches ib
+    LEFT JOIN occurrences o ON o.import_batch_id = ib.id
+    LEFT JOIN samplings se ON se.id = o.sampling_id
+    JOIN users u ON u.id = ib.created_by
+    JOIN users u2 ON u2.id = ib.completed_by
+WHERE ib.id = $1
+    AND ib.status = 'completed'
+GROUP BY ib.id,
+    u.id,
+    u2.id
+`
+
+type GetImportBatchWithContentRow struct {
+	ImportBatch     ImportBatch `json:"import_batch"`
+	User            User        `json:"user"`
+	User_2          User        `json:"user_2"`
+	OccurrenceCount int64       `json:"occurrence_count"`
+	SamplingCount   int64       `json:"sampling_count"`
+}
+
+func (q *Queries) GetImportBatchWithContent(ctx context.Context, importBatchID uuid.UUID) (GetImportBatchWithContentRow, error) {
+	row := q.db.QueryRow(ctx, getImportBatchWithContent, importBatchID)
+	var i GetImportBatchWithContentRow
+	err := row.Scan(
+		&i.ImportBatch.ID,
+		&i.ImportBatch.Label,
+		&i.ImportBatch.Description,
+		&i.ImportBatch.Status,
+		&i.ImportBatch.AssembledBy,
+		&i.ImportBatch.CreatedBy,
+		&i.ImportBatch.CreatedAt,
+		&i.ImportBatch.CompletedAt,
+		&i.ImportBatch.CompletedBy,
+		&i.ImportBatch.TaxonomicScope,
+		&i.User.ID,
+		&i.User.Login,
+		&i.User.Email,
+		&i.User.PasswordHash,
+		&i.User.Role,
+		&i.User.FirstName,
+		&i.User.LastName,
+		&i.User.Organisation,
+		&i.User.Contact,
+		&i.User.Bio,
+		&i.User.FullName,
+		&i.User.Active,
+		&i.User.EmailVerifiedAt,
+		&i.User_2.ID,
+		&i.User_2.Login,
+		&i.User_2.Email,
+		&i.User_2.PasswordHash,
+		&i.User_2.Role,
+		&i.User_2.FirstName,
+		&i.User_2.LastName,
+		&i.User_2.Organisation,
+		&i.User_2.Contact,
+		&i.User_2.Bio,
+		&i.User_2.FullName,
+		&i.User_2.Active,
+		&i.User_2.EmailVerifiedAt,
+		&i.OccurrenceCount,
+		&i.SamplingCount,
 	)
 	return i, err
 }
 
 const listImportBatches = `-- name: ListImportBatches :many
-SELECT id, label, description, assembled_by, created_by, created_at, workflow_id
+SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
 FROM import_batches ib
 ORDER BY ib.created_at DESC
 `
@@ -110,10 +205,100 @@ func (q *Queries) ListImportBatches(ctx context.Context) ([]ImportBatch, error) 
 			&i.ID,
 			&i.Label,
 			&i.Description,
+			&i.Status,
 			&i.AssembledBy,
 			&i.CreatedBy,
 			&i.CreatedAt,
-			&i.WorkflowID,
+			&i.CompletedAt,
+			&i.CompletedBy,
+			&i.TaxonomicScope,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listImportBatchesWithContent = `-- name: ListImportBatchesWithContent :many
+SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope,
+    -- created by user
+    u.id, u.login, u.email, u.password_hash, u.role, u.first_name, u.last_name, u.organisation, u.contact, u.bio, u.full_name, u.active, u.email_verified_at,
+    -- completed by user
+    u2.id, u2.login, u2.email, u2.password_hash, u2.role, u2.first_name, u2.last_name, u2.organisation, u2.contact, u2.bio, u2.full_name, u2.active, u2.email_verified_at,
+    COUNT(DISTINCT o.id) AS occurrence_count,
+    COUNT(DISTINCT se.id) AS sampling_count
+FROM import_batches ib
+    LEFT JOIN occurrences o ON o.import_batch_id = ib.id
+    LEFT JOIN samplings se ON se.id = o.sampling_id
+    JOIN users u ON u.id = ib.created_by
+    JOIN users u2 ON u2.id = ib.completed_by
+WHERE ib.status = 'completed'
+GROUP BY ib.id,
+    u.id,
+    u2.id
+ORDER BY ib.created_at DESC
+`
+
+type ListImportBatchesWithContentRow struct {
+	ImportBatch     ImportBatch `json:"import_batch"`
+	User            User        `json:"user"`
+	User_2          User        `json:"user_2"`
+	OccurrenceCount int64       `json:"occurrence_count"`
+	SamplingCount   int64       `json:"sampling_count"`
+}
+
+func (q *Queries) ListImportBatchesWithContent(ctx context.Context) ([]ListImportBatchesWithContentRow, error) {
+	rows, err := q.db.Query(ctx, listImportBatchesWithContent)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListImportBatchesWithContentRow{}
+	for rows.Next() {
+		var i ListImportBatchesWithContentRow
+		if err := rows.Scan(
+			&i.ImportBatch.ID,
+			&i.ImportBatch.Label,
+			&i.ImportBatch.Description,
+			&i.ImportBatch.Status,
+			&i.ImportBatch.AssembledBy,
+			&i.ImportBatch.CreatedBy,
+			&i.ImportBatch.CreatedAt,
+			&i.ImportBatch.CompletedAt,
+			&i.ImportBatch.CompletedBy,
+			&i.ImportBatch.TaxonomicScope,
+			&i.User.ID,
+			&i.User.Login,
+			&i.User.Email,
+			&i.User.PasswordHash,
+			&i.User.Role,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.Organisation,
+			&i.User.Contact,
+			&i.User.Bio,
+			&i.User.FullName,
+			&i.User.Active,
+			&i.User.EmailVerifiedAt,
+			&i.User_2.ID,
+			&i.User_2.Login,
+			&i.User_2.Email,
+			&i.User_2.PasswordHash,
+			&i.User_2.Role,
+			&i.User_2.FirstName,
+			&i.User_2.LastName,
+			&i.User_2.Organisation,
+			&i.User_2.Contact,
+			&i.User_2.Bio,
+			&i.User_2.FullName,
+			&i.User_2.Active,
+			&i.User_2.EmailVerifiedAt,
+			&i.OccurrenceCount,
+			&i.SamplingCount,
 		); err != nil {
 			return nil, err
 		}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/services/crossref"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -130,22 +131,27 @@ type GeoapifyConfig struct {
 	DailyUsageLimit int32  `mapstructure:"GEOAPIFY_DAILY_USAGE_LIMIT"`
 }
 
+type GBIFConfig struct {
+	UserAgent          string `mapstructure:"GBIF_USER_AGENT"`
+	BackboneDatasetKey string `mapstructure:"GBIF_BACKBONE_DATASET_KEY"`
+	MaxConcurrent      int    `mapstructure:"GBIF_MAX_CONCURRENT"`
+}
+
 type Config struct {
-	Instance               InstanceConfig   `mapstructure:"instance"`
-	appPublicBaseURL       string           `mapstructure:"APP_PUBLIC_BASE_URL"`
-	AppPublicBaseURL       url.URL          `json:"-"`
-	DB                     DBConfig         `mapstructure:"DB"`
-	SMTP                   SMTPConfig       `mapstructure:"SMTP"`
-	Env                    AppEnv           `mapstructure:"ENV"`
-	API                    APIConfig        `mapstructure:"API"`
-	AuthTokens             AuthTokensConfig `mapstructure:"auth_tokens"`
-	GeneratedTokenLength   uint             `mapstructure:"TOKEN_LENGTH"`
-	Geoapify               GeoapifyConfig   `mapstructure:"geoapify"`
-	GBIFBackboneDatasetKey string           `mapstructure:"GBIF_BACKBONE_DATASET_KEY"`
-	GBIFMaxConcurrent      int              `mapstructure:"GBIF_MAX_CONCURRENT"`
-	CrossRefMaxConcurrent  int              `mapstructure:"CROSSREF_MAX_CONCURRENT"`
-	CountriesJSON_URL      string           `mapstructure:"COUNTRIES_JSON_URL"`
-	Bootstrap              BootstrapConfig  `mapstructure:"bootstrap"`
+	Instance             InstanceConfig   `mapstructure:"instance"`
+	appPublicBaseURL     string           `mapstructure:"APP_PUBLIC_BASE_URL"`
+	AppPublicBaseURL     url.URL          `json:"-"`
+	DB                   DBConfig         `mapstructure:"DB"`
+	SMTP                 SMTPConfig       `mapstructure:"SMTP"`
+	Env                  AppEnv           `mapstructure:"ENV"`
+	API                  APIConfig        `mapstructure:"API"`
+	AuthTokens           AuthTokensConfig `mapstructure:"auth_tokens"`
+	GeneratedTokenLength uint             `mapstructure:"TOKEN_LENGTH"`
+	Geoapify             GeoapifyConfig   `mapstructure:"geoapify"`
+	GBIF                 GBIFConfig       `mapstructure:"gbif"`
+	CountriesJSON_URL    string           `mapstructure:"COUNTRIES_JSON_URL"`
+	Bootstrap            BootstrapConfig  `mapstructure:"bootstrap"`
+	CrossRef             crossref.Config  `mapstructure:"crossref"`
 }
 
 func (c *Config) Validate() error {
@@ -163,11 +169,8 @@ func (c *Config) Validate() error {
 	if c.Geoapify.DailyUsageLimit <= 0 {
 		return fmt.Errorf("GEOAPIFY_DAILY_USAGE_LIMIT must be greater than 0")
 	}
-	if c.GBIFMaxConcurrent <= 0 {
+	if c.GBIF.MaxConcurrent <= 0 {
 		return fmt.Errorf("GBIF_MAX_CONCURRENT must be greater than 0")
-	}
-	if c.CrossRefMaxConcurrent <= 0 {
-		return fmt.Errorf("CROSSREF_MAX_CONCURRENT must be greater than 0")
 	}
 	return nil
 }

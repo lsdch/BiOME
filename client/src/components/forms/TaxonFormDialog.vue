@@ -14,7 +14,7 @@
         <v-col cols="12" sm="6">
           <TaxonPicker
             label="Parent"
-            :ranks="['Order', 'Family', 'Genus', 'Species']"
+            :ranks="['order', 'family', 'genus', 'species']"
             item-value="name"
             return-object
             :multiple="false"
@@ -29,11 +29,11 @@
               parent
                 ? [
                     TaxonRank.childRank(parent.rank),
-                    ...(parent.rank === 'Genus' ? ['Subgenus'] : [])
+                    ...(parent.rank === 'genus' ? ['subgenus'] : [])
                   ]
                 : []
             "
-            :disabled="parent?.rank !== 'Genus'"
+            :disabled="parent?.rank !== 'genus'"
           />
         </v-col>
       </v-row>

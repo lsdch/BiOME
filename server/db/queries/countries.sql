@@ -33,8 +33,8 @@ WHERE ST_Contains(
         c.geom,
         ST_SetSRID(
             ST_Point(
-                @latitude::real,
-                @longitude::real
+                @latitude::double precision,
+                @longitude::double precision
             ),
             4326
         )

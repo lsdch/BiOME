@@ -12,6 +12,7 @@ import (
 
 type OccurrenceSortKey string
 
+//generate:enum
 const (
 	OccurrenceSortKeyCode      OccurrenceSortKey = "code"
 	OccurrenceSortKeySiteName  OccurrenceSortKey = "site_name"
@@ -85,7 +86,7 @@ func BaseOccurrenceFromDB(o biomedb.Occurrence, taxon biomedb.Taxon) BaseOccurre
 	return BaseOccurrence{
 		ID:         o.ID,
 		Code:       o.Code,
-		TypeStatus: NewOptionalFromPtr(o.TypeStatus),
+		TypeStatus: NewOptionalFromPtr((*OccurrenceTypeStatus)(o.TypeStatus)),
 		Identification: Identification{
 			Taxon:        *TaxonFromDB(&taxon),
 			IdentifiedBy: o.IdentifiedBy,
@@ -118,10 +119,10 @@ type Occurrence struct {
 	Sampling Sampling `json:"sampling"`
 }
 
-func OccurrenceFromDB(o biomedb.Occurrence, taxon biomedb.Taxon, s biomedb.Sampling, c biomedb.Country) Occurrence {
+func OccurrenceFromDB(o biomedb.Occurrence, taxon biomedb.Taxon, s biomedb.SamplingsWithCountry) Occurrence {
 	return Occurrence{
 		BaseOccurrence: BaseOccurrenceFromDB(o, taxon),
-		Sampling:       NewSamplingFromDB(s, c),
+		Sampling:       NewSamplingFromDB(s),
 	}
 }
 
@@ -170,7 +171,7 @@ func CodeHistoryEntryFromDB(e biomedb.OccurrenceCodeHistory) CodeHistoryEntry {
 
 type OccurrenceMetadata struct {
 	CodeHistory []CodeHistoryEntry    `json:"code_history,omitempty"`
-	References  []Article             `json:"references,omitempty"`
+	References  []Publication         `json:"references,omitempty"`
 	Datasets    []Dataset             `json:"datasets,omitempty"`
 	Collections []Collection          `json:"collections,omitempty"`
 	ImportBatch Optional[ImportBatch] `json:"import_batch,omitempty"`
@@ -178,7 +179,7 @@ type OccurrenceMetadata struct {
 
 func NewOccurrenceMetadata(
 	codeHistory []CodeHistoryEntry,
-	references []Article,
+	references []Publication,
 	datasets []Dataset,
 	collections []Collection,
 	importBatch Optional[ImportBatch],
@@ -209,9 +210,23 @@ func CollectionFromDB(c biomedb.OccurrenceCollection) Collection {
 
 // OccurrenceOverviewItem is a representation of the occurrences count for one taxon
 type OccurrenceOverviewItem struct {
-	Name        string           `json:"name"`
-	Authorship  Optional[string] `json:"authorship,omitempty"`
-	ParentName  Optional[string] `json:"parent_name,omitempty"`
-	Occurrences int32            `json:"occurrences"`
-	Rank        TaxonRank        `json:"rank"`
+	ID          uuid.UUID           `json:"id"`
+	ParentID    Optional[uuid.UUID] `json:"parent_id,omitempty"`
+	Name        string              `json:"name"`
+	Authorship  Optional[string]    `json:"authorship,omitempty"`
+	ParentName  Optional[string]    `json:"parent_name,omitempty"`
+	Occurrences int32               `json:"occurrences"`
+	Rank        TaxonRank           `json:"rank"`
+}
+
+func OccurrenceOverviewItemFromDB(t biomedb.OccurrencesByTaxaOverviewRow) OccurrenceOverviewItem {
+	return OccurrenceOverviewItem{
+		ID:          t.ID,
+		ParentID:    NewOptionalFromUUID(t.ParentID),
+		Name:        t.Name,
+		Authorship:  NewOptionalFromPtr(t.Authorship),
+		ParentName:  NewOptionalFromPtr(t.ParentName),
+		Occurrences: t.OccurrencesCount,
+		Rank:        TaxonRank(t.Rank),
+	}
 }

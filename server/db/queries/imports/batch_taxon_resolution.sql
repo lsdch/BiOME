@@ -1,3 +1,19 @@
+-- name: CheckTaxaConsistencyInImport :many
+SELECT input_name,
+    count(*),
+    array_agg(DISTINCT taxon_authorship)::text [] AS authorships,
+    array_agg(DISTINCT taxon_rank)::text [] AS ranks
+FROM (
+        SELECT DISTINCT i.import_id,
+            i.taxon_name::citext AS input_name,
+            i.taxon_authorship,
+            i.taxon_rank
+        FROM import_samplings_occurrences i
+        WHERE i.import_id = $1
+    ) t
+GROUP BY input_name
+HAVING count(*) > 1;
+
 -- name: InitTaxonResolution :many
 INSERT INTO taxon_resolution (
         import_id,
@@ -12,6 +28,36 @@ SELECT DISTINCT i.import_id,
 FROM import_samplings_occurrences i
 WHERE i.import_id = @import_id
 RETURNING *;
+
+-- name: InitSamplingTargetResolution :exec
+WITH all_sampling_targets AS (
+    SELECT DISTINCT import_id,
+        sampling_hash,
+        sampling_target
+    FROM import_samplings_occurrences iso
+        CROSS JOIN LATERAL unnest(sampling_targets) AS sampling_target
+    WHERE iso.import_id = @import_id
+        AND sampling_target <> ''
+),
+new_resolutions AS (
+    INSERT INTO taxon_resolution (import_id, input_name, sampling_target)
+    SELECT import_id,
+        sampling_target,
+        true
+    FROM all_sampling_targets ON CONFLICT (import_id, input_name) DO NOTHING
+    RETURNING *
+)
+INSERT INTO sampling_target_resolution (
+        import_id,
+        sampling_hash,
+        resolution_id
+    )
+SELECT st.import_id,
+    st.sampling_hash,
+    r.id
+FROM all_sampling_targets st
+    JOIN taxon_resolution r ON r.import_id = st.import_id
+    AND r.input_name = st.sampling_target ON CONFLICT (import_id, sampling_hash, resolution_id) DO NOTHING;
 
 -- name: LinkTaxonResolutions :exec
 UPDATE import_samplings_occurrences i
@@ -30,12 +76,14 @@ WHERE i.import_id = @import_id
 
 -- name: CleanUpTaxonResolution :exec
 DELETE FROM taxon_resolution
-WHERE import_id = @import_id;
+WHERE import_id = @import_id; 
 
 -- name: GetTaxonResolution :many
-SELECT *
-FROM taxon_resolution
-WHERE import_id = @import_id;
+SELECT sqlc.embed(t),
+    parent.input_name as from_resolution_name
+FROM taxon_resolution t
+    LEFT JOIN taxon_resolution parent ON t.from_resolution_id = parent.id
+WHERE t.import_id = @import_id;
 
 -- name: UpsertTaxonResolution :exec
 INSERT INTO taxon_resolution (
@@ -43,7 +91,7 @@ INSERT INTO taxon_resolution (
         input_name,
         input_authorship,
         input_rank,
-        resolved_to,
+        resolved_candidate_id,
         status
     )
 VALUES (
@@ -51,13 +99,13 @@ VALUES (
         @input_name,
         @input_authorship,
         @input_rank,
-        @resolved_to,
+        @resolved_candidate_id,
         @status
     ) ON CONFLICT (import_id, input_name) DO NOTHING;
 
 -- name: ResolveTaxon :exec
 UPDATE taxon_resolution
-SET resolved_to = @resolved_to::uuid,
+SET resolved_candidate_id = @candidate_id::uuid,
     status = 'user_resolved'
 WHERE import_id = @import_id
     AND id = @resolution_id;
@@ -149,7 +197,7 @@ WHERE c.score > COALESCE(NULLIF(@threshold::double precision, 0), 0.6) ON CONFLI
 UPDATE taxon_resolution r
 SET gbif_status = 'pending'
 WHERE r.import_id = @import_id
-    AND r.gbif_status NOT IN ('skipped', 'completed')
+    AND r.gbif_status = 'pending'
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
@@ -164,12 +212,20 @@ WHERE r.import_id = @import_id
             )
     );
 
+
 -- name: MarkTaxaGBIFImportCompleted :exec
 UPDATE taxon_resolution r
-SET gbif_status = 'completed'
+SET gbif_status = CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM taxon_candidates c
+            WHERE c.import_id = r.import_id
+                AND c.resolution_id = r.id
+        ) THEN 'completed'::taxon_gbif_status
+        ELSE 'no_candidates'::taxon_gbif_status
+    END
 WHERE r.import_id = @import_id
-    AND r.gbif_status NOT IN ('skipped', 'completed')
-    AND r.id = ANY(@resolutions_ids::UUID []);
+    AND r.gbif_status = 'pending';
 
 -- name: ListResolutionsToFetchGBIFCandidates :many
 SELECT r.*
@@ -192,10 +248,10 @@ WITH candidates AS (
         c.priority,
         t.id AS resolved_taxon_id,
         c.gbif_id AS resolved_gbif_id,
-        COALESCE(t.name, g.canonical_name) AS resolved_name,
-        COALESCE(t.authorship, g.authorship) AS resolved_authorship,
-        COALESCE(t.rank, g.rank::taxon_rank) AS resolved_rank,
-        COALESCE(t.status, g.status::taxon_status) AS resolved_status
+        COALESCE(t.name, g.canonical_name, s.name) AS resolved_name,
+        COALESCE(t.authorship, g.authorship, s.authorship) AS resolved_authorship,
+        COALESCE(t.rank, g.rank::taxon_rank, s.rank) AS resolved_rank,
+        COALESCE(t.status, g.status::taxon_status, s.status) AS resolved_status
     FROM taxon_candidates c
         LEFT JOIN taxa t ON (
             c.source = 'internal'
@@ -204,6 +260,10 @@ WITH candidates AS (
         LEFT JOIN gbif_staging g ON (
             c.source = 'gbif'
             AND g.key = c.gbif_id
+        )
+        LEFT JOIN taxa_staging s ON (
+            c.source = 'manual'
+            AND s.id = c.staging_id
         )
     WHERE c.import_id = @import_id
 )
@@ -253,13 +313,13 @@ WITH winners AS (
         (array_agg(c.id)) [1] AS id
     FROM taxon_candidates c
     WHERE c.import_id = @import_id
-        AND c.priority >= 100
+        AND c.priority >= @threshold
     GROUP BY c.import_id,
         c.resolution_id
     HAVING COUNT(*) = 1
 )
 UPDATE taxon_resolution r
-SET resolved_to = w.id,
+SET resolved_candidate_id = w.id,
     status = 'auto_resolved',
     gbif_status = (
         CASE
@@ -272,7 +332,7 @@ WHERE r.import_id = w.import_id
     AND r.id = w.resolution_id
     AND r.status = 'pending';
 
--- name: UpdateMaterializedTaxonCandidates :exec
+-- name: UpdateMaterializedGBIFCandidates :exec
 -- Update the taxon_id field in taxon_candidates for candidates that have a matching gbif_id in the taxa table.
 -- This is necessary because the taxa table is populated after the taxon_candidates table, 
 -- and we need to link the candidates to the actual taxa records.
@@ -282,3 +342,158 @@ FROM taxa t
 WHERE c.gbif_id = t.gbif_id
     AND c.import_id = @import_id
     AND c.taxon_id IS NULL;
+
+
+
+-- name: ListTaxonResolutionsWithoutCandidates :many
+SELECT r.*
+FROM taxon_resolution r
+WHERE r.import_id = @import_id
+    AND r.status = 'pending'
+    AND NOT EXISTS (
+        SELECT 1
+        FROM taxon_candidates c
+        WHERE c.import_id = r.import_id
+            AND c.resolution_id = r.id
+    );
+
+-- name: InsertTaxaStaging :batchexec
+-- Insert a new record into the taxa_staging table for a given taxon resolution,
+-- and create a corresponding taxon_candidates record for it.
+-- This is used when a user manually adds a new taxon that is not found in the existing taxa or GBIF data.
+-- Resolution for the parent taxon is also created if it does not already exist, 
+-- or linked to the existing resolution if it does, based on the provided parent name and rank.
+-- AutoResolveUnambiguousCandidates should be run after this to resolve any unambiguous candidates that may have been created.
+WITH inserted_parent_resolution AS (
+    INSERT INTO taxon_resolution (
+            import_id,
+            input_name,
+            input_authorship,
+            input_rank,
+            status,
+            from_resolution_id
+        )
+    VALUES (
+            @import_id,
+            @parent_name,
+            NULL,
+            @parent_rank,
+            'pending',
+            @resolution_id
+        ) ON CONFLICT (import_id, input_name) DO NOTHING
+    RETURNING id
+),
+staged_taxon AS (
+    INSERT INTO taxa_staging (
+            import_id,
+            name,
+            authorship,
+            rank,
+            status,
+            parent_resolution_id
+        )
+    VALUES (
+            @import_id,
+            @name,
+            @authorship,
+            @taxon_rank,
+            @taxon_status,
+            COALESCE(
+                (
+                    SELECT id
+                    FROM inserted_parent_resolution
+                ),
+                (
+                    SELECT parent_res.id
+                    FROM taxon_resolution parent_res
+                    WHERE import_id = @import_id
+                        AND input_name = @parent_name
+                    LIMIT 1
+                )
+            )
+        )
+    RETURNING *
+)
+INSERT INTO taxon_candidates (
+        import_id,
+        resolution_id,
+        source,
+        match_type,
+        staging_id,
+        priority,
+        name,
+        authorship,
+        rank,
+        status
+    )
+SELECT @import_id,
+    @resolution_id,
+    'manual',
+    'exact',
+    s.id,
+    100,
+    s.name,
+    s.authorship,
+    s.rank,
+    s.status
+FROM staged_taxon s;
+
+-- name: MaterializeTaxaStaging :exec
+-- Materialize taxa from the taxa_staging table into the main taxa table,
+-- based on the resolutions identified for a given import batch.
+-- Materialization of GBIF taxa must have been completed before this query is run, 
+-- as it relies on the resolved candidates from the GBIF data.
+-- This query must be run for each rank separately, 
+-- as the parent taxa must be materialized before the child taxa can be materialized.
+-- SyncMaterializedTaxa must be run after each rank is materialized 
+-- to update the taxon_candidates table with the newly created taxa IDs.
+WITH resolved_candidates AS (
+    SELECT s.*,
+        parent_candidate.taxon_id AS parent_id
+    FROM taxon_candidates c
+        JOIN taxon_resolution r ON (
+            r.import_id = c.import_id
+            AND r.resolved_candidate_id = c.id
+        )
+        JOIN taxa_staging s ON (c.staging_id = s.id)
+        JOIN taxon_resolution parent_resolution ON (
+            parent_resolution.id = s.parent_resolution_id
+            AND parent_resolution.import_id = s.import_id
+        )
+        JOIN taxon_candidates parent_candidate ON (
+            parent_candidate.id = parent_resolution.resolved_candidate_id
+            AND parent_candidate.import_id = s.import_id
+        )
+    WHERE c.import_id = @import_id
+        AND c.source = 'manual'
+        AND c.rank = @rank
+)
+INSERT INTO taxa (
+        name,
+        authorship,
+        rank,
+        status,
+        parent_id
+    )
+SELECT name,
+    authorship,
+    rank,
+    status,
+    parent_id
+FROM resolved_candidates ON CONFLICT (name, COALESCE(authorship, '')) DO NOTHING;
+
+
+-- name: SyncMaterializedTaxa :exec
+UPDATE taxon_candidates c
+SET taxon_id = t.id
+FROM taxa_staging s
+    JOIN taxa t ON (
+        t.name = s.name
+        AND t.authorship IS NOT DISTINCT
+        FROM s.authorship
+            AND t.rank = s.rank
+    )
+WHERE c.import_id = @import_id
+    AND c.staging_id = s.id
+    AND c.rank = @rank
+    AND c.source = 'manual';

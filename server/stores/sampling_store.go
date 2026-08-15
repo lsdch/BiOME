@@ -38,7 +38,7 @@ func (s *SamplingStore) ListSamplingsAtProximity(
 	res := make([]models.SamplingWithDistance, len(rows))
 	for i, r := range rows {
 		res[i] = models.
-			NewSamplingFromDB(r.Sampling, r.Country).
+			NewSamplingFromDB(r.SamplingsWithCountry).
 			WithDistance(r.DistanceMeters)
 	}
 
@@ -49,7 +49,7 @@ func (s *SamplingStore) ListSamplingsH3AtProximity(
 	ctx context.Context,
 	q db.Querier,
 	input models.ListSamplingsAtProximityInput,
-) ([]models.CellH3WithDistance, error) {
+) ([]models.H3CellWithRichnessAndDistance, error) {
 
 	logrus.Debugf("ListSamplingsH3AtProximity: input=%+v", input)
 	rows, err := q.Queries().ListSamplingsH3AtProximity(ctx, input.ToParamsH3())
@@ -57,9 +57,11 @@ func (s *SamplingStore) ListSamplingsH3AtProximity(
 		return nil, err
 	}
 
-	res := make([]models.CellH3WithDistance, len(rows))
+	res := make([]models.H3CellWithRichnessAndDistance, len(rows))
 	for i, r := range rows {
-		res[i] = models.CellH3FromDB(h3.Cell(r.H3Index), int32(r.SamplingCount), int32(r.OccurrenceCount)).WithDistance(int32(r.DistanceMeters))
+		res[i] = models.CellH3FromDB(h3.Cell(r.H3Index), int32(r.SamplingCount), int32(r.OccurrenceCount)).
+			WithDistance(int32(r.DistanceMeters)).
+			WithRichness(r.SpeciesRichness, r.GenusRichness, r.FamilyRichness)
 	}
 
 	return res, nil
@@ -76,7 +78,7 @@ func (s *SamplingStore) CreateSampling(
 		return nil, err
 	}
 
-	sampling := models.NewSamplingFromDB(row.Sampling, row.Country)
+	sampling := models.NewSamplingFromDB(row)
 	return &sampling, nil
 }
 
@@ -91,7 +93,7 @@ func (s *SamplingStore) GetSampling(
 		return nil, err
 	}
 
-	sampling := models.NewSamplingFromDB(row.Sampling, row.Country)
+	sampling := models.NewSamplingFromDB(row)
 	return &sampling, nil
 }
 
@@ -161,7 +163,7 @@ func (s *SamplingStore) GetSamplingBatch(
 
 	res := make([]models.Sampling, len(rows))
 	for i, r := range rows {
-		res[i] = models.NewSamplingFromDB(r.Sampling, r.Country)
+		res[i] = models.NewSamplingFromDB(r)
 	}
 
 	return res, nil
@@ -438,15 +440,31 @@ func (s *SamplingStore) ResolveFixative(
 func (s *SamplingStore) MaterializeSamplings(
 	ctx context.Context,
 	q db.Querier,
-	importBatchID types.ULID,
+	importID uuid.UUID,
 ) error {
-	return q.Queries().MaterializeSamplings(ctx, importBatchID.String())
+	return q.Queries().MaterializeSamplings(ctx, importID)
 }
 
 func (s *SamplingStore) MaterializeSamplingMethods(
 	ctx context.Context,
 	q db.Querier,
-	importBatchID types.ULID,
+	importID uuid.UUID,
 ) error {
-	return q.Queries().MaterializeSamplingMethods(ctx, importBatchID.String())
+	return q.Queries().MaterializeSamplingMethods(ctx, importID)
+}
+
+func (s *SamplingStore) MaterializeSamplingTargets(
+	ctx context.Context,
+	q db.Querier,
+	importID uuid.UUID,
+) error {
+	return q.Queries().MaterializeSamplingTargets(ctx, importID)
+}
+
+func (s *SamplingStore) MaterializeSamplingFixatives(
+	ctx context.Context,
+	q db.Querier,
+	importID uuid.UUID,
+) error {
+	return q.Queries().MaterializeSamplingFixatives(ctx, importID)
 }

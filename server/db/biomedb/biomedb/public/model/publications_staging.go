@@ -13,13 +13,13 @@ import (
 )
 
 type PublicationsStaging struct {
-	ID                  uuid.UUID `sql:"primary_key"`
-	ImportID            uuid.UUID
-	OccurrenceRowNumber int32
-	Doi                 *string
-	Authors             *pq.StringArray
-	Year                *int32
-	Title               *string
-	Journal             *string
-	Verbatim            *string
+	ID                 uuid.UUID `sql:"primary_key"`
+	Doi                *string
+	Verbatim           string
+	Authors            *pq.StringArray
+	Year               *int32
+	Title              *string
+	Journal            *string
+	Source             PublicationSource
+	OriginResolutionID *uuid.UUID
 }

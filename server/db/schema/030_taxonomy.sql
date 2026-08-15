@@ -14,16 +14,16 @@ CREATE TABLE taxa (
         search_vector tsvector,
         -- CONSTRAINTS
         CONSTRAINT taxon_parent_required_for_non_kingdom CHECK (
-            rank = 'KINGDOM'::taxon_rank
+            rank = 'kingdom'::taxon_rank
             OR parent_id IS NOT NULL
         ),
         CONSTRAINT taxon_synonym_requires_accepted_taxon CHECK (
             (
-                status = 'SYNONYM'::taxon_status
+                status = 'synonym'::taxon_status
                 AND accepted_taxon_id IS NOT NULL
             )
             OR (
-                status <> 'SYNONYM'::taxon_status
+                status <> 'synonym'::taxon_status
                 AND accepted_taxon_id IS NULL
             )
         ),
@@ -51,3 +51,28 @@ CREATE TRIGGER taxa_search_vector_trigger BEFORE
 INSERT
     OR
 UPDATE ON taxa FOR EACH ROW EXECUTE FUNCTION taxa_search_vector_update();
+
+
+CREATE TABLE IF NOT EXISTS gbif_staging (
+    key INTEGER PRIMARY KEY,
+    parent TEXT,
+    parent_key INTEGER,
+    canonical_name TEXT NOT NULL,
+    scientific_name TEXT NOT NULL,
+    status TEXT NOT NULL,
+    rank TEXT NOT NULL,
+    name_type TEXT NOT NULL,
+    kingdom_key INTEGER,
+    phylum_key INTEGER,
+    class_key INTEGER,
+    order_key INTEGER,
+    family_key INTEGER,
+    genus_key INTEGER,
+    species_key INTEGER,
+    higher_taxon_keys INTEGER [],
+    higher_taxon_names TEXT [],
+    authorship text,
+    num_descendants INTEGER,
+    accepted_key INTEGER,
+    accepted_name TEXT
+);

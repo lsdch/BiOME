@@ -1,17 +1,26 @@
 <template>
-  <v-card title="Sampling" variant="elevated" class="small-card-title" prepend-icon="mdi-package-down"
-    :subtitle="DateWithPrecision.format(item.performed_on, undefined, 'Date unspecified')">
+  <v-card
+    title="Sampling"
+    variant="elevated"
+    class="small-card-title"
+    prepend-icon="mdi-package-down"
+    :subtitle="DateWithPrecision.format(item.performed_on, undefined, 'Date unspecified')"
+  >
     <!-- <template v-if="isGranted('Maintainer') || (isGranted('Maintainer') && isOwner(item))" #append>
       <v-btn icon="mdi-pencil" variant="tonal" size="small" @click="emit('edit')" />
     </template> -->
     <template #append v-if="item.site.country">
       <div class="d-flex align-center ga-1">
         <CoordinatesChip :coordinates="item.coordinates" label />
+        <CoordPrecisionChip :precision="item.coordinates.precision" label />
       </div>
     </template>
     <v-divider />
-    <v-list-item prepend-icon="mdi-map-marker-outline" :title="item.site.name || item.site.code"
-      :subtitle="item.site.locality">
+    <v-list-item
+      prepend-icon="mdi-map-marker-outline"
+      :title="item.site.name || item.site.code"
+      :subtitle="item.site.locality"
+    >
       <template #title>
         {{ item.site.name || item.site.code }}
       </template>
@@ -23,7 +32,13 @@
     <v-divider />
     <v-list>
       <v-list-item prepend-icon="mdi-account-multiple">
-        <v-chip v-for="person in item.performed_by" :key="person" :text="person" size="small" class="ma-1" />
+        <v-chip
+          v-for="person in item.performed_by"
+          :key="person"
+          :text="person"
+          size="small"
+          class="ma-1"
+        />
         <span v-if="!item.performed_by" class="text-muted">Unknown</span>
         <template #append>
           <span class="text-muted text-caption">Sampled by</span>
@@ -75,9 +90,10 @@ import { useUserStore } from '@/stores/user'
 import { useSorted } from '@vueuse/core'
 import { computed } from 'vue'
 import CoordinatesChip from './CoordinatesChip'
+import CoordPrecisionChip from '@/features/site/components/CoordPrecisionChip'
 
 const { item } = defineProps<{
-  item: { id: string; } & SamplingWithDetails
+  item: { id: string } & SamplingWithDetails
 }>()
 const emit = defineEmits<{
   edit: []

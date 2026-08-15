@@ -81,7 +81,7 @@ func (s *GeoapifyService) GetStatus(ctx context.Context, q db.Querier) (models.G
 	}, nil
 }
 
-func (s *GeoapifyService) ReverseGeocode(ctx context.Context, q db.Querier, lat float32, lon float32) (*models.GeoapifyResult, error) {
+func (s *GeoapifyService) ReverseGeocode(ctx context.Context, q db.Querier, lat, lon float64) (*models.GeoapifyResult, error) {
 	status, err := s.GetStatus(ctx, q)
 	if err != nil {
 		return nil, err

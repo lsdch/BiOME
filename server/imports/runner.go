@@ -5,16 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"maps"
-	"slices"
-	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/lib/progress"
 	"github.com/lsdch/biome/models"
 	csvmodels "github.com/lsdch/biome/models/csv"
@@ -44,13 +43,15 @@ const (
 
 type ImportRunner struct {
 	db            *db.DB
-	workflow      models.ImportWorkflow
-	store         *stores.WorkflowStore
+	batch         models.ImportBatch
+	store         *stores.BatchesStore
 	taxonResolver TaxonResolver
+	bibliography  *BibliographyResolver
 	samplings     *services.SamplingService
 	occurrences   *services.OccurrencesService
 
-	parser CSVParser
+	parser    CSVParser
+	validator *validator.Validate
 
 	status           RunnerStatus
 	resolutionStatus models.MaterializationReadyCheck
@@ -60,30 +61,35 @@ type ImportRunner struct {
 	ctx        context.Context
 	cancel     context.CancelFunc
 	err        error
-	events     ImportEventSink[ImportEvent]
+	events     ImportEventSink[BatchSnapshot]
 	lastNotify atomic.Value //time.Time
 }
 
 func NewImportRunner(ctx context.Context, db *db.DB,
-	events ImportEventSink[ImportEvent],
-	workflow models.ImportWorkflow,
-	store *stores.WorkflowStore,
+	events ImportEventSink[BatchSnapshot],
+	batch models.ImportBatch,
+	store *stores.BatchesStore,
 	samplings *services.SamplingService,
 	taxonResolver TaxonResolver,
+	bibliography *BibliographyResolver,
+	occurrences *services.OccurrencesService,
 ) *ImportRunner {
 	ctx, cancel := context.WithCancel(ctx)
 
 	runner := &ImportRunner{
 		db:            db,
-		workflow:      workflow,
+		batch:         batch,
 		store:         store,
 		taxonResolver: taxonResolver,
 		samplings:     samplings,
+		bibliography:  bibliography,
+		occurrences:   occurrences,
 		status:        Created,
 		parser:        NewCSVParser(),
 		ctx:           ctx,
 		cancel:        cancel,
 		events:        events,
+		validator:     validator.New(validator.WithRequiredStructEnabled()),
 	}
 	runner.gbif = progress.NewProgressTracker().WithCallback(func(status progress.ProgressStatus) {
 		if status == progress.Running && time.Since(runner.lastNotificationTime()) < 1000*time.Millisecond {
@@ -103,11 +109,11 @@ func (r *ImportRunner) lastNotificationTime() time.Time {
 }
 
 func (r *ImportRunner) ID() uuid.UUID {
-	return r.workflow.ImportID
+	return r.batch.ID
 }
 
-func (r *ImportRunner) Workflow() models.ImportWorkflow {
-	return r.workflow
+func (r *ImportRunner) Batch() models.ImportBatch {
+	return r.batch
 }
 
 func (r *ImportRunner) Status() RunnerStatus {
@@ -116,89 +122,60 @@ func (r *ImportRunner) Status() RunnerStatus {
 	return r.status
 }
 
-type RowValidationErrors struct {
-	RowNumber int32
-	Errors    validator.ValidationErrors
-}
-
-func (e *RowValidationErrors) Error() string {
-	return fmt.Sprintf("row %d: %v", e.RowNumber, e.Errors)
-}
-
-func (e *RowValidationErrors) Unwrap() error {
-	return e.Errors
-}
-
-type BatchValidationErrors struct {
-	Errors []*RowValidationErrors
-}
-
-func (e *BatchValidationErrors) Error() string {
-	var sb strings.Builder
-	sb.WriteString("validation errors:\n")
-	for _, rowErr := range e.Errors {
-		sb.WriteString(rowErr.Error())
-	}
-	return sb.String()
-}
-
-func (e *BatchValidationErrors) Unwrap() []error {
-	errs := make([]error, len(e.Errors))
-
-	for i, rowErr := range e.Errors {
-		errs[i] = rowErr
-	}
-
-	return errs
-}
-
-func (r *ImportRunner) ValidateRows(rows []csvmodels.OccurrenceImportRow) error {
-	validationErrors := BatchValidationErrors{Errors: make([]*RowValidationErrors, 0, len(rows))}
-	for rowNum, row := range rows {
-		if err := row.Validate(); err != nil {
-			var validationErrs validator.ValidationErrors
-			if errors.As(err, &validationErrs) {
-				validationErrors.Errors = append(validationErrors.Errors, &RowValidationErrors{
-					RowNumber: int32(rowNum + 2),
-					Errors:    validationErrs,
-				})
-			}
-		}
-	}
-	if len(validationErrors.Errors) > 0 {
-		return &validationErrors
-	}
-	return nil
-}
-
-func (r *ImportRunner) StartWorkflowCSV(csvFile io.Reader, separator rune) error {
+func (r *ImportRunner) StartBatchCSV(csvFile io.Reader, separator rune, taxonDefinitions []models.TaxonDefinition) error {
 
 	if err := r.StartStaging(); err != nil {
 		return err
 	}
-
 	rows, err := r.parser.ParseCSV(csvFile, separator)
 	if err != nil {
 		return err
 	}
 
-	if err := r.ValidateRows(rows); err != nil {
+	if err := csvmodels.ValidateRows(rows, r.validator); err != nil {
+		r.Fail(err)
+		return err
+	}
+
+	var bib = []csvmodels.PublicationImportRow{}
+	for _, row := range rows {
+		if row.HasPublication() {
+			pub := row.Publication
+			pub.SetRowNumber(row.RowNumber())
+			bib = append(bib, pub)
+		}
+	}
+
+	// bib, err := r.parser.ParseBibCSV(csvFile, separator)
+	// if err != nil {
+	// 	return err
+	// }
+
+	if err := csvmodels.ValidateRows(bib, r.validator); err != nil {
 		r.Fail(err)
 		return err
 	}
 
 	err = r.db.WithTx(r.ctx, func(tx *db.Tx) error {
-		if err := r.store.InsertStaging(r.ctx, tx, r.workflow.ImportID, rows); err != nil {
+		if err := r.store.InsertStaging(r.ctx, tx, r.batch.ID, rows, taxonDefinitions); err != nil {
 			return fmt.Errorf("insert staging occurrences: %w", err)
 		}
-		if _, err = r.taxonResolver.InitResolution(r.ctx, tx, r.workflow.ImportID); err != nil {
+		if _, err = r.taxonResolver.InitResolution(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("init taxon resolution: %w", err)
 		}
-		if _, err := r.samplings.InitMethodResolution(r.ctx, tx, r.workflow.ImportID); err != nil {
+		if _, err := r.samplings.InitMethodResolution(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("init method resolution: %w", err)
 		}
-		if _, err := r.samplings.InitFixativeResolution(r.ctx, tx, r.workflow.ImportID); err != nil {
+		if _, err := r.samplings.InitFixativeResolution(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("init fixative resolution: %w", err)
+		}
+
+		if err := r.bibliography.InitBibliographyResolution(r.ctx, tx, r.batch.ID, bib); err != nil {
+			return fmt.Errorf("init bibliography resolution: %w", err)
+		}
+
+		if err := r.MarkStaged(tx); err != nil {
+			return fmt.Errorf("mark staged: %w", err)
 		}
 		return nil
 	})
@@ -207,7 +184,32 @@ func (r *ImportRunner) StartWorkflowCSV(csvFile io.Reader, separator rune) error
 		return err
 	}
 
-	r.MarkStaged()
+	go r.Run()
+
+	return nil
+}
+
+func (r *ImportRunner) AddBibliographyCSV(csvFile io.Reader, separator rune) error {
+	rows, err := r.parser.ParseBibCSV(csvFile, separator)
+	if err != nil {
+		return err
+	}
+
+	if err := csvmodels.ValidateRows(rows, r.validator); err != nil {
+		r.Fail(err)
+		return err
+	}
+
+	err = r.db.WithTx(r.ctx, func(tx *db.Tx) error {
+		if err := r.bibliography.InitBibliographyResolution(r.ctx, tx, r.batch.ID, rows); err != nil {
+			return fmt.Errorf("init bibliography resolution: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		r.Fail(err)
+		return err
+	}
 
 	go r.Run()
 
@@ -217,7 +219,9 @@ func (r *ImportRunner) StartWorkflowCSV(csvFile io.Reader, separator rune) error
 func (r *ImportRunner) Runnable() bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	return r.status == Staged || r.status == Failed || r.status == Cancelled
+	return r.status != Running && r.status != Materializing && r.status != Completed
+	// return r.status == Staged || r.status == NeedsResolution || r.status == Failed || r.status == Cancelled
+	// return true
 }
 
 func (r *ImportRunner) Run() error {
@@ -234,61 +238,120 @@ func (r *ImportRunner) Run() error {
 				r.EnrichGBIF()
 			}()
 		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			r.EnrichBibliography()
+
+			logrus.Infof("Running automatic bibliography resolution for unambiguous candidates for import ID %s", r.batch.ID)
+			if err := r.bibliography.AutoResolveBibliography(r.ctx, r.db, r.batch.ID, 80, 10); err != nil {
+				logrus.Errorf("autoresolve bibliography failed for import ID %s: %v", r.batch.ID, err)
+				r.Fail(fmt.Errorf("autoresolve bibliography failed: %w", err))
+				return
+			}
+
+			if err := r.bibliography.ResolveBibliographyManualCandidates(r.ctx, r.db, r.batch.ID); err != nil {
+				logrus.Errorf("manual resolve bibliography failed for import ID %s: %v", r.batch.ID, err)
+				r.Fail(fmt.Errorf("manual resolve bibliography failed: %w", err))
+				return
+			}
+		}()
 	}
 	wg.Wait()
-	logrus.Infof("Running automatic taxon resolution for unambiguous candidates for import ID %s", r.workflow.ImportID)
-	if err := r.taxonResolver.AutoResolveUnambiguousCandidates(r.ctx, r.db, r.workflow.ImportID); err != nil {
-		logrus.Errorf("autoresolve failed for import ID %s: %v", r.workflow.ImportID, err)
-		r.Fail(fmt.Errorf("autoresolve failed: %w", err))
-		return err
-	}
 
 	r.CheckReadyToMaterialize()
 	return nil
 }
 
+func (r *ImportRunner) EnrichBibliography() {
+
+	toStage, err := r.bibliography.FetchExternalCandidatesDOI(r.ctx, r.db, r.batch.ID)
+	if err != nil {
+		logrus.Errorf("error fetching external candidates for bibliography import %s: %v", r.batch.ID, err)
+		r.Fail(err)
+	}
+	// verbatimToStage, err := r.bibliography.FetchExternalCandidatesQuery(r.ctx, r.db, r.batch.ID)
+	// if err != nil {
+	// 	logrus.Errorf("error fetching external candidates for bibliography import %s: %v", r.batch.ID, err)
+	// 	r.Fail(err)
+	// }
+
+	// toStage := append(doisToStage, verbatimToStage...)
+
+	logrus.Debugf("Staging %d external candidates for bibliography import %s", len(toStage), r.batch.ID)
+	if err := r.bibliography.StageExternalCandidates(r.ctx, r.db, r.batch.ID, toStage); err != nil {
+		logrus.Errorf("error staging external candidates for bibliography import %s: %v", r.batch.ID, err)
+		r.Fail(err)
+	}
+}
+
+func (r *ImportRunner) enrichGBIF() error {
+	toFetch, err := r.taxonResolver.ListTaxaToFetch(r.ctx, r.db, r.batch.ID)
+	if err != nil {
+		return err
+	} else if len(toFetch) == 0 {
+		// Enrichment is complete when there are no more taxa to fetch from GBIF
+		r.gbif.Complete()
+		return nil
+	}
+
+	logrus.Infof("Fetching %d taxa from GBIF for import ID %s", len(toFetch), r.batch.ID)
+
+	taxa, err := r.taxonResolver.FetchCandidatesFromGBIF(r.ctx, r.batch.TaxonomicScope, toFetch, r.gbif)
+	if err != nil {
+		return err
+	}
+
+	err = r.taxonResolver.InsertGBIFCandidates(r.ctx, r.db, r.batch.ID, taxa)
+	if err != nil {
+		return err
+	}
+
+	err = r.taxonResolver.MarkTaxaGBIFImportCompleted(r.ctx, r.db, r.batch.ID)
+	if err != nil {
+		return err
+	}
+
+	logrus.Infof("Running automatic taxon resolution for unambiguous candidates for import ID %s", r.batch.ID)
+	if err := r.taxonResolver.AutoResolveUnambiguousCandidates(r.ctx, r.db, r.batch.ID); err != nil {
+		logrus.Errorf("autoresolve failed for import ID %s: %v", r.batch.ID, err)
+		return fmt.Errorf("autoresolve failed: %w", err)
+	}
+
+	logrus.Infof("Running automatic creation of manual candidates for import ID %s", r.batch.ID)
+	if err := r.taxonResolver.AutoCreateManualCandidates(r.ctx, r.db, r.batch.ID); err != nil {
+		logrus.Errorf("auto-create manual candidates failed for import ID %s: %v", r.batch.ID, err)
+		return fmt.Errorf("auto-create manual candidates failed: %w", err)
+	}
+
+	logrus.Infof("Resolving sampling targets for import ID %s", r.batch.ID)
+	if err := r.taxonResolver.InitSamplingTargetsResolution(r.ctx, r.db, r.batch.ID); err != nil {
+		logrus.Errorf("init sampling targets resolution failed for import ID %s: %v", r.batch.ID, err)
+		return fmt.Errorf("init sampling targets resolution failed: %w", err)
+	}
+
+	logrus.Infof("Running automatic taxon resolution for unambiguous candidates after manual candidate creation for import ID %s", r.batch.ID)
+	if err := r.taxonResolver.AutoResolveUnambiguousCandidates(r.ctx, r.db, r.batch.ID); err != nil {
+		logrus.Errorf("autoresolve failed for import ID %s: %v", r.batch.ID, err)
+		return fmt.Errorf("autoresolve failed: %w", err)
+	}
+	// Restart the GBIF enrichment process to fetch new candidates for any new resolutions *
+	// created by the auto-create manual candidates step
+	return r.enrichGBIF()
+}
+
 func (r *ImportRunner) EnrichGBIF() {
 
-	if r.gbif.Snapshot().Status == progress.Running {
-		return
+	if r.gbif.Snapshot().Status != progress.Running {
+		r.gbif.Start(0)
 	}
 
-	toFetch, err := r.taxonResolver.ListTaxaToFetch(r.ctx, r.db, r.workflow.ImportID)
-	if err != nil {
-		r.Fail(err)
-		r.gbif.Fail(err)
-		return
-	} else if len(toFetch) == 0 {
-		r.gbif.Complete()
-		return
-	}
-
-	logrus.Infof("Fetching %d taxa from GBIF for import ID %s", len(toFetch), r.workflow.ImportID)
-
-	r.gbif.Start(int32(len(toFetch)))
-	taxa, err := r.taxonResolver.FetchCandidatesFromGBIF(r.ctx, r.db, r.workflow.ImportID, toFetch, r.gbif)
-	if err != nil {
+	if err := r.enrichGBIF(); err != nil {
 		r.Fail(err)
 		r.gbif.Fail(err)
 		return
 	}
-
-	err = r.taxonResolver.InsertGBIFCandidates(r.ctx, r.db, r.workflow.ImportID, taxa)
-	if err != nil {
-		r.Fail(err)
-		r.gbif.Fail(err)
-		return
-	}
-
-	err = r.taxonResolver.MarkTaxaGBIFImportCompleted(r.ctx, r.db, r.workflow.ImportID, slices.Collect(maps.Keys(taxa)))
-	if err != nil {
-		r.Fail(err)
-		r.gbif.Fail(err)
-		return
-	}
-
 	r.gbif.Complete()
-
 }
 
 func (r *ImportRunner) withMutex(fn func()) {
@@ -305,36 +368,56 @@ func (r *ImportRunner) StartStaging() error {
 			r.err = nil
 		})
 	} else {
-		return fmt.Errorf("cannot start workflow in status %s", r.status)
+		return fmt.Errorf("cannot start batch in status %s", r.status)
 	}
 	return nil
 }
 
-func (r *ImportRunner) MarkStaged() {
+func (r *ImportRunner) MarkStaged(db db.Querier) error {
+	if err := r.store.SetBatchStatus(r.ctx, db, r.batch.ID, biomedb.ImportBatchStatusStaged); err != nil {
+		r.Fail(err)
+		return err
+	}
 	r.withMutex(func() {
 		r.status = Staged
 	})
+	return nil
 }
 
 func (r *ImportRunner) Fail(err error) {
 
+	logrus.Errorf("Import runner failed for import ID %s: %v", r.batch.ID, err)
+
 	if errors.Is(err, context.Canceled) {
+		if err := r.store.SetBatchStatus(context.WithoutCancel(r.ctx), r.db, r.batch.ID, biomedb.ImportBatchStatusCanceled); err != nil {
+			logrus.Errorf("error setting batch status to canceled for import ID %s: %v", r.batch.ID, err)
+		}
 		r.withMutex(func() {
 			r.status = Cancelled
 			r.notify()
 		})
 		return
 	}
+
+	if err := r.store.SetBatchStatus(r.ctx, r.db, r.batch.ID, biomedb.ImportBatchStatusFailed); err != nil {
+		logrus.Errorf("error setting batch status to failed for import ID %s: %v", r.batch.ID, err)
+	}
 	r.withMutex(func() {
+		r.cancel()
 		r.err = err
 		r.status = Failed
 	})
 }
 
-func (r *ImportRunner) Complete() {
+func (r *ImportRunner) Complete(db db.Querier, userID uuid.UUID) error {
+	if err := r.store.SetBatchCompleted(r.ctx, db, r.batch.ID, userID); err != nil {
+		r.Fail(err)
+		return err
+	}
 	r.withMutex(func() {
 		r.status = Completed
 	})
+	return nil
 }
 
 func (r *ImportRunner) Stop() {
@@ -360,13 +443,14 @@ func (r *ImportRunner) notify() {
 	r.lastNotify.Store(time.Now())
 }
 
-func (r *ImportRunner) Snapshot() ImportEvent {
+func (r *ImportRunner) Snapshot() BatchSnapshot {
 	r.mu.Lock()
 	status := r.status
 	err := r.err
 	r.mu.Unlock()
-	return ImportEvent{
-		Workflow:         r.workflow,
+	return BatchSnapshot{
+		ImportID:         r.batch.ID,
+		Batch:            r.batch,
 		Status:           status,
 		ResolutionStatus: r.resolutionStatus,
 		GBIF:             r.GBIFProgress(),
@@ -378,8 +462,28 @@ func (r *ImportRunner) TaxonResolver() TaxonResolver {
 	return r.taxonResolver
 }
 
+func (r *ImportRunner) BibliographyResolver() *BibliographyResolver {
+	return r.bibliography
+}
+
+func (r *ImportRunner) ResolveTaxon(input models.ResolveInput) error {
+	if err := r.taxonResolver.ResolveTaxon(r.ctx, r.db, r.batch.ID, input); err != nil {
+		return fmt.Errorf("failed to resolve taxon for import ID %s: %w", r.batch.ID, err)
+	}
+	r.CheckReadyToMaterialize()
+	return nil
+}
+
+func (r *ImportRunner) ResolvePublication(input models.ResolveInput) error {
+	if err := r.bibliography.ResolvePublication(r.ctx, r.db, r.batch.ID, input); err != nil {
+		return fmt.Errorf("failed to resolve publication for import ID %s: %w", r.batch.ID, err)
+	}
+	r.CheckReadyToMaterialize()
+	return nil
+}
+
 func (r *ImportRunner) GetMethodsResolution() ([]models.SamplingMethodResolution, error) {
-	resolution, err := r.samplings.GetMethodsResolution(r.ctx, r.db, r.workflow.ImportID)
+	resolution, err := r.samplings.GetMethodsResolution(r.ctx, r.db, r.batch.ID)
 	if err != nil {
 		return []models.SamplingMethodResolution{}, err
 	}
@@ -391,7 +495,7 @@ func (r *ImportRunner) ResolveMethod(importID uuid.UUID, input models.SamplingMe
 }
 
 func (r *ImportRunner) GetFixativesResolution() ([]models.SamplingFixativeResolution, error) {
-	resolution, err := r.samplings.GetFixativesResolution(r.ctx, r.db, r.workflow.ImportID)
+	resolution, err := r.samplings.GetFixativesResolution(r.ctx, r.db, r.batch.ID)
 	if err != nil {
 		return []models.SamplingFixativeResolution{}, err
 	}
@@ -402,11 +506,12 @@ func (r *ImportRunner) ResolveFixative(importID uuid.UUID, input models.Sampling
 	return r.samplings.ResolveFixative(r.ctx, r.db, importID, input)
 }
 
-func (r *ImportRunner) CheckReadyToMaterialize() {
-	check, err := r.store.CheckReadyToMaterialize(r.ctx, r.db, r.workflow.ImportID)
+func (r *ImportRunner) CheckReadyToMaterialize() models.MaterializationReadyCheck {
+	check, err := r.store.CheckReadyToMaterialize(r.ctx, r.db, r.batch.ID)
 	if err != nil {
 		r.Fail(err)
 	}
+	logrus.Debugf("CheckReadyToMaterialize for import ID %s: %+v", r.batch.ID, check)
 	r.withMutex(func() {
 		r.resolutionStatus = check
 		if check.IsReady() {
@@ -416,50 +521,65 @@ func (r *ImportRunner) CheckReadyToMaterialize() {
 		}
 	})
 	r.notify()
+	return check
 }
 
-func (r *ImportRunner) Materialize() (*models.ImportBatch, error) {
-	r.CheckReadyToMaterialize()
+func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error) {
+	check := r.CheckReadyToMaterialize()
 	if r.Status() != ReadyToMaterialize {
-		return nil, fmt.Errorf("cannot materialize workflow in status %s", r.status)
+		return nil, fmt.Errorf("cannot materialize batch in status %s : %w", r.status, check.AppError())
 	}
 	r.withMutex(func() {
 		r.status = Materializing
 	})
-	if err := r.taxonResolver.FillGBIFDependencies(r.ctx, r.db, r.workflow.ImportID); err != nil {
+	if err := r.taxonResolver.FillGBIFDependencies(r.ctx, r.db, r.batch.ID, r.gbif); err != nil {
 		return nil, fmt.Errorf("fill GBIF dependencies: %w", err)
 	}
-	var createdBatch models.ImportBatch
 	if err := r.db.WithTx(r.ctx, func(tx *db.Tx) error {
-		batch, err := r.store.MaterializeStaging(r.ctx, tx, r.workflow.ImportID)
-		if err != nil {
-			return fmt.Errorf("materialize batch: %w", err)
+		logrus.Infof("Materializing import batch: %s", r.batch.Label)
+
+		logrus.Infof("Materializing taxa for import batch: %s", r.batch.Label)
+		if err := r.taxonResolver.MaterializeTaxa(r.ctx, tx, r.batch.ID); err != nil {
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) {
+				return fmt.Errorf("materialize taxa: %w ; details: %s", err, pgErr.Detail)
+			}
+			return fmt.Errorf("materialize taxa: %w", err)
 		}
-		if err := r.samplings.MaterializeSamplings(r.ctx, tx, batch.ID); err != nil {
+
+		logrus.Infof("Materializing samplings for import batch: %s", r.batch.Label)
+		if err := r.samplings.MaterializeSamplings(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("materialize samplings: %w", err)
 		}
 
-		if err := r.taxonResolver.MaterializeTaxa(r.ctx, tx, r.workflow.ImportID); err != nil {
-			return fmt.Errorf("materialize taxa: %w", err)
-		}
-		if err := r.occurrences.MaterializeOccurrences(r.ctx, tx, batch.ID); err != nil {
+		logrus.Infof("Materializing occurrences for import batch: %s", r.batch.Label)
+		if err := r.occurrences.MaterializeOccurrences(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("materialize occurrences: %w", err)
 		}
+
+		logrus.Infof("Materializing bibliography for import batch: %s", r.batch.Label)
+		if err := r.bibliography.MaterializeBibliography(r.ctx, tx, r.batch.ID); err != nil {
+			return fmt.Errorf("materialize bibliography: %w", err)
+		}
+
+		logrus.Infof("Refreshing occurrence codes for import batch: %s", r.batch.Label)
 		if err := r.occurrences.RefreshOccurrenceCodes(r.ctx, tx); err != nil {
 			return fmt.Errorf("refresh occurrence codes: %w", err)
 		}
-		createdBatch = batch
+		if err := r.Complete(tx, userID); err != nil {
+			return fmt.Errorf("complete import: %w", err)
+		}
 		return nil
 	}); err != nil {
+		r.Fail(err)
 		return nil, err
 	}
-	r.Complete()
-	return &createdBatch, nil
+	return &r.batch, nil
 }
 
-func (r *ImportRunner) Delete() error {
-	if err := r.store.DeleteWorkflow(r.ctx, r.db, r.workflow.ImportID); err != nil {
-		return fmt.Errorf("delete workflow: %w", err)
+func (r *ImportRunner) Delete(ctx context.Context) error {
+	if err := r.store.DeleteBatch(ctx, r.db, r.batch.ID); err != nil {
+		return fmt.Errorf("delete batch: %w", err)
 	}
 	r.Stop()
 	return nil

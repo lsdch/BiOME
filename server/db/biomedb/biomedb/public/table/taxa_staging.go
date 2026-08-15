@@ -17,16 +17,13 @@ type taxaStagingTable struct {
 	postgres.Table
 
 	// Columns
-	ID              postgres.ColumnString
-	ImportID        postgres.ColumnString
-	Name            postgres.ColumnString
-	Authorship      postgres.ColumnString
-	Rank            postgres.ColumnString
-	Status          postgres.ColumnString
-	ParentSource    postgres.ColumnString
-	ParentTaxaID    postgres.ColumnString
-	ParentGbifID    postgres.ColumnInteger
-	ParentInputName postgres.ColumnString
+	ID                 postgres.ColumnString
+	ImportID           postgres.ColumnString
+	Name               postgres.ColumnString
+	Authorship         postgres.ColumnString
+	Rank               postgres.ColumnString
+	Status             postgres.ColumnString
+	ParentResolutionID postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -68,35 +65,29 @@ func newTaxaStagingTable(schemaName, tableName, alias string) *TaxaStagingTable 
 
 func newTaxaStagingTableImpl(schemaName, tableName, alias string) taxaStagingTable {
 	var (
-		IDColumn              = postgres.StringColumn("id")
-		ImportIDColumn        = postgres.StringColumn("import_id")
-		NameColumn            = postgres.StringColumn("name")
-		AuthorshipColumn      = postgres.StringColumn("authorship")
-		RankColumn            = postgres.StringColumn("rank")
-		StatusColumn          = postgres.StringColumn("status")
-		ParentSourceColumn    = postgres.StringColumn("parent_source")
-		ParentTaxaIDColumn    = postgres.StringColumn("parent_taxa_id")
-		ParentGbifIDColumn    = postgres.IntegerColumn("parent_gbif_id")
-		ParentInputNameColumn = postgres.StringColumn("parent_input_name")
-		allColumns            = postgres.ColumnList{IDColumn, ImportIDColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn, ParentSourceColumn, ParentTaxaIDColumn, ParentGbifIDColumn, ParentInputNameColumn}
-		mutableColumns        = postgres.ColumnList{ImportIDColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn, ParentSourceColumn, ParentTaxaIDColumn, ParentGbifIDColumn, ParentInputNameColumn}
-		defaultColumns        = postgres.ColumnList{IDColumn}
+		IDColumn                 = postgres.StringColumn("id")
+		ImportIDColumn           = postgres.StringColumn("import_id")
+		NameColumn               = postgres.StringColumn("name")
+		AuthorshipColumn         = postgres.StringColumn("authorship")
+		RankColumn               = postgres.StringColumn("rank")
+		StatusColumn             = postgres.StringColumn("status")
+		ParentResolutionIDColumn = postgres.StringColumn("parent_resolution_id")
+		allColumns               = postgres.ColumnList{IDColumn, ImportIDColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn, ParentResolutionIDColumn}
+		mutableColumns           = postgres.ColumnList{ImportIDColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn, ParentResolutionIDColumn}
+		defaultColumns           = postgres.ColumnList{IDColumn}
 	)
 
 	return taxaStagingTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:              IDColumn,
-		ImportID:        ImportIDColumn,
-		Name:            NameColumn,
-		Authorship:      AuthorshipColumn,
-		Rank:            RankColumn,
-		Status:          StatusColumn,
-		ParentSource:    ParentSourceColumn,
-		ParentTaxaID:    ParentTaxaIDColumn,
-		ParentGbifID:    ParentGbifIDColumn,
-		ParentInputName: ParentInputNameColumn,
+		ID:                 IDColumn,
+		ImportID:           ImportIDColumn,
+		Name:               NameColumn,
+		Authorship:         AuthorshipColumn,
+		Rank:               RankColumn,
+		Status:             StatusColumn,
+		ParentResolutionID: ParentResolutionIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

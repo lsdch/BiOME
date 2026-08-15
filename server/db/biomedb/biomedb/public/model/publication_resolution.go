@@ -9,12 +9,19 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type PublicationResolution struct {
-	StagingID       uuid.UUID `sql:"primary_key"`
-	PublicationID   *uuid.UUID
-	ResolutionType  *PublicationResolutionType
-	Status          PublicationResolutionStatus
-	CrossrefPayload *string
+	ID                  uuid.UUID `sql:"primary_key"`
+	ImportID            uuid.UUID
+	Status              ResolutionStatus
+	ResolvedCandidateID *uuid.UUID
+	Doi                 *string
+	Verbatim            *string
+	Authors             *pq.StringArray
+	AuthorsRaw          *string
+	Year                *int32
+	Title               *string
+	Journal             *string
 }

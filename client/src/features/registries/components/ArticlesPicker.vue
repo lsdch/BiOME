@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { Article } from '@/api'
-import { listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { listPublicationsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFuzzyItemsFilter } from '@/composables/fuzzy_search'
 import { useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
@@ -77,7 +77,7 @@ const { threshold = 0.7, limit = 10 } = defineProps<{
   limit?: number
 }>()
 
-const { data: items, isPending: loading, error } = useQuery(listArticlesOptions())
+const { data: items, isPending: loading, error } = useQuery(listPublicationsOptions())
 
 const model = defineModel<Article[]>()
 const searchTerms = ref<string>('')

@@ -6,8 +6,7 @@
     v-model="fullscreen"
     fullscreen
     :min-height="300"
-    :height="500"
-    :max-height="500"
+    :height
   >
     <template #append>
       <v-chip-group v-model="facet" mandatory color="primary">
@@ -46,6 +45,10 @@ import VChart from 'vue-echarts'
 
 use([SVGRenderer, TitleComponent, TreemapChart, VisualMapComponent, TooltipComponent])
 
+const { height = 600 } = defineProps<{
+  height?: number
+}>()
+
 const [fullscreen, toggleFullscreen] = useToggle(false)
 
 const { data: items, error, isPending } = useQuery(listCountriesSummaryOptions())
@@ -55,19 +58,42 @@ const facet = ref<Facet>('occurrences')
 
 type TreeMapData = {
   name: string
-  code: string
+  code?: string
   value: number
+  children?: TreeMapData[]
 }
 
 const data = computed<TreeMapData[]>(() => {
-  return (
-    items.value?.map(({ code, name, sampling_count, occurrence_count }) => ({
-      code,
-      name,
-      value: facet.value === 'samplings' ? sampling_count : occurrence_count
-    })) ?? []
+  const bySubcontinent = items.value?.reduce(
+    (acc, curr) => {
+      const { subcontinent, ...rest } = curr
+      acc[subcontinent] = acc[subcontinent] || {
+        name: subcontinent,
+        value: 0,
+        children: []
+      }
+      const value = facet.value === 'samplings' ? curr.sampling_count : curr.occurrence_count
+      acc[subcontinent].value += value
+      acc[subcontinent].children?.push({
+        ...rest,
+        value
+      })
+      return acc
+    },
+    {} as Record<string, TreeMapData>
   )
+
+  if (!bySubcontinent) return []
+  return Object.values(bySubcontinent)
 })
+//   return (
+//     items.value?.map(({ code, name, subcontinent, sampling_count, occurrence_count }) => ({
+//       code,
+//       name,
+//       value: facet.value === 'samplings' ? sampling_count : occurrence_count
+//     })) ?? []
+//   )
+// })
 
 const treemapSeries = computed<TreemapSeriesOption>(() => {
   return {
@@ -77,10 +103,32 @@ const treemapSeries = computed<TreemapSeriesOption>(() => {
       show: true,
       formatter({ data }: { data: any }) {
         return `${data?.code}`
+      },
+      itemStyle: {
+        borderColor: '#fff'
       }
-    }
+    },
+    levels: getLevelOption()
   }
 })
+
+function getLevelOption() {
+  return [
+    {
+      itemStyle: {
+        borderWidth: 0,
+        gapWidth: 2
+      }
+    },
+    {
+      colorSaturation: [0.35, 0.5],
+      itemStyle: {
+        gapWidth: 1,
+        borderColorSaturation: 0.6
+      }
+    }
+  ]
+}
 
 const option = computed<ECBasicOption>((): ECBasicOption => {
   return {

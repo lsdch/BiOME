@@ -46,10 +46,8 @@ WITH inserted AS (
             $13
         )
 )
-SELECT s.id, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector,
-    c.code, c.name, c.continent, c.subcontinent, c.geom
-FROM samplings s
-    JOIN countries c ON c.code = s.site_country_code
+SELECT s.id, s.source_sampling_hash, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector, s.country_code, s.country_name, s.country_continent, s.country_subcontinent
+FROM samplings_with_country s
 WHERE s.id = (
         SELECT id
         FROM inserted
@@ -72,12 +70,7 @@ type CreateSamplingParams struct {
 	Comments             *string             `json:"comments"`
 }
 
-type CreateSamplingRow struct {
-	Sampling Sampling `json:"sampling"`
-	Country  Country  `json:"country"`
-}
-
-func (q *Queries) CreateSampling(ctx context.Context, arg CreateSamplingParams) (CreateSamplingRow, error) {
+func (q *Queries) CreateSampling(ctx context.Context, arg CreateSamplingParams) (SamplingsWithCountry, error) {
 	row := q.db.QueryRow(ctx, createSampling,
 		arg.SiteCode,
 		arg.SiteName,
@@ -93,32 +86,32 @@ func (q *Queries) CreateSampling(ctx context.Context, arg CreateSamplingParams) 
 		arg.AccessPoints,
 		arg.Comments,
 	)
-	var i CreateSamplingRow
+	var i SamplingsWithCountry
 	err := row.Scan(
-		&i.Sampling.ID,
-		&i.Sampling.Comments,
-		&i.Sampling.SiteCode,
-		&i.Sampling.SiteName,
-		&i.Sampling.SiteLocality,
-		&i.Sampling.SiteCountryCode,
-		&i.Sampling.CoordinatesPrecision,
-		&i.Sampling.Coordinates,
-		&i.Sampling.Latitude,
-		&i.Sampling.Longitude,
-		&i.Sampling.Altitude,
-		&i.Sampling.EventDate,
-		&i.Sampling.EventDatePrecision,
-		&i.Sampling.PerformedBy,
-		&i.Sampling.Duration,
-		&i.Sampling.AccessPoints,
-		&i.Sampling.ImportBatchID,
-		&i.Sampling.H3Index,
-		&i.Sampling.SearchVector,
-		&i.Country.Code,
-		&i.Country.Name,
-		&i.Country.Continent,
-		&i.Country.Subcontinent,
-		&i.Country.Geom,
+		&i.ID,
+		&i.SourceSamplingHash,
+		&i.Comments,
+		&i.SiteCode,
+		&i.SiteName,
+		&i.SiteLocality,
+		&i.SiteCountryCode,
+		&i.CoordinatesPrecision,
+		&i.Coordinates,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Altitude,
+		&i.EventDate,
+		&i.EventDatePrecision,
+		&i.PerformedBy,
+		&i.Duration,
+		&i.AccessPoints,
+		&i.ImportBatchID,
+		&i.H3Index,
+		&i.SearchVector,
+		&i.CountryCode,
+		&i.CountryName,
+		&i.CountryContinent,
+		&i.CountrySubcontinent,
 	)
 	return i, err
 }
@@ -237,97 +230,83 @@ func (q *Queries) GetOccurrencesAtSamplingsBatch(ctx context.Context, samplingID
 }
 
 const getSampling = `-- name: GetSampling :one
-SELECT s.id, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector,
-    c.code, c.name, c.continent, c.subcontinent, c.geom
-FROM samplings s
-    JOIN countries c ON c.code = s.site_country_code
+SELECT id, source_sampling_hash, comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, coordinates, latitude, longitude, altitude, event_date, event_date_precision, performed_by, duration, access_points, import_batch_id, h3_index, search_vector, country_code, country_name, country_continent, country_subcontinent
+FROM samplings_with_country s
 WHERE s.id = $1::uuid
 `
 
-type GetSamplingRow struct {
-	Sampling Sampling `json:"sampling"`
-	Country  Country  `json:"country"`
-}
-
-func (q *Queries) GetSampling(ctx context.Context, samplingID uuid.UUID) (GetSamplingRow, error) {
+func (q *Queries) GetSampling(ctx context.Context, samplingID uuid.UUID) (SamplingsWithCountry, error) {
 	row := q.db.QueryRow(ctx, getSampling, samplingID)
-	var i GetSamplingRow
+	var i SamplingsWithCountry
 	err := row.Scan(
-		&i.Sampling.ID,
-		&i.Sampling.Comments,
-		&i.Sampling.SiteCode,
-		&i.Sampling.SiteName,
-		&i.Sampling.SiteLocality,
-		&i.Sampling.SiteCountryCode,
-		&i.Sampling.CoordinatesPrecision,
-		&i.Sampling.Coordinates,
-		&i.Sampling.Latitude,
-		&i.Sampling.Longitude,
-		&i.Sampling.Altitude,
-		&i.Sampling.EventDate,
-		&i.Sampling.EventDatePrecision,
-		&i.Sampling.PerformedBy,
-		&i.Sampling.Duration,
-		&i.Sampling.AccessPoints,
-		&i.Sampling.ImportBatchID,
-		&i.Sampling.H3Index,
-		&i.Sampling.SearchVector,
-		&i.Country.Code,
-		&i.Country.Name,
-		&i.Country.Continent,
-		&i.Country.Subcontinent,
-		&i.Country.Geom,
+		&i.ID,
+		&i.SourceSamplingHash,
+		&i.Comments,
+		&i.SiteCode,
+		&i.SiteName,
+		&i.SiteLocality,
+		&i.SiteCountryCode,
+		&i.CoordinatesPrecision,
+		&i.Coordinates,
+		&i.Latitude,
+		&i.Longitude,
+		&i.Altitude,
+		&i.EventDate,
+		&i.EventDatePrecision,
+		&i.PerformedBy,
+		&i.Duration,
+		&i.AccessPoints,
+		&i.ImportBatchID,
+		&i.H3Index,
+		&i.SearchVector,
+		&i.CountryCode,
+		&i.CountryName,
+		&i.CountryContinent,
+		&i.CountrySubcontinent,
 	)
 	return i, err
 }
 
 const getSamplingBatch = `-- name: GetSamplingBatch :many
-SELECT s.id, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector,
-    c.code, c.name, c.continent, c.subcontinent, c.geom
-FROM samplings s
-    JOIN countries c ON c.code = s.site_country_code
+SELECT id, source_sampling_hash, comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, coordinates, latitude, longitude, altitude, event_date, event_date_precision, performed_by, duration, access_points, import_batch_id, h3_index, search_vector, country_code, country_name, country_continent, country_subcontinent
+FROM samplings_with_country s
 WHERE s.id = ANY($1::uuid [])
 `
 
-type GetSamplingBatchRow struct {
-	Sampling Sampling `json:"sampling"`
-	Country  Country  `json:"country"`
-}
-
-func (q *Queries) GetSamplingBatch(ctx context.Context, samplingIds []uuid.UUID) ([]GetSamplingBatchRow, error) {
+func (q *Queries) GetSamplingBatch(ctx context.Context, samplingIds []uuid.UUID) ([]SamplingsWithCountry, error) {
 	rows, err := q.db.Query(ctx, getSamplingBatch, samplingIds)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetSamplingBatchRow{}
+	items := []SamplingsWithCountry{}
 	for rows.Next() {
-		var i GetSamplingBatchRow
+		var i SamplingsWithCountry
 		if err := rows.Scan(
-			&i.Sampling.ID,
-			&i.Sampling.Comments,
-			&i.Sampling.SiteCode,
-			&i.Sampling.SiteName,
-			&i.Sampling.SiteLocality,
-			&i.Sampling.SiteCountryCode,
-			&i.Sampling.CoordinatesPrecision,
-			&i.Sampling.Coordinates,
-			&i.Sampling.Latitude,
-			&i.Sampling.Longitude,
-			&i.Sampling.Altitude,
-			&i.Sampling.EventDate,
-			&i.Sampling.EventDatePrecision,
-			&i.Sampling.PerformedBy,
-			&i.Sampling.Duration,
-			&i.Sampling.AccessPoints,
-			&i.Sampling.ImportBatchID,
-			&i.Sampling.H3Index,
-			&i.Sampling.SearchVector,
-			&i.Country.Code,
-			&i.Country.Name,
-			&i.Country.Continent,
-			&i.Country.Subcontinent,
-			&i.Country.Geom,
+			&i.ID,
+			&i.SourceSamplingHash,
+			&i.Comments,
+			&i.SiteCode,
+			&i.SiteName,
+			&i.SiteLocality,
+			&i.SiteCountryCode,
+			&i.CoordinatesPrecision,
+			&i.Coordinates,
+			&i.Latitude,
+			&i.Longitude,
+			&i.Altitude,
+			&i.EventDate,
+			&i.EventDatePrecision,
+			&i.PerformedBy,
+			&i.Duration,
+			&i.AccessPoints,
+			&i.ImportBatchID,
+			&i.H3Index,
+			&i.SearchVector,
+			&i.CountryCode,
+			&i.CountryName,
+			&i.CountryContinent,
+			&i.CountrySubcontinent,
 		); err != nil {
 			return nil, err
 		}
@@ -473,21 +452,25 @@ func (q *Queries) ListSamplingAccessPoints(ctx context.Context) ([]string, error
 }
 
 const listSamplingsAtProximity = `-- name: ListSamplingsAtProximity :many
-SELECT s.id, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector,
-    c.code, c.name, c.continent, c.subcontinent, c.geom,
+SELECT s.id, s.source_sampling_hash, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector, s.country_code, s.country_name, s.country_continent, s.country_subcontinent,
     ST_Distance(
         coordinates::geography,
         ST_SetSRID(
-            ST_MakePoint($1::real, $2::real),
+            ST_MakePoint(
+                $1::double precision,
+                $2::double precision
+            ),
             4326
         )::geography
     )::integer AS distance_meters
-FROM samplings s
-    LEFT JOIN countries c ON c.code = s.site_country_code
+FROM samplings_with_country s
 WHERE ST_DWithin(
         coordinates::geography,
         ST_SetSRID(
-            ST_MakePoint($1::real, $2::real),
+            ST_MakePoint(
+                $1::double precision,
+                $2::double precision
+            ),
             4326
         )::geography,
         $3::integer
@@ -509,8 +492,8 @@ WHERE ST_DWithin(
 `
 
 type ListSamplingsAtProximityParams struct {
-	Longitude          float32     `json:"longitude"`
-	Latitude           float32     `json:"latitude"`
+	Longitude          float64     `json:"longitude"`
+	Latitude           float64     `json:"latitude"`
 	RadiusMeters       int32       `json:"radius_meters"`
 	EventDate          pgtype.Date `json:"event_date"`
 	DateIntervalDays   int32       `json:"date_interval_days"`
@@ -518,9 +501,8 @@ type ListSamplingsAtProximityParams struct {
 }
 
 type ListSamplingsAtProximityRow struct {
-	Sampling       Sampling `json:"sampling"`
-	Country        Country  `json:"country"`
-	DistanceMeters int32    `json:"distance_meters"`
+	SamplingsWithCountry SamplingsWithCountry `json:"samplings_with_country"`
+	DistanceMeters       int32                `json:"distance_meters"`
 }
 
 func (q *Queries) ListSamplingsAtProximity(ctx context.Context, arg ListSamplingsAtProximityParams) ([]ListSamplingsAtProximityRow, error) {
@@ -540,30 +522,30 @@ func (q *Queries) ListSamplingsAtProximity(ctx context.Context, arg ListSampling
 	for rows.Next() {
 		var i ListSamplingsAtProximityRow
 		if err := rows.Scan(
-			&i.Sampling.ID,
-			&i.Sampling.Comments,
-			&i.Sampling.SiteCode,
-			&i.Sampling.SiteName,
-			&i.Sampling.SiteLocality,
-			&i.Sampling.SiteCountryCode,
-			&i.Sampling.CoordinatesPrecision,
-			&i.Sampling.Coordinates,
-			&i.Sampling.Latitude,
-			&i.Sampling.Longitude,
-			&i.Sampling.Altitude,
-			&i.Sampling.EventDate,
-			&i.Sampling.EventDatePrecision,
-			&i.Sampling.PerformedBy,
-			&i.Sampling.Duration,
-			&i.Sampling.AccessPoints,
-			&i.Sampling.ImportBatchID,
-			&i.Sampling.H3Index,
-			&i.Sampling.SearchVector,
-			&i.Country.Code,
-			&i.Country.Name,
-			&i.Country.Continent,
-			&i.Country.Subcontinent,
-			&i.Country.Geom,
+			&i.SamplingsWithCountry.ID,
+			&i.SamplingsWithCountry.SourceSamplingHash,
+			&i.SamplingsWithCountry.Comments,
+			&i.SamplingsWithCountry.SiteCode,
+			&i.SamplingsWithCountry.SiteName,
+			&i.SamplingsWithCountry.SiteLocality,
+			&i.SamplingsWithCountry.SiteCountryCode,
+			&i.SamplingsWithCountry.CoordinatesPrecision,
+			&i.SamplingsWithCountry.Coordinates,
+			&i.SamplingsWithCountry.Latitude,
+			&i.SamplingsWithCountry.Longitude,
+			&i.SamplingsWithCountry.Altitude,
+			&i.SamplingsWithCountry.EventDate,
+			&i.SamplingsWithCountry.EventDatePrecision,
+			&i.SamplingsWithCountry.PerformedBy,
+			&i.SamplingsWithCountry.Duration,
+			&i.SamplingsWithCountry.AccessPoints,
+			&i.SamplingsWithCountry.ImportBatchID,
+			&i.SamplingsWithCountry.H3Index,
+			&i.SamplingsWithCountry.SearchVector,
+			&i.SamplingsWithCountry.CountryCode,
+			&i.SamplingsWithCountry.CountryName,
+			&i.SamplingsWithCountry.CountryContinent,
+			&i.SamplingsWithCountry.CountrySubcontinent,
 			&i.DistanceMeters,
 		); err != nil {
 			return nil, err
@@ -580,19 +562,35 @@ const listSamplingsH3AtProximity = `-- name: ListSamplingsH3AtProximity :many
 SELECT s.h3_index,
     COUNT(DISTINCT s.id) AS sampling_count,
     COUNT(o.id) AS occurrence_count,
+    COUNT(DISTINCT t.id) FILTER (
+        WHERE t.rank IN ('species', 'subspecies')
+    ) AS species_richness,
+    COUNT(DISTINCT t.id) FILTER (
+        WHERE t.rank = 'genus'
+    ) AS genus_richness,
+    COUNT(DISTINCT t.id) FILTER (
+        WHERE t.rank = 'family'
+    ) AS family_richness,
     ST_Distance(
         ST_SetSRID(
-            ST_MakePoint($1::real, $2::real),
+            ST_MakePoint(
+                $1::double precision,
+                $2::double precision
+            ),
             4326
         )::geography,
         h3_cell_to_geography(s.h3_index::h3index)::geography
     )::integer AS distance_meters
 FROM samplings s
     LEFT JOIN occurrences o ON o.sampling_id = s.id
+    LEFT JOIN taxa t ON t.id = o.taxon_id
 WHERE ST_DWithin(
         s.coordinates::geography,
         ST_SetSRID(
-            ST_MakePoint($1::real, $2::real),
+            ST_MakePoint(
+                $1::double precision,
+                $2::double precision
+            ),
             4326
         )::geography,
         $3::integer
@@ -602,8 +600,8 @@ GROUP BY s.h3_index
 `
 
 type ListSamplingsH3AtProximityParams struct {
-	Longitude          float32     `json:"longitude"`
-	Latitude           float32     `json:"latitude"`
+	Longitude          float64     `json:"longitude"`
+	Latitude           float64     `json:"latitude"`
 	RadiusMeters       int32       `json:"radius_meters"`
 	ExcludeSamplingIds []uuid.UUID `json:"exclude_sampling_ids"`
 }
@@ -612,6 +610,9 @@ type ListSamplingsH3AtProximityRow struct {
 	H3Index         int64 `json:"h3_index"`
 	SamplingCount   int64 `json:"sampling_count"`
 	OccurrenceCount int64 `json:"occurrence_count"`
+	SpeciesRichness int64 `json:"species_richness"`
+	GenusRichness   int64 `json:"genus_richness"`
+	FamilyRichness  int64 `json:"family_richness"`
 	DistanceMeters  int32 `json:"distance_meters"`
 }
 
@@ -633,6 +634,9 @@ func (q *Queries) ListSamplingsH3AtProximity(ctx context.Context, arg ListSampli
 			&i.H3Index,
 			&i.SamplingCount,
 			&i.OccurrenceCount,
+			&i.SpeciesRichness,
+			&i.GenusRichness,
+			&i.FamilyRichness,
 			&i.DistanceMeters,
 		); err != nil {
 			return nil, err

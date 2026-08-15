@@ -2,16 +2,22 @@ package services
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"maps"
 	"slices"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/stores"
 	"github.com/lsdch/biome/types"
+	"github.com/sirupsen/logrus"
+	"github.com/uber/h3-go/v4"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -20,6 +26,7 @@ type OccurrencesService struct {
 	datasets    *DatasetsService
 	importBatch *ImportBatchService
 	taxonomy    *TaxonomyService
+	store       *stores.OccurrenceStore
 }
 
 func NewOccurrencesService(
@@ -27,12 +34,14 @@ func NewOccurrencesService(
 	datasets *DatasetsService,
 	importBatch *ImportBatchService,
 	taxonomy *TaxonomyService,
+	store *stores.OccurrenceStore,
 ) *OccurrencesService {
 	return &OccurrencesService{
 		samplings:   samplings,
 		datasets:    datasets,
 		importBatch: importBatch,
 		taxonomy:    taxonomy,
+		store:       store,
 	}
 }
 
@@ -85,7 +94,7 @@ func (s *OccurrencesService) CreateOccurrenceAtSampling(ctx context.Context, tx 
 	}
 
 	for _, article := range input.PublishedIn {
-		err := tx.Queries().AddArticleToOccurrence(ctx, occurrence.ID, article)
+		err := tx.Queries().AddPublicationToOccurrence(ctx, occurrence.ID, article)
 		if err != nil {
 			return nil, err
 		}
@@ -113,12 +122,11 @@ func (s *OccurrencesService) CreateOccurrenceAtSampling(ctx context.Context, tx 
 }
 
 func (s *OccurrencesService) ListOccurrences(ctx context.Context, q db.Querier, params stores.ListOccurrencesParams) (models.PaginatedList[models.Occurrence], error) {
-	store := stores.NewOccurrenceStore()
-	occurrences, err := store.ListOccurrences(ctx, q, params)
+	occurrences, err := s.store.ListOccurrences(ctx, q, params)
 	if err != nil {
 		return models.PaginatedList[models.Occurrence]{}, err
 	}
-	totalCount, err := store.ListOccurrencesCount(ctx, q, params)
+	totalCount, err := s.store.ListOccurrencesCount(ctx, q, params)
 	if err != nil {
 		return models.PaginatedList[models.Occurrence]{}, err
 	}
@@ -129,6 +137,13 @@ func (s *OccurrencesService) ListOccurrences(ctx context.Context, q db.Querier, 
 func (s *OccurrencesService) GetOccurrenceWithDetails(ctx context.Context, q db.Querier, occurrenceID types.ULID) (*models.OccurrenceWithDetails, error) {
 	o, err := q.Queries().GetOccurrenceByID(ctx, occurrenceID)
 	if err != nil {
+		fmt.Printf("error type: %T\n", err)
+		fmt.Printf("error: %v\n", err)
+
+		var pgErr *pgconn.PgError
+		fmt.Printf("is PgError: %v\n", errors.As(err, &pgErr))
+		fmt.Printf("is pgx.ErrNoRows: %v\n", errors.Is(err, pgx.ErrNoRows))
+		fmt.Printf("is sql.ErrNoRows: %v\n", errors.Is(err, sql.ErrNoRows))
 		return nil, err
 	}
 
@@ -139,7 +154,7 @@ func (s *OccurrencesService) GetOccurrenceWithDetails(ctx context.Context, q db.
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() (errG error) {
-		samplingMetadata, errG = s.samplings.LoadSamplingMetadata(ctx, q, o.Sampling.ID)
+		samplingMetadata, errG = s.samplings.LoadSamplingMetadata(ctx, q, o.SamplingsWithCountry.ID)
 		return errG
 	})
 
@@ -152,7 +167,8 @@ func (s *OccurrencesService) GetOccurrenceWithDetails(ctx context.Context, q db.
 		return nil, err
 	}
 
-	occurrenceWithDetails := models.OccurrenceFromDB(o.Occurrence, o.Taxon, o.Sampling, o.Country).WithDetails(samplingMetadata, occurrenceMetadata)
+	occurrenceWithDetails := models.OccurrenceFromDB(o.Occurrence, o.Taxon, o.SamplingsWithCountry).
+		WithDetails(samplingMetadata, occurrenceMetadata)
 	return &occurrenceWithDetails, nil
 }
 
@@ -164,14 +180,14 @@ func (s *OccurrencesService) loadOccurrenceDatasets(ctx context.Context, q db.Qu
 	return s.datasets.LoadDatasetsForOccurrence(ctx, q, occurrenceID)
 }
 
-func (s *OccurrencesService) loadOccurrenceArticles(ctx context.Context, q db.Querier, occurrenceID types.ULID) ([]models.Article, error) {
-	articles, err := q.Queries().GetOccurrenceArticles(ctx, occurrenceID)
+func (s *OccurrencesService) loadOccurrenceArticles(ctx context.Context, q db.Querier, occurrenceID types.ULID) ([]models.Publication, error) {
+	articles, err := q.Queries().GetOccurrencePublications(ctx, occurrenceID)
 	if err != nil {
 		return nil, err
 	}
-	references := make([]models.Article, len(articles))
+	references := make([]models.Publication, len(articles))
 	for i, article := range articles {
-		references[i] = models.ArticleFromDB(article)
+		references[i] = models.PublicationFromDB(article)
 	}
 	return references, nil
 }
@@ -225,23 +241,39 @@ func (s *OccurrencesService) OccurrencesByTaxaOverview(ctx context.Context, q db
 
 	result := make([]models.OccurrenceOverviewItem, len(overview))
 	for i, item := range overview {
-		result[i] = models.OccurrenceOverviewItem{
-			Name:        item.Name,
-			ParentName:  models.NewOptionalFromPtr(item.ParentName),
-			Authorship:  models.NewOptionalFromPtr(item.Authorship),
-			Occurrences: item.OccurrencesCount,
-			Rank:        item.Rank,
-		}
+		result[i] = models.OccurrenceOverviewItemFromDB(item)
 	}
 	return result, nil
 }
 
+func (s *OccurrencesService) ListOccurringTaxaAtCell(ctx context.Context, q db.Querier, cell h3.Cell, resolution int64, params stores.ListOccurrencesParams) ([]models.OccurrenceOverviewItem, error) {
+	return s.store.ListOccurringTaxaAtCell(ctx, q, cell, resolution, params)
+}
+
 // MaterializeOccurrences triggers the materialization of occurrences for a given import batch.
 // This is typically used after an import batch has been processed to ensure that the occurrences are properly stored and indexed.
+// Occurrence-related metadata, such as collections and references, are also materialized during this process.
 //
 // RefreshOccurrenceCodes should be called at some point after materialization to ensure that occurrence codes are up-to-date.
-func (s *OccurrencesService) MaterializeOccurrences(ctx context.Context, q db.Querier, batchID types.ULID) error {
-	return q.Queries().MaterializeOccurrences(ctx, batchID.String())
+func (s *OccurrencesService) MaterializeOccurrences(ctx context.Context, tx *db.Tx, importID uuid.UUID) error {
+	logrus.Infof("Materializing occurrences for import batch ID %s", importID)
+	if err := tx.Queries().GenerateCodesStaging(ctx, importID); err != nil {
+		return err
+	}
+	missingCodes, err := tx.Queries().CheckStagingCodesGenerated(ctx, importID)
+	if err != nil {
+		return fmt.Errorf("failed to check occurrence codes generation: %v", err)
+	}
+	if len(missingCodes) > 0 {
+		return fmt.Errorf("found %d occurrences without generated codes", len(missingCodes))
+	}
+	if err := tx.Queries().MaterializeOccurrences(ctx, importID); err != nil {
+		return err
+	}
+	if err := tx.Queries().MaterializeCollections(ctx, importID); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *OccurrencesService) RefreshOccurrenceCodes(ctx context.Context, q db.Querier) error {
@@ -275,4 +307,60 @@ func (s *OccurrencesService) ListOccurrencesAtProximity(ctx context.Context, q d
 	}
 	return slices.Collect(maps.Values(samplingMap)), nil
 
+}
+
+func (s *OccurrencesService) ListOccurrencesH3(ctx context.Context, q db.Querier, resolution int64, params stores.ListOccurrencesParams) ([]models.H3CellWithRichness, error) {
+	return s.store.ListOccurrencesH3(ctx, q, resolution, params)
+}
+
+func (s *OccurrencesService) ListSamplingsH3(ctx context.Context, q db.Querier, resolution int64, params stores.ListSamplingsParams) ([]models.H3CellWithRichness, error) {
+	return s.store.ListSamplingsH3(ctx, q, resolution, params)
+}
+
+func (s *OccurrencesService) ListSamplingsWithOccurrences(ctx context.Context, q db.Querier, params stores.ListOccurrencesParams) ([]models.SamplingWithOccurrences, error) {
+	samplings, err := s.store.ListSamplings(ctx, q, params)
+	if err != nil {
+		return nil, err
+	}
+	occurrences, err := s.store.ListBaseOccurrences(ctx, q, params)
+	if err != nil {
+		return nil, err
+	}
+	return s.assembleSamplingsWithOccurrences(samplings, occurrences), nil
+}
+
+func (s *OccurrencesService) ListSamplingsWithOccurrencesAtCell(ctx context.Context, q db.Querier, cell h3.Cell, resolution int64, params stores.ListOccurrencesParams) ([]models.SamplingWithOccurrences, error) {
+	samplings, err := s.store.ListSamplingsAtCell(ctx, q, cell, resolution, params)
+	if err != nil {
+		return nil, err
+	}
+	occurrences, err := s.store.ListOccurrencesAtCell(ctx, q, cell, resolution, params)
+	if err != nil {
+		return nil, err
+	}
+	return s.assembleSamplingsWithOccurrences(samplings, occurrences), nil
+}
+
+func (s *OccurrencesService) assembleSamplingsWithOccurrences(
+	samplings []models.Sampling,
+	occurrences []models.BaseOccurrenceWithSamplingID,
+) []models.SamplingWithOccurrences {
+	byID := make(map[uuid.UUID]*models.SamplingWithOccurrences, len(samplings))
+	result := make([]models.SamplingWithOccurrences, len(samplings))
+
+	for i, sampling := range samplings {
+		result[i] = models.SamplingWithOccurrences{
+			Sampling:    sampling,
+			Occurrences: nil,
+		}
+		byID[sampling.ID] = &result[i]
+	}
+
+	for _, occurrence := range occurrences {
+		if sampling, ok := byID[occurrence.SamplingID]; ok {
+			sampling.Occurrences = append(sampling.Occurrences, occurrence.BaseOccurrence)
+		}
+	}
+
+	return result
 }

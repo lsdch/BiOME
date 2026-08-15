@@ -5,6 +5,8 @@ package {{ .Package }}
 import (
 	"reflect"
 	"fmt"
+	"strings"
+	"encoding/json"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -25,12 +27,27 @@ var {{.EnumType}}Hierarchy = map[{{.EnumType}}]int{
 }
 
 func (u *{{.EnumType}}) UnmarshalCSV(v []byte) error {
-	e := {{.EnumType}}(v)
+	e := {{.EnumType}}(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid {{.EnumType}} value: %s", v)
+}
+
+func (u *{{.EnumType}}) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := {{.EnumType}}(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid {{.EnumType}} value: %s", s)
 }
 
 func (u {{.EnumType}}) IsGreater(v {{.EnumType}}) bool {

@@ -3,7 +3,7 @@
     <v-row class="w-100">
       <v-col cols="12" lg="6">
         <OccurrenceSunburst
-          :items
+          :items="items ?? []"
           :error
           :loading="isPending"
           title="Occurrences overview"

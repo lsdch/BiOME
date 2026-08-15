@@ -20,10 +20,10 @@ import { $UserRole } from '@/api'
 const model = defineModel<UserRole>({ required: true })
 
 const hints: Record<UserRole, string> = {
-  Visitor: 'Visitors have readonly access to the platform content',
-  Contributor: 'Contributors may submit content and modify their own submissions',
-  Maintainer: 'Maintainers have rights to manage most of the content',
-  Admin: 'Admins have full read/write access'
+  visitor: 'Visitors have readonly access to the platform content',
+  contributor: 'Contributors may submit content and modify their own submissions',
+  maintainer: 'Maintainers have rights to manage most of the content',
+  admin: 'Admins have full read/write access'
 } as const
 </script>
 

@@ -198,6 +198,73 @@ func AllEventDatePrecisionValues() []EventDatePrecision {
 	}
 }
 
+type ImportBatchStatus string
+
+const (
+	ImportBatchStatusCreated   ImportBatchStatus = "created"
+	ImportBatchStatusStaged    ImportBatchStatus = "staged"
+	ImportBatchStatusCompleted ImportBatchStatus = "completed"
+	ImportBatchStatusFailed    ImportBatchStatus = "failed"
+	ImportBatchStatusCanceled  ImportBatchStatus = "canceled"
+)
+
+func (e *ImportBatchStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ImportBatchStatus(s)
+	case string:
+		*e = ImportBatchStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ImportBatchStatus: %T", src)
+	}
+	return nil
+}
+
+type NullImportBatchStatus struct {
+	ImportBatchStatus ImportBatchStatus `json:"import_batch_status"`
+	Valid             bool              `json:"valid"` // Valid is true if ImportBatchStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullImportBatchStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.ImportBatchStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ImportBatchStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullImportBatchStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ImportBatchStatus), nil
+}
+
+func (e ImportBatchStatus) Valid() bool {
+	switch e {
+	case ImportBatchStatusCreated,
+		ImportBatchStatusStaged,
+		ImportBatchStatusCompleted,
+		ImportBatchStatusFailed,
+		ImportBatchStatusCanceled:
+		return true
+	}
+	return false
+}
+
+func AllImportBatchStatusValues() []ImportBatchStatus {
+	return []ImportBatchStatus{
+		ImportBatchStatusCreated,
+		ImportBatchStatusStaged,
+		ImportBatchStatusCompleted,
+		ImportBatchStatusFailed,
+		ImportBatchStatusCanceled,
+	}
+}
+
 type InvitationStatus string
 
 const (
@@ -338,9 +405,9 @@ func AllOccurrenceOrderByValues() []OccurrenceOrderBy {
 type OccurrenceTypeStatus string
 
 const (
-	OccurrenceTypeStatusHOLOTYPE OccurrenceTypeStatus = "HOLOTYPE"
-	OccurrenceTypeStatusNEOTYPE  OccurrenceTypeStatus = "NEOTYPE"
-	OccurrenceTypeStatusTOPOTYPE OccurrenceTypeStatus = "TOPOTYPE"
+	OccurrenceTypeStatusHolotype OccurrenceTypeStatus = "holotype"
+	OccurrenceTypeStatusNeotype  OccurrenceTypeStatus = "neotype"
+	OccurrenceTypeStatusTopotype OccurrenceTypeStatus = "topotype"
 )
 
 func (e *OccurrenceTypeStatus) Scan(src interface{}) error {
@@ -380,9 +447,9 @@ func (ns NullOccurrenceTypeStatus) Value() (driver.Value, error) {
 
 func (e OccurrenceTypeStatus) Valid() bool {
 	switch e {
-	case OccurrenceTypeStatusHOLOTYPE,
-		OccurrenceTypeStatusNEOTYPE,
-		OccurrenceTypeStatusTOPOTYPE:
+	case OccurrenceTypeStatusHolotype,
+		OccurrenceTypeStatusNeotype,
+		OccurrenceTypeStatusTopotype:
 		return true
 	}
 	return false
@@ -390,137 +457,186 @@ func (e OccurrenceTypeStatus) Valid() bool {
 
 func AllOccurrenceTypeStatusValues() []OccurrenceTypeStatus {
 	return []OccurrenceTypeStatus{
-		OccurrenceTypeStatusHOLOTYPE,
-		OccurrenceTypeStatusNEOTYPE,
-		OccurrenceTypeStatusTOPOTYPE,
+		OccurrenceTypeStatusHolotype,
+		OccurrenceTypeStatusNeotype,
+		OccurrenceTypeStatusTopotype,
 	}
 }
 
-type PublicationResolutionStatus string
+type PubMatchType string
 
 const (
-	PublicationResolutionStatusPending        PublicationResolutionStatus = "pending"
-	PublicationResolutionStatusResolved       PublicationResolutionStatus = "resolved"
-	PublicationResolutionStatusFailed         PublicationResolutionStatus = "failed"
-	PublicationResolutionStatusManualRequired PublicationResolutionStatus = "manual_required"
+	PubMatchTypeDOI      PubMatchType = "doi"
+	PubMatchTypeVerbatim PubMatchType = "verbatim"
 )
 
-func (e *PublicationResolutionStatus) Scan(src interface{}) error {
+func (e *PubMatchType) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = PublicationResolutionStatus(s)
+		*e = PubMatchType(s)
 	case string:
-		*e = PublicationResolutionStatus(s)
+		*e = PubMatchType(s)
 	default:
-		return fmt.Errorf("unsupported scan type for PublicationResolutionStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for PubMatchType: %T", src)
 	}
 	return nil
 }
 
-type NullPublicationResolutionStatus struct {
-	PublicationResolutionStatus PublicationResolutionStatus `json:"publication_resolution_status"`
-	Valid                       bool                        `json:"valid"` // Valid is true if PublicationResolutionStatus is not NULL
+type NullPubMatchType struct {
+	PubMatchType PubMatchType `json:"pub_match_type"`
+	Valid        bool         `json:"valid"` // Valid is true if PubMatchType is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullPublicationResolutionStatus) Scan(value interface{}) error {
+func (ns *NullPubMatchType) Scan(value interface{}) error {
 	if value == nil {
-		ns.PublicationResolutionStatus, ns.Valid = "", false
+		ns.PubMatchType, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.PublicationResolutionStatus.Scan(value)
+	return ns.PubMatchType.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullPublicationResolutionStatus) Value() (driver.Value, error) {
+func (ns NullPubMatchType) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.PublicationResolutionStatus), nil
+	return string(ns.PubMatchType), nil
 }
 
-func (e PublicationResolutionStatus) Valid() bool {
+func (e PubMatchType) Valid() bool {
 	switch e {
-	case PublicationResolutionStatusPending,
-		PublicationResolutionStatusResolved,
-		PublicationResolutionStatusFailed,
-		PublicationResolutionStatusManualRequired:
+	case PubMatchTypeDOI,
+		PubMatchTypeVerbatim:
 		return true
 	}
 	return false
 }
 
-func AllPublicationResolutionStatusValues() []PublicationResolutionStatus {
-	return []PublicationResolutionStatus{
-		PublicationResolutionStatusPending,
-		PublicationResolutionStatusResolved,
-		PublicationResolutionStatusFailed,
-		PublicationResolutionStatusManualRequired,
+func AllPubMatchTypeValues() []PubMatchType {
+	return []PubMatchType{
+		PubMatchTypeDOI,
+		PubMatchTypeVerbatim,
 	}
 }
 
-type PublicationResolutionType string
+type PublicationCandidateSource string
 
 const (
-	PublicationResolutionTypeCrossref PublicationResolutionType = "crossref"
-	PublicationResolutionTypeDoi      PublicationResolutionType = "doi"
-	PublicationResolutionTypeVerbatim PublicationResolutionType = "verbatim"
-	PublicationResolutionTypeManual   PublicationResolutionType = "manual"
+	PublicationCandidateSourceInternal PublicationCandidateSource = "internal"
+	PublicationCandidateSourceCrossref PublicationCandidateSource = "crossref"
+	PublicationCandidateSourceManual   PublicationCandidateSource = "manual"
 )
 
-func (e *PublicationResolutionType) Scan(src interface{}) error {
+func (e *PublicationCandidateSource) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = PublicationResolutionType(s)
+		*e = PublicationCandidateSource(s)
 	case string:
-		*e = PublicationResolutionType(s)
+		*e = PublicationCandidateSource(s)
 	default:
-		return fmt.Errorf("unsupported scan type for PublicationResolutionType: %T", src)
+		return fmt.Errorf("unsupported scan type for PublicationCandidateSource: %T", src)
 	}
 	return nil
 }
 
-type NullPublicationResolutionType struct {
-	PublicationResolutionType PublicationResolutionType `json:"publication_resolution_type"`
-	Valid                     bool                      `json:"valid"` // Valid is true if PublicationResolutionType is not NULL
+type NullPublicationCandidateSource struct {
+	PublicationCandidateSource PublicationCandidateSource `json:"publication_candidate_source"`
+	Valid                      bool                       `json:"valid"` // Valid is true if PublicationCandidateSource is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullPublicationResolutionType) Scan(value interface{}) error {
+func (ns *NullPublicationCandidateSource) Scan(value interface{}) error {
 	if value == nil {
-		ns.PublicationResolutionType, ns.Valid = "", false
+		ns.PublicationCandidateSource, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.PublicationResolutionType.Scan(value)
+	return ns.PublicationCandidateSource.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullPublicationResolutionType) Value() (driver.Value, error) {
+func (ns NullPublicationCandidateSource) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.PublicationResolutionType), nil
+	return string(ns.PublicationCandidateSource), nil
 }
 
-func (e PublicationResolutionType) Valid() bool {
+func (e PublicationCandidateSource) Valid() bool {
 	switch e {
-	case PublicationResolutionTypeCrossref,
-		PublicationResolutionTypeDoi,
-		PublicationResolutionTypeVerbatim,
-		PublicationResolutionTypeManual:
+	case PublicationCandidateSourceInternal,
+		PublicationCandidateSourceCrossref,
+		PublicationCandidateSourceManual:
 		return true
 	}
 	return false
 }
 
-func AllPublicationResolutionTypeValues() []PublicationResolutionType {
-	return []PublicationResolutionType{
-		PublicationResolutionTypeCrossref,
-		PublicationResolutionTypeDoi,
-		PublicationResolutionTypeVerbatim,
-		PublicationResolutionTypeManual,
+func AllPublicationCandidateSourceValues() []PublicationCandidateSource {
+	return []PublicationCandidateSource{
+		PublicationCandidateSourceInternal,
+		PublicationCandidateSourceCrossref,
+		PublicationCandidateSourceManual,
+	}
+}
+
+type PublicationSource string
+
+const (
+	PublicationSourceCrossref PublicationSource = "crossref"
+	PublicationSourceManual   PublicationSource = "manual"
+)
+
+func (e *PublicationSource) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PublicationSource(s)
+	case string:
+		*e = PublicationSource(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PublicationSource: %T", src)
+	}
+	return nil
+}
+
+type NullPublicationSource struct {
+	PublicationSource PublicationSource `json:"publication_source"`
+	Valid             bool              `json:"valid"` // Valid is true if PublicationSource is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPublicationSource) Scan(value interface{}) error {
+	if value == nil {
+		ns.PublicationSource, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PublicationSource.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPublicationSource) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PublicationSource), nil
+}
+
+func (e PublicationSource) Valid() bool {
+	switch e {
+	case PublicationSourceCrossref,
+		PublicationSourceManual:
+		return true
+	}
+	return false
+}
+
+func AllPublicationSourceValues() []PublicationSource {
+	return []PublicationSource{
+		PublicationSourceCrossref,
+		PublicationSourceManual,
 	}
 }
 
@@ -649,10 +765,11 @@ func AllSortDirectionValues() []SortDirection {
 type TaxonGBIFStatus string
 
 const (
-	TaxonGBIFStatusSkipped   TaxonGBIFStatus = "skipped"
-	TaxonGBIFStatusPending   TaxonGBIFStatus = "pending"
-	TaxonGBIFStatusCompleted TaxonGBIFStatus = "completed"
-	TaxonGBIFStatusFailed    TaxonGBIFStatus = "failed"
+	TaxonGBIFStatusSkipped      TaxonGBIFStatus = "skipped"
+	TaxonGBIFStatusPending      TaxonGBIFStatus = "pending"
+	TaxonGBIFStatusCompleted    TaxonGBIFStatus = "completed"
+	TaxonGBIFStatusFailed       TaxonGBIFStatus = "failed"
+	TaxonGBIFStatusNoCandidates TaxonGBIFStatus = "no_candidates"
 )
 
 func (e *TaxonGBIFStatus) Scan(src interface{}) error {
@@ -695,7 +812,8 @@ func (e TaxonGBIFStatus) Valid() bool {
 	case TaxonGBIFStatusSkipped,
 		TaxonGBIFStatusPending,
 		TaxonGBIFStatusCompleted,
-		TaxonGBIFStatusFailed:
+		TaxonGBIFStatusFailed,
+		TaxonGBIFStatusNoCandidates:
 		return true
 	}
 	return false
@@ -707,6 +825,7 @@ func AllTaxonGBIFStatusValues() []TaxonGBIFStatus {
 		TaxonGBIFStatusPending,
 		TaxonGBIFStatusCompleted,
 		TaxonGBIFStatusFailed,
+		TaxonGBIFStatusNoCandidates,
 	}
 }
 
@@ -835,15 +954,15 @@ func AllTaxonMatchTypeValues() []TaxonMatchType {
 type TaxonRank string
 
 const (
-	TaxonRankSUBSPECIES TaxonRank = "SUBSPECIES"
-	TaxonRankSPECIES    TaxonRank = "SPECIES"
-	TaxonRankSUBGENUS   TaxonRank = "SUBGENUS"
-	TaxonRankGENUS      TaxonRank = "GENUS"
-	TaxonRankFAMILY     TaxonRank = "FAMILY"
-	TaxonRankORDER      TaxonRank = "ORDER"
-	TaxonRankCLASS      TaxonRank = "CLASS"
-	TaxonRankPHYLUM     TaxonRank = "PHYLUM"
-	TaxonRankKINGDOM    TaxonRank = "KINGDOM"
+	TaxonRankSubspecies TaxonRank = "subspecies"
+	TaxonRankSpecies    TaxonRank = "species"
+	TaxonRankSubgenus   TaxonRank = "subgenus"
+	TaxonRankGenus      TaxonRank = "genus"
+	TaxonRankFamily     TaxonRank = "family"
+	TaxonRankOrder      TaxonRank = "order"
+	TaxonRankClass      TaxonRank = "class"
+	TaxonRankPhylum     TaxonRank = "phylum"
+	TaxonRankKingdom    TaxonRank = "kingdom"
 )
 
 func (e *TaxonRank) Scan(src interface{}) error {
@@ -883,15 +1002,15 @@ func (ns NullTaxonRank) Value() (driver.Value, error) {
 
 func (e TaxonRank) Valid() bool {
 	switch e {
-	case TaxonRankSUBSPECIES,
-		TaxonRankSPECIES,
-		TaxonRankSUBGENUS,
-		TaxonRankGENUS,
-		TaxonRankFAMILY,
-		TaxonRankORDER,
-		TaxonRankCLASS,
-		TaxonRankPHYLUM,
-		TaxonRankKINGDOM:
+	case TaxonRankSubspecies,
+		TaxonRankSpecies,
+		TaxonRankSubgenus,
+		TaxonRankGenus,
+		TaxonRankFamily,
+		TaxonRankOrder,
+		TaxonRankClass,
+		TaxonRankPhylum,
+		TaxonRankKingdom:
 		return true
 	}
 	return false
@@ -899,26 +1018,26 @@ func (e TaxonRank) Valid() bool {
 
 func AllTaxonRankValues() []TaxonRank {
 	return []TaxonRank{
-		TaxonRankSUBSPECIES,
-		TaxonRankSPECIES,
-		TaxonRankSUBGENUS,
-		TaxonRankGENUS,
-		TaxonRankFAMILY,
-		TaxonRankORDER,
-		TaxonRankCLASS,
-		TaxonRankPHYLUM,
-		TaxonRankKINGDOM,
+		TaxonRankSubspecies,
+		TaxonRankSpecies,
+		TaxonRankSubgenus,
+		TaxonRankGenus,
+		TaxonRankFamily,
+		TaxonRankOrder,
+		TaxonRankClass,
+		TaxonRankPhylum,
+		TaxonRankKingdom,
 	}
 }
 
 type TaxonStatus string
 
 const (
-	TaxonStatusACCEPTED     TaxonStatus = "ACCEPTED"
-	TaxonStatusSYNONYM      TaxonStatus = "SYNONYM"
-	TaxonStatusDOUBTFUL     TaxonStatus = "DOUBTFUL"
-	TaxonStatusUNREFERENCED TaxonStatus = "UNREFERENCED"
-	TaxonStatusUNCLASSIFIED TaxonStatus = "UNCLASSIFIED"
+	TaxonStatusAccepted     TaxonStatus = "accepted"
+	TaxonStatusSynonym      TaxonStatus = "synonym"
+	TaxonStatusDoubtful     TaxonStatus = "doubtful"
+	TaxonStatusUnreferenced TaxonStatus = "unreferenced"
+	TaxonStatusUnclassified TaxonStatus = "unclassified"
 )
 
 func (e *TaxonStatus) Scan(src interface{}) error {
@@ -958,11 +1077,11 @@ func (ns NullTaxonStatus) Value() (driver.Value, error) {
 
 func (e TaxonStatus) Valid() bool {
 	switch e {
-	case TaxonStatusACCEPTED,
-		TaxonStatusSYNONYM,
-		TaxonStatusDOUBTFUL,
-		TaxonStatusUNREFERENCED,
-		TaxonStatusUNCLASSIFIED:
+	case TaxonStatusAccepted,
+		TaxonStatusSynonym,
+		TaxonStatusDoubtful,
+		TaxonStatusUnreferenced,
+		TaxonStatusUnclassified:
 		return true
 	}
 	return false
@@ -970,11 +1089,11 @@ func (e TaxonStatus) Valid() bool {
 
 func AllTaxonStatusValues() []TaxonStatus {
 	return []TaxonStatus{
-		TaxonStatusACCEPTED,
-		TaxonStatusSYNONYM,
-		TaxonStatusDOUBTFUL,
-		TaxonStatusUNREFERENCED,
-		TaxonStatusUNCLASSIFIED,
+		TaxonStatusAccepted,
+		TaxonStatusSynonym,
+		TaxonStatusDoubtful,
+		TaxonStatusUnreferenced,
+		TaxonStatusUnclassified,
 	}
 }
 
@@ -1112,10 +1231,10 @@ func AllUserEmailChangeRequestStatusValues() []UserEmailChangeRequestStatus {
 type UserRole string
 
 const (
-	UserRoleVisitor     UserRole = "Visitor"
-	UserRoleContributor UserRole = "Contributor"
-	UserRoleMaintainer  UserRole = "Maintainer"
-	UserRoleAdmin       UserRole = "Admin"
+	UserRoleVisitor     UserRole = "visitor"
+	UserRoleContributor UserRole = "contributor"
+	UserRoleMaintainer  UserRole = "maintainer"
+	UserRoleAdmin       UserRole = "admin"
 )
 
 func (e *UserRole) Scan(src interface{}) error {
@@ -1176,7 +1295,7 @@ func AllUserRoleValues() []UserRole {
 type VocabResolutionStatus string
 
 const (
-	VocabResolutionStatusAuto            VocabResolutionStatus = "auto"
+	VocabResolutionStatusAutoResolved    VocabResolutionStatus = "auto_resolved"
 	VocabResolutionStatusSelected        VocabResolutionStatus = "selected"
 	VocabResolutionStatusPending         VocabResolutionStatus = "pending"
 	VocabResolutionStatusRequestCreation VocabResolutionStatus = "request_creation"
@@ -1220,7 +1339,7 @@ func (ns NullVocabResolutionStatus) Value() (driver.Value, error) {
 
 func (e VocabResolutionStatus) Valid() bool {
 	switch e {
-	case VocabResolutionStatusAuto,
+	case VocabResolutionStatusAutoResolved,
 		VocabResolutionStatusSelected,
 		VocabResolutionStatusPending,
 		VocabResolutionStatusRequestCreation,
@@ -1232,7 +1351,7 @@ func (e VocabResolutionStatus) Valid() bool {
 
 func AllVocabResolutionStatusValues() []VocabResolutionStatus {
 	return []VocabResolutionStatus{
-		VocabResolutionStatusAuto,
+		VocabResolutionStatusAutoResolved,
 		VocabResolutionStatusSelected,
 		VocabResolutionStatusPending,
 		VocabResolutionStatusRequestCreation,
@@ -1254,15 +1373,10 @@ type AbioticParam struct {
 	Unit        string    `json:"unit"`
 }
 
-type Article struct {
-	ID       uuid.UUID `json:"id"`
-	Authors  []string  `json:"authors"`
-	Year     int32     `json:"year"`
-	Title    *string   `json:"title"`
-	Journal  *string   `json:"journal"`
-	Verbatim *string   `json:"verbatim"`
-	Doi      *string   `json:"doi"`
-	Comments *string   `json:"comments"`
+type CollectionsStaging struct {
+	OccurrenceID   types.ULID `json:"occurrence_id"`
+	CollectionName string     `json:"collection_name"`
+	Vouchers       []string   `json:"vouchers"`
 }
 
 type Country struct {
@@ -1288,8 +1402,8 @@ type DatasetsCurator struct {
 }
 
 type DatasetsPublication struct {
-	DatasetID types.ULID `json:"dataset_id"`
-	ArticleID uuid.UUID  `json:"article_id"`
+	DatasetID     types.ULID `json:"dataset_id"`
+	PublicationID uuid.UUID  `json:"publication_id"`
 }
 
 type EventsSamplingMethod struct {
@@ -1356,13 +1470,16 @@ type HabitatGroup struct {
 }
 
 type ImportBatch struct {
-	ID          types.ULID  `json:"id"`
-	Label       string      `json:"label"`
-	Description *string     `json:"description"`
-	AssembledBy []string    `json:"assembled_by"`
-	CreatedBy   uuid.UUID   `json:"created_by"`
-	CreatedAt   time.Time   `json:"created_at"`
-	WorkflowID  pgtype.UUID `json:"workflow_id"`
+	ID             uuid.UUID          `json:"id"`
+	Label          string             `json:"label"`
+	Description    *string            `json:"description"`
+	Status         ImportBatchStatus  `json:"status"`
+	AssembledBy    []string           `json:"assembled_by"`
+	CreatedBy      uuid.UUID          `json:"created_by"`
+	CreatedAt      time.Time          `json:"created_at"`
+	CompletedAt    pgtype.Timestamptz `json:"completed_at"`
+	CompletedBy    pgtype.UUID        `json:"completed_by"`
+	TaxonomicScope int32              `json:"taxonomic_scope"`
 }
 
 type ImportSamplingsOccurrence struct {
@@ -1375,10 +1492,10 @@ type ImportSamplingsOccurrence struct {
 	SiteCode                    *string               `json:"site_code"`
 	SiteName                    *string               `json:"site_name"`
 	SiteLocality                *string               `json:"site_locality"`
-	SiteCountryCode             string                `json:"site_country_code"`
+	SiteCountryCode             *string               `json:"site_country_code"`
 	CoordinatesPrecision        *int32                `json:"coordinates_precision"`
-	Longitude                   float32               `json:"longitude"`
-	Latitude                    float32               `json:"latitude"`
+	Longitude                   float64               `json:"longitude"`
+	Latitude                    float64               `json:"latitude"`
 	Coordinates                 interface{}           `json:"coordinates"`
 	Altitude                    *int32                `json:"altitude"`
 	EventDate                   pgtype.Date           `json:"event_date"`
@@ -1391,11 +1508,12 @@ type ImportSamplingsOccurrence struct {
 	SamplingMethods             []string              `json:"sampling_methods"`
 	Habitats                    []string              `json:"habitats"`
 	OccurrenceCode              *string               `json:"occurrence_code"`
+	GeneratedCode               *string               `json:"generated_code"`
 	TypeStatus                  *OccurrenceTypeStatus `json:"type_status"`
 	TaxonName                   string                `json:"taxon_name"`
 	TaxonAuthorship             *string               `json:"taxon_authorship"`
 	TaxonScientificName         string                `json:"taxon_scientific_name"`
-	TaxonRank                   *string               `json:"taxon_rank"`
+	TaxonRank                   *TaxonRank            `json:"taxon_rank"`
 	VerbatimIdentification      *string               `json:"verbatim_identification"`
 	IdentifiedBy                []string              `json:"identified_by"`
 	IdentificationDate          pgtype.Date           `json:"identification_date"`
@@ -1411,16 +1529,6 @@ type ImportSamplingsOccurrence struct {
 	TaxonResolutionID           pgtype.UUID           `json:"taxon_resolution_id"`
 	MaterializedSamplingID      pgtype.UUID           `json:"materialized_sampling_id"`
 	MaterializedOccurrenceID    interface{}           `json:"materialized_occurrence_id"`
-}
-
-type ImportWorkflow struct {
-	ImportID    uuid.UUID          `json:"import_id"`
-	Label       string             `json:"label"`
-	Description *string            `json:"description"`
-	AssembledBy []string           `json:"assembled_by"`
-	CreatedBy   uuid.UUID          `json:"created_by"`
-	CreatedAt   time.Time          `json:"created_at"`
-	CompletedAt pgtype.Timestamptz `json:"completed_at"`
 }
 
 type Invitation struct {
@@ -1468,7 +1576,7 @@ type Occurrence struct {
 	Sources                     []string              `json:"sources"`
 	CreatedAt                   time.Time             `json:"created_at"`
 	UpdatedAt                   pgtype.Timestamptz    `json:"updated_at"`
-	ImportBatchID               interface{}           `json:"import_batch_id"`
+	ImportBatchID               pgtype.UUID           `json:"import_batch_id"`
 }
 
 type OccurrenceCodeHistory struct {
@@ -1480,7 +1588,7 @@ type OccurrenceCodeHistory struct {
 
 type OccurrenceCodesToUpdate struct {
 	ID            types.ULID  `json:"id"`
-	ImportBatchID interface{} `json:"import_batch_id"`
+	ImportBatchID pgtype.UUID `json:"import_batch_id"`
 	CurrentCode   string      `json:"current_code"`
 	ComputedCode  string      `json:"computed_code"`
 }
@@ -1492,38 +1600,74 @@ type OccurrenceCollection struct {
 	Vouchers     []string   `json:"vouchers"`
 }
 
-type OccurrencesArticle struct {
-	OccurrenceID types.ULID `json:"occurrence_id"`
-	ArticleID    uuid.UUID  `json:"article_id"`
-}
-
 type OccurrencesDataset struct {
 	DatasetID    types.ULID `json:"dataset_id"`
 	OccurrenceID types.ULID `json:"occurrence_id"`
 }
 
+type OccurrencesPublication struct {
+	OccurrenceID  types.ULID `json:"occurrence_id"`
+	PublicationID uuid.UUID  `json:"publication_id"`
+}
+
+type OccurrencesStagingPublication struct {
+	ID           uuid.UUID   `json:"id"`
+	ImportID     uuid.UUID   `json:"import_id"`
+	OccurrenceID types.ULID  `json:"occurrence_id"`
+	ResolutionID pgtype.UUID `json:"resolution_id"`
+}
+
+type Publication struct {
+	ID       uuid.UUID  `json:"id"`
+	Authors  []string   `json:"authors"`
+	Year     *int32     `json:"year"`
+	Title    *string    `json:"title"`
+	Journal  *string    `json:"journal"`
+	Verbatim string     `json:"verbatim"`
+	DOI      *types.DOI `json:"doi"`
+	Comments *string    `json:"comments"`
+}
+
+type PublicationCandidate struct {
+	ID           uuid.UUID                  `json:"id"`
+	ImportID     uuid.UUID                  `json:"import_id"`
+	MatchType    PubMatchType               `json:"match_type"`
+	InternalID   pgtype.UUID                `json:"internal_id"`
+	StagingID    pgtype.UUID                `json:"staging_id"`
+	Score        float32                    `json:"score"`
+	Source       PublicationCandidateSource `json:"source"`
+	ResolutionID uuid.UUID                  `json:"resolution_id"`
+}
+
 type PublicationResolution struct {
-	StagingID       uuid.UUID                   `json:"staging_id"`
-	PublicationID   pgtype.UUID                 `json:"publication_id"`
-	ResolutionType  *PublicationResolutionType  `json:"resolution_type"`
-	Status          PublicationResolutionStatus `json:"status"`
-	CrossrefPayload []byte                      `json:"crossref_payload"`
+	ID                  uuid.UUID        `json:"id"`
+	ImportID            uuid.UUID        `json:"import_id"`
+	Status              ResolutionStatus `json:"status"`
+	ResolvedCandidateID pgtype.UUID      `json:"resolved_candidate_id"`
+	DOI                 *types.DOI       `json:"doi"`
+	Verbatim            *string          `json:"verbatim"`
+	Authors             []string         `json:"authors"`
+	AuthorsRaw          *string          `json:"authors_raw"`
+	Year                *int32           `json:"year"`
+	Title               *string          `json:"title"`
+	Journal             *string          `json:"journal"`
 }
 
 type PublicationsStaging struct {
-	ID                  uuid.UUID `json:"id"`
-	ImportID            uuid.UUID `json:"import_id"`
-	OccurrenceRowNumber int32     `json:"occurrence_row_number"`
-	Doi                 *string   `json:"doi"`
-	Authors             []string  `json:"authors"`
-	Year                *int32    `json:"year"`
-	Title               *string   `json:"title"`
-	Journal             *string   `json:"journal"`
-	Verbatim            *string   `json:"verbatim"`
+	ID                 uuid.UUID         `json:"id"`
+	DOI                *types.DOI        `json:"doi"`
+	Verbatim           string            `json:"verbatim"`
+	Authors            []string          `json:"authors"`
+	Year               *int32            `json:"year"`
+	Title              *string           `json:"title"`
+	Journal            *string           `json:"journal"`
+	Source             PublicationSource `json:"source"`
+	OriginResolutionID pgtype.UUID       `json:"origin_resolution_id"`
 }
 
 type Sampling struct {
 	ID                   uuid.UUID           `json:"id"`
+	SourceSamplingHash   *string             `json:"source_sampling_hash"`
 	Comments             *string             `json:"comments"`
 	SiteCode             *string             `json:"site_code"`
 	SiteName             *string             `json:"site_name"`
@@ -1531,15 +1675,15 @@ type Sampling struct {
 	SiteCountryCode      *string             `json:"site_country_code"`
 	CoordinatesPrecision *int32              `json:"coordinates_precision"`
 	Coordinates          interface{}         `json:"coordinates"`
-	Latitude             float32             `json:"latitude"`
-	Longitude            float32             `json:"longitude"`
+	Latitude             float64             `json:"latitude"`
+	Longitude            float64             `json:"longitude"`
 	Altitude             *int32              `json:"altitude"`
 	EventDate            pgtype.Date         `json:"event_date"`
 	EventDatePrecision   *EventDatePrecision `json:"event_date_precision"`
 	PerformedBy          []string            `json:"performed_by"`
 	Duration             *int32              `json:"duration"`
 	AccessPoints         []string            `json:"access_points"`
-	ImportBatchID        interface{}         `json:"import_batch_id"`
+	ImportBatchID        pgtype.UUID         `json:"import_batch_id"`
 	H3Index              int64               `json:"h3_index"`
 	SearchVector         interface{}         `json:"search_vector"`
 }
@@ -1565,6 +1709,12 @@ type SamplingMethodsResolution struct {
 	Status           VocabResolutionStatus `json:"status"`
 }
 
+type SamplingTargetResolution struct {
+	ImportID     uuid.UUID `json:"import_id"`
+	SamplingHash string    `json:"sampling_hash"`
+	ResolutionID uuid.UUID `json:"resolution_id"`
+}
+
 type SamplingTargetTaxa struct {
 	SamplingID uuid.UUID `json:"sampling_id"`
 	TaxonID    uuid.UUID `json:"taxon_id"`
@@ -1586,13 +1736,13 @@ type SamplingsStaging struct {
 	RepresentativeRowNumber int32               `json:"representative_row_number"`
 	SiteCode                *string             `json:"site_code"`
 	Coordinates             interface{}         `json:"coordinates"`
-	Latitude                float32             `json:"latitude"`
-	Longitude               float32             `json:"longitude"`
+	Latitude                float64             `json:"latitude"`
+	Longitude               float64             `json:"longitude"`
 	EventDate               pgtype.Date         `json:"event_date"`
 	EventDatePrecision      *EventDatePrecision `json:"event_date_precision"`
 	SiteName                *string             `json:"site_name"`
 	SiteLocality            *string             `json:"site_locality"`
-	SiteCountryCode         string              `json:"site_country_code"`
+	SiteCountryCode         *string             `json:"site_country_code"`
 	CoordinatesPrecision    *int32              `json:"coordinates_precision"`
 	Altitude                *int32              `json:"altitude"`
 	PerformedBy             []string            `json:"performed_by"`
@@ -1607,6 +1757,33 @@ type SamplingsStaging struct {
 	MaterializedSamplingID  pgtype.UUID         `json:"materialized_sampling_id"`
 }
 
+type SamplingsWithCountry struct {
+	ID                   uuid.UUID           `json:"id"`
+	SourceSamplingHash   *string             `json:"source_sampling_hash"`
+	Comments             *string             `json:"comments"`
+	SiteCode             *string             `json:"site_code"`
+	SiteName             *string             `json:"site_name"`
+	SiteLocality         *string             `json:"site_locality"`
+	SiteCountryCode      *string             `json:"site_country_code"`
+	CoordinatesPrecision *int32              `json:"coordinates_precision"`
+	Coordinates          interface{}         `json:"coordinates"`
+	Latitude             float64             `json:"latitude"`
+	Longitude            float64             `json:"longitude"`
+	Altitude             *int32              `json:"altitude"`
+	EventDate            pgtype.Date         `json:"event_date"`
+	EventDatePrecision   *EventDatePrecision `json:"event_date_precision"`
+	PerformedBy          []string            `json:"performed_by"`
+	Duration             *int32              `json:"duration"`
+	AccessPoints         []string            `json:"access_points"`
+	ImportBatchID        pgtype.UUID         `json:"import_batch_id"`
+	H3Index              int64               `json:"h3_index"`
+	SearchVector         interface{}         `json:"search_vector"`
+	CountryCode          *string             `json:"country_code"`
+	CountryName          *string             `json:"country_name"`
+	CountryContinent     *string             `json:"country_continent"`
+	CountrySubcontinent  *string             `json:"country_subcontinent"`
+}
+
 type Setting struct {
 	ID                     int32   `json:"id"`
 	AppName                string  `json:"app_name"`
@@ -1618,19 +1795,17 @@ type Setting struct {
 	MailFromAddress        string  `json:"mail_from_address"`
 	MailFromName           string  `json:"mail_from_name"`
 	MolecularDataEnabled   bool    `json:"molecular_data_enabled"`
+	FrontpageMessageMD     *string `json:"frontpage_message_md"`
 }
 
 type TaxaStaging struct {
-	ID              uuid.UUID        `json:"id"`
-	ImportID        uuid.UUID        `json:"import_id"`
-	Name            string           `json:"name"`
-	Authorship      *string          `json:"authorship"`
-	Rank            TaxonRank        `json:"rank"`
-	Status          TaxonStatus      `json:"status"`
-	ParentSource    TaxonMatchSource `json:"parent_source"`
-	ParentTaxaID    pgtype.UUID      `json:"parent_taxa_id"`
-	ParentGBIFID    *int32           `json:"parent_gbif_id"`
-	ParentInputName *string          `json:"parent_input_name"`
+	ID                 uuid.UUID   `json:"id"`
+	ImportID           uuid.UUID   `json:"import_id"`
+	Name               string      `json:"name"`
+	Authorship         *string     `json:"authorship"`
+	Rank               TaxonRank   `json:"rank"`
+	Status             TaxonStatus `json:"status"`
+	ParentResolutionID uuid.UUID   `json:"parent_resolution_id"`
 }
 
 type Taxon struct {
@@ -1655,6 +1830,7 @@ type TaxonCandidate struct {
 	MatchType    TaxonMatchType   `json:"match_type"`
 	TaxonID      pgtype.UUID      `json:"taxon_id"`
 	GBIFID       *int32           `json:"gbif_id"`
+	StagingID    pgtype.UUID      `json:"staging_id"`
 	Score        *float64         `json:"score"`
 	Priority     int32            `json:"priority"`
 	Name         string           `json:"name"`
@@ -1683,15 +1859,17 @@ type TaxonHierarchy struct {
 }
 
 type TaxonResolution struct {
-	ID              uuid.UUID         `json:"id"`
-	ImportID        uuid.UUID         `json:"import_id"`
-	InputName       string            `json:"input_name"`
-	InputAuthorship *string           `json:"input_authorship"`
-	InputRank       *string           `json:"input_rank"`
-	ScientificName  string            `json:"scientific_name"`
-	Status          *ResolutionStatus `json:"status"`
-	GBIFStatus      *TaxonGBIFStatus  `json:"gbif_status"`
-	ResolvedTo      pgtype.UUID       `json:"resolved_to"`
+	ID                  uuid.UUID         `json:"id"`
+	ImportID            uuid.UUID         `json:"import_id"`
+	InputName           string            `json:"input_name"`
+	InputAuthorship     *string           `json:"input_authorship"`
+	InputRank           *string           `json:"input_rank"`
+	ScientificName      string            `json:"scientific_name"`
+	Status              *ResolutionStatus `json:"status"`
+	GBIFStatus          *TaxonGBIFStatus  `json:"gbif_status"`
+	FromResolutionID    pgtype.UUID       `json:"from_resolution_id"`
+	SamplingTarget      bool              `json:"sampling_target"`
+	ResolvedCandidateID pgtype.UUID       `json:"resolved_candidate_id"`
 }
 
 type TaxonSynonym struct {

@@ -31,10 +31,8 @@ WITH inserted AS (
             @comments
         )
 )
-SELECT sqlc.embed(s),
-    sqlc.embed(c)
-FROM samplings s
-    JOIN countries c ON c.code = s.site_country_code
+SELECT s.*
+FROM samplings_with_country s
 WHERE s.id = (
         SELECT id
         FROM inserted
@@ -51,17 +49,13 @@ SELECT @sampling_id::uuid,
 FROM UNNEST(@taxon_ids::uuid []) AS t(taxon_id);
 
 -- name: GetSampling :one
-SELECT sqlc.embed(s),
-    sqlc.embed(c)
-FROM samplings s
-    JOIN countries c ON c.code = s.site_country_code
+SELECT *
+FROM samplings_with_country s
 WHERE s.id = @sampling_id::uuid;
 
 -- name: GetSamplingBatch :many
-SELECT sqlc.embed(s),
-    sqlc.embed(c)
-FROM samplings s
-    JOIN countries c ON c.code = s.site_country_code
+SELECT *
+FROM samplings_with_country s
 WHERE s.id = ANY(@sampling_ids::uuid []);
 
 -- name: GetOccurrencesAtSamplingsBatch :many
@@ -106,19 +100,35 @@ WHERE sh.sampling_id = @sampling_id::uuid;
 SELECT s.h3_index,
     COUNT(DISTINCT s.id) AS sampling_count,
     COUNT(o.id) AS occurrence_count,
+    COUNT(DISTINCT t.id) FILTER (
+        WHERE t.rank IN ('species', 'subspecies')
+    ) AS species_richness,
+    COUNT(DISTINCT t.id) FILTER (
+        WHERE t.rank = 'genus'
+    ) AS genus_richness,
+    COUNT(DISTINCT t.id) FILTER (
+        WHERE t.rank = 'family'
+    ) AS family_richness,
     ST_Distance(
         ST_SetSRID(
-            ST_MakePoint(@longitude::real, @latitude::real),
+            ST_MakePoint(
+                @longitude::double precision,
+                @latitude::double precision
+            ),
             4326
         )::geography,
         h3_cell_to_geography(s.h3_index::h3index)::geography
     )::integer AS distance_meters
 FROM samplings s
     LEFT JOIN occurrences o ON o.sampling_id = s.id
+    LEFT JOIN taxa t ON t.id = o.taxon_id
 WHERE ST_DWithin(
         s.coordinates::geography,
         ST_SetSRID(
-            ST_MakePoint(@longitude::real, @latitude::real),
+            ST_MakePoint(
+                @longitude::double precision,
+                @latitude::double precision
+            ),
             4326
         )::geography,
         @radius_meters::integer
@@ -128,20 +138,24 @@ GROUP BY s.h3_index;
 
 -- name: ListSamplingsAtProximity :many 
 SELECT sqlc.embed(s),
-    sqlc.embed(c),
     ST_Distance(
         coordinates::geography,
         ST_SetSRID(
-            ST_MakePoint(@longitude::real, @latitude::real),
+            ST_MakePoint(
+                @longitude::double precision,
+                @latitude::double precision
+            ),
             4326
         )::geography
     )::integer AS distance_meters
-FROM samplings s
-    LEFT JOIN countries c ON c.code = s.site_country_code
+FROM samplings_with_country s
 WHERE ST_DWithin(
         coordinates::geography,
         ST_SetSRID(
-            ST_MakePoint(@longitude::real, @latitude::real),
+            ST_MakePoint(
+                @longitude::double precision,
+                @latitude::double precision
+            ),
             4326
         )::geography,
         @radius_meters::integer

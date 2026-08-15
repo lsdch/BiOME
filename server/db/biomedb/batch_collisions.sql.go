@@ -30,7 +30,7 @@ WITH resolved_staging AS (
     -- across heterogeneous taxonomic sources.
     --
     SELECT
-    i.id, i.import_id, i.imported_at, i.row_number, i.sampling_hash, i.sampling_comments, i.site_code, i.site_name, i.site_locality, i.site_country_code, i.coordinates_precision, i.longitude, i.latitude, i.coordinates, i.altitude, i.event_date, i.event_date_precision, i.performed_by, i.duration, i.access_points, i.sampling_targets, i.sampling_fixatives, i.sampling_methods, i.habitats, i.occurrence_code, i.type_status, i.taxon_name, i.taxon_authorship, i.taxon_scientific_name, i.taxon_rank, i.verbatim_identification, i.identified_by, i.identification_date, i.identification_date_precision, i.identification_confer, i.identification_addendum, i.content_description, i.quantity_exact, i.quantity_lower, i.quantity_upper, i.sources, i.occurrence_comments, i.taxon_resolution_id, i.materialized_sampling_id, i.materialized_occurrence_id,
+    i.id, i.import_id, i.imported_at, i.row_number, i.sampling_hash, i.sampling_comments, i.site_code, i.site_name, i.site_locality, i.site_country_code, i.coordinates_precision, i.longitude, i.latitude, i.coordinates, i.altitude, i.event_date, i.event_date_precision, i.performed_by, i.duration, i.access_points, i.sampling_targets, i.sampling_fixatives, i.sampling_methods, i.habitats, i.occurrence_code, i.generated_code, i.type_status, i.taxon_name, i.taxon_authorship, i.taxon_scientific_name, i.taxon_rank, i.verbatim_identification, i.identified_by, i.identification_date, i.identification_date_precision, i.identification_confer, i.identification_addendum, i.content_description, i.quantity_exact, i.quantity_lower, i.quantity_upper, i.sources, i.occurrence_comments, i.taxon_resolution_id, i.materialized_sampling_id, i.materialized_occurrence_id,
     c.source,
     c.gbif_id,
     c.taxon_id,
@@ -42,7 +42,7 @@ WITH resolved_staging AS (
     END AS resolved_taxon_key
     FROM import_samplings_occurrences i
         JOIN taxon_resolution r ON r.import_id = i.import_id
-        LEFT JOIN taxon_candidates c ON c.id = r.resolved_to
+        LEFT JOIN taxon_candidates c ON c.id = r.resolved_candidate_id
         AND r.input_name = i.taxon_scientific_name
     WHERE i.import_id = $1
 ),
@@ -207,8 +207,8 @@ type DetectBatchOccurrenceCollisionsRow struct {
 	RowNumber                 int32               `json:"row_number"`
 	TaxonName                 string              `json:"taxon_name"`
 	TaxonAuthorship           *string             `json:"taxon_authorship"`
-	Latitude                  float32             `json:"latitude"`
-	Longitude                 float32             `json:"longitude"`
+	Latitude                  float64             `json:"latitude"`
+	Longitude                 float64             `json:"longitude"`
 	EventDate                 pgtype.Date         `json:"event_date"`
 	EventDatePrecision        *EventDatePrecision `json:"event_date_precision"`
 	CoordinatesPrecision      *int32              `json:"coordinates_precision"`
@@ -219,8 +219,8 @@ type DetectBatchOccurrenceCollisionsRow struct {
 	MatchTaxonAuthorship      *string             `json:"match_taxon_authorship"`
 	SamplingID                uuid.UUID           `json:"sampling_id"`
 	MatchRowNumber            *int32              `json:"match_row_number"`
-	MatchLatitude             float32             `json:"match_latitude"`
-	MatchLongitude            float32             `json:"match_longitude"`
+	MatchLatitude             float64             `json:"match_latitude"`
+	MatchLongitude            float64             `json:"match_longitude"`
 	MatchEventDate            pgtype.Date         `json:"match_event_date"`
 	MatchEventDatePrecision   *EventDatePrecision `json:"match_event_date_precision"`
 	MatchCoordinatesPrecision *int32              `json:"match_coordinates_precision"`
@@ -275,7 +275,7 @@ func (q *Queries) DetectBatchOccurrenceCollisions(ctx context.Context, arg Detec
 
 const detectBatchSamplingCollisions = `-- name: DetectBatchSamplingCollisions :many
 WITH i AS (
-    SELECT id, import_id, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments, taxon_resolution_id, materialized_sampling_id, materialized_occurrence_id
+    SELECT id, import_id, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, generated_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments, taxon_resolution_id, materialized_sampling_id, materialized_occurrence_id
     FROM import_samplings_occurrences i
     WHERE i.import_id = $3
 ),
@@ -356,14 +356,14 @@ type DetectBatchSamplingCollisionsRow struct {
 	RowNumber                 int32               `json:"row_number"`
 	EventDate                 pgtype.Date         `json:"event_date"`
 	EventDatePrecision        *EventDatePrecision `json:"event_date_precision"`
-	Latitude                  float32             `json:"latitude"`
-	Longitude                 float32             `json:"longitude"`
+	Latitude                  float64             `json:"latitude"`
+	Longitude                 float64             `json:"longitude"`
 	CoordinatesPrecision      *int32              `json:"coordinates_precision"`
 	DuplicateSource           DuplicateSource     `json:"duplicate_source"`
 	MatchImportID             *string             `json:"match_import_id"`
 	MatchRowNumber            *int32              `json:"match_row_number"`
-	MatchLatitude             float32             `json:"match_latitude"`
-	MatchLongitude            float32             `json:"match_longitude"`
+	MatchLatitude             float64             `json:"match_latitude"`
+	MatchLongitude            float64             `json:"match_longitude"`
 	MatchEventDate            pgtype.Date         `json:"match_event_date"`
 	MatchEventDatePrecision   *EventDatePrecision `json:"match_event_date_precision"`
 	MatchCoordinatesPrecision *int32              `json:"match_coordinates_precision"`

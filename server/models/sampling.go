@@ -27,10 +27,10 @@ func ErrUnknownFixativeCode(code string) ErrUnknownCode {
 }
 
 type Site struct {
-	Name     Optional[string] `json:"name,omitempty"`
-	Code     Optional[string] `json:"code,omitempty"`
-	Locality Optional[string] `json:"locality,omitempty"`
-	Country  Country          `json:"country"`
+	Name     Optional[string]  `json:"name,omitempty"`
+	Code     Optional[string]  `json:"code,omitempty"`
+	Locality Optional[string]  `json:"locality,omitempty"`
+	Country  Optional[Country] `json:"country,omitempty"`
 }
 
 func OptionalDateWithPrecisionFromDB(date pgtype.Date, precision *biomedb.EventDatePrecision) Optional[DateWithPrecision] {
@@ -51,25 +51,39 @@ type Sampling struct {
 	Duration     Optional[int32]             `json:"duration,omitempty"`
 	AccessPoints []string                    `json:"access_points,omitempty"`
 	H3Cell       h3.Cell                     `json:"h3_cell"`
+	Comments     Optional[string]            `json:"comments,omitempty"`
 }
 
 func (s Sampling) Code() string {
 	codePart := s.Site.Code.GetWithDefault(s.Coordinates.ToCode())
 	datePart := "NA"
 	if s.PerformedOn.IsSet {
-		datePart = s.PerformedOn.Value.ToCode()
+		datePart = s.PerformedOn.Value.String()
 	}
 	return fmt.Sprintf("%s|%s", codePart, datePart)
 }
 
-func NewSamplingFromDB(s biomedb.Sampling, c biomedb.Country) Sampling {
+func CountryFromSamplingDB(s biomedb.SamplingsWithCountry) Optional[Country] {
+	if s.CountryCode != nil {
+		return NewOptional(Country{
+			Code:         *s.CountryCode,
+			Name:         *s.CountryName,
+			Continent:    *s.CountryContinent,
+			Subcontinent: *s.CountrySubcontinent,
+		})
+	}
+	return Optional[Country]{}
+}
+
+func NewSamplingFromDB(s biomedb.SamplingsWithCountry) Sampling {
+
 	return Sampling{
 		ID: s.ID,
 		Site: Site{
 			Name:     NewOptionalFromPtr(s.SiteName),
 			Code:     NewOptionalFromPtr(s.SiteCode),
 			Locality: NewOptionalFromPtr(s.SiteLocality),
-			Country:  Country(c),
+			Country:  CountryFromSamplingDB(s),
 		},
 		Coordinates: CoordinatesWithPrecision{
 			Coordinates: Coordinates{
@@ -84,6 +98,7 @@ func NewSamplingFromDB(s biomedb.Sampling, c biomedb.Country) Sampling {
 		Duration:     NewOptionalFromPtr(s.Duration),
 		AccessPoints: s.AccessPoints,
 		H3Cell:       h3.Cell(s.H3Index),
+		Comments:     NewOptionalFromPtr(s.Comments),
 	}
 }
 
@@ -152,8 +167,8 @@ type SiteInput struct {
 }
 
 type ListSamplingsAtProximityInput struct {
-	Latitude         float32                 `json:"latitude" query:"latitude" required:"true"`
-	Longitude        float32                 `json:"longitude" query:"longitude" required:"true"`
+	Latitude         float64                 `json:"latitude" query:"latitude" required:"true"`
+	Longitude        float64                 `json:"longitude" query:"longitude" required:"true"`
 	RadiusMeters     int32                   `json:"radius_meters" query:"radius_meters" required:"true"`
 	EventDate        Optional[CompositeDate] `json:"event_date,omitempty" query:"event_date"`
 	DateIntervalDays Optional[int32]         `json:"date_interval_days,omitempty" query:"date_interval_days"`
@@ -223,31 +238,5 @@ func (s SamplingWithOccurrences) WithDistance(distanceMeters int32) SamplingWith
 
 type SamplingWithOccurrencesAndDistance struct {
 	SamplingWithOccurrences
-	DistanceMeters int32 `json:"distance_meters"`
-}
-
-type CellH3 struct {
-	H3Index          h3.Cell `json:"h3_index"`
-	SamplingsCount   int32   `json:"samplings_count"`
-	OccurrencesCount int32   `json:"occurrences_count"`
-}
-
-func CellH3FromDB(h3Index h3.Cell, samplingsCount int32, occurrencesCount int32) CellH3 {
-	return CellH3{
-		H3Index:          h3Index,
-		SamplingsCount:   samplingsCount,
-		OccurrencesCount: occurrencesCount,
-	}
-}
-
-func (c CellH3) WithDistance(distanceMeters int32) CellH3WithDistance {
-	return CellH3WithDistance{
-		CellH3:         c,
-		DistanceMeters: distanceMeters,
-	}
-}
-
-type CellH3WithDistance struct {
-	CellH3
 	DistanceMeters int32 `json:"distance_meters"`
 }

@@ -26,18 +26,29 @@ type taxonResolver struct {
 
 type TaxonResolver interface {
 	InitResolution(ctx context.Context, tx *db.Tx, importID uuid.UUID) (state []models.TaxonResolutionWithCandidates, err error)
+	InitSamplingTargetsResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (err error)
 	GetTaxonResolutions(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.TaxonResolutionWithCandidates, err error)
 	// Materializes taxa from GBIF and local candidates into the main taxon table,
 	// ensuring that all necessary GBIF dependencies are fetched and inserted first.
 	MaterializeTaxa(ctx context.Context, tx *db.Tx, importID uuid.UUID) (err error)
-	FetchKeysFromGBIF(ctx context.Context, toFetch []int32) ([]models.TaxonGBIF, error)
+
+	// FetchKeysFromGBIF fetches a batch of taxa from GBIF by their keys, returning the corresponding TaxonGBIF objects.
+	FetchKeysFromGBIF(ctx context.Context, toFetch []int32, trackers ...progress.ProgressReporter) ([]models.TaxonGBIF, error)
+
+	// ListTaxaToFetch returns a list of taxon resolutions that need to fetch candidates from GBIF.
 	ListTaxaToFetch(ctx context.Context, q db.Querier, importID uuid.UUID) ([]models.TaxonResolution, error)
-	FetchCandidatesFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID, toFetch []models.TaxonResolution, trackers ...progress.ProgressReporter) (candidates map[uuid.UUID][]models.TaxonGBIFWithPriority, err error)
+
+	// FetchCandidatesFromGBIF fetches candidate taxa from GBIF for the given taxon resolutions that need candidates.
+	// It returns a map of taxon resolution IDs to their corresponding GBIF candidates.
+	// All resolutions are included in the result, even if no candidates were found for a particular resolution.
+	FetchCandidatesFromGBIF(ctx context.Context, higherTaxonKey int32, toFetch []models.TaxonResolution, trackers ...progress.ProgressReporter) (candidates map[uuid.UUID][]models.TaxonGBIFWithPriority, err error)
 	InsertGBIFCandidates(ctx context.Context, q db.Querier, importID uuid.UUID, candidates map[uuid.UUID][]models.TaxonGBIFWithPriority) (err error)
-	MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID, resolutionIDs []uuid.UUID) error
+	MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID) error
 	AutoResolveUnambiguousCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error)
-	ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveTaxonInput) (err error)
-	FillGBIFDependencies(ctx context.Context, q db.Querier, importID uuid.UUID) error
+	ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveInput) (err error)
+	FillGBIFDependencies(ctx context.Context, q db.Querier, importID uuid.UUID, trackers ...progress.ProgressReporter) error
+	AutoCreateManualCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error)
+	CreateManualCandidate(ctx context.Context, tx *db.Tx, importID uuid.UUID, input models.TaxonStagingParams) (err error)
 }
 
 func NewTaxonResolutionService(gbif *gbif.GBIFClient) TaxonResolver {
@@ -77,11 +88,32 @@ func (r *taxonResolver) InitResolution(ctx context.Context, tx *db.Tx, importID 
 	return resolutionState, nil
 }
 
+func (r *taxonResolver) InitSamplingTargetsResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	if err = r.store.InitSamplingTargetResolution(ctx, q, importID); err != nil {
+		return fmt.Errorf("error initializing sampling targets resolution: %w", err)
+	}
+	return nil
+}
+
+func (r *taxonResolver) CreateManualCandidate(ctx context.Context, tx *db.Tx, importID uuid.UUID, input models.TaxonStagingParams) (err error) {
+	if err = r.store.InsertTaxaStaging(ctx, tx, importID, []models.TaxonStagingParams{input}); err != nil {
+		return fmt.Errorf("error inserting manual candidate: %w", err)
+	}
+	if err = r.AutoResolveUnambiguousCandidates(ctx, tx, importID); err != nil {
+		return fmt.Errorf("error auto-resolving unambiguous candidates: %w", err)
+	}
+	return nil
+}
+
 // Fetches missing GBIF dependencies for taxa that have already been resolved to a GBIF taxon,
 // to ensure that all necessary GBIF data is available before materialization.
-func (r *taxonResolver) FetchKeysFromGBIF(ctx context.Context, toFetch []int32) ([]models.TaxonGBIF, error) {
+func (r *taxonResolver) FetchKeysFromGBIF(ctx context.Context, toFetch []int32, trackers ...progress.ProgressReporter) ([]models.TaxonGBIF, error) {
 	if len(toFetch) == 0 {
 		return nil, nil
+	}
+
+	for _, tracker := range trackers {
+		tracker.AddToTotal(int32(len(toFetch)))
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
@@ -104,6 +136,10 @@ func (r *taxonResolver) FetchKeysFromGBIF(ctx context.Context, toFetch []int32) 
 			taxa = append(taxa, *taxon)
 			mu.Unlock()
 
+			for _, tracker := range trackers {
+				tracker.Increment(1)
+			}
+
 			return nil
 		})
 	}
@@ -115,10 +151,12 @@ func (r *taxonResolver) FetchKeysFromGBIF(ctx context.Context, toFetch []int32) 
 	return taxa, nil
 }
 
+// FetchCandidatesFromGBIF fetches candidate taxa from GBIF for the given taxon resolutions that need candidates.
+// It returns a map of taxon resolution IDs to their corresponding GBIF candidates.
+// All resolutions are included in the result, even if no candidates were found for a particular resolution.
 func (r *taxonResolver) FetchCandidatesFromGBIF(
 	ctx context.Context,
-	q db.Querier,
-	importID uuid.UUID,
+	higherTaxonKey int32,
 	toFetch []models.TaxonResolution,
 	trackers ...progress.ProgressReporter,
 ) (candidates map[uuid.UUID][]models.TaxonGBIFWithPriority, err error) {
@@ -126,34 +164,49 @@ func (r *taxonResolver) FetchCandidatesFromGBIF(
 		return nil, nil
 	}
 
+	for _, tracker := range trackers {
+		tracker.AddToTotal(int32(len(toFetch)))
+	}
+
 	var mutex sync.Mutex
 	g, ctx := errgroup.WithContext(ctx)
 	candidatesMap := make(map[uuid.UUID][]models.TaxonGBIFWithPriority, len(toFetch))
 	for i := range toFetch {
 		resolution := toFetch[i]
-		query := resolution.ScientificName
-		if query == "" {
-			query = resolution.InputName
-		}
+		query := resolution.InputName
 		g.Go(func() error {
 			params := gbif.SearchParams{
-				Query:      query,
-				Rank:       "",
-				Limit:      5,
-				DatasetKey: r.gbif.BackboneDatasetKey,
+				Query:          query,
+				Rank:           "",
+				HigherTaxonKey: higherTaxonKey,
+				Limit:          10,
+				DatasetKey:     r.gbif.BackboneDatasetKey,
 			}
 			if rank, ok := resolution.InputRank.Get(); ok {
-				params.Rank = rank
+				params.Rank = strings.ToUpper(rank)
 			} else {
-				switch len(strings.Split(resolution.InputName, " ")) {
+				switch len(strings.Fields(resolution.InputName)) {
 				case 1:
-					params.Rank = "GENUS"
+					switch strings.ToLower(params.Query) {
+					// Help GBIF a little by providing a rank for some known kingdoms
+					case "animalia", "plantae", "fungi", "protozoa", "chromista":
+						logrus.Infof("Using kingdom rank for taxon '%s'", resolution.InputName)
+						params.Rank = "KINGDOM"
+						params.HigherTaxonKey = 0
+					default:
+						params.Rank = "GENUS"
+					}
 				case 2:
 					params.Rank = "SPECIES"
+				case 3:
+					params.Rank = "SUBSPECIES"
 				default:
-					// Chance of an exact match is very low for names with more than 2 parts
 					params.Rank = ""
 				}
+			}
+			if params.Rank == "SUBSPECIES" {
+				// Scientific names in GBIF for subspecies do not include the authorship
+				params.Query = resolution.InputName
 			}
 			resp, err := r.gbif.SearchSpecies(ctx, params)
 			if err != nil {
@@ -163,9 +216,32 @@ func (r *taxonResolver) FetchCandidatesFromGBIF(
 
 			mutex.Lock()
 			defer mutex.Unlock()
+			hasExactMatch := false
 			for _, match := range resp.Results {
 				if match.IsAcceptable() {
-					candidatesMap[resolution.ID] = append(candidatesMap[resolution.ID], match.WithPriority(resolution))
+					candidate := match.WithPriority(resolution)
+					candidatesMap[resolution.ID] = append(candidatesMap[resolution.ID], candidate)
+					if candidate.Priority == models.TaxonGBIFPriorityExactAccepted {
+						hasExactMatch = true
+					}
+				} else {
+					logrus.Warnf("GBIF taxon '%s' [%d] is not acceptable (rank: %s, status: %s, parent rank: %v)", match.ScientificName, match.Key, match.Rank, match.Status, match.GetParentRank())
+				}
+			}
+			if _, ok := resolution.InputRank.Get(); !ok && !hasExactMatch {
+				// If no exact match was found and no rank was specified,
+				// broaden the search to include all ranks for this taxon resolution.
+				params.Rank = ""
+				resp, err := r.gbif.SearchSpecies(ctx, params)
+				if err != nil {
+					logrus.Errorf("error fetching GBIF data for taxon '%s' with no rank: %v", resolution.InputName, err)
+					return err
+				}
+				for _, match := range resp.Results {
+					if match.IsAcceptable() {
+						candidate := match.WithPriority(resolution)
+						candidatesMap[resolution.ID] = append(candidatesMap[resolution.ID], candidate)
+					}
 				}
 			}
 			for _, tracker := range trackers {
@@ -211,8 +287,8 @@ func (r *taxonResolver) ListTaxaToFetch(ctx context.Context, q db.Querier, impor
 	return r.store.ListTaxnamesToFetchFromGBIF(ctx, q, importID)
 }
 
-func (r *taxonResolver) MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID, resolutionIDS []uuid.UUID) error {
-	return r.store.MarkTaxaGBIFImportCompleted(ctx, q, importID, resolutionIDS)
+func (r *taxonResolver) MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID) error {
+	return r.store.MarkTaxaGBIFImportCompleted(ctx, q, importID)
 }
 
 func (r *taxonResolver) GetTaxonResolutions(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.TaxonResolutionWithCandidates, err error) {
@@ -223,13 +299,14 @@ func (r *taxonResolver) GetTaxonResolutions(ctx context.Context, q db.Querier, i
 	return state, nil
 }
 
-func (r *taxonResolver) FillGBIFDependencies(ctx context.Context, q db.Querier, importID uuid.UUID) error {
+func (r *taxonResolver) FillGBIFDependencies(ctx context.Context, q db.Querier, importID uuid.UUID, trackers ...progress.ProgressReporter) error {
 	depsKeys, err := r.store.ListMissingGBIFDependencies(ctx, q, importID)
 	if err != nil {
 		return err
 	}
 
-	deps, err := r.FetchKeysFromGBIF(ctx, depsKeys)
+	logrus.Infof("Found %d missing GBIF dependencies for import %s", len(depsKeys), importID)
+	deps, err := r.FetchKeysFromGBIF(ctx, depsKeys, trackers...)
 	if err != nil {
 		return err
 	}
@@ -240,11 +317,25 @@ func (r *taxonResolver) FillGBIFDependencies(ctx context.Context, q db.Querier, 
 	return nil
 }
 
-func (r *taxonResolver) MaterializeTaxaGBIF(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+func (r *taxonResolver) MaterializeTaxaGBIF(ctx context.Context, tx *db.Tx, importID uuid.UUID) (err error) {
 
 	for _, rank := range slices.Backward(biomedb.AllTaxonRankValues()) {
 
-		err = r.store.MaterializeTaxaFromGBIF(ctx, q, importID, rank)
+		err = r.store.MaterializeTaxaFromGBIF(ctx, tx, importID, models.TaxonRank(rank))
+		if err != nil {
+			return err
+		}
+	}
+
+	if err = tx.Queries().UpdateMaterializedGBIFCandidates(ctx, importID); err != nil {
+		return err
+	}
+	return err
+}
+
+func (r *taxonResolver) MaterializeTaxaStaging(ctx context.Context, tx *db.Tx, importID uuid.UUID) (err error) {
+	for _, rank := range slices.Backward(biomedb.AllTaxonRankValues()) {
+		err = r.store.MaterializeTaxaStaging(ctx, tx, importID, rank)
 		if err != nil {
 			return err
 		}
@@ -256,38 +347,64 @@ func (r *taxonResolver) MaterializeTaxa(ctx context.Context, tx *db.Tx, importID
 	if err = r.MaterializeTaxaGBIF(ctx, tx, importID); err != nil {
 		return err
 	}
-	if err = tx.Queries().UpdateMaterializedTaxonCandidates(ctx, importID); err != nil {
+	if err = r.MaterializeTaxaStaging(ctx, tx, importID); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *taxonResolver) ResolveToManualTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, params models.TaxonStagingParams) (err error) {
-	if params.ParentSource == biomedb.TaxonMatchSourceManual {
-		parentName, ok := params.ParentInputName.Get()
-		if !ok || parentName == "" {
-			return fmt.Errorf("parent source is %s but parent name is not provided for manual taxon %s", params.ParentSource, params.Name)
-		}
-		err = r.store.UpsertTaxonResolution(ctx, q, biomedb.UpsertTaxonResolutionParams{
-			ImportID:  importID,
-			InputName: parentName,
-		})
-		if err != nil {
-			return fmt.Errorf("failed to upsert parent taxon resolution for manual taxon %s: %v", params.Name, err)
-		}
-	}
-	return r.store.InsertTaxonStaging(ctx, q, importID, params)
-}
-
-func (r *taxonResolver) AutoResolveUnambiguousCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
-	err = r.store.AutoResolveUnambiguousCandidates(ctx, q, importID)
+// CreateManualCandidates creates new taxa in the staging table for taxon resolutions that do not have any candidates.
+// It also creates a corresponding taxon_candidates record for each new taxon, linking it to the taxon resolution.
+// If the parent taxon does not exist, it will create a new taxon resolution for the parent as well.
+// After this, AutoResolveUnambiguousCandidates should be run to resolve any unambiguous candidates that may have been created.
+func (r *taxonResolver) AutoCreateManualCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	resolutions, err := r.store.ListTaxonResolutionsWithoutCandidates(ctx, q, importID)
 	if err != nil {
 		return err
 	}
+	toStage := make([]models.TaxonStagingParams, 0, len(resolutions))
+	for _, res := range resolutions {
+		r, ok := res.InputRank.Get()
+		if !ok {
+			continue
+		}
+		rank, ok := models.TaxonRankFromString(r)
+		if !ok {
+			logrus.Errorf("invalid rank '%s' for taxon resolution %s [%s]", r, res.InputName, res.ID)
+			continue
+		}
+
+		parentName, ok := models.InferParentName(res.InputName)
+		if !ok {
+			logrus.Errorf("failed to infer parent name for taxon resolution %s [%s]", res.InputName, res.ID)
+			continue
+		}
+
+		toStage = append(toStage, models.TaxonStagingParams{
+			Name:         res.InputName,
+			Authorship:   res.InputAuthorship,
+			Rank:         rank,
+			Status:       models.InferStatusFromStagingName(res.InputName),
+			ParentName:   parentName,
+			ResolutionID: res.ID,
+		})
+
+	}
+	return r.store.InsertTaxaStaging(ctx, q, importID, toStage)
+}
+
+func (r *taxonResolver) AutoResolveUnambiguousCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	thresholds := []int32{100, 80}
+	for _, threshold := range thresholds {
+		err = r.store.AutoResolveUnambiguousCandidates(ctx, q, importID, threshold)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func (r *taxonResolver) ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveTaxonInput) (err error) {
+func (r *taxonResolver) ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveInput) (err error) {
 	err = r.store.ResolveTaxon(ctx, q, importID, input)
 	if err != nil {
 		return err

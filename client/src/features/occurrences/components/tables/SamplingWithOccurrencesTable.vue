@@ -1,7 +1,19 @@
 <template>
-  <v-text-field v-if="(samplings?.length ?? 0) > 10" v-model="search.term" class="mx-5 mt-1" hide-details label="Search"
-    clearable density="compact" />
+  <v-text-field
+    v-if="(samplings?.length ?? 0) > 10"
+    v-model="search.term"
+    class="mx-5 mt-1"
+    hide-details
+    label="Search"
+    clearable
+    density="compact"
+  />
   <CRUDTable :items="samplings" entity-name="Sampling" :headers :search filter-mode="some">
+    <template #item.site.name="{ value, item }">
+      <span :class="!value && !item.site.code ? 'text-muted' : undefined">
+        {{ value ?? item.site.code ?? 'No site name provided' }}
+      </span>
+    </template>
     <template #item.coordinates.latitude="{ value }">
       <span class="font-monospace">
         {{ value }}
@@ -12,14 +24,27 @@
         {{ value }}
       </span>
     </template>
+    <template #item.coordinates.precision="{ value }">
+      <span class="font-monospace" v-if="typeof value === 'number'">
+        {{ value > 1000 ? `${value / 1000} km` : `${value} m` }}
+      </span>
+    </template>
     <template #item.performed_on="{ value }">
       <span class="font-monospace">
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
-    <template #expanded-row-inject="{ item: { occurrences, ...sampling } }: { item: SamplingWithOccurrences }">
-      <OccurrencesAtSiteList v-if="occurrences?.length"
-        :occurrences="occurrences?.map((o) => ({ ...o, sampling: sampling }))" />
+    <template
+      #expanded-row-inject="{
+        item: { occurrences, ...sampling }
+      }: {
+        item: SamplingWithOccurrences
+      }"
+    >
+      <OccurrencesAtSiteList
+        v-if="occurrences?.length"
+        :occurrences="occurrences?.map((o) => ({ ...o, sampling: sampling }))"
+      />
     </template>
     <template v-for="name in Object.keys(slots)" :key="name" v-slot:[name]="slotProps">
       <slot :name="name" v-bind="slotProps" />
@@ -47,7 +72,7 @@ const _headers: CRUDTableHeader<Sampling>[] = [
   {
     title: 'Site',
     value: 'site.name',
-    sortable: true,
+    sortable: true
     // filter(value, query, item) {
     //   if (!query) return true
     //   return (
@@ -69,6 +94,15 @@ const _headers: CRUDTableHeader<Sampling>[] = [
     value: 'coordinates.longitude',
     sortable: true,
     width: 0,
+    // Disable filtering for numeric fields
+    filter: () => false
+  },
+  {
+    title: 'Precision',
+    value: 'coordinates.precision',
+    sortable: true,
+    width: 0,
+    align: 'end',
     // Disable filtering for numeric fields
     filter: () => false
   },

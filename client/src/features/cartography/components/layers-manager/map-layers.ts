@@ -1,18 +1,24 @@
-import { HabitatRecord, OccurrencesBySiteData } from '@/api'
+import { H3CellWithRichness, ListOccurrencesData } from '@/api'
 import { ScaleBindingSpec } from '@/features/cartography/bindings'
 import { ItemWithCoordinates } from '@/features/cartography/coordinates'
 import { brewerPalettes, withOpacity } from '@/lib/color_brewer'
-import { WithRequired } from '@tanstack/vue-query'
 import { UUID } from 'crypto'
 import { MarkerOptions } from 'maplibre-gl'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { RGB } from 'vuetify/lib/util/colorUtils.mjs'
+import { CellMarkerData } from './layer-data'
+import { GlobalMarkerOptions } from '../DeckGlMap.vue'
 
-export type MappingFilters = WithRequired<
-  Overwrite<NonNullable<OccurrencesBySiteData['body']>, { habitats?: HabitatRecord[] }>,
-  'sampling_target'
->
+export interface H3Cell {
+  h3_index: string
+}
 
+export type MappingFilters =
+  // WithRequired<
+  // Overwrite<NonNullable<ListOccurrencesData['query']>, { habitats?: HabitatRecord[] }>,
+  // 'sampling_target'
+  // >
+  NonNullable<ListOccurrencesData['query']>
 /**
  * Type representing the filter options for sites in the map layers.
  * - 'All': Show all sites.
@@ -26,36 +32,36 @@ export type BaseLayerSpec = {
   name?: string
   active: boolean
   filters: MappingFilters
-  include_sites: SitesFilter
+  include_sites?: SitesFilter
 }
 
-export type HexLayerSpec<Item extends ItemWithCoordinates> = BaseLayerSpec & {
+export type HexLayerSpec = BaseLayerSpec & {
   type: 'hexgrid'
+  mode: 'occurrences' | 'samplings'
+  resolutionMode: 'auto' | 'manual'
+  resolution: number
   colorBinding: Required<ScaleBindingSpec>
+
   config: HexgridConfigSpec
-  markers: MarkerLayerSpec<Item> & { minZoom: number }
+  markers: MarkerLayerSpec & { minZoom: number; minZoomMode: 'auto' | 'manual' | 'never' }
 }
 
-export type MarkerLayerSpec<Item extends ItemWithCoordinates> = BaseLayerSpec & {
+export type MarkerLayerSpec = BaseLayerSpec & {
   type: 'markers'
   ready?: boolean
   clustered: boolean
-  config: MarkerConfig<Item>
+  resolution: number
+  resolutionMode: 'auto' | 'manual'
+  config: MarkerConfig
 }
 
-export type LayerSpec<Item extends ItemWithCoordinates> = BaseLayerSpec &
-  (
-    | { type: 'markers'; clustered: boolean; config: MarkerConfig<Item> }
-    | {
-        type: 'hexgrid'
-        bindings: {
-          color?: ScaleBindingSpec
-          radius?: ScaleBindingSpec
-          opacity?: ScaleBindingSpec
-        }
-        config: HexgridConfigSpec
-      }
-  )
+export type MarkerLayerGetters<Item> = {
+  getPosition: (item: Item) => [number, number]
+  radius?: (item: Item) => number
+  getText?: (item: Item) => string
+}
+
+export type LayerSpec = HexLayerSpec | MarkerLayerSpec
 
 export const markerColorPalette = [
   '#e41a1c',
@@ -80,25 +86,22 @@ function createColorGenerator(palette: string[]) {
 
 const nextMarkerColor = createColorGenerator(markerColorPalette)
 
-export type MarkerLayerParams<Item extends ItemWithCoordinates> = Partial<
-  Pick<MarkerLayerSpec<Item>, 'include_sites' | 'filters' | 'ready' | 'config'>
+export type MarkerLayerParams = Partial<
+  Pick<MarkerLayerSpec, 'include_sites' | 'filters' | 'ready' | 'config'>
 >
-export function makeMarkerLayer<Item extends ItemWithCoordinates>(
-  name?: string,
-  params?: MarkerLayerParams<Item>
-): MarkerLayerSpec<Item> {
+export function makeMarkerLayer(name?: string, params?: MarkerLayerParams): MarkerLayerSpec {
   const baseLayer: BaseLayerSpec = {
     id: crypto.randomUUID(),
     name,
     active: true,
     include_sites: 'Occurrences',
-    filters: Object.assign(
-      {
+    filters: {
+      ...{
         sampling_target: {},
         include_sites: 'Occurrences'
       },
-      params?.filters
-    )
+      ...params?.filters
+    }
   }
   const markerColor = nextMarkerColor()
 
@@ -107,45 +110,52 @@ export function makeMarkerLayer<Item extends ItemWithCoordinates>(
     type: 'markers',
     clustered: false,
     ready: params?.ready ?? false,
-    config: Object.assign(
-      {
-        radius: 5,
+    resolutionMode: 'auto',
+    resolution: 12,
+    config: {
+      ...{
+        baseRadius: 5,
+        radiusScaleFactor: 1,
         weight: 2,
         color: withOpacity(markerColor, 0.8),
         fillColor: withOpacity(markerColor, 0.3)
       },
-      params?.config
-    )
+      ...params?.config
+    }
   }
 }
 
-export function markerLayerFromSpec<Item extends ItemWithCoordinates>(
-  spec: MarkerLayerSpec<Item>,
-  data?: Item[]
+export function markerLayerFromSpec<Item>(
+  spec: MarkerLayerSpec,
+  data: Item[],
+  getters: MarkerLayerGetters<Item>
 ): MarkerLayer<Item> {
   return {
-    name: spec.name,
-    active: !!spec.ready && spec.active,
-    clustered: spec.clustered,
-    config: spec.config,
+    ...spec,
+    ...getters,
     data
   }
 }
 
-export function makeHexLayer<Item extends ItemWithCoordinates>(): HexLayerSpec<Item> {
+export function makeHexLayer(markersParams?: MarkerLayerParams): HexLayerSpec {
   const baseLayer: BaseLayerSpec = {
     id: crypto.randomUUID(),
     include_sites: 'Occurrences',
     active: true,
     filters: {
-      sampling_target: {},
-      include_sites: 'Occurrences'
+      // sampling_target: {},
+      // include_sites: 'Occurrences'
     }
   }
 
+  console.log('Creating new hex layer')
+
   return {
     ...baseLayer,
-    type: 'hexgrid',
+    type: 'hexgrid' as const,
+    mode: 'occurrences' as const,
+    resolutionMode: 'auto' as const,
+    resolution: 8,
     config: {
       radius: 50,
       opacity: 0.8,
@@ -155,20 +165,28 @@ export function makeHexLayer<Item extends ItemWithCoordinates>(): HexLayerSpec<I
         showTooltip: true,
         highlight: true
       },
-      coverage: 0.95
+      coverage: 0.95,
+      fillColor: '#FF7F00'
     },
-    colorBinding: { log: false, binding: 'occurrences' },
-    markers: { ...makeMarkerLayer('hexgrid-markers'), minZoom: 8 }
+    colorBinding: { log: true, binding: 'occurrences' as const },
+    markers: {
+      ...makeMarkerLayer('hexgrid-markers', markersParams),
+      minZoom: 8,
+      minZoomMode: 'auto'
+    }
   }
 }
 
-export function resetLayerStyle<Item extends ItemWithCoordinates>(layer: LayerSpec<Item>) {
-  const newLayer = makeMarkerLayer()
-  layer.config = newLayer.config
+export function resetLayerStyle(layer: LayerSpec, globalOpts?: GlobalMarkerOptions): void {
   if (layer.type === 'hexgrid') {
-    layer.bindings = {}
+    const newLayer = makeHexLayer()
+    layer.config = newLayer.config
+    layer.colorBinding = newLayer.colorBinding
   } else if (layer.type === 'markers') {
-    layer.clustered = false
+    const newLayer = makeMarkerLayer(undefined, {
+      config: { radiusScaleFactor: globalOpts?.cluster.radiusScaleFactor ?? 1 }
+    })
+    layer.config = newLayer.config
   }
 }
 
@@ -176,9 +194,9 @@ export function resetLayerStyle<Item extends ItemWithCoordinates>(layer: LayerSp
  * Type representing the cosmetic settings for markers in the map layers.
  * Opacity can be controlled directly by 'color' and 'fill' properties.
  */
-export type MarkerConfig<Item extends ItemWithCoordinates> = {
-  radius?: (item: Item) => number
-  getText?: (item: Item) => string | undefined
+export type MarkerConfig = {
+  baseRadius?: number
+  radiusScaleFactor?: number
   fillColor?: string
   color?: string
   weight?: number
@@ -187,14 +205,10 @@ export type MarkerConfig<Item extends ItemWithCoordinates> = {
 /**
  * Type representing a marker layer in the map.
  */
-export type MarkerLayer<Item extends ItemWithCoordinates> = {
-  name?: string
-  active: boolean
-  config: MarkerConfig<Item>
-  clustered: boolean
-  maxClusterRadius?: number
-  data?: Item[]
-}
+export type MarkerLayer<Item> = MarkerLayerSpec &
+  MarkerLayerGetters<Item> & {
+    data?: Item[]
+  }
 
 /**
  * Type representing the configuration for a hexgrid layer in the map.
@@ -210,6 +224,7 @@ export type HexgridConfig = {
   }
   opacity: number
   opacityRange?: [number, number]
+  fillColor: string
   strokeWidth?: number
   strokeOpacity?: number
   coverage?: number
@@ -230,16 +245,37 @@ export type HexgridConfigSpec = Overwrite<
 /**
  * Type representing a hexgrid layer in the map.
  */
-export type HexgridLayer<Item extends ItemWithCoordinates> = {
-  name?: string
-  active: boolean
-  config: HexgridConfig
-  data?: Item[]
-  colorBinding: Required<ScaleBindingSpec>
-  markers: MarkerLayerSpec<Item> & { minZoom: number }
+export type HexgridLayer<CellData extends H3Cell> = HexLayerSpec & {
+  data?: CellData[]
 }
 
 export type PinMarker<Item> = ItemWithCoordinates & {
   options?: MarkerOptions
   data: Item
+}
+
+export function automaticResolution(layer: LayerSpec, zoom: number): number {
+  switch (layer.type) {
+    case 'markers':
+      // if (zoom < 3) return 3
+      if (layer.resolutionMode === 'auto') {
+        if (zoom < 4) return 4
+        if (zoom < 6) return 5
+        if (zoom < 8) return 8
+        if (zoom < 10) return 10
+        return 12
+      }
+    case 'hexgrid':
+      if (zoom <= 2) return 2
+      if (zoom <= 3) return 3
+      if (zoom <= 5) return 4
+      if (zoom <= 7) return 5
+      if (zoom <= 9) return 6
+      if (zoom <= 11) return 7
+      if (zoom <= 13) return 8
+      if (zoom <= 15) return 9
+      if (zoom <= 17) return 10
+      if (zoom <= 19) return 11
+      return 12
+  }
 }

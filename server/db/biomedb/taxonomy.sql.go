@@ -111,6 +111,55 @@ func (q *Queries) DeleteTaxonByScientificName(ctx context.Context, scientificNam
 	return err
 }
 
+const getGBIFKingdoms = `-- name: GetGBIFKingdoms :many
+SELECT key, parent, parent_key, canonical_name, scientific_name, status, rank, name_type, kingdom_key, phylum_key, class_key, order_key, family_key, genus_key, species_key, higher_taxon_keys, higher_taxon_names, authorship, num_descendants, accepted_key, accepted_name
+FROM gbif_staging
+WHERE rank = 'kingdom'
+ORDER BY canonical_name ASC
+`
+
+func (q *Queries) GetGBIFKingdoms(ctx context.Context) ([]GBIFStaging, error) {
+	rows, err := q.db.Query(ctx, getGBIFKingdoms)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GBIFStaging{}
+	for rows.Next() {
+		var i GBIFStaging
+		if err := rows.Scan(
+			&i.Key,
+			&i.Parent,
+			&i.ParentKey,
+			&i.CanonicalName,
+			&i.ScientificName,
+			&i.Status,
+			&i.Rank,
+			&i.NameType,
+			&i.KingdomKey,
+			&i.PhylumKey,
+			&i.ClassKey,
+			&i.OrderKey,
+			&i.FamilyKey,
+			&i.GenusKey,
+			&i.SpeciesKey,
+			&i.HigherTaxonKeys,
+			&i.HigherTaxonNames,
+			&i.Authorship,
+			&i.NumDescendants,
+			&i.AcceptedKey,
+			&i.AcceptedName,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTaxaByRank = `-- name: GetTaxaByRank :many
 SELECT id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, search_vector, comments
 FROM taxa
@@ -253,6 +302,7 @@ With parents AS (
     SELECT ancestor_id AS id
     FROM taxa_closure
     WHERE descendant_id = $1
+        AND depth > 0
 )
 SELECT t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
 FROM taxa t
@@ -260,6 +310,8 @@ FROM taxa t
 ORDER BY t.rank DESC
 `
 
+// Returns the lineage of a taxon, including all its ancestors up to the root of the taxonomy tree.
+// The lineage is ordered from the root ancestor to the specified taxon.
 func (q *Queries) GetTaxonLineage(ctx context.Context, taxonID uuid.UUID) ([]Taxon, error) {
 	rows, err := q.db.Query(ctx, getTaxonLineage, taxonID)
 	if err != nil {

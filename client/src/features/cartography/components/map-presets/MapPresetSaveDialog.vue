@@ -18,14 +18,14 @@
       <v-text-field label="Name" v-model="preset.name" v-bind="schema('name')" />
       <v-textarea label="Description" v-model="preset.description" />
       <v-switch
-        v-if="isGranted('Contributor')"
+        v-if="isGranted('contributor')"
         label="Publish preset"
         v-model="preset.is_public"
         v-bind="schema('is_public')"
         persistent-hint
       />
       <v-switch
-        v-if="isGranted('Maintainer')"
+        v-if="isGranted('maintainer')"
         label="Global preset"
         v-model="preset.is_global"
         persistent-hint

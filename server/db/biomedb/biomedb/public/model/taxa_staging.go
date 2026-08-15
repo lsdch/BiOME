@@ -12,14 +12,11 @@ import (
 )
 
 type TaxaStaging struct {
-	ID              uuid.UUID `sql:"primary_key"`
-	ImportID        uuid.UUID
-	Name            string
-	Authorship      *string
-	Rank            TaxonRank
-	Status          TaxonStatus
-	ParentSource    TaxonMatchSource
-	ParentTaxaID    *uuid.UUID
-	ParentGbifID    *int32
-	ParentInputName *string
+	ID                 uuid.UUID `sql:"primary_key"`
+	ImportID           uuid.UUID
+	Name               string
+	Authorship         *string
+	Rank               TaxonRank
+	Status             TaxonStatus
+	ParentResolutionID uuid.UUID
 }

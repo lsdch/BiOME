@@ -48,7 +48,7 @@ func TestDateWithPrecision_ToCode(t *testing.T) {
 				Date:      tt.date,
 				Precision: tt.precision,
 			}
-			assert.Equal(t, tt.expected, d.ToCode())
+			assert.Equal(t, tt.expected, d.String())
 		})
 	}
 }

@@ -3,12 +3,14 @@ package imports
 import (
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/lib/progress"
 	"github.com/lsdch/biome/models"
 )
 
-type ImportEvent struct {
-	Workflow         models.ImportWorkflow            `json:"workflow"`
+type BatchSnapshot struct {
+	ImportID         uuid.UUID                        `json:"id"`
+	Batch            models.ImportBatch               `json:"batch"`
 	Status           RunnerStatus                     `json:"status"`
 	ResolutionStatus models.MaterializationReadyCheck `json:"resolution_status"`
 	GBIF             progress.ProgressSnapshot        `json:"GBIF"`

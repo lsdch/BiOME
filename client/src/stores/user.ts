@@ -15,7 +15,8 @@ export const useUserStore = defineStore('user', () => {
   const refresh_token = useLocalStorage<string | undefined>('refresh_token', undefined)
   const session_id = useLocalStorage<string | undefined>('session_id', undefined)
   const user = useSessionStorage<User | undefined>('user', undefined)
-  const session_expires = useSessionStorage<Date | undefined>('session_expires', undefined)
+  // Session expiration timestamp
+  const session_expires = useSessionStorage<number | undefined>('session_expires', undefined)
   const authReady = ref<boolean>(false)
   const usePrivilege = useSessionStorage<UserRole | undefined>('usePrivilege', undefined)
   const authBootstrap = ref<Promise<void>>()
@@ -65,7 +66,7 @@ export const useUserStore = defineStore('user', () => {
       console.debug('Session expired, refreshing before request', request)
       // Prevent concurrent refresh requests
       if (!refreshPending.value) {
-        refresh()
+        await refresh()
       }
       await until(refreshPending).toBe(false)
     }
@@ -146,6 +147,8 @@ export const useUserStore = defineStore('user', () => {
     user.value = undefined
     refresh_token.value = undefined
     session_expires.value = undefined
+    session_id.value = undefined
+    usePrivilege.value = undefined
   }
 
   function startSession(data: LoginResult) {
@@ -156,15 +159,17 @@ export const useUserStore = defineStore('user', () => {
 
   function useTokens(tokens: SessionTokens) {
     refresh_token.value = tokens.refresh_token
-    session_expires.value = tokens.auth_token_expiration
+    session_expires.value = tokens.auth_token_expiration.getTime()
     session_id.value = tokens.session_id
-    // Refresh session before it expires
-    setTimeout(refresh, tokens.auth_token_expiration.getTime() - Date.now() - 30_000)
+
+    setTimeout(
+      refresh,
+      Math.max(0, tokens.auth_token_expiration.getTime() - Date.now() - 30_000) // Refresh 30 seconds before expiration
+    )
   }
 
   function sessionExpired() {
-    console.log('session expires:', session_expires.value?.getTime())
-    return session_expires.value === undefined || Date.now() >= session_expires.value.getTime()
+    return session_expires.value === undefined || Date.now() >= session_expires.value
   }
 
   function isGranted(role: UserRole) {

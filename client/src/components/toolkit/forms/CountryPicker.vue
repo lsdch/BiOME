@@ -28,7 +28,7 @@
       <v-list-item
         v-bind="props"
         :title="item.name"
-        :subtitle="item.sites_count ? `${item.sites_count} sites` : undefined"
+        :subtitle="item.occurrence_count ? `${item.occurrence_count} occurrences` : undefined"
       >
         <template #append>
           <span class="text-overline">

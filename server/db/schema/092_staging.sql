@@ -3,7 +3,7 @@ CREATE TABLE import_samplings_occurrences (
     -- INGESTION CONTEXT
     -- =========================
     id ULID PRIMARY KEY,
-    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
+    import_id UUID NOT NULL REFERENCES import_batches (id) ON DELETE CASCADE,
     imported_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     row_number INTEGER NOT NULL,
     -- =========================
@@ -14,10 +14,10 @@ CREATE TABLE import_samplings_occurrences (
     site_code TEXT CHECK (site_code ~ '^[A-Za-z0-9.-]{3,32}$'),
     site_name TEXT,
     site_locality TEXT,
-    site_country_code CHAR(3) NOT NULL REFERENCES countries (code),
+    site_country_code CHAR(3) REFERENCES countries (code),
     coordinates_precision INTEGER,
-    longitude REAL NOT NULL,
-    latitude REAL NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
     coordinates geometry (Point, 4326) GENERATED ALWAYS AS (
         ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)
     ) STORED,
@@ -38,13 +38,14 @@ CREATE TABLE import_samplings_occurrences (
     -- Instead, the occurrence_code will be generated.
     -- The provided occurrence_code will be stored as a reference for the user, in the codes history.
     occurrence_code TEXT,
+    generated_code TEXT,
     type_status occurrence_type_status,
     taxon_name CITEXT NOT NULL,
     taxon_authorship CITEXT,
     taxon_scientific_name CITEXT NOT NULL GENERATED ALWAYS AS (
         taxon_name || COALESCE(' ' || taxon_authorship, '')
     ) STORED,
-    taxon_rank CITEXT,
+    taxon_rank taxon_rank,
     verbatim_identification TEXT,
     identified_by TEXT [],
     identification_date DATE,
@@ -105,7 +106,11 @@ CREATE TABLE import_samplings_occurrences (
                     OR quantity_lower <= quantity_upper
                 )
             )
-        )
+        ) -- CONSTRAINT import_sampling_occurrence_collections_cardinality CHECK (
+        --     collections IS NULL
+        --     OR collection_vouchers IS NULL
+        --     OR cardinality(collections) = cardinality(collection_vouchers)
+        -- )
 );
 
 CREATE INDEX idx_staging_import ON import_samplings_occurrences(import_id);
@@ -142,3 +147,11 @@ FROM import_samplings_occurrences
 ORDER BY import_id,
     sampling_hash,
     row_number;
+
+
+CREATE TABLE IF NOT EXISTS collections_staging (
+    occurrence_id ULID NOT NULL REFERENCES import_samplings_occurrences (id) ON DELETE CASCADE,
+    collection_name TEXT NOT NULL,
+    vouchers TEXT [],
+    PRIMARY KEY (occurrence_id, collection_name)
+);

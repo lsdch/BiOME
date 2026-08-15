@@ -15,7 +15,7 @@
         />
 
         <HabitatGroupFormDialogMutation
-          v-if="isGranted('Maintainer')"
+          v-if="isGranted('maintainer')"
           @success="refetch()"
           v-model:dialog="formDialog"
           :item="selectedGroup"
@@ -58,7 +58,7 @@
               <span class="text-muted text-caption"> {{ activeHabitat.group.name }} </span>
             </template>
           </v-list-item>
-          <template v-if="isGranted('Maintainer')">
+          <template v-if="isGranted('maintainer')">
             <v-list-item
               v-if="activeHabitat"
               title="Add child group"

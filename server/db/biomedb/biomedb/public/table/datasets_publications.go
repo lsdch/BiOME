@@ -17,8 +17,8 @@ type datasetsPublicationsTable struct {
 	postgres.Table
 
 	// Columns
-	DatasetID postgres.ColumnString
-	ArticleID postgres.ColumnString
+	DatasetID     postgres.ColumnString
+	PublicationID postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -60,19 +60,19 @@ func newDatasetsPublicationsTable(schemaName, tableName, alias string) *Datasets
 
 func newDatasetsPublicationsTableImpl(schemaName, tableName, alias string) datasetsPublicationsTable {
 	var (
-		DatasetIDColumn = postgres.StringColumn("dataset_id")
-		ArticleIDColumn = postgres.StringColumn("article_id")
-		allColumns      = postgres.ColumnList{DatasetIDColumn, ArticleIDColumn}
-		mutableColumns  = postgres.ColumnList{}
-		defaultColumns  = postgres.ColumnList{}
+		DatasetIDColumn     = postgres.StringColumn("dataset_id")
+		PublicationIDColumn = postgres.StringColumn("publication_id")
+		allColumns          = postgres.ColumnList{DatasetIDColumn, PublicationIDColumn}
+		mutableColumns      = postgres.ColumnList{}
+		defaultColumns      = postgres.ColumnList{}
 	)
 
 	return datasetsPublicationsTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		DatasetID: DatasetIDColumn,
-		ArticleID: ArticleIDColumn,
+		DatasetID:     DatasetIDColumn,
+		PublicationID: PublicationIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

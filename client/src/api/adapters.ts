@@ -15,12 +15,15 @@ import {
   User as TUser,
   GeoapifyStatus,
   GeoapifyResult,
-  Identification as TIdentification
+  Identification as TIdentification,
+  ListOccurrencesData
 } from './gen/types.gen'
 import UserRoleChip from '@/components/users/UserRoleChip'
 import { FilterMatch } from 'vuetify'
 
 export * from './gen/types.gen'
+
+export type ListOccurrencesParams = ListOccurrencesData['query']
 
 export type Quantity = [number] | [number, number]
 
@@ -123,12 +126,32 @@ export type TaxonRank = TTaxonRank
 export namespace TaxonRank {
   export type LowerCase = Lowercase<TaxonRank>
 
-  export const extensibleRanks: TaxonRank[] = ['ORDER', 'FAMILY', 'GENUS', 'SPECIES']
+  export const extensibleRanks: TaxonRank[] = ['order', 'family', 'genus', 'species']
 
-  export type NoSubgenus = Exclude<TaxonRank, 'SUBGENUS'>
+  export type NoSubgenus = Exclude<TaxonRank, 'subgenus'>
+
+  export const enumNoSubgenus = $TaxonRank.enum.filter((rank) => rank !== 'subgenus') as [
+    'subspecies',
+    'species',
+    'genus',
+    'family',
+    'order',
+    'class',
+    'phylum',
+    'kingdom'
+  ]
+
+  export function noSubgenus(rank: TaxonRank): NoSubgenus {
+    if (rank === 'subgenus') return 'species'
+    return rank as NoSubgenus
+  }
 
   const taxonRankOrder = Object.fromEntries($TaxonRank.enum.map((rank, i) => [rank, i])) as {
     [k in TaxonRank]: number
+  }
+
+  export function fromString(rank: string): TaxonRank | undefined {
+    return $TaxonRank.enum.find((r) => r === rank)
   }
 
   export function fromLowerCase(lower: LowerCase): TaxonRank {
@@ -148,16 +171,17 @@ export namespace TaxonRank {
   }
 
   export function parentRank(rank: TaxonRank): TaxonRank | undefined {
-    if (rank === 'SPECIES') return 'GENUS'
-    if (rank === 'SUBGENUS') return 'GENUS'
+    if (rank === 'subspecies') return 'species'
+    if (rank === 'species') return 'genus'
+    if (rank === 'subgenus') return 'genus'
     return $TaxonRank.enum[index(rank) + 1]
   }
 
   export function childRank(rank: TaxonRank): TaxonRank | undefined {
     switch (rank) {
-      case 'GENUS':
-        return 'SPECIES'
-      case 'SUBGENUS':
+      case 'genus':
+        return 'species'
+      case 'subgenus':
         return undefined
       default:
         return $TaxonRank.enum[index(rank) - 1]
@@ -250,7 +274,7 @@ export namespace Identification {
   }: Pick<Identification, 'taxon' | 'confer' | 'addendum'>) {
     const interspersed = intersperseConfer(taxon, confer)
     return (
-      (taxon.rank == 'GENUS' ? `${interspersed} sp.` : interspersed) +
+      (taxon.rank == 'genus' ? `${interspersed} sp.` : interspersed) +
       (addendum ? ` ${addendum}` : '')
     )
   }

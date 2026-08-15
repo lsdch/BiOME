@@ -15,25 +15,29 @@ import (
 	"github.com/lsdch/biome/data"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
 	"github.com/twpayne/go-geom"
 	"github.com/twpayne/go-geom/encoding/geojson"
 )
 
 type AppBootstrap struct {
-	db       *db.DB
-	config   config.BootstrapConfig
-	services *AppServices
+	db              *db.DB
+	config          config.BootstrapConfig
+	services        *AppServices
+	taxonResolution *stores.TaxonResolutionStore
 }
 
 func NewAppBootstrap(db *db.DB,
 	config config.BootstrapConfig,
 	services *AppServices,
 ) *AppBootstrap {
+	taxonResolution := stores.NewTaxonResolutionStore()
 	return &AppBootstrap{
-		db:       db,
-		config:   config,
-		services: services,
+		db:              db,
+		config:          config,
+		services:        services,
+		taxonResolution: taxonResolution,
 	}
 }
 
@@ -61,6 +65,10 @@ func (s *AppBootstrap) Bootstrap(ctx context.Context) error {
 		return fmt.Errorf("bootstrap countries: %w", err)
 	}
 
+	if err := s.BootstrapGBIFKingdoms(ctx); err != nil {
+		return fmt.Errorf("bootstrap GBIF kingdoms: %w", err)
+	}
+
 	if err := s.BootstrapSamplingMetadata(ctx); err != nil {
 		return fmt.Errorf("bootstrap sampling metadata: %w", err)
 	}
@@ -70,11 +78,22 @@ func (s *AppBootstrap) Bootstrap(ctx context.Context) error {
 	return nil
 }
 
+func (s *AppBootstrap) BootstrapGBIFKingdoms(ctx context.Context) error {
+
+	kingdoms, err := s.services.TaxonomyService.FetchGBIFKingdoms(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to fetch GBIF kingdoms: %w", err)
+	}
+	logrus.Infof("Bootstrapping %d GBIF kingdoms into the database", len(kingdoms))
+	return s.taxonResolution.InsertGBIFBatch(ctx, s.db, kingdoms)
+}
+
 func loadCountriesJSON(ctx context.Context, url string, cachePath string) ([]byte, error) {
 	// Try cache first
 	info, err := os.Stat(cachePath)
 	// invalidate cache after 1 year
 	if err == nil && time.Since(info.ModTime()) < 365*30*24*time.Hour {
+		logrus.Infof("Loading countries from cache at %s", cachePath)
 		return os.ReadFile(cachePath)
 	}
 
@@ -110,7 +129,6 @@ func (s *AppBootstrap) BootstrapCountries(ctx context.Context) error {
 		return nil
 	}
 
-	logrus.Infof("Downloading countries from %s", s.config.Countries.CountriesJSON_URL)
 	countriesJSON, err := loadCountriesJSON(ctx, s.config.Countries.CountriesJSON_URL, s.config.Countries.CountryJSON_CachePath)
 	if err != nil {
 		return fmt.Errorf("failed to load countries.json: %w", err)

@@ -17,15 +17,15 @@ type publicationsStagingTable struct {
 	postgres.Table
 
 	// Columns
-	ID                  postgres.ColumnString
-	ImportID            postgres.ColumnString
-	OccurrenceRowNumber postgres.ColumnInteger
-	Doi                 postgres.ColumnString
-	Authors             postgres.ColumnStringArray
-	Year                postgres.ColumnInteger
-	Title               postgres.ColumnString
-	Journal             postgres.ColumnString
-	Verbatim            postgres.ColumnString
+	ID                 postgres.ColumnString
+	Doi                postgres.ColumnString
+	Verbatim           postgres.ColumnString
+	Authors            postgres.ColumnStringArray
+	Year               postgres.ColumnInteger
+	Title              postgres.ColumnString
+	Journal            postgres.ColumnString
+	Source             postgres.ColumnString
+	OriginResolutionID postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -67,33 +67,33 @@ func newPublicationsStagingTable(schemaName, tableName, alias string) *Publicati
 
 func newPublicationsStagingTableImpl(schemaName, tableName, alias string) publicationsStagingTable {
 	var (
-		IDColumn                  = postgres.StringColumn("id")
-		ImportIDColumn            = postgres.StringColumn("import_id")
-		OccurrenceRowNumberColumn = postgres.IntegerColumn("occurrence_row_number")
-		DoiColumn                 = postgres.StringColumn("doi")
-		AuthorsColumn             = postgres.StringArrayColumn("authors")
-		YearColumn                = postgres.IntegerColumn("year")
-		TitleColumn               = postgres.StringColumn("title")
-		JournalColumn             = postgres.StringColumn("journal")
-		VerbatimColumn            = postgres.StringColumn("verbatim")
-		allColumns                = postgres.ColumnList{IDColumn, ImportIDColumn, OccurrenceRowNumberColumn, DoiColumn, AuthorsColumn, YearColumn, TitleColumn, JournalColumn, VerbatimColumn}
-		mutableColumns            = postgres.ColumnList{ImportIDColumn, OccurrenceRowNumberColumn, DoiColumn, AuthorsColumn, YearColumn, TitleColumn, JournalColumn, VerbatimColumn}
-		defaultColumns            = postgres.ColumnList{IDColumn}
+		IDColumn                 = postgres.StringColumn("id")
+		DoiColumn                = postgres.StringColumn("doi")
+		VerbatimColumn           = postgres.StringColumn("verbatim")
+		AuthorsColumn            = postgres.StringArrayColumn("authors")
+		YearColumn               = postgres.IntegerColumn("year")
+		TitleColumn              = postgres.StringColumn("title")
+		JournalColumn            = postgres.StringColumn("journal")
+		SourceColumn             = postgres.StringColumn("source")
+		OriginResolutionIDColumn = postgres.StringColumn("origin_resolution_id")
+		allColumns               = postgres.ColumnList{IDColumn, DoiColumn, VerbatimColumn, AuthorsColumn, YearColumn, TitleColumn, JournalColumn, SourceColumn, OriginResolutionIDColumn}
+		mutableColumns           = postgres.ColumnList{DoiColumn, VerbatimColumn, AuthorsColumn, YearColumn, TitleColumn, JournalColumn, SourceColumn, OriginResolutionIDColumn}
+		defaultColumns           = postgres.ColumnList{IDColumn}
 	)
 
 	return publicationsStagingTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:                  IDColumn,
-		ImportID:            ImportIDColumn,
-		OccurrenceRowNumber: OccurrenceRowNumberColumn,
-		Doi:                 DoiColumn,
-		Authors:             AuthorsColumn,
-		Year:                YearColumn,
-		Title:               TitleColumn,
-		Journal:             JournalColumn,
-		Verbatim:            VerbatimColumn,
+		ID:                 IDColumn,
+		Doi:                DoiColumn,
+		Verbatim:           VerbatimColumn,
+		Authors:            AuthorsColumn,
+		Year:               YearColumn,
+		Title:              TitleColumn,
+		Journal:            JournalColumn,
+		Source:             SourceColumn,
+		OriginResolutionID: OriginResolutionIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

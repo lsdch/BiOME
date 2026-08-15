@@ -12,10 +12,11 @@ import "errors"
 type TaxonGbifStatus string
 
 const (
-	TaxonGbifStatus_Skipped   TaxonGbifStatus = "skipped"
-	TaxonGbifStatus_Pending   TaxonGbifStatus = "pending"
-	TaxonGbifStatus_Completed TaxonGbifStatus = "completed"
-	TaxonGbifStatus_Failed    TaxonGbifStatus = "failed"
+	TaxonGbifStatus_Skipped      TaxonGbifStatus = "skipped"
+	TaxonGbifStatus_Pending      TaxonGbifStatus = "pending"
+	TaxonGbifStatus_Completed    TaxonGbifStatus = "completed"
+	TaxonGbifStatus_Failed       TaxonGbifStatus = "failed"
+	TaxonGbifStatus_NoCandidates TaxonGbifStatus = "no_candidates"
 )
 
 var TaxonGbifStatusAllValues = []TaxonGbifStatus{
@@ -23,6 +24,7 @@ var TaxonGbifStatusAllValues = []TaxonGbifStatus{
 	TaxonGbifStatus_Pending,
 	TaxonGbifStatus_Completed,
 	TaxonGbifStatus_Failed,
+	TaxonGbifStatus_NoCandidates,
 }
 
 func (e *TaxonGbifStatus) Scan(value interface{}) error {
@@ -45,6 +47,8 @@ func (e *TaxonGbifStatus) Scan(value interface{}) error {
 		*e = TaxonGbifStatus_Completed
 	case "failed":
 		*e = TaxonGbifStatus_Failed
+	case "no_candidates":
+		*e = TaxonGbifStatus_NoCandidates
 	default:
 		return errors.New("jet: Invalid scan value '" + enumValue + "' for TaxonGbifStatus enum")
 	}

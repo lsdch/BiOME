@@ -17,13 +17,16 @@ type importBatchesTable struct {
 	postgres.Table
 
 	// Columns
-	ID          postgres.ColumnString
-	Label       postgres.ColumnString
-	Description postgres.ColumnString
-	AssembledBy postgres.ColumnStringArray
-	CreatedBy   postgres.ColumnString
-	CreatedAt   postgres.ColumnTimestampz
-	WorkflowID  postgres.ColumnString
+	ID             postgres.ColumnString
+	Label          postgres.ColumnString
+	Description    postgres.ColumnString
+	Status         postgres.ColumnString
+	AssembledBy    postgres.ColumnStringArray
+	CreatedBy      postgres.ColumnString
+	CreatedAt      postgres.ColumnTimestampz
+	CompletedAt    postgres.ColumnTimestampz
+	CompletedBy    postgres.ColumnString
+	TaxonomicScope postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -65,29 +68,35 @@ func newImportBatchesTable(schemaName, tableName, alias string) *ImportBatchesTa
 
 func newImportBatchesTableImpl(schemaName, tableName, alias string) importBatchesTable {
 	var (
-		IDColumn          = postgres.StringColumn("id")
-		LabelColumn       = postgres.StringColumn("label")
-		DescriptionColumn = postgres.StringColumn("description")
-		AssembledByColumn = postgres.StringArrayColumn("assembled_by")
-		CreatedByColumn   = postgres.StringColumn("created_by")
-		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
-		WorkflowIDColumn  = postgres.StringColumn("workflow_id")
-		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, DescriptionColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, WorkflowIDColumn}
-		mutableColumns    = postgres.ColumnList{LabelColumn, DescriptionColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, WorkflowIDColumn}
-		defaultColumns    = postgres.ColumnList{CreatedAtColumn}
+		IDColumn             = postgres.StringColumn("id")
+		LabelColumn          = postgres.StringColumn("label")
+		DescriptionColumn    = postgres.StringColumn("description")
+		StatusColumn         = postgres.StringColumn("status")
+		AssembledByColumn    = postgres.StringArrayColumn("assembled_by")
+		CreatedByColumn      = postgres.StringColumn("created_by")
+		CreatedAtColumn      = postgres.TimestampzColumn("created_at")
+		CompletedAtColumn    = postgres.TimestampzColumn("completed_at")
+		CompletedByColumn    = postgres.StringColumn("completed_by")
+		TaxonomicScopeColumn = postgres.IntegerColumn("taxonomic_scope")
+		allColumns           = postgres.ColumnList{IDColumn, LabelColumn, DescriptionColumn, StatusColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, CompletedAtColumn, CompletedByColumn, TaxonomicScopeColumn}
+		mutableColumns       = postgres.ColumnList{LabelColumn, DescriptionColumn, StatusColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, CompletedAtColumn, CompletedByColumn, TaxonomicScopeColumn}
+		defaultColumns       = postgres.ColumnList{IDColumn, StatusColumn, CreatedAtColumn}
 	)
 
 	return importBatchesTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:          IDColumn,
-		Label:       LabelColumn,
-		Description: DescriptionColumn,
-		AssembledBy: AssembledByColumn,
-		CreatedBy:   CreatedByColumn,
-		CreatedAt:   CreatedAtColumn,
-		WorkflowID:  WorkflowIDColumn,
+		ID:             IDColumn,
+		Label:          LabelColumn,
+		Description:    DescriptionColumn,
+		Status:         StatusColumn,
+		AssembledBy:    AssembledByColumn,
+		CreatedBy:      CreatedByColumn,
+		CreatedAt:      CreatedAtColumn,
+		CompletedAt:    CompletedAtColumn,
+		CompletedBy:    CompletedByColumn,
+		TaxonomicScope: TaxonomicScopeColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

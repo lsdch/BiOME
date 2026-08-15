@@ -3,8 +3,10 @@
 package biomedb
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -24,12 +26,27 @@ var CoordinatesPrecisionHierarchy = map[CoordinatesPrecision]int{
 }
 
 func (u *CoordinatesPrecision) UnmarshalCSV(v []byte) error {
-	e := CoordinatesPrecision(v)
+	e := CoordinatesPrecision(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid CoordinatesPrecision value: %s", v)
+}
+
+func (u *CoordinatesPrecision) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := CoordinatesPrecision(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid CoordinatesPrecision value: %s", s)
 }
 
 func (u CoordinatesPrecision) IsGreater(v CoordinatesPrecision) bool {
@@ -72,12 +89,27 @@ var DuplicateSourceHierarchy = map[DuplicateSource]int{
 }
 
 func (u *DuplicateSource) UnmarshalCSV(v []byte) error {
-	e := DuplicateSource(v)
+	e := DuplicateSource(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid DuplicateSource value: %s", v)
+}
+
+func (u *DuplicateSource) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := DuplicateSource(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid DuplicateSource value: %s", s)
 }
 
 func (u DuplicateSource) IsGreater(v DuplicateSource) bool {
@@ -122,12 +154,27 @@ var EventDatePrecisionHierarchy = map[EventDatePrecision]int{
 }
 
 func (u *EventDatePrecision) UnmarshalCSV(v []byte) error {
-	e := EventDatePrecision(v)
+	e := EventDatePrecision(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid EventDatePrecision value: %s", v)
+}
+
+func (u *EventDatePrecision) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := EventDatePrecision(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid EventDatePrecision value: %s", s)
 }
 
 func (u EventDatePrecision) IsGreater(v EventDatePrecision) bool {
@@ -159,6 +206,75 @@ func (u NullEventDatePrecision) Get() (EventDatePrecision, bool) {
 	return u.EventDatePrecision, u.Valid
 }
 
+var ImportBatchStatusValues = []ImportBatchStatus{
+	ImportBatchStatusCreated,
+	ImportBatchStatusStaged,
+	ImportBatchStatusCompleted,
+	ImportBatchStatusFailed,
+	ImportBatchStatusCanceled,
+}
+
+var ImportBatchStatusHierarchy = map[ImportBatchStatus]int{
+	ImportBatchStatusCreated:   0,
+	ImportBatchStatusStaged:    1,
+	ImportBatchStatusCompleted: 2,
+	ImportBatchStatusFailed:    3,
+	ImportBatchStatusCanceled:  4,
+}
+
+func (u *ImportBatchStatus) UnmarshalCSV(v []byte) error {
+	e := ImportBatchStatus(strings.ToLower(string(v)))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+	return fmt.Errorf("invalid ImportBatchStatus value: %s", v)
+}
+
+func (u *ImportBatchStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := ImportBatchStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid ImportBatchStatus value: %s", s)
+}
+
+func (u ImportBatchStatus) IsGreater(v ImportBatchStatus) bool {
+	return ImportBatchStatusHierarchy[u] > ImportBatchStatusHierarchy[v]
+}
+
+func (u ImportBatchStatus) IsGreaterEqual(v ImportBatchStatus) bool {
+	return ImportBatchStatusHierarchy[u] >= ImportBatchStatusHierarchy[v]
+}
+
+// Register enum in OpenAPI specification.
+func (u ImportBatchStatus) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["ImportBatchStatus"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "ImportBatchStatus")
+		schemaRef.Title = "ImportBatchStatus"
+
+		for _, v := range ImportBatchStatusValues {
+			schemaRef.Enum = append(schemaRef.Enum, string(v))
+		}
+
+		r.Map()["ImportBatchStatus"] = schemaRef
+	}
+
+	return &huma.Schema{
+		Ref: "#/components/schemas/ImportBatchStatus",
+	}
+}
+func (u NullImportBatchStatus) Get() (ImportBatchStatus, bool) {
+	return u.ImportBatchStatus, u.Valid
+}
+
 var InvitationStatusValues = []InvitationStatus{
 	InvitationStatusPending,
 	InvitationStatusRedeemed,
@@ -174,12 +290,27 @@ var InvitationStatusHierarchy = map[InvitationStatus]int{
 }
 
 func (u *InvitationStatus) UnmarshalCSV(v []byte) error {
-	e := InvitationStatus(v)
+	e := InvitationStatus(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid InvitationStatus value: %s", v)
+}
+
+func (u *InvitationStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := InvitationStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid InvitationStatus value: %s", s)
 }
 
 func (u InvitationStatus) IsGreater(v InvitationStatus) bool {
@@ -232,12 +363,27 @@ var OccurrenceOrderByHierarchy = map[OccurrenceOrderBy]int{
 }
 
 func (u *OccurrenceOrderBy) UnmarshalCSV(v []byte) error {
-	e := OccurrenceOrderBy(v)
+	e := OccurrenceOrderBy(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid OccurrenceOrderBy value: %s", v)
+}
+
+func (u *OccurrenceOrderBy) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := OccurrenceOrderBy(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid OccurrenceOrderBy value: %s", s)
 }
 
 func (u OccurrenceOrderBy) IsGreater(v OccurrenceOrderBy) bool {
@@ -270,24 +416,39 @@ func (u NullOccurrenceOrderBy) Get() (OccurrenceOrderBy, bool) {
 }
 
 var OccurrenceTypeStatusValues = []OccurrenceTypeStatus{
-	OccurrenceTypeStatusHOLOTYPE,
-	OccurrenceTypeStatusNEOTYPE,
-	OccurrenceTypeStatusTOPOTYPE,
+	OccurrenceTypeStatusHolotype,
+	OccurrenceTypeStatusNeotype,
+	OccurrenceTypeStatusTopotype,
 }
 
 var OccurrenceTypeStatusHierarchy = map[OccurrenceTypeStatus]int{
-	OccurrenceTypeStatusHOLOTYPE: 0,
-	OccurrenceTypeStatusNEOTYPE:  1,
-	OccurrenceTypeStatusTOPOTYPE: 2,
+	OccurrenceTypeStatusHolotype: 0,
+	OccurrenceTypeStatusNeotype:  1,
+	OccurrenceTypeStatusTopotype: 2,
 }
 
 func (u *OccurrenceTypeStatus) UnmarshalCSV(v []byte) error {
-	e := OccurrenceTypeStatus(v)
+	e := OccurrenceTypeStatus(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid OccurrenceTypeStatus value: %s", v)
+}
+
+func (u *OccurrenceTypeStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := OccurrenceTypeStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid OccurrenceTypeStatus value: %s", s)
 }
 
 func (u OccurrenceTypeStatus) IsGreater(v OccurrenceTypeStatus) bool {
@@ -319,108 +480,195 @@ func (u NullOccurrenceTypeStatus) Get() (OccurrenceTypeStatus, bool) {
 	return u.OccurrenceTypeStatus, u.Valid
 }
 
-var PublicationResolutionStatusValues = []PublicationResolutionStatus{
-	PublicationResolutionStatusPending,
-	PublicationResolutionStatusResolved,
-	PublicationResolutionStatusFailed,
-	PublicationResolutionStatusManualRequired,
+var PubMatchTypeValues = []PubMatchType{
+	PubMatchTypeDOI,
+	PubMatchTypeVerbatim,
 }
 
-var PublicationResolutionStatusHierarchy = map[PublicationResolutionStatus]int{
-	PublicationResolutionStatusPending:        0,
-	PublicationResolutionStatusResolved:       1,
-	PublicationResolutionStatusFailed:         2,
-	PublicationResolutionStatusManualRequired: 3,
+var PubMatchTypeHierarchy = map[PubMatchType]int{
+	PubMatchTypeDOI:      0,
+	PubMatchTypeVerbatim: 1,
 }
 
-func (u *PublicationResolutionStatus) UnmarshalCSV(v []byte) error {
-	e := PublicationResolutionStatus(v)
+func (u *PubMatchType) UnmarshalCSV(v []byte) error {
+	e := PubMatchType(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
-	return fmt.Errorf("invalid PublicationResolutionStatus value: %s", v)
+	return fmt.Errorf("invalid PubMatchType value: %s", v)
 }
 
-func (u PublicationResolutionStatus) IsGreater(v PublicationResolutionStatus) bool {
-	return PublicationResolutionStatusHierarchy[u] > PublicationResolutionStatusHierarchy[v]
-}
-
-func (u PublicationResolutionStatus) IsGreaterEqual(v PublicationResolutionStatus) bool {
-	return PublicationResolutionStatusHierarchy[u] >= PublicationResolutionStatusHierarchy[v]
-}
-
-// Register enum in OpenAPI specification.
-func (u PublicationResolutionStatus) Schema(r huma.Registry) *huma.Schema {
-	if r.Map()["PublicationResolutionStatus"] == nil {
-		schemaRef := r.Schema(reflect.TypeOf(""), true, "PublicationResolutionStatus")
-		schemaRef.Title = "PublicationResolutionStatus"
-
-		for _, v := range PublicationResolutionStatusValues {
-			schemaRef.Enum = append(schemaRef.Enum, string(v))
-		}
-
-		r.Map()["PublicationResolutionStatus"] = schemaRef
+func (u *PubMatchType) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
 	}
 
-	return &huma.Schema{
-		Ref: "#/components/schemas/PublicationResolutionStatus",
-	}
-}
-func (u NullPublicationResolutionStatus) Get() (PublicationResolutionStatus, bool) {
-	return u.PublicationResolutionStatus, u.Valid
-}
-
-var PublicationResolutionTypeValues = []PublicationResolutionType{
-	PublicationResolutionTypeCrossref,
-	PublicationResolutionTypeDoi,
-	PublicationResolutionTypeVerbatim,
-	PublicationResolutionTypeManual,
-}
-
-var PublicationResolutionTypeHierarchy = map[PublicationResolutionType]int{
-	PublicationResolutionTypeCrossref: 0,
-	PublicationResolutionTypeDoi:      1,
-	PublicationResolutionTypeVerbatim: 2,
-	PublicationResolutionTypeManual:   3,
-}
-
-func (u *PublicationResolutionType) UnmarshalCSV(v []byte) error {
-	e := PublicationResolutionType(v)
+	e := PubMatchType(strings.ToLower(s))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
-	return fmt.Errorf("invalid PublicationResolutionType value: %s", v)
+
+	return fmt.Errorf("invalid PubMatchType value: %s", s)
 }
 
-func (u PublicationResolutionType) IsGreater(v PublicationResolutionType) bool {
-	return PublicationResolutionTypeHierarchy[u] > PublicationResolutionTypeHierarchy[v]
+func (u PubMatchType) IsGreater(v PubMatchType) bool {
+	return PubMatchTypeHierarchy[u] > PubMatchTypeHierarchy[v]
 }
 
-func (u PublicationResolutionType) IsGreaterEqual(v PublicationResolutionType) bool {
-	return PublicationResolutionTypeHierarchy[u] >= PublicationResolutionTypeHierarchy[v]
+func (u PubMatchType) IsGreaterEqual(v PubMatchType) bool {
+	return PubMatchTypeHierarchy[u] >= PubMatchTypeHierarchy[v]
 }
 
 // Register enum in OpenAPI specification.
-func (u PublicationResolutionType) Schema(r huma.Registry) *huma.Schema {
-	if r.Map()["PublicationResolutionType"] == nil {
-		schemaRef := r.Schema(reflect.TypeOf(""), true, "PublicationResolutionType")
-		schemaRef.Title = "PublicationResolutionType"
+func (u PubMatchType) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["PubMatchType"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "PubMatchType")
+		schemaRef.Title = "PubMatchType"
 
-		for _, v := range PublicationResolutionTypeValues {
+		for _, v := range PubMatchTypeValues {
 			schemaRef.Enum = append(schemaRef.Enum, string(v))
 		}
 
-		r.Map()["PublicationResolutionType"] = schemaRef
+		r.Map()["PubMatchType"] = schemaRef
 	}
 
 	return &huma.Schema{
-		Ref: "#/components/schemas/PublicationResolutionType",
+		Ref: "#/components/schemas/PubMatchType",
 	}
 }
-func (u NullPublicationResolutionType) Get() (PublicationResolutionType, bool) {
-	return u.PublicationResolutionType, u.Valid
+func (u NullPubMatchType) Get() (PubMatchType, bool) {
+	return u.PubMatchType, u.Valid
+}
+
+var PublicationCandidateSourceValues = []PublicationCandidateSource{
+	PublicationCandidateSourceInternal,
+	PublicationCandidateSourceCrossref,
+	PublicationCandidateSourceManual,
+}
+
+var PublicationCandidateSourceHierarchy = map[PublicationCandidateSource]int{
+	PublicationCandidateSourceInternal: 0,
+	PublicationCandidateSourceCrossref: 1,
+	PublicationCandidateSourceManual:   2,
+}
+
+func (u *PublicationCandidateSource) UnmarshalCSV(v []byte) error {
+	e := PublicationCandidateSource(strings.ToLower(string(v)))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+	return fmt.Errorf("invalid PublicationCandidateSource value: %s", v)
+}
+
+func (u *PublicationCandidateSource) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := PublicationCandidateSource(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid PublicationCandidateSource value: %s", s)
+}
+
+func (u PublicationCandidateSource) IsGreater(v PublicationCandidateSource) bool {
+	return PublicationCandidateSourceHierarchy[u] > PublicationCandidateSourceHierarchy[v]
+}
+
+func (u PublicationCandidateSource) IsGreaterEqual(v PublicationCandidateSource) bool {
+	return PublicationCandidateSourceHierarchy[u] >= PublicationCandidateSourceHierarchy[v]
+}
+
+// Register enum in OpenAPI specification.
+func (u PublicationCandidateSource) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["PublicationCandidateSource"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "PublicationCandidateSource")
+		schemaRef.Title = "PublicationCandidateSource"
+
+		for _, v := range PublicationCandidateSourceValues {
+			schemaRef.Enum = append(schemaRef.Enum, string(v))
+		}
+
+		r.Map()["PublicationCandidateSource"] = schemaRef
+	}
+
+	return &huma.Schema{
+		Ref: "#/components/schemas/PublicationCandidateSource",
+	}
+}
+func (u NullPublicationCandidateSource) Get() (PublicationCandidateSource, bool) {
+	return u.PublicationCandidateSource, u.Valid
+}
+
+var PublicationSourceValues = []PublicationSource{
+	PublicationSourceCrossref,
+	PublicationSourceManual,
+}
+
+var PublicationSourceHierarchy = map[PublicationSource]int{
+	PublicationSourceCrossref: 0,
+	PublicationSourceManual:   1,
+}
+
+func (u *PublicationSource) UnmarshalCSV(v []byte) error {
+	e := PublicationSource(strings.ToLower(string(v)))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+	return fmt.Errorf("invalid PublicationSource value: %s", v)
+}
+
+func (u *PublicationSource) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := PublicationSource(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid PublicationSource value: %s", s)
+}
+
+func (u PublicationSource) IsGreater(v PublicationSource) bool {
+	return PublicationSourceHierarchy[u] > PublicationSourceHierarchy[v]
+}
+
+func (u PublicationSource) IsGreaterEqual(v PublicationSource) bool {
+	return PublicationSourceHierarchy[u] >= PublicationSourceHierarchy[v]
+}
+
+// Register enum in OpenAPI specification.
+func (u PublicationSource) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["PublicationSource"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "PublicationSource")
+		schemaRef.Title = "PublicationSource"
+
+		for _, v := range PublicationSourceValues {
+			schemaRef.Enum = append(schemaRef.Enum, string(v))
+		}
+
+		r.Map()["PublicationSource"] = schemaRef
+	}
+
+	return &huma.Schema{
+		Ref: "#/components/schemas/PublicationSource",
+	}
+}
+func (u NullPublicationSource) Get() (PublicationSource, bool) {
+	return u.PublicationSource, u.Valid
 }
 
 var ResolutionStatusValues = []ResolutionStatus{
@@ -438,12 +686,27 @@ var ResolutionStatusHierarchy = map[ResolutionStatus]int{
 }
 
 func (u *ResolutionStatus) UnmarshalCSV(v []byte) error {
-	e := ResolutionStatus(v)
+	e := ResolutionStatus(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid ResolutionStatus value: %s", v)
+}
+
+func (u *ResolutionStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := ResolutionStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid ResolutionStatus value: %s", s)
 }
 
 func (u ResolutionStatus) IsGreater(v ResolutionStatus) bool {
@@ -486,12 +749,27 @@ var SortDirectionHierarchy = map[SortDirection]int{
 }
 
 func (u *SortDirection) UnmarshalCSV(v []byte) error {
-	e := SortDirection(v)
+	e := SortDirection(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid SortDirection value: %s", v)
+}
+
+func (u *SortDirection) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := SortDirection(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid SortDirection value: %s", s)
 }
 
 func (u SortDirection) IsGreater(v SortDirection) bool {
@@ -528,22 +806,39 @@ var TaxonGBIFStatusValues = []TaxonGBIFStatus{
 	TaxonGBIFStatusPending,
 	TaxonGBIFStatusCompleted,
 	TaxonGBIFStatusFailed,
+	TaxonGBIFStatusNoCandidates,
 }
 
 var TaxonGBIFStatusHierarchy = map[TaxonGBIFStatus]int{
-	TaxonGBIFStatusSkipped:   0,
-	TaxonGBIFStatusPending:   1,
-	TaxonGBIFStatusCompleted: 2,
-	TaxonGBIFStatusFailed:    3,
+	TaxonGBIFStatusSkipped:      0,
+	TaxonGBIFStatusPending:      1,
+	TaxonGBIFStatusCompleted:    2,
+	TaxonGBIFStatusFailed:       3,
+	TaxonGBIFStatusNoCandidates: 4,
 }
 
 func (u *TaxonGBIFStatus) UnmarshalCSV(v []byte) error {
-	e := TaxonGBIFStatus(v)
+	e := TaxonGBIFStatus(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid TaxonGBIFStatus value: %s", v)
+}
+
+func (u *TaxonGBIFStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := TaxonGBIFStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid TaxonGBIFStatus value: %s", s)
 }
 
 func (u TaxonGBIFStatus) IsGreater(v TaxonGBIFStatus) bool {
@@ -588,12 +883,27 @@ var TaxonMatchSourceHierarchy = map[TaxonMatchSource]int{
 }
 
 func (u *TaxonMatchSource) UnmarshalCSV(v []byte) error {
-	e := TaxonMatchSource(v)
+	e := TaxonMatchSource(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid TaxonMatchSource value: %s", v)
+}
+
+func (u *TaxonMatchSource) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := TaxonMatchSource(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid TaxonMatchSource value: %s", s)
 }
 
 func (u TaxonMatchSource) IsGreater(v TaxonMatchSource) bool {
@@ -638,12 +948,27 @@ var TaxonMatchTypeHierarchy = map[TaxonMatchType]int{
 }
 
 func (u *TaxonMatchType) UnmarshalCSV(v []byte) error {
-	e := TaxonMatchType(v)
+	e := TaxonMatchType(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid TaxonMatchType value: %s", v)
+}
+
+func (u *TaxonMatchType) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := TaxonMatchType(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid TaxonMatchType value: %s", s)
 }
 
 func (u TaxonMatchType) IsGreater(v TaxonMatchType) bool {
@@ -676,36 +1001,51 @@ func (u NullTaxonMatchType) Get() (TaxonMatchType, bool) {
 }
 
 var TaxonRankValues = []TaxonRank{
-	TaxonRankSUBSPECIES,
-	TaxonRankSPECIES,
-	TaxonRankSUBGENUS,
-	TaxonRankGENUS,
-	TaxonRankFAMILY,
-	TaxonRankORDER,
-	TaxonRankCLASS,
-	TaxonRankPHYLUM,
-	TaxonRankKINGDOM,
+	TaxonRankSubspecies,
+	TaxonRankSpecies,
+	TaxonRankSubgenus,
+	TaxonRankGenus,
+	TaxonRankFamily,
+	TaxonRankOrder,
+	TaxonRankClass,
+	TaxonRankPhylum,
+	TaxonRankKingdom,
 }
 
 var TaxonRankHierarchy = map[TaxonRank]int{
-	TaxonRankSUBSPECIES: 0,
-	TaxonRankSPECIES:    1,
-	TaxonRankSUBGENUS:   2,
-	TaxonRankGENUS:      3,
-	TaxonRankFAMILY:     4,
-	TaxonRankORDER:      5,
-	TaxonRankCLASS:      6,
-	TaxonRankPHYLUM:     7,
-	TaxonRankKINGDOM:    8,
+	TaxonRankSubspecies: 0,
+	TaxonRankSpecies:    1,
+	TaxonRankSubgenus:   2,
+	TaxonRankGenus:      3,
+	TaxonRankFamily:     4,
+	TaxonRankOrder:      5,
+	TaxonRankClass:      6,
+	TaxonRankPhylum:     7,
+	TaxonRankKingdom:    8,
 }
 
 func (u *TaxonRank) UnmarshalCSV(v []byte) error {
-	e := TaxonRank(v)
+	e := TaxonRank(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid TaxonRank value: %s", v)
+}
+
+func (u *TaxonRank) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := TaxonRank(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid TaxonRank value: %s", s)
 }
 
 func (u TaxonRank) IsGreater(v TaxonRank) bool {
@@ -738,28 +1078,43 @@ func (u NullTaxonRank) Get() (TaxonRank, bool) {
 }
 
 var TaxonStatusValues = []TaxonStatus{
-	TaxonStatusACCEPTED,
-	TaxonStatusSYNONYM,
-	TaxonStatusDOUBTFUL,
-	TaxonStatusUNREFERENCED,
-	TaxonStatusUNCLASSIFIED,
+	TaxonStatusAccepted,
+	TaxonStatusSynonym,
+	TaxonStatusDoubtful,
+	TaxonStatusUnreferenced,
+	TaxonStatusUnclassified,
 }
 
 var TaxonStatusHierarchy = map[TaxonStatus]int{
-	TaxonStatusACCEPTED:     0,
-	TaxonStatusSYNONYM:      1,
-	TaxonStatusDOUBTFUL:     2,
-	TaxonStatusUNREFERENCED: 3,
-	TaxonStatusUNCLASSIFIED: 4,
+	TaxonStatusAccepted:     0,
+	TaxonStatusSynonym:      1,
+	TaxonStatusDoubtful:     2,
+	TaxonStatusUnreferenced: 3,
+	TaxonStatusUnclassified: 4,
 }
 
 func (u *TaxonStatus) UnmarshalCSV(v []byte) error {
-	e := TaxonStatus(v)
+	e := TaxonStatus(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid TaxonStatus value: %s", v)
+}
+
+func (u *TaxonStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := TaxonStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid TaxonStatus value: %s", s)
 }
 
 func (u TaxonStatus) IsGreater(v TaxonStatus) bool {
@@ -806,12 +1161,27 @@ var UserAccountRequestStatusHierarchy = map[UserAccountRequestStatus]int{
 }
 
 func (u *UserAccountRequestStatus) UnmarshalCSV(v []byte) error {
-	e := UserAccountRequestStatus(v)
+	e := UserAccountRequestStatus(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid UserAccountRequestStatus value: %s", v)
+}
+
+func (u *UserAccountRequestStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := UserAccountRequestStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid UserAccountRequestStatus value: %s", s)
 }
 
 func (u UserAccountRequestStatus) IsGreater(v UserAccountRequestStatus) bool {
@@ -860,12 +1230,27 @@ var UserEmailChangeRequestStatusHierarchy = map[UserEmailChangeRequestStatus]int
 }
 
 func (u *UserEmailChangeRequestStatus) UnmarshalCSV(v []byte) error {
-	e := UserEmailChangeRequestStatus(v)
+	e := UserEmailChangeRequestStatus(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid UserEmailChangeRequestStatus value: %s", v)
+}
+
+func (u *UserEmailChangeRequestStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := UserEmailChangeRequestStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid UserEmailChangeRequestStatus value: %s", s)
 }
 
 func (u UserEmailChangeRequestStatus) IsGreater(v UserEmailChangeRequestStatus) bool {
@@ -912,12 +1297,27 @@ var UserRoleHierarchy = map[UserRole]int{
 }
 
 func (u *UserRole) UnmarshalCSV(v []byte) error {
-	e := UserRole(v)
+	e := UserRole(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid UserRole value: %s", v)
+}
+
+func (u *UserRole) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := UserRole(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid UserRole value: %s", s)
 }
 
 func (u UserRole) IsGreater(v UserRole) bool {
@@ -950,7 +1350,7 @@ func (u NullUserRole) Get() (UserRole, bool) {
 }
 
 var VocabResolutionStatusValues = []VocabResolutionStatus{
-	VocabResolutionStatusAuto,
+	VocabResolutionStatusAutoResolved,
 	VocabResolutionStatusSelected,
 	VocabResolutionStatusPending,
 	VocabResolutionStatusRequestCreation,
@@ -958,7 +1358,7 @@ var VocabResolutionStatusValues = []VocabResolutionStatus{
 }
 
 var VocabResolutionStatusHierarchy = map[VocabResolutionStatus]int{
-	VocabResolutionStatusAuto:            0,
+	VocabResolutionStatusAutoResolved:    0,
 	VocabResolutionStatusSelected:        1,
 	VocabResolutionStatusPending:         2,
 	VocabResolutionStatusRequestCreation: 3,
@@ -966,12 +1366,27 @@ var VocabResolutionStatusHierarchy = map[VocabResolutionStatus]int{
 }
 
 func (u *VocabResolutionStatus) UnmarshalCSV(v []byte) error {
-	e := VocabResolutionStatus(v)
+	e := VocabResolutionStatus(strings.ToLower(string(v)))
 	if e.Valid() {
 		*u = e
 		return nil
 	}
 	return fmt.Errorf("invalid VocabResolutionStatus value: %s", v)
+}
+
+func (u *VocabResolutionStatus) UnmarshalJSON(v []byte) error {
+	var s string
+	if err := json.Unmarshal(v, &s); err != nil {
+		return err
+	}
+
+	e := VocabResolutionStatus(strings.ToLower(s))
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+
+	return fmt.Errorf("invalid VocabResolutionStatus value: %s", s)
 }
 
 func (u VocabResolutionStatus) IsGreater(v VocabResolutionStatus) bool {

@@ -35,7 +35,7 @@
           <v-tab
             value="administration"
             prepend-icon="mdi-cog"
-            v-if="isUserMaintainer || userStore.isGranted('Admin')"
+            v-if="isUserMaintainer || userStore.isGranted('admin')"
           >
           </v-tab>
         </v-tabs>

@@ -42,25 +42,23 @@ type GBIFClient struct {
 	BackboneDatasetKey string
 }
 
-func NewClient(cfg config.Config) *GBIFClient {
+func NewClient(cfg config.GBIFConfig) *GBIFClient {
 
 	httpClient := http.DefaultClient
-
-	userAgent := fmt.Sprintf("biome-client (%s)", cfg.API.ContactEmail)
 
 	return &GBIFClient{
 		BaseURL:    GBIF_BASE_URL,
 		HTTPClient: httpClient,
-		UserAgent:  userAgent,
+		UserAgent:  cfg.UserAgent,
 
 		MaxRetries: 5,
 		BaseDelay:  500 * time.Millisecond,
 		MaxDelay:   10 * time.Second,
 
 		Limiter:     rate.NewLimiter(rate.Limit(20), 50),
-		concurrency: make(chan struct{}, cfg.GBIFMaxConcurrent),
+		concurrency: make(chan struct{}, cfg.MaxConcurrent),
 
-		BackboneDatasetKey: cfg.GBIFBackboneDatasetKey,
+		BackboneDatasetKey: cfg.BackboneDatasetKey,
 	}
 }
 

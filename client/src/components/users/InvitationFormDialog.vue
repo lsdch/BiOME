@@ -35,14 +35,14 @@ watch(
   (isOpen) => {
     if (!isOpen) return
     model.value.email = props.pending?.email ?? ''
-    model.value.role = props.role ?? 'Visitor'
+    model.value.role = props.role ?? 'visitor'
   },
   { immediate: true }
 )
 
 const model = ref<InvitationInput>({
   email: props.pending?.email ?? '',
-  role: 'Contributor'
+  role: 'contributor'
 })
 
 const {

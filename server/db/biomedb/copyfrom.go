@@ -78,3 +78,75 @@ func (r iteratorForCopyImportStaging) Err() error {
 func (q *Queries) CopyImportStaging(ctx context.Context, arg []CopyImportStagingParams) (int64, error) {
 	return q.db.CopyFrom(ctx, []string{"import_samplings_occurrences"}, []string{"id", "import_id", "sampling_hash", "row_number", "sampling_comments", "site_code", "site_name", "site_locality", "site_country_code", "coordinates_precision", "longitude", "latitude", "altitude", "event_date", "event_date_precision", "performed_by", "duration", "access_points", "sampling_targets", "sampling_fixatives", "sampling_methods", "habitats", "occurrence_code", "type_status", "occurrence_comments", "taxon_name", "taxon_rank", "taxon_authorship", "verbatim_identification", "identified_by", "identification_date", "identification_date_precision", "identification_confer", "identification_addendum", "content_description", "quantity_exact", "quantity_lower", "quantity_upper", "sources"}, &iteratorForCopyImportStaging{rows: arg})
 }
+
+// iteratorForStageOccurrenceCollections implements pgx.CopyFromSource.
+type iteratorForStageOccurrenceCollections struct {
+	rows                 []StageOccurrenceCollectionsParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForStageOccurrenceCollections) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForStageOccurrenceCollections) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].OccurrenceID,
+		r.rows[0].CollectionName,
+		r.rows[0].Vouchers,
+	}, nil
+}
+
+func (r iteratorForStageOccurrenceCollections) Err() error {
+	return nil
+}
+
+func (q *Queries) StageOccurrenceCollections(ctx context.Context, arg []StageOccurrenceCollectionsParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"collections_staging"}, []string{"occurrence_id", "collection_name", "vouchers"}, &iteratorForStageOccurrenceCollections{rows: arg})
+}
+
+// iteratorForStagePublications implements pgx.CopyFromSource.
+type iteratorForStagePublications struct {
+	rows                 []StagePublicationsParams
+	skippedFirstNextCall bool
+}
+
+func (r *iteratorForStagePublications) Next() bool {
+	if len(r.rows) == 0 {
+		return false
+	}
+	if !r.skippedFirstNextCall {
+		r.skippedFirstNextCall = true
+		return true
+	}
+	r.rows = r.rows[1:]
+	return len(r.rows) > 0
+}
+
+func (r iteratorForStagePublications) Values() ([]interface{}, error) {
+	return []interface{}{
+		r.rows[0].DOI,
+		r.rows[0].Verbatim,
+		r.rows[0].Authors,
+		r.rows[0].Year,
+		r.rows[0].Title,
+		r.rows[0].Journal,
+		r.rows[0].Source,
+	}, nil
+}
+
+func (r iteratorForStagePublications) Err() error {
+	return nil
+}
+
+func (q *Queries) StagePublications(ctx context.Context, arg []StagePublicationsParams) (int64, error) {
+	return q.db.CopyFrom(ctx, []string{"publications_staging"}, []string{"doi", "verbatim", "authors", "year", "title", "journal", "source"}, &iteratorForStagePublications{rows: arg})
+}

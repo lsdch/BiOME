@@ -52,6 +52,16 @@ SET app_name = COALESCE(sqlc.narg('app_name'), app_name),
     mail_from_name = COALESCE(
         sqlc.narg('mail_from_name'),
         mail_from_name
-    )
+    ),
+    frontpage_message_md = CASE
+        WHEN @set_frontpage_message_md::boolean THEN sqlc.narg('frontpage_message_md')
+        ELSE frontpage_message_md
+    END
 WHERE id = 1
 RETURNING *;
+
+-- name: SetDashboardMessage :one
+UPDATE settings
+SET frontpage_message_md = sqlc.narg('frontpage_message_md')
+WHERE id = 1
+RETURNING frontpage_message_md;

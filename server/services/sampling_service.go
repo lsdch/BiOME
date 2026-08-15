@@ -24,7 +24,7 @@ func (s *SamplingService) ListSamplingsAtProximity(ctx context.Context, q db.Que
 	return s.store.ListSamplingsAtProximity(ctx, q, input)
 }
 
-func (s *SamplingService) ListSamplingsH3AtProximity(ctx context.Context, q db.Querier, input models.ListSamplingsAtProximityInput) ([]models.CellH3WithDistance, error) {
+func (s *SamplingService) ListSamplingsH3AtProximity(ctx context.Context, q db.Querier, input models.ListSamplingsAtProximityInput) ([]models.H3CellWithRichnessAndDistance, error) {
 	return s.store.ListSamplingsH3AtProximity(ctx, q, input)
 }
 
@@ -152,15 +152,18 @@ func (s *SamplingService) ListSamplingAccessPoints(ctx context.Context, q db.Que
 /*
 Materializes samplings with their associated metadata for a given batch.
 */
-func (s *SamplingService) MaterializeSamplings(ctx context.Context, tx *db.Tx, batchID types.ULID) error {
-	if err := s.store.MaterializeSamplings(ctx, tx, batchID); err != nil {
+func (s *SamplingService) MaterializeSamplings(ctx context.Context, tx *db.Tx, importID uuid.UUID) error {
+	if err := s.store.MaterializeSamplings(ctx, tx, importID); err != nil {
 		return err
 	}
-	if err := s.store.MaterializeSamplingMethods(ctx, tx, batchID); err != nil {
+	if err := s.store.MaterializeSamplingMethods(ctx, tx, importID); err != nil {
 		return err
 	}
-	// if err := s.store.MaterializeSamplingFixatives(ctx, tx, batchID); err != nil {
-	// 	return err
-	// }
+	if err := s.store.MaterializeSamplingFixatives(ctx, tx, importID); err != nil {
+		return err
+	}
+	if err := s.store.MaterializeSamplingTargets(ctx, tx, importID); err != nil {
+		return err
+	}
 	return nil
 }

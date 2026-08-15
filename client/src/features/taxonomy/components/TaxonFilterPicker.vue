@@ -1,23 +1,35 @@
 <template>
-  <TaxonPicker v-model="model" v-bind="props">
+  <TaxonPicker
+    v-model="model"
+    @update:model-value="(v) => console.log('update', v)"
+    v-bind="props"
+    item-value="id"
+    :return-object="false"
+  >
     <template #append-inner="props">
       <slot name="append-inner" v-bind="props" />
-      <v-btn :active="wholeclade" icon="mdi-family-tree" size="x-small" @click.stop="wholeclade = !wholeClade"
-        :variant="wholeClade ? 'outlined' : 'plain'" :color="wholeClade ? 'primary' : ''" v-tooltip="{
+      <v-btn
+        :active="wholeclade"
+        icon="mdi-family-tree"
+        size="x-small"
+        @click.stop="wholeclade = !wholeClade"
+        :variant="wholeClade ? 'outlined' : 'plain'"
+        :color="wholeClade ? 'primary' : ''"
+        v-tooltip="{
           location: 'top',
           text: 'When active, include descendant taxa'
-        }"></v-btn>
+        }"
+      ></v-btn>
     </template>
   </TaxonPicker>
 </template>
 
 <script setup lang="ts">
-import { TaxaFilters } from '@/api'
 import TaxonPicker, { TaxonPickerProps } from './TaxonPicker.vue'
 
-const model = defineModel<TaxaFilters['taxa']>('taxa')
-const wholeclade = defineModel<TaxaFilters['whole_clade']>('wholeClade')
-const props = defineProps<TaxonPickerProps<'name' | 'id', true, false>>()
+const model = defineModel<UUID[]>('taxa')
+const wholeclade = defineModel<boolean>('wholeClade')
+const props = defineProps<TaxonPickerProps<true, false>>()
 </script>
 
 <style scoped lang="scss"></style>

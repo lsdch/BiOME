@@ -1,12 +1,24 @@
 <template>
   <div class="taxonomy-container d-flex flex-column">
-    <TableToolbar title="Taxonomy" icon="mdi-FAMILY-tree" :togglable-search="smAndDown" @reload="refetch()">
+    <TableToolbar
+      title="Taxonomy"
+      icon="mdi-family-tree"
+      :togglable-search="smAndDown"
+      @reload="refetch()"
+    >
       <template #search>
         <v-container>
           <v-row>
             <v-col cols="12" sm="6" lg="8">
-              <v-text-field v-model="searchTerm" label="Search" hide-details density="compact" clearable
-                prepend-inner-icon="mdi-magnify" color="primary" />
+              <v-text-field
+                v-model="searchTerm"
+                label="Search"
+                hide-details
+                density="compact"
+                clearable
+                prepend-inner-icon="mdi-magnify"
+                color="primary"
+              />
             </v-col>
             <v-col cols="12" sm="6" lg="4">
               <StatusPicker v-model="filterStatus" density="compact" hide-details clearable />
@@ -15,27 +27,52 @@
         </v-container>
       </template>
       <template #append>
-        <TaxonRankPicker class="ml-3" v-model="maxRankDisplay" :exclude="['SUBGENUS']" label="Truncate above"
-          hide-details density="compact" min-width="200px" />
+        <TaxonRankPicker
+          class="ml-3"
+          v-model="maxRankDisplay"
+          :exclude="['subgenus']"
+          label="Truncate above"
+          hide-details
+          density="compact"
+          min-width="200px"
+        />
       </template>
     </TableToolbar>
 
     <!-- TREE -->
     <div class="taxonomy-explorer bg-surface" :style="{ 'grid-template-columns': templateColumns }">
       <!-- HEADERS -->
-      <div v-for="{ rank } in headers.filter(
-        ({ rank }) => rank == maxRankDisplay || TaxonRank.isDescendant(rank, maxRankDisplay)
-      )" :key="rank" :style="{ 'grid-column': rank }" class="taxonomy-header bg-surface">
+      <div
+        v-for="{ rank } in headers.filter(
+          ({ rank }) => rank == maxRankDisplay || TaxonRank.isDescendant(rank, maxRankDisplay)
+        )"
+        :key="rank"
+        :style="{ 'grid-column': rank }"
+        class="taxonomy-header bg-surface"
+      >
         <span class="text-overline">
-          {{ rank === 'SPECIES' ? 'SPECIES / SUBGENUS' : rank }}
+          {{ rank === 'species' ? 'species / subgenus' : rank }}
         </span>
-        <v-chip size="small" rounded="100" color="primary"
-          @click="rank == 'SUBSPECIES' ? unfold(TaxonRank.parentRank(rank)!) : toggleFold(rank)">
-          {{ countsByRank[rank] + (rank == 'SPECIES' ? countsByRank['SUBGENUS'] : 0) }}
+        <v-chip
+          size="small"
+          rounded="100"
+          color="primary"
+          @click="rank == 'subspecies' ? unfold(TaxonRank.parentRank(rank)!) : toggleFold(rank)"
+        >
+          {{ countsByRank[rank] + (rank == 'species' ? countsByRank['subgenus'] : 0) }}
           <template #append>
-            <v-progress-circular v-if="isRankFetching(rank)" class="ml-1" size="14" width="2" indeterminate />
-            <v-icon v-else-if="rank !== 'SUBSPECIES'" class="ml-1"
-              :icon="isFolded(rank) ? 'mdi-plus-box-outline' : 'mdi-minus-box-outline'" />
+            <v-progress-circular
+              v-if="isRankFetching(rank)"
+              class="ml-1"
+              size="14"
+              width="2"
+              indeterminate
+            />
+            <v-icon
+              v-else-if="rank !== 'subspecies'"
+              class="ml-1"
+              :icon="isFolded(rank) ? 'mdi-plus-box-outline' : 'mdi-minus-box-outline'"
+            />
           </template>
         </v-chip>
       </div>
@@ -46,7 +83,7 @@
         <v-container v-if="error" style="grid-column: start / span end">
           <v-alert type="error" icon="mdi-alert"> Failed to load taxonomy </v-alert>
         </v-container>
-        <FTaxaNestedList v-else-if="filteredItems?.length" :items="filteredItems" rank="KINGDOM" />
+        <FTaxaNestedList v-else-if="filteredItems?.length" :items="filteredItems" rank="kingdom" />
         <div v-else class="mx-auto my-5" style="grid-column: start / span end">
           {{ loading ? 'Loading...' : 'Nothing to display' }}
         </div>
@@ -55,11 +92,17 @@
     </div>
 
     <!-- FOOTER -->
-    <div class="taxonomy-footer bg-surface pa-3 bORDER-t-thin d-flex"></div>
+    <div class="taxonomy-footer bg-surface pa-3 border-t-thin d-flex"></div>
 
     <!-- MODALS -->
-    <TaxonCard v-if="selected" v-model:open="showTaxonCard" v-model="selected" @add-child="addDescendant"
-      @navigate="(target) => (selected = target)" @deleted="refetch()" />
+    <TaxonCard
+      v-if="selected"
+      v-model:open="showTaxonCard"
+      v-model="selected"
+      @add-child="addDescendant"
+      @navigate="(target) => (selected = target)"
+      @deleted="refetch()"
+    />
     <!-- <TaxonFormDialogMutation v-if="parentTaxon" v-model:dialog="formDialog" v-model:parent="parentTaxon"
       @success="onTaxonCreated" /> -->
   </div>
@@ -106,14 +149,14 @@ onSelect((_taxon) => {
 type Header = { rank: TaxonRank.NoSubgenus }
 
 const headers: Header[] = [
-  { rank: 'KINGDOM' },
-  { rank: 'PHYLUM' },
-  { rank: 'CLASS' },
-  { rank: 'ORDER' },
-  { rank: 'FAMILY' },
-  { rank: 'GENUS' },
-  { rank: 'SPECIES' },
-  { rank: 'SUBSPECIES' }
+  { rank: 'kingdom' },
+  { rank: 'phylum' },
+  { rank: 'class' },
+  { rank: 'order' },
+  { rank: 'family' },
+  { rank: 'genus' },
+  { rank: 'species' },
+  { rank: 'subspecies' }
 ]
 
 const { toggleFold, isFolded, unfold } = useRankFoldState()
@@ -161,7 +204,7 @@ function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): Tax
     })
   })
 
-  return Array.from(rankMap.KINGDOM?.values() ?? [])
+  return Array.from(rankMap.kingdom?.values() ?? [])
 }
 
 // Create queries for each rank in parallel
@@ -249,10 +292,11 @@ async function onTaxonCreated(taxon: TaxonomyElement) {
 
 // CSS grid template columns based on ranks and maxRankDisplay
 const templateColumns = computed(() => {
-  return $TaxonRank.enum.toReversed()
+  return $TaxonRank.enum
+    .toReversed()
     .reduce((acc, rank) => {
-      if (rank === 'SUBGENUS') return acc
-      const name = `[${rank}${rank == 'KINGDOM' ? ' start' : ''}]`
+      if (rank === 'subgenus') return acc
+      const name = `[${rank}${rank == 'kingdom' ? ' start' : ''}]`
       return `${acc} ${name} ${TaxonRank.isAscendant(rank, maxRankDisplay.value) ? '0px' : 'auto'}`
     }, '')
     .concat(' [end]')
@@ -264,15 +308,15 @@ type RanksCount = {
 
 const countsByRank = computed(() => {
   const acc: RanksCount = {
-    KINGDOM: 0,
-    PHYLUM: 0,
-    CLASS: 0,
-    ORDER: 0,
-    FAMILY: 0,
-    GENUS: 0,
-    SUBGENUS: 0,
-    SPECIES: 0,
-    SUBSPECIES: 0
+    kingdom: 0,
+    phylum: 0,
+    class: 0,
+    order: 0,
+    family: 0,
+    genus: 0,
+    subgenus: 0,
+    species: 0,
+    subspecies: 0
   }
 
   // Count items from parallel rank queries
@@ -298,7 +342,7 @@ const countsByRank = computed(() => {
   border-collapse: collapse;
   overflow: scroll;
 
-  >.taxonomy-tree {
+  > .taxonomy-tree {
     display: grid;
     grid-column: start / span end;
     grid-template-columns: subgrid;

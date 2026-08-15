@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/types"
@@ -16,13 +17,23 @@ func NewImportBatchService() *ImportBatchService {
 	return &ImportBatchService{}
 }
 
-func (s *ImportBatchService) GetImportBatch(ctx context.Context, q db.Querier, id types.ULID) (*models.ImportBatch, error) {
+func (s *ImportBatchService) GetImportBatch(ctx context.Context, q db.Querier, id uuid.UUID) (models.ImportBatch, error) {
 	ib, err := q.Queries().GetImportBatch(ctx, id)
 	if err != nil {
-		return nil, err
+		return models.ImportBatch{}, err
 	}
 	importBatch := models.ImportBatchFromDB(ib)
-	return &importBatch, nil
+	return importBatch, nil
+}
+
+func (s *ImportBatchService) GetImportBatchWithContent(ctx context.Context, q db.Querier, id uuid.UUID) (models.ImportBatchWithContent, error) {
+	ib, err := q.Queries().GetImportBatchWithContent(ctx, id)
+	if err != nil {
+		return models.ImportBatchWithContent{}, err
+	}
+	importBatch := models.ImportBatchFromDB(ib.ImportBatch).
+		WithContent(ib.OccurrenceCount, ib.SamplingCount, models.UserFromDB(ib.User), models.UserFromDB(ib.User_2))
+	return importBatch, nil
 }
 
 func (s *ImportBatchService) GetImportBatchForOccurrence(ctx context.Context, q db.Querier, occurrenceID types.ULID) (models.Optional[models.ImportBatch], error) {
@@ -49,20 +60,37 @@ func (s *ImportBatchService) ListImportBatches(ctx context.Context, q db.Querier
 	return result, nil
 }
 
-func (s *ImportBatchService) DeleteImportBatch(ctx context.Context, q db.Querier, id types.ULID) error {
-	err := q.Queries().DeleteImportBatch(ctx, id)
+func (s *ImportBatchService) ListImportBatchesWithContent(ctx context.Context, q db.Querier) ([]models.ImportBatchWithContent, error) {
+	ibs, err := q.Queries().ListImportBatchesWithContent(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]models.ImportBatchWithContent, len(ibs))
+	for i, ib := range ibs {
+		result[i] = models.ImportBatchFromDB(ib.ImportBatch).
+			WithContent(ib.OccurrenceCount, ib.SamplingCount, models.UserFromDB(ib.User), models.UserFromDB(ib.User_2))
+	}
+	return result, nil
+}
+
+func (s *ImportBatchService) DeleteImportBatch(ctx context.Context, tx *db.Tx, id uuid.UUID) error {
+	err := tx.Queries().DeleteOccurrencesFromBatch(ctx, id)
+	if err != nil {
+		return err
+	}
+	_, err = tx.Queries().DeleteImportBatch(ctx, id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *ImportBatchService) DeleteImportBatchWithOccurrences(ctx context.Context, tx *db.Tx, id types.ULID) error {
+func (s *ImportBatchService) DeleteImportBatchWithOccurrences(ctx context.Context, tx *db.Tx, id uuid.UUID) error {
 	q := tx.Queries()
 	if err := q.DeleteOccurrencesFromBatch(ctx, id); err != nil {
 		return err
 	}
-	if err := q.DeleteImportBatch(ctx, id); err != nil {
+	if _, err := q.DeleteImportBatch(ctx, id); err != nil {
 		return err
 	}
 	return nil

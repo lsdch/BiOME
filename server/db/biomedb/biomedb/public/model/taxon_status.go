@@ -12,11 +12,11 @@ import "errors"
 type TaxonStatus string
 
 const (
-	TaxonStatus_Accepted     TaxonStatus = "ACCEPTED"
-	TaxonStatus_Synonym      TaxonStatus = "SYNONYM"
-	TaxonStatus_Doubtful     TaxonStatus = "DOUBTFUL"
-	TaxonStatus_Unreferenced TaxonStatus = "UNREFERENCED"
-	TaxonStatus_Unclassified TaxonStatus = "UNCLASSIFIED"
+	TaxonStatus_Accepted     TaxonStatus = "accepted"
+	TaxonStatus_Synonym      TaxonStatus = "synonym"
+	TaxonStatus_Doubtful     TaxonStatus = "doubtful"
+	TaxonStatus_Unreferenced TaxonStatus = "unreferenced"
+	TaxonStatus_Unclassified TaxonStatus = "unclassified"
 )
 
 var TaxonStatusAllValues = []TaxonStatus{
@@ -39,15 +39,15 @@ func (e *TaxonStatus) Scan(value interface{}) error {
 	}
 
 	switch enumValue {
-	case "ACCEPTED":
+	case "accepted":
 		*e = TaxonStatus_Accepted
-	case "SYNONYM":
+	case "synonym":
 		*e = TaxonStatus_Synonym
-	case "DOUBTFUL":
+	case "doubtful":
 		*e = TaxonStatus_Doubtful
-	case "UNREFERENCED":
+	case "unreferenced":
 		*e = TaxonStatus_Unreferenced
-	case "UNCLASSIFIED":
+	case "unclassified":
 		*e = TaxonStatus_Unclassified
 	default:
 		return errors.New("jet: Invalid scan value '" + enumValue + "' for TaxonStatus enum")

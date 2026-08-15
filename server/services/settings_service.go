@@ -111,3 +111,19 @@ func (s *SettingsService) SetAppIcon(ctx context.Context, icon image.Image) erro
 
 	return nil
 }
+
+func (s *SettingsService) GetDashboardMessage(ctx context.Context, q db.Querier) (*string, error) {
+	settingsDB, err := q.Queries().GetSettings(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get settings: %v", err)
+	}
+	return settingsDB.FrontpageMessageMD, nil
+}
+
+func (s *SettingsService) SetDashboardMessage(ctx context.Context, q db.Querier, message *string) error {
+	_, err := q.Queries().SetDashboardMessage(ctx, message)
+	if err == nil {
+		err = s.Reload(ctx, q)
+	}
+	return err
+}
