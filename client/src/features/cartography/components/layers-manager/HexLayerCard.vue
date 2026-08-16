@@ -89,7 +89,7 @@
                         : 'Never'
                   "
                 >
-                  <v-chip-group v-model="layer.markers.minZoomMode">
+                  <v-chip-group v-model="layer.markers.minZoomMode" color="primary">
                     <v-chip value="auto">Auto</v-chip>
                     <v-chip value="never">Never</v-chip>
                     <v-chip value="manual">Manual</v-chip>
@@ -136,7 +136,7 @@
 
 <script setup lang="ts">
 // import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { ExportSamplingsWithOccurrencesData } from '@/api/adapters.ts'
+import { ExportSamplingsWithOccurrencesData, ListOccurrencesH3Data } from '@/api/adapters.ts'
 import {
   listOccurrencesH3Options,
   listSamplingsH3Options
@@ -145,11 +145,11 @@ import { client } from '@/api/gen/client.gen.ts'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
 import OccurrencesStats from '@/features/occurrences/components/OccurrencesStats.vue'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, toValue, watch } from 'vue'
 import HexgridLayerStylePanel from './HexgridLayerStylePanel.vue'
 import { useLayerData } from './layer-data'
 import LayerDataFeed from './LayerDataFeed.vue'
-import { automaticResolution, HexLayerSpec } from './map-layers'
+import { automaticResolution, HexLayerSpec, mappingFiltersToQuery } from './map-layers'
 import MarkerLayerStylePanel from './MarkerLayerStylePanel.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 
@@ -201,33 +201,32 @@ const remote = useQuery(
   computed(() => {
     switch (layer.value.mode) {
       case 'samplings':
+        const samplingOptions = listSamplingsH3Options({
+          path: { resolution: layer.value.resolution },
+          query: mappingFiltersToQuery(layer.value.filters, layer.value.mode)
+        })
         return {
           enabled: layer.value.active,
           initialData: [],
-          ...listSamplingsH3Options({
-            path: { resolution: layer.value.resolution },
-            query: {
-              target_taxa: layer.value.filters.target_taxa,
-              target_taxa_whole_clade: layer.value.filters.whole_clade,
-              countries: layer.value.filters.countries,
-              batches: layer.value.filters.batches
-            }
-          })
+          ...samplingOptions
         }
       case 'occurrences':
-      default:
+        const options = listOccurrencesH3Options({
+          path: { resolution: layer.value.resolution },
+          query: mappingFiltersToQuery(
+            layer.value.filters,
+            layer.value.mode
+          ) as ListOccurrencesH3Data['query']
+        })
         return {
-          enabled: layer.value.active,
+          enabled: true, //layer.value.active,
           initialData: [],
-          ...listOccurrencesH3Options({
-            path: { resolution: layer.value.resolution },
-            query: {
-              taxa: layer.value.filters.taxa,
-              whole_clade: layer.value.filters.whole_clade,
-              countries: layer.value.filters.countries,
-              batches: layer.value.filters.batches
-            }
-          })
+          ...options
+          //   taxa: layer.value.filters.taxa,
+          //   whole_clade: layer.value.filters.whole_clade,
+          //   countries: layer.value.filters.countries,
+          //   batches: layer.value.filters.batches
+          // }
         }
     }
   })
@@ -235,7 +234,7 @@ const remote = useQuery(
 
 watch(
   () => layer.value.id,
-  (previous, current) => {
+  (current, previous) => {
     if (previous !== current) {
       deleteLayer(previous)
       register()

@@ -2,11 +2,14 @@ package stores
 
 import (
 	"slices"
+	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db/biomedb/biomedb/public/table"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/types"
+	"github.com/sirupsen/logrus"
 
 	. "github.com/go-jet/jet/v2/postgres"
 )
@@ -15,18 +18,74 @@ type FilterParams interface {
 	ApplyFilters(stmt SelectStatement, constraints ...BoolExpression) SelectStatement
 }
 
+type BufferUnit = models.EventDatePrecision
+
+type DateBuffer struct {
+	Value int32      `json:"value" query:"buffer"`
+	Unit  BufferUnit `json:"unit" query:"buffer_unit"`
+}
+
+type DateFilterParams struct {
+	From           string                                    `json:"from,omitempty" query:"from" pattern:"^\\d{4}(-\\d{2})?(-\\d{2})?$"`
+	fromParsed     models.Optional[models.DateWithPrecision] `json:"-"`
+	To             string                                    `json:"to,omitempty" query:"to" pattern:"^\\d{4}(-\\d{2})?(-\\d{2})?$"`
+	toParsed       models.Optional[models.DateWithPrecision] `json:"-"`
+	Buffer         models.Optional[string]                   `json:"buffer,omitempty" query:"buffer" format:"duration"`
+	bufferValue    time.Duration                             `json:"-"`
+	IncludeUnknown bool                                      `json:"include_unknown,omitempty" query:"include_unknown"`
+}
+
+func (i *DateFilterParams) Resolve(ctx huma.Context) []error {
+	if fromDate := i.From; fromDate != "" {
+		from, err := models.ParseDateWithPrecision(fromDate)
+		if err != nil {
+			return []error{err}
+		}
+		i.fromParsed = models.NewOptionalFromPtr(from)
+	}
+	if toDate := i.To; toDate != "" {
+		to, err := models.ParseDateWithPrecision(toDate)
+		if err != nil {
+			return []error{err}
+		}
+		if to != nil {
+			*to = to.UpperBound()
+			logrus.Infof("Upper bound for toDate %s is %s", toDate, to.Date.Format("2006-01-02"))
+		}
+		i.toParsed = models.NewOptionalFromPtr(to)
+	}
+	if i.Buffer.IsSet {
+		duration, err := time.ParseDuration(i.Buffer.Value)
+		if err != nil {
+			return []error{err}
+		}
+		i.bufferValue = duration
+	}
+	return nil
+}
+
+func DateExpFromDateWithPrecision(date models.DateWithPrecision) DateExpression {
+	return Date(
+		int(date.Date.Year()),
+		time.Month(date.Date.Month()),
+		int(date.Date.Day()),
+	)
+}
+
 type ListSamplingsParams struct {
 	// Datasets             []types.ULID `json:"datasets,omitempty" query:"datasets"`
-	Batches              []uuid.UUID `json:"batches,omitempty" query:"batches"`
-	TargetTaxa           []uuid.UUID `json:"target_taxa,omitempty" query:"target_taxa"`
-	TargetTaxaWholeClade bool        `json:"target_taxa_whole_clade,omitempty" query:"target_taxa_whole_clade"`
-	Countries            []string    `json:"countries,omitempty" query:"countries"`
+	Batches              []uuid.UUID      `json:"batches,omitempty" query:"batches"`
+	TargetTaxa           []uuid.UUID      `json:"target_taxa,omitempty" query:"target_taxa"`
+	TargetTaxaWholeClade bool             `json:"target_taxa_whole_clade,omitempty" query:"target_taxa_whole_clade"`
+	Countries            []string         `json:"countries,omitempty" query:"countries"`
+	Date                 DateFilterParams `json:",inline" query:"date,deepObject"`
 	models.Pagination    `json:"pagination" query:"pagination"`
 }
 
 func (p ListSamplingsParams) ApplyFilters(stmt SelectStatement, constraints ...BoolExpression) SelectStatement {
 	filters := append(
 		slices.Concat(
+			p.dateFilter(),
 			p.batchFilter(),
 			p.targetTaxaFilter(),
 			p.countryFilter(),
@@ -37,6 +96,40 @@ func (p ListSamplingsParams) ApplyFilters(stmt SelectStatement, constraints ...B
 		return stmt
 	}
 	return stmt.WHERE(AND(filters...))
+}
+
+func (p *ListSamplingsParams) dateFilter() []BoolExpression {
+	if !p.Date.fromParsed.IsSet && !p.Date.toParsed.IsSet {
+		return nil
+	}
+
+	var filters []BoolExpression
+
+	if p.Date.fromParsed.IsSet {
+		dateFrom := p.Date.fromParsed.Value
+		if p.Date.Buffer.IsSet {
+			dateFrom.Date.Add(-p.Date.bufferValue)
+		}
+		lowerBound := DateExpFromDateWithPrecision(dateFrom)
+		lowerBoundFilter := table.Samplings.EventDate.GT_EQ(lowerBound)
+		filters = append(filters, lowerBoundFilter)
+	}
+
+	if p.Date.toParsed.IsSet {
+		dateTo := p.Date.toParsed.Value
+		if p.Date.Buffer.IsSet {
+			dateTo.Date.Add(p.Date.bufferValue)
+		}
+		upperBound := DateExpFromDateWithPrecision(dateTo)
+		upperBoundFilter := table.Samplings.EventDate.LT_EQ(upperBound)
+		filters = append(filters, upperBoundFilter)
+	}
+
+	if p.Date.IncludeUnknown {
+		unknownFilter := table.Samplings.EventDate.IS_NULL()
+		return []BoolExpression{OR(unknownFilter, AND(filters...))}
+	}
+	return filters
 }
 
 func (p *ListSamplingsParams) batchFilter() []BoolExpression {
@@ -117,6 +210,7 @@ func (p ListOccurrencesParams) ApplyFilters(stmt SelectStatement, constraints ..
 			p.typeStatusFilter(),
 			p.countryFilter(),
 			p.batchFilter(),
+			p.dateFilter(),
 			constraints,
 		),
 		parts.toExpression(),

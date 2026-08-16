@@ -451,6 +451,36 @@ func (q *Queries) ListSamplingAccessPoints(ctx context.Context) ([]string, error
 	return items, nil
 }
 
+const listSamplingYears = `-- name: ListSamplingYears :many
+SELECT DISTINCT EXTRACT(
+        YEAR
+        FROM event_date
+    )::int as year
+FROM samplings s
+WHERE s.event_date IS NOT NULL
+ORDER BY year ASC
+`
+
+func (q *Queries) ListSamplingYears(ctx context.Context) ([]int32, error) {
+	rows, err := q.db.Query(ctx, listSamplingYears)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []int32{}
+	for rows.Next() {
+		var year int32
+		if err := rows.Scan(&year); err != nil {
+			return nil, err
+		}
+		items = append(items, year)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listSamplingsAtProximity = `-- name: ListSamplingsAtProximity :many
 SELECT s.id, s.source_sampling_hash, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector, s.country_code, s.country_name, s.country_continent, s.country_subcontinent,
     ST_Distance(

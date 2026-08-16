@@ -74,9 +74,29 @@ func (c *SamplingController) ListAccessPoints(
 	return &BodyTransporter[[]string]{Body: accessPoints}, nil
 }
 
+func (c *SamplingController) ListSamplingYears(
+	ctx context.Context,
+	_ *struct{},
+) (*BodyTransporter[[]int32], error) {
+	years, err := c.service.ListSamplingYears(ctx, c.db)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]int32]{Body: years}, nil
+}
+
 func (c *SamplingController) RegisterRoutes(r *router.Router) {
 
 	baseGroup := r.RouteGroup("/").WithTags([]string{"Samplings"})
+
+	router.NewSpec(baseGroup, "ListSamplingYears", huma.Operation{
+		Method:      http.MethodGet,
+		Path:        "years",
+		Summary:     "List sampling years",
+		Description: "List all unique years for samplings.",
+	},
+		c.ListSamplingYears,
+	).WithAccessPolicy(auth.Public()).Register(r)
 
 	router.NewSpec(baseGroup, "ListSamplingsAtProximity", huma.Operation{
 		Method:      http.MethodGet,

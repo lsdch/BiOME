@@ -220,6 +220,9 @@ import type {
   ListSamplingsWithOccurrencesData,
   ListSamplingsWithOccurrencesErrors,
   ListSamplingsWithOccurrencesResponses,
+  ListSamplingYearsData,
+  ListSamplingYearsErrors,
+  ListSamplingYearsResponses,
   ListUsersData,
   ListUsersErrors,
   ListUsersResponses,
@@ -449,6 +452,32 @@ export class SamplingsService {
         'Content-Type': 'application/json',
         ...options.headers
       }
+    })
+  }
+
+  /**
+   * List sampling years
+   *
+   * List all unique years for samplings.
+   */
+  public static listSamplingYears<ThrowOnError extends boolean = false>(
+    options?: Options<ListSamplingYearsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListSamplingYearsResponses,
+      ListSamplingYearsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/years',
+      ...options
     })
   }
 }

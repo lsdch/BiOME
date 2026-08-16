@@ -67,7 +67,11 @@
     </div>
 
     <div class="d-flex top-right ga-2 map-control">
-      <div v-if="hexgrid?.active && hexgrid.colorBinding.binding !== 'constant'">
+      <div
+        v-if="
+          hexgrid?.active && hexgrid.colorBinding.binding !== 'constant' && !!hexgrid.data?.length
+        "
+      >
         <color-scale-widget
           :min="colorDomain.min"
           :max="colorDomain.max"
@@ -188,6 +192,7 @@ import {
 import type { Coordinates, ItemWithCoordinates } from '@/features/cartography/coordinates'
 import { useMarkerLayers } from '../composables/useMarkerLayers'
 import {
+  mappingFiltersToQuery,
   markerLayerFromSpec,
   type H3Cell,
   type HexgridLayer,
@@ -405,7 +410,11 @@ const { data: hexMarkersData } = useQuery(
   computed(() => ({
     enabled: !!hexgrid?.active,
     ...listOccurrencesH3Options({
-      query: hexgrid?.filters ?? {},
+      query: hexgrid
+        ? hexgrid.mode === 'occurrences'
+          ? mappingFiltersToQuery(hexgrid.filters, 'occurrences')
+          : mappingFiltersToQuery(hexgrid.filters, 'samplings')
+        : {},
       path: { resolution: hexgrid?.markers.resolution ?? 12 }
     })
   }))

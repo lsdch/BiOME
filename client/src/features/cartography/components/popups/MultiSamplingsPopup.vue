@@ -135,12 +135,13 @@ import { pluralize } from '@/lib/text'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, useTemplateRef } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
+import { MappingFilters, mappingFiltersToQuery } from '../layers-manager/map-layers'
 
 type ListOccurrencesParams = ListSamplingsWithOccurrencesAtCellData['query']
 
 const { data, params, resolution } = defineProps<{
   data: H3CellWithRichness
-  params: ListOccurrencesParams
+  params: MappingFilters
   resolution: number
 }>()
 
@@ -155,7 +156,7 @@ const { data: cellContent, isPending: loading } = useQuery(
   computed(() => ({
     initialData: [],
     ...listSamplingsWithOccurrencesAtCellOptions({
-      query: params,
+      query: mappingFiltersToQuery(params, 'occurrences'),
       path: { resolution, cell: data.h3_index }
     })
   }))
@@ -165,7 +166,7 @@ const { data: occurringTaxa } = useQuery(
   computed(() => ({
     initialData: [],
     ...listOccurringTaxaAtCellOptions({
-      query: params,
+      query: mappingFiltersToQuery(params, 'occurrences'),
       path: { resolution, cell: data.h3_index }
     })
   }))

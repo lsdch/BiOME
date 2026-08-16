@@ -3,7 +3,7 @@ import { hexToArray, paletteRGB, RGBToArray } from '@/lib/color_brewer'
 import { H3HexagonLayer } from '@deck.gl/geo-layers'
 
 import { computed, MaybeRefOrGetter, ref, Ref, toValue } from 'vue'
-import { bindingLabels, getColorValue } from '../bindings'
+import { getColorValue } from '../bindings'
 import { GlobalMarkerOptions } from '../components/DeckGlMap.vue'
 import {
   H3Cell,
@@ -28,30 +28,6 @@ export function hexgridLayerFromSpec<CellData extends H3Cell>(
   }
 }
 
-// function H3DataToResolution(
-//   data: H3CellWithRichness[],
-//   resolution: number
-// ): Record<string, H3CellWithRichness> {
-//   return data.reduce(
-//     (acc, cell) => {
-//       const parent = cellToParent(cell.h3_index, resolution)
-//       if (!acc[parent]) {
-//         acc[parent] = {
-//           ...cell,
-//           h3_index: parent
-//         }
-//       } else {
-//         acc[parent].occurrences_count += cell.occurrences_count
-//         acc[parent].samplings_count += cell.samplings_count
-//         acc[parent].occurrence_ids = acc[parent].occurrence_ids.concat(cell.occurrence_ids)
-//         acc[parent].sampling_ids = acc[parent].sampling_ids.concat(cell.sampling_ids)
-//       }
-//       return acc
-//     },
-//     {} as Record<string, H3CellWithRichness>
-//   )
-// }
-
 const DEFAULT_MIN_ZOOM_THRESHOLD = 8
 
 function showMarkers(hexgrid: HexLayerSpec, currentZoom: number) {
@@ -69,7 +45,6 @@ function showMarkers(hexgrid: HexLayerSpec, currentZoom: number) {
 export function useHexgridLayer<HexData extends H3CellWithRichness>(
   props: {
     hexgrid: () => HexgridLayer<HexData> | undefined
-    // markerOptions?: () => GlobalMarkerOptions
   },
   ctx: {
     selected: Ref<MarkerSelectionInfo<any, HexData, any> | undefined>
@@ -78,23 +53,10 @@ export function useHexgridLayer<HexData extends H3CellWithRichness>(
     hoverTooltip: Ref<{ x: number; y: number; text: string } | undefined>
   }
 ) {
-  // const hexgridColorDomain = ref<{ min: number; max: number }>()
   const colorScale =
     ref<ScaleQuantize<[number, number, number] | [number, number, number, number]>>(scaleQuantize())
 
   const scaleExtent = ref<[number, number]>([0, 1])
-  // const hexgridColorRange = computed<Array<[number, number, number]>>(() => {
-  //   const hexgrid = props.hexgrid()
-  //   if (!hexgrid?.config.colorRange) {
-  //     return paletteRGB('Viridis').map((rgb) => RGBToArray(rgb) as [number, number, number])
-  //   }
-  //   return (hexgrid.config.colorRange as any[]).map((color) => {
-  //     if (Array.isArray(color)) {
-  //       return color as [number, number, number]
-  //     }
-  //     return RGBToArray(color) as [number, number, number]
-  //   })
-  // })
 
   const hexgrid = computed(() => props.hexgrid())
   const markersVisible = computed(() =>
@@ -154,9 +116,6 @@ export function useHexgridLayer<HexData extends H3CellWithRichness>(
       autoHighlight: hexgrid.config.hover.highlight && !markersVisible.value,
       highlightedObjectIndex:
         ctx.selected.value?.type === 'hexagon' ? ctx.selected.value.info.index : undefined,
-      // opacity: showMarkers.value ? 0.05 : Number(hexgrid.config.opacity ?? 0.8),
-      // radius: Math.max(100, Number(hexgrid.config.radius) * 1000),
-      // colorRange: colorRange,
       elevationScale: 100,
       getLineColor(cell) {
         return [255, 255, 255, 50]
@@ -204,51 +163,10 @@ export function useHexgridLayer<HexData extends H3CellWithRichness>(
               return true
             }
           : undefined
-      // getElevationValue: hexagonLayerColorBinding(hexgrid.colorBinding).getColorValue,
-      // getPosition: (item) => [item.coordinates.longitude, item.coordinates.latitude],
-      // onSetColorDomain([min, max]) {
-      //   if (hexgrid.colorBinding.log) {
-      //     hexgridColorDomain.value = {
-      //       min: Math.round(Math.exp(min) - 1),
-      //       max: Math.round(Math.exp(max) - 1)
-      //     }
-      //   } else {
-      //     hexgridColorDomain.value = { min: min, max: max }
-      //   }
-      // }
     })
 
     return layer
   })
-
-  // const showClusterText = computed(() => {
-  //   return ctx.currentZoom.value >= (props.markerOptions?.().cluster.labelZoomThreshold ?? 8)
-  // })
-
-  // const markerLayer = computed(async () => {
-  //   const hexgrid = props.hexgrid()
-  //   if (!hexgrid?.active || !hexgrid.data?.length || !showMarkers(hexgrid, ctx.currentZoom.value))
-  //     return undefined
-  //   const { data, suspense } = useQuery(
-  //     listOccurrencesH3Options({
-  //       path: { resolution: 12 },
-  //       query: hexgrid.filters
-  //     })
-  //   )
-  //   await suspense()
-  //   return markerLayerFromSpec(hexgrid.markers, (data.value ?? []).map(H3CellToMarkerData))
-  // })
-
-  // const hexgridMarkersLayer = computed(async () => {
-  //   const layer = await markerLayer.value
-  //   return layer
-  //     ? instanciateMarkerLayer(layer, 'hexgrid', {
-  //         ...ctx,
-  //         markerOptions: props.markerOptions?.(),
-  //         showClusterText: showClusterText.value
-  //       })
-  //     : []
-  // })
 
   const colorDomain = computed(() => {
     const [min, max] = scaleExtent.value
@@ -257,7 +175,6 @@ export function useHexgridLayer<HexData extends H3CellWithRichness>(
 
   return {
     hexgridLayer,
-    // hexgridMarkersLayer,
     colorDomain,
     colorScale
   }

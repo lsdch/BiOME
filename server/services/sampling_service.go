@@ -167,3 +167,7 @@ func (s *SamplingService) MaterializeSamplings(ctx context.Context, tx *db.Tx, i
 	}
 	return nil
 }
+
+func (s *SamplingService) ListSamplingYears(ctx context.Context, q db.Querier) ([]int32, error) {
+	return s.store.ListSamplingYears(ctx, q)
+}

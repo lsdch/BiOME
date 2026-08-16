@@ -40,6 +40,40 @@ export namespace CompositeDate {
         return { day: date.getDate(), month: date.getMonth() + 1, year: date?.getFullYear() }
     }
   }
+
+  export function parse(dateString: string | undefined): CompositeDate | undefined {
+    if (!dateString) return undefined
+    const [year, month, day] = dateString.split('-').map((v) => parseInt(v))
+    return { year, month, day }
+  }
+
+  export function toString(
+    { year, month, day }: CompositeDate,
+    precision: EventDatePrecision
+  ): string | undefined {
+    switch (precision) {
+      case 'year':
+        return year?.toString()
+      case 'month':
+        if (!year || !month) return undefined
+        return DateTime.fromObject({ year, month }).toFormat('LLL yyyy')
+      case 'day':
+        if (!year || !month || !day) return undefined
+        return DateTime.fromObject({ year, month, day }).toFormat('dd LLL yyyy')
+    }
+  }
+
+  export function toDateTime(
+    { year, month, day }: CompositeDate,
+    precision: EventDatePrecision
+  ): DateTime | undefined {
+    if (!year) return undefined
+    return DateTime.fromObject({
+      year,
+      month: precision !== 'year' ? (month ?? 1) : undefined,
+      day: precision === 'day' ? (day ?? 1) : undefined
+    })
+  }
 }
 
 export type DateWithPrecision = TDateWithPrecision

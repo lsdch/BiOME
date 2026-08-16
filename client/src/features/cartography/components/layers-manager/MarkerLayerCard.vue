@@ -96,10 +96,10 @@
         <v-divider></v-divider>
         <v-tabs-window v-model="tab">
           <v-tabs-window-item value="data">
-            <v-confirm-edit v-model="layer.filters">
-              <template #default="{ model, actions: _, isPristine, cancel, save }">
-                <LayerDataFeed v-model="model.value" class="pa-2" />
-                <template v-if="!layer.ready || !isPristine">
+            <!-- <v-confirm-edit v-model="layer.filters">
+              <template #default="{ model, actions: _, isPristine, cancel, save }"> -->
+            <LayerDataFeed v-model="layer.filters" class="pa-2" />
+            <!-- <template v-if="!layer.ready || !isPristine">
                   <v-divider></v-divider>
                   <div class="d-flex justify-end pa-2 ga-1">
                     <v-btn text="Cancel" @click="cancel()" variant="text"></v-btn>
@@ -107,7 +107,7 @@
                   </div>
                 </template>
               </template>
-            </v-confirm-edit>
+            </v-confirm-edit> -->
           </v-tabs-window-item>
           <v-tabs-window-item value="layer">
             <MarkerLayerStylePanel v-model="layer" />
@@ -130,7 +130,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useLayerData } from './layer-data'
 import LayerDataFeed from './LayerDataFeed.vue'
-import { automaticResolution, MarkerLayerSpec } from './map-layers'
+import { automaticResolution, mappingFiltersToQuery, MarkerLayerSpec } from './map-layers'
 import MarkerLayerStylePanel from './MarkerLayerStylePanel.vue'
 
 const { index, zoom } = defineProps<{
@@ -177,7 +177,7 @@ const remote = useQuery(
       ...listOccurrencesH3Options({
         path: { resolution: layer.value.resolution },
         query: {
-          ...layer.value.filters
+          ...mappingFiltersToQuery(layer.value.filters, 'occurrences')
         }
       })
     }

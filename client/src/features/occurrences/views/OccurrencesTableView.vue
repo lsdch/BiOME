@@ -134,6 +134,7 @@
                       hide-details
                     />
                   </v-list-item>
+                  <DateFiltersListItem v-model="filters.date" />
                   <!-- <v-list-item prepend-icon="mdi-dna">
                     <ClearableSwitch v-model="filters.has_sequences" class="pl-2" label="Sequences available"
                       color-true="primary" color-false="red" hint="Show only bio material having registered sequences"
@@ -339,28 +340,27 @@
 </template>
 
 <script setup lang="ts">
-import { $TaxonRank, $TaxonStatus, TaxonRank, OccurrenceTypeStatus, Site } from '@/api'
-
 import {
-  // BioMatSortKey,
-  DateWithPrecision,
-  Identification,
-  Occurrence,
-  // SiteItem,
-  TaxonStatus
+  $TaxonRank,
+  $TaxonStatus,
+  CompositeDate,
+  EventDatePrecision,
+  ListOccurrencesData,
+  OccurrenceTypeStatus,
+  Site,
+  TaxonRank
 } from '@/api'
-import {
-  // deleteOccurrenceMutation,
-  listOccurrencesOptions,
-  listOccurrencesQueryKey
-  // occurrencesDateRangeOptions
-} from '@/api/gen/@tanstack/vue-query.gen'
+
+import { DateWithPrecision, Identification, Occurrence, TaxonStatus } from '@/api'
+import { listOccurrencesOptions, listOccurrencesQueryKey } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTableSearchBar from '@/components/toolkit/tables/CRUDTableSearchBar.vue'
-// import BioMaterialFormDialog from '@/features/occurrences/components/BioMaterialFormDialog.vue'
-import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
-import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
+import DateFiltersListItem from '@/components/toolkit/ui/DateFiltersListItem.vue'
+import {
+  DateFilters,
+  mappingFiltersToQuery
+} from '@/features/cartography/components/layers-manager/map-layers'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import ImportBatchPicker from '@/features/import/components/ImportBatchPicker.vue'
 import TypeStatusPicker from '@/features/occurrences/components/TypeStatusPicker'
@@ -372,23 +372,8 @@ import { useUserStore } from '@/stores/user'
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computedAsync, promiseTimeout, useToggle, useUrlSearchParams } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { toRef } from 'vue'
-import { computed, onMounted, ref } from 'vue'
-import { FilterMatch, useDisplay } from 'vuetify'
-
-const { xs } = useDisplay()
-
-// const { data: yearRange } = useQuery(occurrencesDateRangeOptions())
-
-// const [useYearRange, _toggleYearRange] = useToggle(false)
-
-// function toggleYearRange(v: boolean | null) {
-//   if (!v) {
-//     filters.value.year = undefined
-//     filters.value.year_end = undefined
-//   }
-//   _toggleYearRange(!!v)
-// }
+import { computed, onMounted, ref, toRef, watch } from 'vue'
+import { FilterMatch } from 'vuetify'
 
 const { feedback } = useFeedback()
 const { user: currentUser } = storeToRefs(useUserStore())
@@ -405,10 +390,8 @@ const pagination = ref<Pagination>({
   page: 1
 })
 
-type BiomatTableFilters = {
+type TableUrlParams = {
   search_term?: string
-  year?: number
-  year_end?: number | null
   datasets?: string[]
   batches?: UUID[]
   type_status?: OccurrenceTypeStatus
@@ -417,10 +400,101 @@ type BiomatTableFilters = {
   rank?: TaxonRank
   status?: TaxonStatus
   taxa?: string[]
+  date_from?: string
+  date_to?: string
+  date_is_range?: boolean
+  date_precision?: EventDatePrecision
+  date_include_unknown?: boolean
+  date_buffer?: string
 }
 
-const filters = toRef(
-  useUrlSearchParams<BiomatTableFilters>('history', { removeNullishValues: true })
+const urlParams = toRef(
+  useUrlSearchParams<TableUrlParams>('history', {
+    removeNullishValues: true,
+    initialValue: {}
+  })
+)
+
+type TableFilters = {
+  search_term?: string
+  datasets?: string[]
+  batches?: UUID[]
+  type_status?: OccurrenceTypeStatus
+  confer?: boolean
+  whole_clade?: boolean
+  rank?: TaxonRank
+  status?: TaxonStatus
+  taxa?: string[]
+  date: DateFilters
+}
+
+const filters = ref<TableFilters>({ date: { enabled: false, is_range: false, precision: 'year' } })
+
+onMounted(() => {
+  const {
+    date_from,
+    date_to,
+    date_is_range,
+    date_precision,
+    date_include_unknown,
+    date_buffer,
+    ...rest
+  } = urlParams.value
+
+  const date: DateFilters =
+    date_from || date_to
+      ? {
+          enabled: true,
+          from: CompositeDate.parse(date_from),
+          to: CompositeDate.parse(date_to),
+          is_range: date_is_range ?? false,
+          precision: (date_precision ?? 'year') as EventDatePrecision,
+          include_unknown: date_include_unknown ?? false,
+          buffer: date_buffer
+        }
+      : { enabled: false, is_range: false, precision: 'year' }
+
+  filters.value = {
+    ...rest,
+    date
+  }
+})
+
+watch(
+  filters,
+  (f) => {
+    if (!f) return
+    console.log('Updating URL params with filtervalues:', f)
+    urlParams.value.batches = f.batches
+    urlParams.value.datasets = f.datasets
+    urlParams.value.search_term = f.search_term
+    urlParams.value.type_status = f.type_status
+    urlParams.value.confer = f.confer
+    urlParams.value.whole_clade = f.whole_clade
+    urlParams.value.rank = f.rank
+    urlParams.value.status = f.status
+    urlParams.value.taxa = f.taxa
+    if (f.date.enabled) {
+      urlParams.value.date_is_range = f.date.is_range
+      urlParams.value.date_precision = f.date.precision
+      urlParams.value.date_from = f.date.from
+        ? CompositeDate.toString(f.date.from, f.date.precision)
+        : undefined
+      urlParams.value.date_to = f.date.to
+        ? CompositeDate.toString(f.date.to, f.date.precision)
+        : undefined
+      urlParams.value.date_include_unknown = f.date.include_unknown
+      urlParams.value.date_buffer = f.date.buffer
+    } else {
+      urlParams.value.date_is_range = undefined
+      urlParams.value.date_precision = undefined
+      urlParams.value.date_from = undefined
+      urlParams.value.date_to = undefined
+      urlParams.value.date_include_unknown = undefined
+      urlParams.value.date_buffer = undefined
+    }
+  },
+  { deep: true }
 )
 
 const headers: DataTableHeader[] = [
@@ -459,12 +533,6 @@ const headers: DataTableHeader[] = [
             .includes(query.toLowerCase())
         }
       },
-      // {
-      //   key: 'identification.identified_by',
-      //   title: 'Done by',
-      //   align: 'center',
-      //   sortable: false
-      // },
       {
         key: 'identification.identified_on',
         title: 'Date',
@@ -474,31 +542,29 @@ const headers: DataTableHeader[] = [
   }
 ] as const
 
-// type SortableColumn = Exclude<
-//   Extract<
-//     Exclude<(typeof headers)[number]['children'], undefined>[number]['key'] | 'meta.last_updated',
-//     string
-//   >,
-//   `data-table-${string}`
-// >
-
-// const sortKeyMap: Record<SortableColumn, BioMatSortKey> = {
-//   'sampling.site': 'site',
-//   'sampling.performed_on': 'sampling_date',
-//   'identification.taxon': 'taxon',
-//   'identification.identified_on': 'identified_on',
-//   'meta.last_updated': 'last_updated',
-//   code: 'code'
-// }
-
-// function sortKeyTransform(key: string | undefined): BioMatSortKey | undefined {
-//   return key ? sortKeyMap[key as SortableColumn] : undefined
-// }
-
 function invalidateQuery() {
   queryClient.invalidateQueries({ queryKey: listOccurrencesQueryKey() })
 }
+
 onMounted(invalidateQuery)
+
+function dateQuery(
+  filters: DateFilters
+): NonNullable<ListOccurrencesData['query']>['date'] | undefined {
+  if (!filters.enabled || !filters.from) return undefined
+
+  const from_date = filters.from
+    ? CompositeDate.toString(filters.from, filters.precision)
+    : undefined
+  const to_date = filters.to ? CompositeDate.toString(filters.to, filters.precision) : undefined
+
+  return {
+    from: from_date,
+    to: filters.is_range ? to_date : from_date,
+    include_unknown: filters.include_unknown,
+    buffer: filters.buffer
+  }
+}
 
 const { data, error, isPending, isFetching, refetch } = useQuery(
   computed(() => ({
@@ -514,19 +580,10 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
         taxon_status: filters.value.status,
         taxa: filters.value.taxa,
         search_term: filters.value.search_term,
-        type_status: filters.value.type_status
+        type_status: filters.value.type_status,
+        date: dateQuery(filters.value.date)
       }
     }),
-    // ...props.fetchItems({
-    //   query: {
-    //     limit: pagination.value.itemsPerPage,
-    //     offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
-    //     ...genericFilters.value,
-    //     ...props.filters,
-    //     order: sortBy.value?.[0]?.order,
-    //     sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
-    //   }
-    // }),
     placeholderData: keepPreviousData
   }))
 )
@@ -538,16 +595,11 @@ async function prefetchNext(currentPage: number) {
     staleTime: Infinity,
     ...listOccurrencesOptions({
       query: {
-        limit: pagination.value.itemsPerPage,
-        offset: currentPage * pagination.value.itemsPerPage,
-        confer: filters.value.confer,
-        datasets: filters.value.datasets,
-        taxon_rank: filters.value.rank,
-        taxon_status: filters.value.status,
-        taxa: filters.value.taxa,
-        search_term: filters.value.search_term
-        // order: sortBy.value?.[0]?.order,
-        // sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
+        ...mappingFiltersToQuery(filters.value, 'occurrences'),
+        ...{
+          limit: pagination.value.itemsPerPage,
+          offset: currentPage * pagination.value.itemsPerPage
+        }
       }
     })
   })
@@ -568,7 +620,7 @@ const loading = computedAsync(async () => {
 }, true)
 
 function resetFilters() {
-  filters.value = {}
+  filters.value = { date: { enabled: false, is_range: false, precision: 'year' } }
 }
 </script>
 

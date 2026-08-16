@@ -159,6 +159,13 @@ export type Dataset = {
   slug: string
 }
 
+export type DateFilterParams = {
+  buffer?: string
+  from?: string
+  include_unknown?: boolean
+  to?: string
+}
+
 export type DateWithPrecision = {
   date: Date
   precision: EventDatePrecision
@@ -2458,6 +2465,7 @@ export type ListOccurrencesData = {
     target_taxa?: Array<string>
     target_taxa_whole_clade?: boolean
     countries?: Array<string>
+    date?: DateFilterParams
     limit?: number
     offset?: number
     sort?: OccurrenceSortKey
@@ -2533,6 +2541,7 @@ export type ListSamplingsWithOccurrencesData = {
     target_taxa?: Array<string>
     target_taxa_whole_clade?: boolean
     countries?: Array<string>
+    date?: DateFilterParams
     limit?: number
     offset?: number
     sort?: OccurrenceSortKey
@@ -2607,6 +2616,7 @@ export type ExportSamplingsWithOccurrencesData = {
     target_taxa?: Array<string>
     target_taxa_whole_clade?: boolean
     countries?: Array<string>
+    date?: DateFilterParams
     limit?: number
     offset?: number
     sort?: OccurrenceSortKey
@@ -2655,6 +2665,7 @@ export type ListSamplingsH3Data = {
     target_taxa?: Array<string>
     target_taxa_whole_clade?: boolean
     countries?: Array<string>
+    date?: DateFilterParams
     limit?: number
     offset?: number
   }
@@ -2693,6 +2704,7 @@ export type ListOccurrencesH3Data = {
     target_taxa?: Array<string>
     target_taxa_whole_clade?: boolean
     countries?: Array<string>
+    date?: DateFilterParams
     limit?: number
     offset?: number
     sort?: OccurrenceSortKey
@@ -2742,6 +2754,7 @@ export type ListSamplingsWithOccurrencesAtCellData = {
     target_taxa?: Array<string>
     target_taxa_whole_clade?: boolean
     countries?: Array<string>
+    date?: DateFilterParams
     limit?: number
     offset?: number
     sort?: OccurrenceSortKey
@@ -2793,6 +2806,7 @@ export type ListOccurringTaxaAtCellData = {
     target_taxa?: Array<string>
     target_taxa_whole_clade?: boolean
     countries?: Array<string>
+    date?: DateFilterParams
     limit?: number
     offset?: number
     sort?: OccurrenceSortKey
@@ -3717,3 +3731,28 @@ export type GetTaxonResponses = {
 }
 
 export type GetTaxonResponse = GetTaxonResponses[keyof GetTaxonResponses]
+
+export type ListSamplingYearsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/years'
+}
+
+export type ListSamplingYearsErrors = {
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type ListSamplingYearsError = ListSamplingYearsErrors[keyof ListSamplingYearsErrors]
+
+export type ListSamplingYearsResponses = {
+  /**
+   * OK
+   */
+  200: Array<number>
+}
+
+export type ListSamplingYearsResponse = ListSamplingYearsResponses[keyof ListSamplingYearsResponses]

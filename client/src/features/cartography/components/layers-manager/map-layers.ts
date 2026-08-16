@@ -1,4 +1,10 @@
-import { H3CellWithRichness, ListOccurrencesData } from '@/api'
+import {
+  CompositeDate,
+  EventDatePrecision,
+  H3CellWithRichness,
+  ListOccurrencesData,
+  ListSamplingsH3Data
+} from '@/api'
 import { ScaleBindingSpec } from '@/features/cartography/bindings'
 import { ItemWithCoordinates } from '@/features/cartography/coordinates'
 import { brewerPalettes, withOpacity } from '@/lib/color_brewer'
@@ -8,17 +14,120 @@ import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { RGB } from 'vuetify/lib/util/colorUtils.mjs'
 import { CellMarkerData } from './layer-data'
 import { GlobalMarkerOptions } from '../DeckGlMap.vue'
+import { WithRequired } from '@tanstack/vue-query'
+import { DateTime } from 'luxon'
 
 export interface H3Cell {
   h3_index: string
 }
 
-export type MappingFilters =
-  // WithRequired<
-  // Overwrite<NonNullable<ListOccurrencesData['query']>, { habitats?: HabitatRecord[] }>,
-  // 'sampling_target'
-  // >
-  NonNullable<ListOccurrencesData['query']>
+export type DateFilters = Overwrite<
+  NonNullable<NonNullable<ListOccurrencesData['query']>['date']>,
+  {
+    from?: CompositeDate
+    to?: CompositeDate
+  }
+> & {
+  enabled: boolean
+  is_range: boolean
+  precision: EventDatePrecision
+}
+
+export type MappingFilters = Omit<NonNullable<ListOccurrencesData['query']>, 'date'> & {
+  date: DateFilters
+}
+
+function compositeDateToString(
+  date: CompositeDate | undefined,
+  precision: EventDatePrecision
+): string | undefined {
+  if (!date) return undefined
+  switch (precision) {
+    case 'day':
+      if (date.day === undefined || date.month === undefined || date.year === undefined) {
+        return undefined
+      }
+      return DateTime.fromObject(date).toFormat('yyyy-MM-dd')
+    case 'month':
+      if (date.month === undefined || date.year === undefined) {
+        return undefined
+      }
+      return DateTime.fromObject(date).toFormat('yyyy-MM')
+    case 'year':
+      if (date.year === undefined) {
+        return undefined
+      }
+      return DateTime.fromObject(date).toFormat('yyyy')
+  }
+}
+
+export function mappingFiltersToQuery(
+  filters: MappingFilters,
+  mode: 'occurrences'
+): NonNullable<ListOccurrencesData['query']>
+
+export function mappingFiltersToQuery(
+  filters: MappingFilters,
+  mode: 'samplings'
+): NonNullable<ListSamplingsH3Data['query']>
+
+export function mappingFiltersToQuery(
+  { date, ...filters }: MappingFilters,
+  mode: 'occurrences' | 'samplings'
+): NonNullable<ListOccurrencesData['query'] | ListSamplingsH3Data['query']> {
+  let query: NonNullable<ListOccurrencesData['query'] | ListSamplingsH3Data['query']> = {}
+
+  const fromDate = compositeDateToString(date?.from, date.precision)
+  const toDate = compositeDateToString(date?.to, date.precision)
+
+  switch (mode) {
+    case 'occurrences':
+      query = {
+        ...filters,
+        date: date.enabled
+          ? {
+              from: fromDate,
+              to: date.is_range ? toDate : fromDate,
+              include_unknown: date.include_unknown
+            }
+          : undefined
+      }
+      break
+    case 'samplings':
+      const { batches, countries, limit, offset, target_taxa, target_taxa_whole_clade } =
+        filters as NonNullable<ListSamplingsH3Data['query']>
+      query = {
+        batches,
+        countries,
+        date: date.enabled
+          ? {
+              from: fromDate,
+              to: date.is_range ? toDate : fromDate,
+              include_unknown: date.include_unknown
+            }
+          : undefined,
+        limit,
+        offset,
+        target_taxa,
+        target_taxa_whole_clade
+      }
+      break
+  }
+
+  if (!date.enabled || !query.date) {
+    query.date = undefined
+  } else if (!date.is_range) {
+    query.date = { ...query.date, to: query.date.from }
+  }
+
+  console.log('Query: ', query)
+  return query
+}
+
+// WithRequired<
+// Overwrite<NonNullable<ListOccurrencesData['query']>, { habitats?: HabitatRecord[] }>,
+// 'sampling_target'
+// >
 /**
  * Type representing the filter options for sites in the map layers.
  * - 'All': Show all sites.
@@ -98,7 +207,8 @@ export function makeMarkerLayer(name?: string, params?: MarkerLayerParams): Mark
     filters: {
       ...{
         sampling_target: {},
-        include_sites: 'Occurrences'
+        include_sites: 'Occurrences',
+        date: { precision: 'year', enabled: false, is_range: false }
       },
       ...params?.filters
     }
@@ -109,7 +219,7 @@ export function makeMarkerLayer(name?: string, params?: MarkerLayerParams): Mark
     ...baseLayer,
     type: 'markers',
     clustered: false,
-    ready: params?.ready ?? false,
+    ready: true,
     resolutionMode: 'auto',
     resolution: 12,
     config: {
@@ -143,6 +253,7 @@ export function makeHexLayer(markersParams?: MarkerLayerParams): HexLayerSpec {
     include_sites: 'Occurrences',
     active: true,
     filters: {
+      date: { precision: 'year', enabled: false, is_range: false }
       // sampling_target: {},
       // include_sites: 'Occurrences'
     }

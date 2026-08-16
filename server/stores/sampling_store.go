@@ -468,3 +468,10 @@ func (s *SamplingStore) MaterializeSamplingFixatives(
 ) error {
 	return q.Queries().MaterializeSamplingFixatives(ctx, importID)
 }
+
+func (s SamplingStore) ListSamplingYears(
+	ctx context.Context,
+	q db.Querier,
+) ([]int32, error) {
+	return q.Queries().ListSamplingYears(ctx)
+}

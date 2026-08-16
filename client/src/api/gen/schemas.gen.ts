@@ -417,6 +417,28 @@ export const $Dataset = {
   type: 'object'
 } as const
 
+export const $DateFilterParams = {
+  additionalProperties: false,
+  properties: {
+    buffer: {
+      format: 'duration',
+      type: 'string'
+    },
+    from: {
+      pattern: '^\\d{4}(-\\d{2})?(-\\d{2})?$',
+      type: 'string'
+    },
+    include_unknown: {
+      type: 'boolean'
+    },
+    to: {
+      pattern: '^\\d{4}(-\\d{2})?(-\\d{2})?$',
+      type: 'string'
+    }
+  },
+  type: 'object'
+} as const
+
 export const $DateWithPrecision = {
   additionalProperties: false,
   properties: {

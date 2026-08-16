@@ -107,6 +107,134 @@
         :filter="(c) => c.sampling_count > 0"
       />
     </v-list-item>
+    <DateFiltersListItem v-model="filters.date" />
+    <!-- <v-menu>
+      <template #activator="{ props }">
+        <v-list-item title="Sampling date">
+          <template #append>
+            <v-switch hide-details density="compact" color="primary"></v-switch>
+            <v-btn v-bind="props" icon="mdi-calendar" />
+          </template>
+        </v-list-item>
+      </template>
+      <v-card>
+        <div class="d-flex ga-3 align-center">
+          <v-select
+            v-model="datePrecision"
+            :items="['day', 'month', 'year']"
+            hide-details
+            density="compact"
+          ></v-select>
+          <v-select
+            :items="[
+              { title: 'Fixed', value: false },
+              { title: 'Range', value: true }
+            ]"
+            v-model="dateRange"
+            hide-details
+            density="compact"
+          ></v-select>
+        </div>
+        <v-list-item v-if="!dateRange">
+          <DateFilter :precision="datePrecision" />
+        </v-list-item>
+        <template v-else>
+          <v-list-item>
+            <template #prepend>
+              <span class="text-muted" :style="{ width: '50px' }">From:</span>
+            </template>
+            <DateFilter label="" :precision="datePrecision" />
+          </v-list-item>
+          <v-list-item>
+            <template #prepend>
+              <span class="text-muted" :style="{ width: '50px' }">To:</span>
+            </template>
+            <DateFilter label="" :precision="datePrecision" />
+          </v-list-item>
+        </template>
+      </v-card>
+    </v-menu> -->
+    <!-- <v-list-item
+      title="Sampling date"
+      lines="two"
+      :subtitle="
+        filters.date.enabled
+          ? `
+        [${
+          (filters.date.from
+            ? CompositeDate.toString(filters.date.from, filters.date.precision)
+            : undefined) ?? ' -'
+        } ; ${
+          (filters.date.to
+            ? CompositeDate.toString(filters.date.to, filters.date.precision)
+            : undefined) ?? '- '
+        }]`
+          : undefined
+      "
+      class="text-muted"
+    >
+      <template #append>
+        <div class="d-flex ga-3 align-center">
+          <v-select
+            v-if="filters.date.enabled"
+            v-model="filters.date.precision"
+            label="Precision"
+            :items="['day', 'month', 'year']"
+            hide-details
+            density="compact"
+          ></v-select>
+          <v-select
+            v-if="filters.date.enabled"
+            label="Mode"
+            :items="[
+              { title: 'Fixed', value: false },
+              { title: 'Range', value: true }
+            ]"
+            v-model="filters.date.is_range"
+            hide-details
+            density="compact"
+          ></v-select>
+          <v-switch
+            v-model="filters.date.enabled"
+            hide-details
+            density="compact"
+            color="primary"
+          ></v-switch>
+        </div>
+      </template>
+    </v-list-item>
+    <template v-if="filters.date.enabled">
+      <v-list-item>
+        <template #prepend>
+          <span class="text-muted" :style="{ width: '50px' }">From:</span>
+        </template>
+        <DateFilter
+          label=""
+          :max-date="filters.date.is_range ? filters.date.to : undefined"
+          v-model="filters.date.from"
+          :precision="filters.date.precision ?? 'day'"
+        />
+      </v-list-item>
+      <v-list-item v-if="filters.date.is_range">
+        <template #prepend>
+          <span class="text-muted" :style="{ width: '50px' }">To:</span>
+        </template>
+        <DateFilter
+          label=""
+          v-model="filters.date.to"
+          :min-date="filters.date.from"
+          :precision="filters.date.precision ?? 'day'"
+        />
+      </v-list-item>
+      <ListItemInput title="Include unknown dates" class="text-muted">
+        <v-switch
+          v-model="filters.date.include_unknown"
+          color="primary"
+          hide-details
+          density="compact"
+        ></v-switch>
+      </ListItemInput>
+    </template> -->
   </v-list>
 </template>
 
@@ -115,11 +243,14 @@ import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { MappingFilters } from './map-layers'
 import ImportBatchPicker from '@/features/import/components/ImportBatchPicker.vue'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
+import DateFilter from '@/components/toolkit/ui/DateFilter.vue'
+import { CompositeDate } from '@/api'
+import DateFiltersListItem from '@/components/toolkit/ui/DateFiltersListItem.vue'
 
 const filters = defineModel<MappingFilters>({ default: () => reactive({}) })
 

@@ -209,6 +209,9 @@ import type {
   ListSamplingsWithOccurrencesData,
   ListSamplingsWithOccurrencesError,
   ListSamplingsWithOccurrencesResponse,
+  ListSamplingYearsData,
+  ListSamplingYearsError,
+  ListSamplingYearsResponse,
   ListUsersData,
   ListUsersError,
   ListUsersResponse,
@@ -2880,4 +2883,31 @@ export const getTaxonOptions = (options: Options<GetTaxonData>) =>
       return data
     },
     queryKey: getTaxonQueryKey(options)
+  })
+
+export const listSamplingYearsQueryKey = (options?: Options<ListSamplingYearsData>) =>
+  createQueryKey('listSamplingYears', options)
+
+/**
+ * List sampling years
+ *
+ * List all unique years for samplings.
+ */
+export const listSamplingYearsOptions = (options?: Options<ListSamplingYearsData>) =>
+  queryOptions<
+    ListSamplingYearsResponse,
+    ListSamplingYearsError,
+    ListSamplingYearsResponse,
+    ReturnType<typeof listSamplingYearsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SamplingsService.listSamplingYears({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listSamplingYearsQueryKey(options)
   })

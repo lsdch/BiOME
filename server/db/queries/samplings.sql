@@ -183,3 +183,13 @@ FROM (
     ) sub
 GROUP BY ap
 ORDER BY ap;
+
+
+-- name: ListSamplingYears :many
+SELECT DISTINCT EXTRACT(
+        YEAR
+        FROM event_date
+    )::int as year
+FROM samplings s
+WHERE s.event_date IS NOT NULL
+ORDER BY year ASC;
