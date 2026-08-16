@@ -55,14 +55,12 @@ func (c *SamplingController) UpdateSamplingFixative(
 func (c *SamplingController) DeleteSamplingFixative(
 	ctx context.Context,
 	input *CodePath,
-) (*BodyTransporter[struct{}], error) {
+) (*struct{}, error) {
 	err := c.service.DeleteSamplingFixative(ctx, c.db, input.Code)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[struct{}]{
-		Body: struct{}{},
-	}, nil
+	return nil, nil
 }
 
 func (c *SamplingController) RegisterSamplingFixativesRoutes(r *router.Router) {

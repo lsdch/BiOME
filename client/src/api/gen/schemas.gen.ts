@@ -147,20 +147,6 @@ export const $BatchSnapshot = {
   type: 'object'
 } as const
 
-export const $BodyTransporterStruct___Body = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/BodyTransporterStruct {}Body.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    }
-  },
-  type: 'object'
-} as const
-
 export const $CodeHistoryEntry = {
   additionalProperties: false,
   properties: {

@@ -48,14 +48,12 @@ func (c *SamplingController) UpdateSamplingMethod(ctx context.Context, input *Sa
 	}, nil
 }
 
-func (c *SamplingController) DeleteSamplingMethod(ctx context.Context, input *CodePath) (*BodyTransporter[struct{}], error) {
+func (c *SamplingController) DeleteSamplingMethod(ctx context.Context, input *CodePath) (*struct{}, error) {
 	err := c.service.DeleteSamplingMethod(ctx, c.db, input.Code)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[struct{}]{
-		Body: struct{}{},
-	}, nil
+	return nil, nil
 }
 
 func (c *SamplingController) RegisterSamplingMethodsRoutes(r *router.Router) {

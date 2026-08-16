@@ -69,13 +69,6 @@ export type BatchSnapshot = {
   status: string
 }
 
-export type BodyTransporterStructBody = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-}
-
 export type CodeHistoryEntry = {
   code: string
   created_at: Date
@@ -1421,9 +1414,9 @@ export type DeleteFixativeError = DeleteFixativeErrors[keyof DeleteFixativeError
 
 export type DeleteFixativeResponses = {
   /**
-   * OK
+   * No Content
    */
-  200: BodyTransporterStructBody
+  204: void
 }
 
 export type DeleteFixativeResponse = DeleteFixativeResponses[keyof DeleteFixativeResponses]
@@ -3243,9 +3236,9 @@ export type DeleteSamplingMethodError = DeleteSamplingMethodErrors[keyof DeleteS
 
 export type DeleteSamplingMethodResponses = {
   /**
-   * OK
+   * No Content
    */
-  200: BodyTransporterStructBody
+  204: void
 }
 
 export type DeleteSamplingMethodResponse =

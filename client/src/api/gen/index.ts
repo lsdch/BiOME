@@ -33,7 +33,6 @@ export type {
   BatchReverseGeocodeResponse,
   BatchReverseGeocodeResponses,
   BatchSnapshot,
-  BodyTransporterStructBody,
   ClientOptions,
   CodeHistoryEntry,
   Collection,
