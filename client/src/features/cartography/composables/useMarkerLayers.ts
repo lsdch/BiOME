@@ -102,7 +102,7 @@ export function instanciateMarkerLayer<MarkerData>(
       radiusUnits: 'pixels',
       lineWidthUnits: 'pixels',
       lineWidthMinPixels: Number(layer.config.weight ?? 1),
-      radiusMinPixels: 4,
+      radiusMinPixels: 0,
       getRadius: radiusFn,
       radiusMaxPixels: 50,
       getPosition: layer.getPosition,
