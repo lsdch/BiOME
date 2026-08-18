@@ -10,7 +10,7 @@
     :items-per-page-options="[5, 10, 15, 25, 50]"
     v-model:items-per-page="pagination.itemsPerPage"
     v-model:page="pagination.page"
-    v-model:sort-by="sortBy"
+    @update:sort-by="updateSortBy"
     @update:page="prefetchNext"
   >
     <!-- Toolbar -->
@@ -204,9 +204,9 @@
                       color-false="red"
                       :hint="
                         filters.confer
-                          ? 'Show only bio material with a confer identification'
+                          ? 'Show only occurrences with a confer identification'
                           : filters.confer !== undefined
-                            ? 'Show only bio material without a confer identification'
+                            ? 'Show only occurrences without a confer identification'
                             : undefined
                       "
                       density="compact"
@@ -346,6 +346,7 @@ import {
   CompositeDate,
   EventDatePrecision,
   ListOccurrencesData,
+  OccurrenceSortKey,
   OccurrenceTypeStatus,
   Site,
   TaxonRank
@@ -372,13 +373,35 @@ import { useUserStore } from '@/stores/user'
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computedAsync, promiseTimeout, useToggle, useUrlSearchParams } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
+import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { computed, onMounted, ref, toRef, watch } from 'vue'
-import { FilterMatch } from 'vuetify'
+import { DataTableSortItem, FilterMatch } from 'vuetify'
 
 const { feedback } = useFeedback()
 const { user: currentUser } = storeToRefs(useUserStore())
 
 const [menu, toggleMenu] = useToggle(false)
+
+const sortBy = ref<Overwrite<DataTableSortItem, { key: OccurrenceSortKey }>>({
+  key: 'code',
+  order: 'asc'
+})
+
+const sortKeys: Record<string, OccurrenceSortKey> = {
+  code: 'code',
+  'sampling.site': 'site_name',
+  'sampling.performed_on': 'event_date',
+  identification: 'taxon_name',
+  'identification.identified_on': 'identified_on'
+}
+
+function updateSortBy(newSortBy: DataTableSortItem[]) {
+  if (newSortBy.length) {
+    sortBy.value = { ...newSortBy[0], key: sortKeys[newSortBy[0].key] as OccurrenceSortKey }
+  } else {
+    sortBy.value = { key: 'code', order: 'asc' }
+  }
+}
 
 type Pagination = {
   itemsPerPage: number
@@ -581,7 +604,9 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
         taxa: filters.value.taxa,
         search_term: filters.value.search_term,
         type_status: filters.value.type_status,
-        date: dateQuery(filters.value.date)
+        date: dateQuery(filters.value.date),
+        sort: sortBy.value.key,
+        sort_direction: sortBy.value.order as 'asc' | 'desc'
       }
     }),
     placeholderData: keepPreviousData

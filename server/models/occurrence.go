@@ -14,13 +14,14 @@ type OccurrenceSortKey string
 
 //generate:enum
 const (
-	OccurrenceSortKeyCode      OccurrenceSortKey = "code"
-	OccurrenceSortKeySiteName  OccurrenceSortKey = "site_name"
-	OccurrenceSortKeySiteCode  OccurrenceSortKey = "site_code"
-	OccurrenceSortKeyEventDate OccurrenceSortKey = "event_date"
-	OccurrenceSortKeyTaxonName OccurrenceSortKey = "taxon_name"
-	OccurrenceSortKeyCreatedAt OccurrenceSortKey = "created_at"
-	OccurrenceSortKeyUpdatedAt OccurrenceSortKey = "updated_at"
+	OccurrenceSortKeyCode         OccurrenceSortKey = "code"
+	OccurrenceSortKeySiteName     OccurrenceSortKey = "site_name"
+	OccurrenceSortKeySiteCode     OccurrenceSortKey = "site_code"
+	OccurrenceSortKeyEventDate    OccurrenceSortKey = "event_date"
+	OccurrenceSortKeyTaxonName    OccurrenceSortKey = "taxon_name"
+	OccurrenceSortKeyIdentifiedOn OccurrenceSortKey = "identified_on"
+	OccurrenceSortKeyCreatedAt    OccurrenceSortKey = "created_at"
+	OccurrenceSortKeyUpdatedAt    OccurrenceSortKey = "updated_at"
 )
 
 func (k OccurrenceSortKey) Column() Column {
@@ -35,6 +36,8 @@ func (k OccurrenceSortKey) Column() Column {
 		return table.Samplings.EventDate
 	case OccurrenceSortKeyTaxonName:
 		return table.Taxa.Name
+	case OccurrenceSortKeyIdentifiedOn:
+		return table.Occurrences.IdentificationDate
 	case OccurrenceSortKeyCreatedAt:
 		return table.Occurrences.CreatedAt
 	case OccurrenceSortKeyUpdatedAt:

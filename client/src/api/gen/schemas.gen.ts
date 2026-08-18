@@ -1478,7 +1478,16 @@ export const $OccurrenceQuantity = {
 } as const
 
 export const $OccurrenceSortKey = {
-  enum: ['code', 'site_name', 'site_code', 'event_date', 'taxon_name', 'created_at', 'updated_at'],
+  enum: [
+    'code',
+    'site_name',
+    'site_code',
+    'event_date',
+    'taxon_name',
+    'identified_on',
+    'created_at',
+    'updated_at'
+  ],
   title: 'OccurrenceSortKey',
   type: 'string'
 } as const

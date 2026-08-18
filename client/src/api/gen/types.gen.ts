@@ -544,6 +544,7 @@ export type OccurrenceSortKey =
   | 'site_code'
   | 'event_date'
   | 'taxon_name'
+  | 'identified_on'
   | 'created_at'
   | 'updated_at'
 

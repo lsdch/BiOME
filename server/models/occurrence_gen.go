@@ -18,6 +18,7 @@ var OccurrenceSortKeyValues = []OccurrenceSortKey{
 	OccurrenceSortKeySiteCode,
 	OccurrenceSortKeyEventDate,
 	OccurrenceSortKeyTaxonName,
+	OccurrenceSortKeyIdentifiedOn,
 	OccurrenceSortKeyCreatedAt,
 	OccurrenceSortKeyUpdatedAt,
 }
