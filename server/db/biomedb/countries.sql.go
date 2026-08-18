@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-const coordinatesToCountry = `-- name: CoordinatesToCountry :many
+const coordinatesToCountry = `-- name: CoordinatesToCountry :one
 SELECT c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM countries c
 WHERE ST_Contains(
@@ -25,30 +25,17 @@ WHERE ST_Contains(
 LIMIT 1
 `
 
-func (q *Queries) CoordinatesToCountry(ctx context.Context, latitude float64, longitude float64) ([]Country, error) {
-	rows, err := q.db.Query(ctx, coordinatesToCountry, latitude, longitude)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []Country{}
-	for rows.Next() {
-		var i Country
-		if err := rows.Scan(
-			&i.Code,
-			&i.Name,
-			&i.Continent,
-			&i.Subcontinent,
-			&i.Geom,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) CoordinatesToCountry(ctx context.Context, longitude float64, latitude float64) (Country, error) {
+	row := q.db.QueryRow(ctx, coordinatesToCountry, longitude, latitude)
+	var i Country
+	err := row.Scan(
+		&i.Code,
+		&i.Name,
+		&i.Continent,
+		&i.Subcontinent,
+		&i.Geom,
+	)
+	return i, err
 }
 
 const insertCountry = `-- name: InsertCountry :exec

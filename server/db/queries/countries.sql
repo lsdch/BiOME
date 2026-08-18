@@ -26,15 +26,15 @@ FROM countries c
 GROUP BY c.code
 ORDER BY c.name;
 
--- name: CoordinatesToCountry :many
+-- name: CoordinatesToCountry :one
 SELECT c.*
 FROM countries c
 WHERE ST_Contains(
         c.geom,
         ST_SetSRID(
             ST_Point(
-                @latitude::double precision,
-                @longitude::double precision
+                @longitude::double precision,
+                @latitude::double precision
             ),
             4326
         )

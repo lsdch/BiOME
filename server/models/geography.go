@@ -99,6 +99,7 @@ type H3CellWithRichness struct {
 	SpeciesRichness int64 `json:"species_richness"`
 	GenusRichness   int64 `json:"genus_richness"`
 	FamilyRichness  int64 `json:"family_richness"`
+	OccurringTaxa   int64 `json:"occurring_taxa"`
 }
 
 func (c H3CellWithRichness) WithDistance(distanceMeters int32) H3CellWithRichnessAndDistance {

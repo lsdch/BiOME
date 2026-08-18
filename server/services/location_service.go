@@ -39,13 +39,10 @@ func (s *LocationService) ListCountriesSummary(ctx context.Context, q db.Querier
 }
 
 func (s *LocationService) CoordinatesToCountry(ctx context.Context, q db.Querier, latitude, longitude float64) (*models.Country, error) {
-	countryDB, err := q.Queries().CoordinatesToCountry(ctx, latitude, longitude)
+	countryDB, err := q.Queries().CoordinatesToCountry(ctx, longitude, latitude)
 	if err != nil {
 		return nil, err
 	}
-	if len(countryDB) == 0 {
-		return nil, nil
-	}
-	country := models.CountryFromDB(countryDB[0])
+	country := models.CountryFromDB(countryDB)
 	return &country, nil
 }
