@@ -752,6 +752,10 @@ export const $H3CellWithRichness = {
       format: 'int32',
       type: 'integer'
     },
+    occurring_taxa: {
+      format: 'int64',
+      type: 'integer'
+    },
     samplings_count: {
       format: 'int32',
       type: 'integer'
@@ -765,6 +769,7 @@ export const $H3CellWithRichness = {
     'species_richness',
     'genus_richness',
     'family_richness',
+    'occurring_taxa',
     'h3_index',
     'samplings_count',
     'occurrences_count'
@@ -794,6 +799,10 @@ export const $H3CellWithRichnessAndDistance = {
       format: 'int32',
       type: 'integer'
     },
+    occurring_taxa: {
+      format: 'int64',
+      type: 'integer'
+    },
     samplings_count: {
       format: 'int32',
       type: 'integer'
@@ -808,6 +817,7 @@ export const $H3CellWithRichnessAndDistance = {
     'species_richness',
     'genus_richness',
     'family_richness',
+    'occurring_taxa',
     'h3_index',
     'samplings_count',
     'occurrences_count'

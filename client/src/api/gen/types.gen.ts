@@ -293,6 +293,7 @@ export type H3CellWithRichness = {
   genus_richness: number
   h3_index: string
   occurrences_count: number
+  occurring_taxa: number
   samplings_count: number
   species_richness: number
 }
@@ -303,6 +304,7 @@ export type H3CellWithRichnessAndDistance = {
   genus_richness: number
   h3_index: string
   occurrences_count: number
+  occurring_taxa: number
   samplings_count: number
   species_richness: number
 }

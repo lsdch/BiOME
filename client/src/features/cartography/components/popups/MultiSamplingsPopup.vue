@@ -89,13 +89,13 @@
       </v-list-item>
 
       <v-list-item
-        v-if="occurringTaxaCount > 1"
-        :title="pluralize(occurringTaxaCount, 'Sampled taxon', 'Sampled taxa')"
+        v-if="data.occurring_taxa > 1"
+        :title="pluralize(data.occurring_taxa, 'Sampled taxon', 'Sampled taxa')"
         prepend-icon="mdi-family-tree"
         @click="() => !loading && dialog?.open?.('sampled_taxa')"
       >
         <template #append>
-          <v-badge inline :content="occurringTaxaCount" color="" />
+          <v-badge inline :content="data.occurring_taxa" color="" />
         </template>
       </v-list-item>
       <v-list-item v-else-if="cellContent?.[0]?.occurrences?.[0]?.identification?.taxon">
@@ -144,10 +144,6 @@ const { data, params, resolution } = defineProps<{
   params: MappingFilters
   resolution: number
 }>()
-
-const occurringTaxaCount = computed(() => {
-  return data ? data.species_richness + data.genus_richness + data.family_richness : 0
-})
 
 type DialogType = ComponentExposed<typeof OccurrencesOverviewDialog>
 const dialog = useTemplateRef<DialogType>('dialog')

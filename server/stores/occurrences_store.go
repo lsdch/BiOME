@@ -308,6 +308,7 @@ func (s *OccurrenceStore) listH3CellsWithSummaryAtResolution(ctx context.Context
 			COUNT(DISTINCT ancestor.id)
 			FILTER (WHERE ancestor.rank = 'family')
 		`).AS("family_richness"),
+		Raw(`COUNT(DISTINCT taxa.id)`).AS("occurring_taxa_count"),
 	).FROM(fromTables).
 		GROUP_BY(h3Cell)
 
@@ -334,6 +335,7 @@ func (s *OccurrenceStore) listH3CellsWithSummaryAtResolution(ctx context.Context
 			&cell.SpeciesRichness,
 			&cell.GenusRichness,
 			&cell.FamilyRichness,
+			&cell.OccurringTaxa,
 		)
 		cell.H3Index = h3.CellFromString(cellIndex)
 		if err != nil {
