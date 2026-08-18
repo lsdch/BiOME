@@ -3314,7 +3314,6 @@
 		"/abiotics/parameters": {
 			"get": {
 				"operationId": "ListAbioticParameters",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -3343,14 +3342,14 @@
 				"summary": "List abiotic parameters",
 				"tags": [
 					"Abiotics"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/access-points": {
 			"get": {
 				"description": "List all unique access points for samplings.",
 				"operationId": "ListAccessPoints",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -3379,15 +3378,13 @@
 				"summary": "List access points",
 				"tags": [
 					"Samplings"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/accounts": {
 			"get": {
 				"operationId": "ListUsers",
-				"policy": {
-					"Role": "admin"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -3416,13 +3413,15 @@
 				"summary": "List all users",
 				"tags": [
 					"Accounts"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/auth/login": {
 			"post": {
 				"operationId": "Login",
-				"policy": {},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -3475,13 +3474,13 @@
 				"summary": "Authenticate a user and return a JWT token",
 				"tags": [
 					"Authentication"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/auth/logout": {
 			"post": {
 				"operationId": "Logout",
-				"policy": {},
 				"responses": {
 					"204": {
 						"description": "No Content",
@@ -3507,13 +3506,13 @@
 				"summary": "Invalidate the current user's session",
 				"tags": [
 					"Authentication"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/auth/me": {
 			"get": {
 				"operationId": "GetCurrentUser",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -3539,7 +3538,8 @@
 				"summary": "Get the current authenticated user's information",
 				"tags": [
 					"Authentication"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/auth/refresh": {
@@ -3563,7 +3563,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -3606,13 +3605,13 @@
 				"summary": "Refresh the current user's session",
 				"tags": [
 					"Authentication"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/datasets": {
 			"get": {
 				"operationId": "ListDatasets",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -3641,7 +3640,8 @@
 				"summary": "List datasets",
 				"tags": [
 					"Datasets"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/datasets/{ulid}": {
@@ -3658,7 +3658,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -3694,7 +3693,8 @@
 				"summary": "Get dataset by ID",
 				"tags": [
 					"Datasets"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/datasets/{ulid}/occurrences": {
@@ -3711,7 +3711,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -3750,13 +3749,13 @@
 				"summary": "Load occurrences for dataset",
 				"tags": [
 					"Datasets"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/fixatives": {
 			"get": {
 				"operationId": "ListFixatives",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -3785,13 +3784,11 @@
 				"summary": "List sampling fixatives",
 				"tags": [
 					"Sampling"
-				]
+				],
+				"x-policy": {}
 			},
 			"post": {
 				"operationId": "CreateFixative",
-				"policy": {
-					"Role": "maintainer"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -3837,7 +3834,10 @@
 				"summary": "Create a new sampling fixative",
 				"tags": [
 					"Sampling"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			}
 		},
 		"/fixatives/{code}": {
@@ -3853,9 +3853,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "maintainer"
-				},
 				"responses": {
 					"204": {
 						"description": "No Content"
@@ -3884,7 +3881,10 @@
 				"summary": "Delete a sampling fixative by code",
 				"tags": [
 					"Sampling"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			},
 			"patch": {
 				"operationId": "UpdateFixative",
@@ -3898,9 +3898,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "maintainer"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -3946,7 +3943,10 @@
 				"summary": "Update a sampling fixative by code",
 				"tags": [
 					"Sampling"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			}
 		},
 		"/geoapify/reverse-geocode": {
@@ -3972,7 +3972,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -4008,13 +4007,13 @@
 				"summary": "Reverse geocode coordinates using Geoapify API",
 				"tags": [
 					"Services"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/geoapify/reverse-geocode/batch": {
 			"post": {
 				"operationId": "BatchReverseGeocode",
-				"policy": {},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -4066,13 +4065,13 @@
 				"summary": "Batch reverse geocode coordinates using Geoapify API",
 				"tags": [
 					"Services"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/geoapify/status": {
 			"get": {
 				"operationId": "GetGeoapifyStatus",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -4098,13 +4097,13 @@
 				"summary": "Get Geoapify API status",
 				"tags": [
 					"Services"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/geoapify/usage/history": {
 			"get": {
 				"operationId": "ListGeoapifyUsage",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -4133,13 +4132,13 @@
 				"summary": "List Geoapify usage history",
 				"tags": [
 					"Services"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/habitats": {
 			"get": {
 				"operationId": "GetHabitatGroups",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -4168,13 +4167,11 @@
 				"summary": "Get all habitat groups with their elements",
 				"tags": [
 					"Habitats"
-				]
+				],
+				"x-policy": {}
 			},
 			"post": {
 				"operationId": "CreateHabitatGroup",
-				"policy": {
-					"Role": "admin"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -4213,7 +4210,10 @@
 				"summary": "Create a new habitat group with its elements",
 				"tags": [
 					"Habitats"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/habitats/{id}": {
@@ -4230,9 +4230,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "admin"
-				},
 				"responses": {
 					"204": {
 						"description": "No Content"
@@ -4261,7 +4258,10 @@
 				"summary": "Delete a habitat group by its ID",
 				"tags": [
 					"Habitats"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			},
 			"patch": {
 				"operationId": "UpdateHabitatGroup",
@@ -4276,9 +4276,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "admin"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -4317,13 +4314,15 @@
 				"summary": "Update a habitat group by its ID",
 				"tags": [
 					"Habitats"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/import-batches": {
 			"get": {
 				"operationId": "ListImportBatches",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -4352,13 +4351,13 @@
 				"summary": "List import batches",
 				"tags": [
 					"Imports"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/import-batches/with-content": {
 			"get": {
 				"operationId": "ListImportBatchesWithContent",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -4387,7 +4386,8 @@
 				"summary": "List import batches with content summary",
 				"tags": [
 					"Imports"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/import-batches/{id}": {
@@ -4404,9 +4404,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "maintainer"
-				},
 				"responses": {
 					"204": {
 						"description": "No Content"
@@ -4435,7 +4432,10 @@
 				"summary": "Delete an import batch",
 				"tags": [
 					"Imports"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			},
 			"get": {
 				"operationId": "GetImportBatch",
@@ -4450,7 +4450,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -4486,7 +4485,8 @@
 				"summary": "Get a specific import batch",
 				"tags": [
 					"Imports"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/import-batches/{id}/with-content": {
@@ -4503,7 +4503,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -4539,7 +4538,8 @@
 				"summary": "Get a specific import batch with content summary",
 				"tags": [
 					"Imports"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/imports/batch/{id}/status/track": {
@@ -4556,9 +4556,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -4584,15 +4581,15 @@
 				"summary": "Get import status updates via Server-Sent Events (SSE)",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches": {
 			"get": {
 				"operationId": "ListImports",
-				"policy": {
-					"Role": "contributor"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -4621,13 +4618,13 @@
 				"summary": "List import batchs",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			},
 			"post": {
 				"operationId": "ImportOccurrencesCSV",
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"multipart/form-data": {
@@ -4719,15 +4716,15 @@
 				"summary": "Import occurrence data from CSV",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches/by-user": {
 			"get": {
 				"operationId": "ListImportsForCurrentUser",
-				"policy": {
-					"Role": "contributor"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -4756,7 +4753,10 @@
 				"summary": "List import batchs for the current user",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches/imports/batch/{id}/bibliography": {
@@ -4773,9 +4773,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -4814,7 +4811,10 @@
 				"summary": "Get bibliography resolution state and candidates",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			},
 			"patch": {
 				"operationId": "ResolvePublication",
@@ -4829,9 +4829,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -4870,7 +4867,10 @@
 				"summary": "Resolve publication for import ID",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches/imports/batch/{id}/fixatives": {
@@ -4887,9 +4887,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -4928,7 +4925,10 @@
 				"summary": "Get sampling fixatives resolution state",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			},
 			"patch": {
 				"operationId": "ResolveFixative",
@@ -4943,9 +4943,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -4991,7 +4988,10 @@
 				"summary": "Resolve sampling fixative for import ID",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches/imports/batch/{id}/sampling-methods": {
@@ -5008,9 +5008,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -5049,7 +5046,10 @@
 				"summary": "Get sampling methods resolution state",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			},
 			"patch": {
 				"operationId": "ResolveMethod",
@@ -5064,9 +5064,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -5112,7 +5109,10 @@
 				"summary": "Resolve sampling method for import ID",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches/imports/batch/{id}/taxonomy": {
@@ -5129,9 +5129,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -5170,7 +5167,10 @@
 				"summary": "Get taxonomy resolution state and candidates",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			},
 			"patch": {
 				"operationId": "ResolveTaxon",
@@ -5185,9 +5185,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -5226,7 +5223,10 @@
 				"summary": "Resolve taxon for import ID",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches/imports/batch/{id}/taxonomy/candidates": {
@@ -5243,9 +5243,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -5284,7 +5281,10 @@
 				"summary": "Create a manual taxon candidate for import ID",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches/{id}": {
@@ -5302,9 +5302,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "admin"
-				},
 				"responses": {
 					"204": {
 						"description": "No Content"
@@ -5333,7 +5330,10 @@
 				"summary": "Delete the import batch",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/imports/batches/{id}/bibliography": {
@@ -5351,9 +5351,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"multipart/form-data": {
@@ -5428,7 +5425,10 @@
 				"summary": "Add bibliography to occurrences batch",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/imports/batches/{id}/materialize": {
@@ -5446,9 +5446,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "maintainer"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -5484,7 +5481,10 @@
 				"summary": "Materialize the import batch into the database",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			}
 		},
 		"/imports/batches/{id}/status": {
@@ -5501,9 +5501,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -5539,13 +5536,15 @@
 				"summary": "Get the current status of the import batch",
 				"tags": [
 					"Batch Imports"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/locations/countries": {
 			"get": {
 				"operationId": "ListCountries",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -5574,7 +5573,8 @@
 				"summary": "List countries",
 				"tags": [
 					"Location"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/locations/countries/from-coordinates": {
@@ -5600,7 +5600,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -5636,13 +5635,13 @@
 				"summary": "Get country from coordinates",
 				"tags": [
 					"Location"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/locations/countries/summary": {
 			"get": {
 				"operationId": "ListCountriesSummary",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -5671,7 +5670,8 @@
 				"summary": "List countries summary",
 				"tags": [
 					"Location"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences": {
@@ -5833,7 +5833,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -5869,13 +5868,11 @@
 				"summary": "List occurrences with optional filters and pagination",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			},
 			"post": {
 				"operationId": "CreateOccurrence",
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -5921,7 +5918,10 @@
 				"summary": "Create a new occurrence with its sampling and taxon",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/occurrences/by-sampling": {
@@ -6083,7 +6083,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -6122,13 +6121,13 @@
 				"summary": "List samplings with occurrences",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/collection-names": {
 			"get": {
 				"operationId": "ListCollectionNames",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -6157,7 +6156,8 @@
 				"summary": "List all unique collection names",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/export": {
@@ -6334,7 +6334,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"description": "OK"
@@ -6363,7 +6362,8 @@
 				"summary": "Export samplings with occurrences",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/h3-samplings/{resolution}": {
@@ -6450,7 +6450,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -6489,7 +6488,8 @@
 				"summary": "List samplings aggregated by H3 cells",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/h3/{resolution}": {
@@ -6662,7 +6662,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -6701,7 +6700,8 @@
 				"summary": "List occurrences aggregated by H3 cells",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/h3/{resolution}/{cell}/data": {
@@ -6882,7 +6882,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -6921,7 +6920,8 @@
 				"summary": "List samplings with occurrences at a specific H3 cell",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/h3/{resolution}/{cell}/taxa": {
@@ -7102,7 +7102,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7141,7 +7140,8 @@
 				"summary": "List taxa occurring at a specific H3 cell with optional filters and pagination",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/item/{ulid}": {
@@ -7158,7 +7158,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7194,7 +7193,8 @@
 				"summary": "Get Occurrence with all relevant metadata",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/proximity": {
@@ -7260,7 +7260,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7299,7 +7298,8 @@
 				"summary": "List samplings with occurrences within a certain distance of a given point",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/samplings/{uuid}": {
@@ -7316,9 +7316,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -7364,13 +7361,15 @@
 				"summary": "Create a new occurrence at a specific sampling point",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/occurrences/taxa-overview": {
 			"get": {
 				"operationId": "OccurrencesTaxaOverview",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7399,7 +7398,8 @@
 				"summary": "Get an overview of occurrences count by taxa",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/occurrences/{ulid}/datasets": {
@@ -7416,7 +7416,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7455,7 +7454,8 @@
 				"summary": "Load datasets for occurrence",
 				"tags": [
 					"Occurrences"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/proximity": {
@@ -7522,7 +7522,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7561,7 +7560,8 @@
 				"summary": "List samplings at proximity",
 				"tags": [
 					"Samplings"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/proximity/h3": {
@@ -7628,7 +7628,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7667,13 +7666,13 @@
 				"summary": "List samplings at proximity (H3)",
 				"tags": [
 					"Samplings"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/publications": {
 			"get": {
 				"operationId": "ListPublications",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7702,13 +7701,11 @@
 				"summary": "List bibliography",
 				"tags": [
 					"Bibliography"
-				]
+				],
+				"x-policy": {}
 			},
 			"post": {
 				"operationId": "CreatePublication",
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -7754,7 +7751,10 @@
 				"summary": "Create a new publication",
 				"tags": [
 					"Bibliography"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/publications/{id}": {
@@ -7771,9 +7771,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "maintainer"
-				},
 				"responses": {
 					"204": {
 						"description": "No Content"
@@ -7802,13 +7799,15 @@
 				"summary": "Delete a publication by ID",
 				"tags": [
 					"Bibliography"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			}
 		},
 		"/sampling-methods": {
 			"get": {
 				"operationId": "ListSamplingMethods",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -7837,13 +7836,11 @@
 				"summary": "List sampling methods",
 				"tags": [
 					"Sampling"
-				]
+				],
+				"x-policy": {}
 			},
 			"post": {
 				"operationId": "CreateSamplingMethod",
-				"policy": {
-					"Role": "maintainer"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -7889,7 +7886,10 @@
 				"summary": "Create a new sampling method",
 				"tags": [
 					"Sampling"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			}
 		},
 		"/sampling-methods/{code}": {
@@ -7905,9 +7905,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "maintainer"
-				},
 				"responses": {
 					"204": {
 						"description": "No Content"
@@ -7936,7 +7933,10 @@
 				"summary": "Delete a sampling method by code",
 				"tags": [
 					"Sampling"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			},
 			"patch": {
 				"operationId": "UpdateSamplingMethod",
@@ -7950,9 +7950,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "maintainer"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -7998,16 +7995,16 @@
 				"summary": "Update a sampling method by code",
 				"tags": [
 					"Sampling"
-				]
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
 			}
 		},
 		"/samplings": {
 			"post": {
 				"description": "Create a new sampling with the provided details.",
 				"operationId": "CreateSampling",
-				"policy": {
-					"Role": "contributor"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -8053,13 +8050,15 @@
 				"summary": "Create a new sampling",
 				"tags": [
 					"Samplings"
-				]
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/settings/instance": {
 			"get": {
 				"operationId": "GetInstanceSettings",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -8085,13 +8084,11 @@
 				"summary": "Get instance settings",
 				"tags": [
 					"Settings"
-				]
+				],
+				"x-policy": {}
 			},
 			"put": {
 				"operationId": "UpdateInstanceSettings",
-				"policy": {
-					"Role": "admin"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -8130,15 +8127,15 @@
 				"summary": "Update instance settings",
 				"tags": [
 					"Settings"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/settings/instance/app-icon": {
 			"post": {
 				"operationId": "SetAppIcon",
-				"policy": {
-					"Role": "admin"
-				},
 				"requestBody": {
 					"content": {
 						"multipart/form-data": {
@@ -8200,15 +8197,15 @@
 				"summary": "Set the application icon",
 				"tags": [
 					"Settings"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/settings/instance/dashboard-message": {
 			"get": {
 				"operationId": "GetDashboardMessage",
-				"policy": {
-					"Role": "admin"
-				},
 				"responses": {
 					"200": {
 						"content": {
@@ -8237,13 +8234,13 @@
 				"summary": "Get the dashboard message",
 				"tags": [
 					"Settings"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			},
 			"put": {
 				"operationId": "SetDashboardMessage",
-				"policy": {
-					"Role": "admin"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -8284,15 +8281,15 @@
 				"summary": "Set the dashboard message",
 				"tags": [
 					"Settings"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/settings/instance/public-access": {
 			"put": {
 				"operationId": "TogglePublicAccess",
-				"policy": {
-					"Role": "admin"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -8331,15 +8328,15 @@
 				"summary": "Toggle public access to the instance",
 				"tags": [
 					"Settings"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/settings/instance/public-registration": {
 			"put": {
 				"operationId": "TogglePublicRegistration",
-				"policy": {
-					"Role": "admin"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -8378,13 +8375,15 @@
 				"summary": "Toggle public registration for the instance",
 				"tags": [
 					"Settings"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/settings/smtp/test": {
 			"get": {
 				"operationId": "TestSMTPConnection",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -8410,14 +8409,14 @@
 				"summary": "Test SMTP connection",
 				"tags": [
 					"Settings"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/taxonomy/gbif/kingdoms": {
 			"get": {
 				"description": "Retrieves a list of all GBIF kingdoms. Response is cached to avoid repeated calls to the GBIF API.",
 				"operationId": "GetGBIFKingdoms",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -8446,7 +8445,8 @@
 				"summary": "Get GBIF kingdoms",
 				"tags": [
 					"Taxonomy"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/taxonomy/rank/{rank}": {
@@ -8462,7 +8462,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -8501,7 +8500,8 @@
 				"summary": "Get all taxa at a specific rank",
 				"tags": [
 					"Taxonomy"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/taxonomy/search": {
@@ -8554,7 +8554,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -8593,15 +8592,13 @@
 				"summary": "Search for taxa",
 				"tags": [
 					"Taxonomy"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/taxonomy/taxa": {
 			"post": {
 				"operationId": "CreateTaxon",
-				"policy": {
-					"Role": "admin"
-				},
 				"requestBody": {
 					"content": {
 						"application/json": {
@@ -8646,7 +8643,10 @@
 				"summary": "Create a new taxon",
 				"tags": [
 					"Taxonomy"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			}
 		},
 		"/taxonomy/taxa/{id}": {
@@ -8664,9 +8664,6 @@
 						}
 					}
 				],
-				"policy": {
-					"Role": "admin"
-				},
 				"responses": {
 					"204": {
 						"description": "No Content"
@@ -8695,7 +8692,10 @@
 				"summary": "Delete a taxon by ID",
 				"tags": [
 					"Taxonomy"
-				]
+				],
+				"x-policy": {
+					"role": "admin"
+				}
 			},
 			"get": {
 				"operationId": "GetTaxon",
@@ -8710,7 +8710,6 @@
 						}
 					}
 				],
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -8746,14 +8745,14 @@
 				"summary": "Get a taxon by ID",
 				"tags": [
 					"Taxonomy"
-				]
+				],
+				"x-policy": {}
 			}
 		},
 		"/years": {
 			"get": {
 				"description": "List all unique years for samplings.",
 				"operationId": "ListSamplingYears",
-				"policy": {},
 				"responses": {
 					"200": {
 						"content": {
@@ -8783,7 +8782,8 @@
 				"summary": "List sampling years",
 				"tags": [
 					"Samplings"
-				]
+				],
+				"x-policy": {}
 			}
 		}
 	},

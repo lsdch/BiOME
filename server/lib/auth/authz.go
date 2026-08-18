@@ -31,7 +31,7 @@ func (p AuthenticatedPolicy) IsAuthRequired() bool {
 }
 
 type RolePolicy struct {
-	Role models.UserRole
+	Role models.UserRole `json:"role"`
 }
 
 func (p RolePolicy) Eval(user *models.User) bool {
@@ -46,7 +46,7 @@ func (p RolePolicy) IsAuthRequired() bool {
 }
 
 type AndPolicy struct {
-	Policies []Policy
+	Policies []Policy `json:"all"`
 }
 
 func (p AndPolicy) Eval(user *models.User) bool {
@@ -68,7 +68,7 @@ func (p AndPolicy) IsAuthRequired() bool {
 }
 
 type OrPolicy struct {
-	Policies []Policy
+	Policies []Policy `json:"any"`
 }
 
 func (p OrPolicy) Eval(user *models.User) bool {
@@ -130,6 +130,6 @@ func WithPolicy(op huma.Operation, p Policy) huma.Operation {
 	if op.Extensions == nil {
 		op.Extensions = map[string]any{}
 	}
-	op.Extensions["policy"] = p
+	op.Extensions["x-policy"] = p
 	return op
 }

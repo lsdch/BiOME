@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const ACCESS_POLICY_EXTENSION = "policy"
+const ACCESS_POLICY_EXTENSION = "x-policy"
 
 func WithAccessPolicy(op huma.Operation, policy auth.Policy) huma.Operation {
 	if op.Extensions == nil {
