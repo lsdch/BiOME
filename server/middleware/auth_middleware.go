@@ -83,7 +83,7 @@ func extractBearer(authHeader string) string {
 func (m *AuthMiddleware) AuthZ(ctx huma.Context, next func(huma.Context)) {
 
 	op := ctx.Operation()
-	rawPolicy := op.Extensions["policy"]
+	rawPolicy := op.Extensions[ACCESS_POLICY_EXTENSION]
 	if rawPolicy == nil {
 		next(ctx)
 		return
