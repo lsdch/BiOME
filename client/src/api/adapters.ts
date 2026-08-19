@@ -8,7 +8,7 @@ import {
   EventDatePrecision,
   DateWithPrecision as TDateWithPrecision,
   EventDateInput,
-  Article as TArticle,
+  Publication as TPublication,
   Taxon as TTaxon,
   TaxonRank as TTaxonRank,
   UserRole as TUserRole,
@@ -121,20 +121,26 @@ export namespace DateWithPrecision {
   }
 }
 
-export type Article = TArticle
-export namespace Article {
-  export function shortAuthors(authors: string[]): string {
-    return authors.length == 1
-      ? authors[0]!
-      : authors.length == 2
-        ? authors.join(' & ')
-        : `${authors[0]} et al`
+export type Publication = TPublication
+export namespace Publication {
+  export function shortAuthors(authors?: string[]): string {
+    if (!authors || authors.length === 0) return ''
+    switch (authors.length) {
+      case 0:
+        return ''
+      case 1:
+        return authors[0]!
+      case 2:
+        return authors.join(' & ')
+      default:
+        return `${authors[0]} et al`
+    }
   }
-  export function toString({ authors, year }: Article) {
+  export function toString({ authors, year }: Publication) {
     return `${shortAuthors(authors)} ${year}`
   }
 
-  export function linkDOI({ doi }: Article) {
+  export function linkDOI({ doi }: Publication) {
     return `https://doi.org/${doi}`
   }
 }

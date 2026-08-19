@@ -24,19 +24,19 @@
       </div>
     </template>
     <template #chip="{ item, props }">
-      <ArticleChip :article="item.obj" v-bind="props" />
+      <PublicationChip :publication="item.obj" v-bind="props" />
     </template>
     <template #item="{ item, props }">
       <v-list-item
         v-bind="props"
-        :title="Article.shortAuthors(item.obj.authors)"
+        :title="Publication.shortAuthors(item.obj.authors ?? [])"
         class="fuzzy-search-item"
       >
         <template #title>
           <v-list-item-title
             v-html="
               highlight(item, 'authors', {
-                baseValue: Article.shortAuthors(item.obj.authors)
+                baseValue: Publication.shortAuthors(item.obj.authors ?? [])
               })
             "
           />
@@ -64,12 +64,12 @@
 </template>
 
 <script setup lang="ts">
-import { Article } from '@/api'
+import { Publication } from '@/api'
 import { listPublicationsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFuzzyItemsFilter } from '@/composables/fuzzy_search'
 import { useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
-import ArticleChip from './ArticleChip'
+import PublicationChip from './PublicationChip'
 
 const { threshold = 0.7, limit = 10 } = defineProps<{
   multiple?: boolean
@@ -79,7 +79,7 @@ const { threshold = 0.7, limit = 10 } = defineProps<{
 
 const { data: items, isPending: loading, error } = useQuery(listPublicationsOptions())
 
-const model = defineModel<Article[]>()
+const model = defineModel<Publication[]>()
 const searchTerms = ref<string>('')
 
 const keys = [
@@ -87,7 +87,7 @@ const keys = [
   'title',
   'journal',
   'verbatim',
-  { key: 'authors', fn: (obj: Article) => Article.shortAuthors(obj.authors) }
+  { key: 'authors', fn: (obj: Publication) => Publication.shortAuthors(obj.authors ?? []) }
 ] as const
 
 const { highlight, filteredItems } = useFuzzyItemsFilter(keys, searchTerms, items, {

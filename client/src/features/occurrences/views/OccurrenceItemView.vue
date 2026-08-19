@@ -205,7 +205,7 @@
                       <v-list-item>
                         <span v-if="!item.references" class="text-muted text-caption"> NA </span>
                         <div v-else class="d-flex ga-2">
-                          <ArticleChip v-for="article in item.references" :article />
+                          <PublicationChip v-for="publication in item.references" :publication />
                         </div>
                         <template #append>
                           <span class="text-muted text-caption">Publication(s)</span>
@@ -325,7 +325,7 @@ import { useToggle } from '@vueuse/core'
 import { nextTick, ref, watch } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
 import QuantityChip from '../components/QuantityChip'
-import ArticleChip from '@/features/registries/components/ArticleChip.tsx'
+import PublicationChip from '@/features/registries/components/PublicationChip.tsx'
 import { StatusCodes } from 'http-status-codes'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
