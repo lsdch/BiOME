@@ -1724,14 +1724,14 @@ export const listCollectionNamesOptions = (options?: Options<ListCollectionNames
   })
 
 export const exportSamplingsWithOccurrencesQueryKey = (
-  options?: Options<ExportSamplingsWithOccurrencesData>
+  options: Options<ExportSamplingsWithOccurrencesData>
 ) => createQueryKey('exportSamplingsWithOccurrences', options)
 
 /**
  * Export samplings with occurrences
  */
 export const exportSamplingsWithOccurrencesOptions = (
-  options?: Options<ExportSamplingsWithOccurrencesData>
+  options: Options<ExportSamplingsWithOccurrencesData>
 ) =>
   queryOptions<
     unknown,
@@ -1752,7 +1752,7 @@ export const exportSamplingsWithOccurrencesOptions = (
   })
 
 export const exportSamplingsWithOccurrencesInfiniteQueryKey = (
-  options?: Options<ExportSamplingsWithOccurrencesData>
+  options: Options<ExportSamplingsWithOccurrencesData>
 ): QueryKey<Options<ExportSamplingsWithOccurrencesData>> =>
   createQueryKey('exportSamplingsWithOccurrences', options, true)
 
@@ -1760,7 +1760,7 @@ export const exportSamplingsWithOccurrencesInfiniteQueryKey = (
  * Export samplings with occurrences
  */
 export const exportSamplingsWithOccurrencesInfiniteOptions = (
-  options?: Options<ExportSamplingsWithOccurrencesData>
+  options: Options<ExportSamplingsWithOccurrencesData>
 ) =>
   infiniteQueryOptions<
     unknown,

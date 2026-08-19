@@ -194,9 +194,10 @@ func (o Optional[T]) MarshalJSON() ([]byte, error) {
 }
 
 func (o *Optional[T]) UnmarshalJSON(b []byte) error {
-	if len(b) > 0 && string(b) != `""` {
+	trimmed := bytes.TrimSpace(b)
+	if len(trimmed) > 0 && string(trimmed) != `""` {
 		o.IsSet = true
-		return json.Unmarshal(b, &o.Value)
+		return json.Unmarshal(trimmed, &o.Value)
 	}
 	o.IsSet = false
 	return nil

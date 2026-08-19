@@ -47,10 +47,10 @@ type Taxon struct {
 	Name       string              `json:"name"`
 	Rank       TaxonRank           `json:"rank"`
 	Status     TaxonStatus         `json:"status"`
-	Authorship Optional[string]    `json:"authorship,omitempty"`
-	Comments   Optional[string]    `json:"comments,omitempty"`
-	ParentID   Optional[uuid.UUID] `json:"parent_id,omitempty"`
-	AcceptedID Optional[uuid.UUID] `json:"accepted_id,omitempty"`
+	Authorship Optional[string]    `json:"authorship,omitzero"`
+	Comments   Optional[string]    `json:"comments,omitzero"`
+	ParentID   Optional[uuid.UUID] `json:"parent_id,omitzero"`
+	AcceptedID Optional[uuid.UUID] `json:"accepted_id,omitzero"`
 }
 
 func (t Taxon) Code() string {
@@ -75,8 +75,8 @@ func TaxonFromDB(t *biomedb.Taxon) *Taxon {
 }
 
 type TaxonRelations struct {
-	ParentTaxon   Optional[Taxon] `json:"parent_taxon,omitempty"`
-	AcceptedTaxon Optional[Taxon] `json:"accepted_taxon,omitempty"`
+	ParentTaxon   Optional[Taxon] `json:"parent_taxon,omitzero"`
+	AcceptedTaxon Optional[Taxon] `json:"accepted_taxon,omitzero"`
 }
 
 type TaxonWithRelations struct {
@@ -129,10 +129,10 @@ type CreateTaxonInput struct {
 	Name       string              `json:"name" validate:"required"`
 	Rank       TaxonRank           `json:"rank" validate:"required"`
 	Status     TaxonStatus         `json:"status" validate:"required"`
-	Authorship Optional[string]    `json:"authorship,omitempty"`
-	Comments   Optional[string]    `json:"comments,omitempty"`
+	Authorship Optional[string]    `json:"authorship,omitzero"`
+	Comments   Optional[string]    `json:"comments,omitzero"`
 	ParentID   uuid.UUID           `json:"parent_id"`
-	AcceptedID Optional[uuid.UUID] `json:"accepted_id,omitempty"`
+	AcceptedID Optional[uuid.UUID] `json:"accepted_id,omitzero"`
 }
 
 func (i *CreateTaxonInput) ToParams() *biomedb.InsertTaxonParams {

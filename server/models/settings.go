@@ -4,8 +4,8 @@ import "github.com/lsdch/biome/db/biomedb"
 
 type InstanceSettings struct {
 	Title                  string           `json:"title"`
-	Subtitle               Optional[string] `json:"subtitle,omitempty"`
-	Description            Optional[string] `json:"description,omitempty"`
+	Subtitle               Optional[string] `json:"subtitle,omitzero"`
+	Description            Optional[string] `json:"description,omitzero"`
 	AdminEmail             string           `json:"admin_email"`
 	IsPublic               bool             `json:"is_public"`
 	AccountRequestsEnabled bool             `json:"account_requests_enabled"`
@@ -29,12 +29,12 @@ func SettingsFromDB(s biomedb.Setting) InstanceSettings {
 }
 
 type InstanceSettingsUpdate struct {
-	Title           Optional[string]     `json:"title,omitempty"`
+	Title           Optional[string]     `json:"title,omitzero"`
 	Subtitle        OptionalNull[string] `json:"subtitle,omitempty"`
 	Description     OptionalNull[string] `json:"description,omitempty"`
-	AdminEmail      Optional[string]     `json:"admin_email,omitempty"`
-	MailFromAddress Optional[string]     `json:"mail_from_address,omitempty"`
-	MailFromName    Optional[string]     `json:"mail_from_name,omitempty"`
+	AdminEmail      Optional[string]     `json:"admin_email,omitzero"`
+	MailFromAddress Optional[string]     `json:"mail_from_address,omitzero"`
+	MailFromName    Optional[string]     `json:"mail_from_name,omitzero"`
 }
 
 func (s *InstanceSettingsUpdate) ToParams() biomedb.UpdateInstanceSettingsParams {

@@ -11,7 +11,7 @@ type Dataset struct {
 	ID          types.ULID       `json:"id"`
 	Label       string           `json:"label"`
 	Slug        string           `json:"slug"`
-	Description Optional[string] `json:"description,omitempty"`
+	Description Optional[string] `json:"description,omitzero"`
 	Pinned      bool             `json:"pinned"`
 	CreatedAt   time.Time        `json:"created_at"`
 }

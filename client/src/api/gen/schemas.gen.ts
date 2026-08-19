@@ -147,6 +147,18 @@ export const $BatchSnapshot = {
   type: 'object'
 } as const
 
+export const $CSVDelimiter = {
+  enum: [',', ';', '\t'],
+  title: 'CSVDelimiter',
+  type: 'string'
+} as const
+
+export const $CSVQuoteChar = {
+  enum: ['"', "'"],
+  title: 'CSVQuoteChar',
+  type: 'string'
+} as const
+
 export const $CodeHistoryEntry = {
   additionalProperties: false,
   properties: {
@@ -242,7 +254,7 @@ export const $CoordinatesWithPrecision = {
       type: 'integer'
     }
   },
-  required: ['latitude', 'longitude'],
+  required: ['precision', 'latitude', 'longitude'],
   type: 'object'
 } as const
 
@@ -262,7 +274,6 @@ export const $Country = {
     continent: {
       type: 'string'
     },
-    geom: {},
     name: {
       type: 'string'
     },
@@ -270,7 +281,7 @@ export const $Country = {
       type: 'string'
     }
   },
-  required: ['code', 'name', 'continent', 'subcontinent', 'geom'],
+  required: ['code', 'name', 'continent', 'subcontinent'],
   type: 'object'
 } as const
 
@@ -283,7 +294,6 @@ export const $CountrySummary = {
     continent: {
       type: 'string'
     },
-    geom: {},
     name: {
       type: 'string'
     },
@@ -299,15 +309,7 @@ export const $CountrySummary = {
       type: 'string'
     }
   },
-  required: [
-    'sampling_count',
-    'occurrence_count',
-    'code',
-    'name',
-    'continent',
-    'subcontinent',
-    'geom'
-  ],
+  required: ['sampling_count', 'occurrence_count', 'code', 'name', 'continent', 'subcontinent'],
   type: 'object'
 } as const
 
@@ -502,6 +504,22 @@ export const $EventDatePrecision = {
   enum: ['day', 'month', 'year'],
   title: 'EventDatePrecision',
   type: 'string'
+} as const
+
+export const $ExportCSVOptions = {
+  additionalProperties: false,
+  properties: {
+    Delimiter: {
+      $ref: '#/components/schemas/CSVDelimiter',
+      default: '\t'
+    },
+    QuoteChar: {
+      $ref: '#/components/schemas/CSVQuoteChar',
+      default: '"'
+    }
+  },
+  required: ['Delimiter', 'QuoteChar'],
+  type: 'object'
 } as const
 
 export const $Fixative = {

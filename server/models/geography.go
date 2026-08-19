@@ -24,7 +24,7 @@ func (c Coordinates) ToH3GeoCoord() h3.LatLng {
 
 type CoordinatesWithPrecision struct {
 	Coordinates
-	Precision Optional[int32] `json:"precision,omitempty" validate:"gte=0"`
+	Precision Optional[int32] `json:"precision" validate:"gte=0"`
 }
 
 func CoordinatesWithPrecisionFromDB(lat float64, lon float64, precision *int32) CoordinatesWithPrecision {

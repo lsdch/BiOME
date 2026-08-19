@@ -12,25 +12,25 @@ import (
 
 type TaxonGBIF struct {
 	Key                     int32            `json:"key"`
-	Parent                  Optional[string] `json:"parent,omitempty"`
-	ParentKey               Optional[int32]  `json:"parentKey,omitempty"`
+	Parent                  Optional[string] `json:"parent,omitzero"`
+	ParentKey               Optional[int32]  `json:"parentKey,omitzero"`
 	Name                    string           `json:"canonicalName"`
 	ScientificName          string           `json:"scientificName"`
 	Status                  string           `json:"taxonomicStatus"`
 	Rank                    string           `json:"rank"`
 	NameType                string           `json:"nameType"`
-	KingdomKey              Optional[int32]  `json:"kingdomKey,omitempty"`
-	PhylumKey               Optional[int32]  `json:"phylumKey,omitempty"`
-	ClassKey                Optional[int32]  `json:"classKey,omitempty"`
-	OrderKey                Optional[int32]  `json:"orderKey,omitempty"`
-	FamilyKey               Optional[int32]  `json:"familyKey,omitempty"`
-	GenusKey                Optional[int32]  `json:"genusKey,omitempty"`
-	SpeciesKey              Optional[int32]  `json:"speciesKey,omitempty"`
+	KingdomKey              Optional[int32]  `json:"kingdomKey,omitzero"`
+	PhylumKey               Optional[int32]  `json:"phylumKey,omitzero"`
+	ClassKey                Optional[int32]  `json:"classKey,omitzero"`
+	OrderKey                Optional[int32]  `json:"orderKey,omitzero"`
+	FamilyKey               Optional[int32]  `json:"familyKey,omitzero"`
+	GenusKey                Optional[int32]  `json:"genusKey,omitzero"`
+	SpeciesKey              Optional[int32]  `json:"speciesKey,omitzero"`
 	HigherClassificationMap map[int32]string `json:"higherClassificationMap"`
-	Authorship              Optional[string] `json:"authorship,omitempty"`
-	NumDescendants          Optional[int32]  `json:"numDescendants,omitempty"`
-	AcceptedKey             Optional[int32]  `json:"acceptedKey,omitempty"`
-	AcceptedName            Optional[string] `json:"accepted,omitempty"`
+	Authorship              Optional[string] `json:"authorship,omitzero"`
+	NumDescendants          Optional[int32]  `json:"numDescendants,omitzero"`
+	AcceptedKey             Optional[int32]  `json:"acceptedKey,omitzero"`
+	AcceptedName            Optional[string] `json:"accepted,omitzero"`
 }
 
 // GetParentRank returns the rank of the parent taxon based on the available parent keys.

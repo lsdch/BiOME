@@ -8,7 +8,7 @@ import (
 type Habitat struct {
 	ID          uuid.UUID        `json:"id"`
 	Name        string           `json:"name"`
-	Description Optional[string] `json:"description,omitempty"`
+	Description Optional[string] `json:"description,omitzero"`
 }
 
 func HabitatFromDB(h biomedb.Habitat) Habitat {
@@ -34,8 +34,8 @@ func HabitatWithGroupNameFromDB(h biomedb.Habitat, groupName string) HabitatWith
 type HabitatGroup struct {
 	ID          uuid.UUID           `json:"id"`
 	Name        string              `json:"name"`
-	Description Optional[string]    `json:"description,omitempty"`
-	ParentID    Optional[uuid.UUID] `json:"parent_id,omitempty"`
+	Description Optional[string]    `json:"description,omitzero"`
+	ParentID    Optional[uuid.UUID] `json:"parent_id,omitzero"`
 }
 
 func HabitatGroupFromDB(h biomedb.HabitatGroup) HabitatGroup {
@@ -49,13 +49,13 @@ func HabitatGroupFromDB(h biomedb.HabitatGroup) HabitatGroup {
 
 type HabitatInput struct {
 	Label       string           `json:"label" doc:"A short label for the habitat." minLength:"3" maxLength:"32" example:"Lotic"`
-	Description Optional[string] `json:"description,omitempty" doc:"Optional habitat description"`
+	Description Optional[string] `json:"description,omitzero" doc:"Optional habitat description"`
 }
 
 type HabitatGroupInput struct {
 	Label     string           `json:"label" doc:"Name for the group of habitat tags" example:"Water flow" minLength:"3" maxLength:"32"`
-	Depends   Optional[string] `json:"depends,omitempty" doc:"Habitat tag that this group is a refinement of" example:"Aquatic, Surface"`
-	Exclusive Optional[bool]   `json:"exclusive_elements,omitempty"`
+	Depends   Optional[string] `json:"depends,omitzero" doc:"Habitat tag that this group is a refinement of" example:"Aquatic, Surface"`
+	Exclusive Optional[bool]   `json:"exclusive_elements,omitzero"`
 	Elements  []HabitatInput   `json:"elements" minItems:"1"`
 }
 

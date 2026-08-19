@@ -445,3 +445,23 @@ func TestFake(t *testing.T) {
 		}
 	})
 }
+
+func TestOptionalOmitZero(t *testing.T) {
+	type Data struct {
+		Comments Optional[string] `json:"comments,omitzero"`
+	}
+
+	data := Data{
+		Comments: Optional[string]{
+			Value: "",
+			IsSet: false,
+		},
+	}
+
+	b, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log(string(b))
+}

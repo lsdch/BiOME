@@ -69,6 +69,16 @@ export type BatchSnapshot = {
   status: string
 }
 
+/**
+ * CSVDelimiter
+ */
+export type CsvDelimiter = ',' | ';' | '\t'
+
+/**
+ * CSVQuoteChar
+ */
+export type CsvQuoteChar = '"' | "'"
+
 export type CodeHistoryEntry = {
   code: string
   created_at: Date
@@ -94,7 +104,7 @@ export type CompositeDate = {
 export type CoordinatesWithPrecision = {
   latitude: number
   longitude: number
-  precision?: number
+  precision: number
 }
 
 export type Country = {
@@ -104,7 +114,6 @@ export type Country = {
   readonly $schema?: string
   code: string
   continent: string
-  geom: unknown
   name: string
   subcontinent: string
 }
@@ -112,7 +121,6 @@ export type Country = {
 export type CountrySummary = {
   code: string
   continent: string
-  geom: unknown
   name: string
   occurrence_count: number
   sampling_count: number
@@ -205,6 +213,11 @@ export type ErrorDetail = {
  * EventDatePrecision
  */
 export type EventDatePrecision = 'day' | 'month' | 'year'
+
+export type ExportCsvOptions = {
+  Delimiter: CsvDelimiter
+  QuoteChar: CsvQuoteChar
+}
 
 export type Fixative = {
   /**
@@ -2614,7 +2627,7 @@ export type ListCollectionNamesResponse =
 export type ExportSamplingsWithOccurrencesData = {
   body?: never
   path?: never
-  query?: {
+  query: {
     batches?: Array<string>
     target_taxa?: Array<string>
     target_taxa_whole_clade?: boolean
@@ -2632,7 +2645,9 @@ export type ExportSamplingsWithOccurrencesData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
-    format?: 'csv' | 'tsv' | 'json' | 'darwinCore'
+    format?: 'csv' | 'json' | 'darwinCore'
+    filename: string
+    csvOptions?: ExportCsvOptions
   }
   url: '/occurrences/export'
 }

@@ -15,7 +15,7 @@ type samplingVocab struct {
 type SamplingVocabInput struct {
 	Code        string           `json:"code"`
 	Name        string           `json:"name"`
-	Description Optional[string] `json:"description,omitempty"`
+	Description Optional[string] `json:"description,omitzero"`
 }
 
 type SamplingMethod samplingVocab
@@ -72,8 +72,8 @@ type SamplingMetadata struct {
 }
 
 type SamplingVocabUpdateParams struct {
-	Name        Optional[string]     `json:"name,omitempty"`
-	Code        Optional[string]     `json:"code,omitempty"`
+	Name        Optional[string]     `json:"name,omitzero"`
+	Code        Optional[string]     `json:"code,omitzero"`
 	Description OptionalNull[string] `json:"description,omitempty"`
 }
 
@@ -103,7 +103,7 @@ func (s *FixativeUpdateParams) ToParams(oldCode string) biomedb.UpdateFixativePa
 
 type SamplingMethodResolutionInput struct {
 	InputText        string                        `json:"input_text"`
-	ResolvedMethodId Optional[uuid.UUID]           `json:"resolved_method_id,omitempty"`
+	ResolvedMethodId Optional[uuid.UUID]           `json:"resolved_method_id,omitzero"`
 	Status           biomedb.VocabResolutionStatus `json:"status"`
 }
 
@@ -130,7 +130,7 @@ func (i SamplingMethodResolutionInput) ToParams(importID uuid.UUID) biomedb.Reso
 
 type SamplingFixativeResolutionInput struct {
 	InputText          string                        `json:"input_text"`
-	ResolvedFixativeID Optional[uuid.UUID]           `json:"resolved_fixative_id,omitempty"`
+	ResolvedFixativeID Optional[uuid.UUID]           `json:"resolved_fixative_id,omitzero"`
 	Status             biomedb.VocabResolutionStatus `json:"status"`
 }
 

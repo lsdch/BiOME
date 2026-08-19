@@ -1869,9 +1869,9 @@ export class OccurrencesService {
    * Export samplings with occurrences
    */
   public static exportSamplingsWithOccurrences<ThrowOnError extends boolean = false>(
-    options?: Options<ExportSamplingsWithOccurrencesData, ThrowOnError>
+    options: Options<ExportSamplingsWithOccurrencesData, ThrowOnError>
   ) {
-    return (options?.client ?? client).get<
+    return (options.client ?? client).get<
       ExportSamplingsWithOccurrencesResponses,
       ExportSamplingsWithOccurrencesErrors,
       ThrowOnError

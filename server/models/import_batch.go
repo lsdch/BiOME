@@ -12,13 +12,13 @@ type ImportBatchStatus = biomedb.ImportBatchStatus
 type ImportBatch struct {
 	ID             uuid.UUID           `json:"id"`
 	Label          string              `json:"label"`
-	Description    Optional[string]    `json:"description,omitempty"`
+	Description    Optional[string]    `json:"description,omitzero"`
 	Status         ImportBatchStatus   `json:"status"`
 	CreatedBy      uuid.UUID           `json:"created_by"`
 	AssembledBy    []string            `json:"assembled_by,omitempty"`
 	CreatedAt      time.Time           `json:"created_at"`
-	CompletedAt    Optional[time.Time] `json:"completed_at,omitempty"`
-	CompletedBy    Optional[uuid.UUID] `json:"completed_by,omitempty"`
+	CompletedAt    Optional[time.Time] `json:"completed_at,omitzero"`
+	CompletedBy    Optional[uuid.UUID] `json:"completed_by,omitzero"`
 	TaxonomicScope int32               `json:"taxonomic_scope"`
 }
 
@@ -57,7 +57,7 @@ type ImportBatchWithContent struct {
 
 type ImportBatchInput struct {
 	Label          string           `json:"label" form:"label" required:"true"`
-	Description    Optional[string] `json:"description,omitempty" form:"description"`
+	Description    Optional[string] `json:"description,omitzero" form:"description"`
 	AssembledBy    []string         `json:"assembled_by,omitempty" form:"assembled_by"`
 	TaxonomicScope int32            `json:"taxonomic_scope" form:"taxonomic_scope" required:"true"`
 }

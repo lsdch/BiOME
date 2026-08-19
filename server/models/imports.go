@@ -18,17 +18,17 @@ type TaxonGBIFStatus = biomedb.TaxonGBIFStatus
 
 type TaxonDefinition struct {
 	Name       string              `json:"name"`
-	Authorship Optional[string]    `json:"authorship,omitempty"`
-	Rank       Optional[TaxonRank] `json:"rank,omitempty"`
+	Authorship Optional[string]    `json:"authorship,omitzero"`
+	Rank       Optional[TaxonRank] `json:"rank,omitzero"`
 }
 
 // type ImportBatch struct {
 // 	ImportID    uuid.UUID           `json:"id"`
 // 	Label       string              `json:"label"`
-// 	Description Optional[string]    `json:"description,omitempty"`
+// 	Description Optional[string]    `json:"description,omitzero"`
 // 	CreatedBy   uuid.UUID           `json:"created_by"`
 // 	CreatedAt   time.Time           `json:"created_at"`
-// 	CompletedAt Optional[time.Time] `json:"completed_at,omitempty"`
+// 	CompletedAt Optional[time.Time] `json:"completed_at,omitzero"`
 // }
 
 // func ImportBatchFromDB(res biomedb.ImportBatch) ImportBatch {
@@ -105,14 +105,14 @@ type TaxonResolution struct {
 	ID                 uuid.UUID                  `json:"id"`
 	ImportID           uuid.UUID                  `json:"import_id"`
 	InputName          string                     `json:"input_name"`
-	InputAuthorship    Optional[string]           `json:"input_authorship,omitempty"`
-	InputRank          Optional[string]           `json:"input_rank,omitempty"`
+	InputAuthorship    Optional[string]           `json:"input_authorship,omitzero"`
+	InputRank          Optional[string]           `json:"input_rank,omitzero"`
 	ScientificName     string                     `json:"scientific_name"`
-	ResolvedTo         Optional[uuid.UUID]        `json:"resolved_to,omitempty"`
-	Status             Optional[ResolutionStatus] `json:"status,omitempty"`
-	GBIFStatus         Optional[TaxonGBIFStatus]  `json:"gbif_status,omitempty"`
-	FromResolutionID   Optional[uuid.UUID]        `json:"from_resolution_id,omitempty"`
-	FromResolutionName Optional[string]           `json:"from_resolution_name,omitempty"`
+	ResolvedTo         Optional[uuid.UUID]        `json:"resolved_to,omitzero"`
+	Status             Optional[ResolutionStatus] `json:"status,omitzero"`
+	GBIFStatus         Optional[TaxonGBIFStatus]  `json:"gbif_status,omitzero"`
+	FromResolutionID   Optional[uuid.UUID]        `json:"from_resolution_id,omitzero"`
+	FromResolutionName Optional[string]           `json:"from_resolution_name,omitzero"`
 	SamplingTarget     bool                       `json:"sampling_target"`
 }
 
@@ -159,14 +159,14 @@ type TaxonCandidate struct {
 	ResolutionID uuid.UUID           `json:"resolution_id"`
 	Name         string              `json:"name"`
 	Rank         TaxonRank           `json:"rank"`
-	Authorship   Optional[string]    `json:"authorship,omitempty"`
+	Authorship   Optional[string]    `json:"authorship,omitzero"`
 	Status       TaxonStatus         `json:"status"`
 	Source       TaxonMatchSource    `json:"source"`
 	MatchType    TaxonMatchType      `json:"match_type"`
-	Score        Optional[float64]   `json:"score,omitempty"`
+	Score        Optional[float64]   `json:"score,omitzero"`
 	Priority     int32               `json:"priority"`
-	TaxonID      Optional[uuid.UUID] `json:"taxon_id,omitempty"`
-	GBIF_ID      Optional[int32]     `json:"gbif_id,omitempty"`
+	TaxonID      Optional[uuid.UUID] `json:"taxon_id,omitzero"`
+	GBIF_ID      Optional[int32]     `json:"gbif_id,omitzero"`
 }
 
 func TaxonCandidateFromDB(candidate biomedb.ListAllTaxonCandidatesRow) TaxonCandidate {
@@ -189,7 +189,7 @@ func TaxonCandidateFromDB(candidate biomedb.ListAllTaxonCandidatesRow) TaxonCand
 type TaxonStagingParams struct {
 	ResolutionID uuid.UUID        `json:"resolution_id"`
 	Name         string           `json:"name"`
-	Authorship   Optional[string] `json:"authorship,omitempty"`
+	Authorship   Optional[string] `json:"authorship,omitzero"`
 	Rank         TaxonRank        `json:"rank"`
 	Status       TaxonStatus      `json:"status"`
 	ParentName   string           `json:"parent_name"`
@@ -213,7 +213,7 @@ type VocabResolutionStatus = biomedb.VocabResolutionStatus
 type SamplingMethodResolution struct {
 	ImportID         uuid.UUID             `json:"import_id"`
 	InputText        string                `json:"input_text"`
-	ResolvedMethodID Optional[uuid.UUID]   `json:"resolved_method_id,omitempty"`
+	ResolvedMethodID Optional[uuid.UUID]   `json:"resolved_method_id,omitzero"`
 	Status           VocabResolutionStatus `json:"status"`
 }
 
@@ -229,7 +229,7 @@ func SamplingMethodResolutionFromDB(res biomedb.SamplingMethodsResolution) Sampl
 type SamplingFixativeResolution struct {
 	ImportID           uuid.UUID             `json:"import_id"`
 	InputText          string                `json:"input_text"`
-	ResolvedFixativeID Optional[uuid.UUID]   `json:"resolved_fixative_id,omitempty"`
+	ResolvedFixativeID Optional[uuid.UUID]   `json:"resolved_fixative_id,omitzero"`
 	Status             VocabResolutionStatus `json:"status"`
 }
 

@@ -6,7 +6,12 @@ import (
 	"github.com/lsdch/biome/db/biomedb"
 )
 
-type Country biomedb.Country
+type Country struct {
+	Code         string `json:"code"`
+	Name         string `json:"name"`
+	Continent    string `json:"continent"`
+	Subcontinent string `json:"subcontinent"`
+}
 
 func CountryFromDB(c biomedb.Country) Country {
 	return Country{

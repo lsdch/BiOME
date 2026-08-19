@@ -173,6 +173,23 @@
 				],
 				"type": "object"
 			},
+			"CSVDelimiter": {
+				"enum": [
+					",",
+					";",
+					"\t"
+				],
+				"title": "CSVDelimiter",
+				"type": "string"
+			},
+			"CSVQuoteChar": {
+				"enum": [
+					"\"",
+					"'"
+				],
+				"title": "CSVQuoteChar",
+				"type": "string"
+			},
 			"CodeHistoryEntry": {
 				"additionalProperties": false,
 				"properties": {
@@ -273,6 +290,7 @@
 					}
 				},
 				"required": [
+					"precision",
 					"latitude",
 					"longitude"
 				],
@@ -296,7 +314,6 @@
 					"continent": {
 						"type": "string"
 					},
-					"geom": {},
 					"name": {
 						"type": "string"
 					},
@@ -308,8 +325,7 @@
 					"code",
 					"name",
 					"continent",
-					"subcontinent",
-					"geom"
+					"subcontinent"
 				],
 				"type": "object"
 			},
@@ -322,7 +338,6 @@
 					"continent": {
 						"type": "string"
 					},
-					"geom": {},
 					"name": {
 						"type": "string"
 					},
@@ -344,8 +359,7 @@
 					"code",
 					"name",
 					"continent",
-					"subcontinent",
-					"geom"
+					"subcontinent"
 				],
 				"type": "object"
 			},
@@ -563,6 +577,24 @@
 				],
 				"title": "EventDatePrecision",
 				"type": "string"
+			},
+			"ExportCSVOptions": {
+				"additionalProperties": false,
+				"properties": {
+					"Delimiter": {
+						"$ref": "#/components/schemas/CSVDelimiter",
+						"default": "\t"
+					},
+					"QuoteChar": {
+						"$ref": "#/components/schemas/CSVQuoteChar",
+						"default": "\""
+					}
+				},
+				"required": [
+					"Delimiter",
+					"QuoteChar"
+				],
+				"type": "object"
 			},
 			"Fixative": {
 				"additionalProperties": false,
@@ -6326,11 +6358,27 @@
 							"default": "json",
 							"enum": [
 								"csv",
-								"tsv",
 								"json",
 								"darwinCore"
 							],
 							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "filename",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "csvOptions",
+						"schema": {
+							"$ref": "#/components/schemas/ExportCSVOptions"
 						}
 					}
 				],

@@ -14,12 +14,12 @@ import (
 type Publication struct {
 	ID       uuid.UUID           `json:"id"`
 	Authors  []string            `json:"authors,omitempty"`
-	Year     Optional[int32]     `json:"year,omitempty"`
-	Title    Optional[string]    `json:"title,omitempty"`
-	Journal  Optional[string]    `json:"journal,omitempty"`
+	Year     Optional[int32]     `json:"year,omitzero"`
+	Title    Optional[string]    `json:"title,omitzero"`
+	Journal  Optional[string]    `json:"journal,omitzero"`
 	Verbatim string              `json:"verbatim,omitempty"`
-	DOI      Optional[types.DOI] `json:"doi,omitempty"`
-	Comments Optional[string]    `json:"comments,omitempty"`
+	DOI      Optional[types.DOI] `json:"doi,omitzero"`
+	Comments Optional[string]    `json:"comments,omitzero"`
 }
 
 func PublicationFromDB(a biomedb.Publication) Publication {
@@ -37,11 +37,11 @@ func PublicationFromDB(a biomedb.Publication) Publication {
 
 type CreatePublicationParams struct {
 	Authors  []string            `json:"authors,omitempty"`
-	Year     Optional[int32]     `json:"year,omitempty"`
-	Title    Optional[string]    `json:"title,omitempty"`
-	Journal  Optional[string]    `json:"journal,omitempty"`
+	Year     Optional[int32]     `json:"year,omitzero"`
+	Title    Optional[string]    `json:"title,omitzero"`
+	Journal  Optional[string]    `json:"journal,omitzero"`
 	Verbatim string              `json:"verbatim,omitempty"`
-	DOI      Optional[types.DOI] `json:"doi,omitempty"`
+	DOI      Optional[types.DOI] `json:"doi,omitzero"`
 }
 
 func PublicationParamsFromCrossref(cr *crossrefapi.Works) CreatePublicationParams {
@@ -84,9 +84,9 @@ func (p CreatePublicationParams) ToDBParams() biomedb.CreatePublicationParams {
 }
 
 type UpdatePublicationParams struct {
-	Code     Optional[string]        `json:"code,omitempty"`
+	Code     Optional[string]        `json:"code,omitzero"`
 	Authors  Optional[[]string]      `json:"authors,omitempty"`
-	Year     Optional[int32]         `json:"year,omitempty" minimum:"1500"`
+	Year     Optional[int32]         `json:"year,omitzero" minimum:"1500"`
 	Title    OptionalNull[string]    `json:"title,omitempty"`
 	Journal  OptionalNull[string]    `json:"journal,omitempty"`
 	Verbatim OptionalNull[string]    `json:"verbatim,omitempty"`
@@ -118,8 +118,8 @@ type BasePublicationCandidate struct {
 	ResolutionID uuid.UUID                          `json:"resolution_id"`
 	Source       biomedb.PublicationCandidateSource `json:"source"`
 	MatchType    biomedb.PubMatchType               `json:"match_type"`
-	InternalID   Optional[uuid.UUID]                `json:"internal_id,omitempty"`
-	StagingID    Optional[uuid.UUID]                `json:"staging_id,omitempty"`
+	InternalID   Optional[uuid.UUID]                `json:"internal_id,omitzero"`
+	StagingID    Optional[uuid.UUID]                `json:"staging_id,omitzero"`
 	Score        float32                            `json:"score"`
 }
 
@@ -138,11 +138,11 @@ func BasePublicationCandidateFromDB(c biomedb.PublicationCandidate) BasePublicat
 
 type PublicationCandidate struct {
 	BasePublicationCandidate
-	DOI      Optional[types.DOI] `json:"doi,omitempty"`
+	DOI      Optional[types.DOI] `json:"doi,omitzero"`
 	Authors  []string            `json:"authors,omitempty"`
-	Year     Optional[int32]     `json:"year,omitempty"`
-	Title    Optional[string]    `json:"title,omitempty"`
-	Journal  Optional[string]    `json:"journal,omitempty"`
+	Year     Optional[int32]     `json:"year,omitzero"`
+	Title    Optional[string]    `json:"title,omitzero"`
+	Journal  Optional[string]    `json:"journal,omitzero"`
 	Verbatim string              `json:"verbatim"`
 }
 
@@ -150,9 +150,9 @@ type PublicationResolution struct {
 	ID         uuid.UUID           `json:"id"`
 	ImportID   uuid.UUID           `json:"import_id"`
 	Status     ResolutionStatus    `json:"status"`
-	ResolvedID Optional[uuid.UUID] `json:"resolved_id,omitempty"`
-	DOI        Optional[types.DOI] `json:"doi,omitempty"`
-	Verbatim   Optional[string]    `json:"verbatim,omitempty"`
+	ResolvedID Optional[uuid.UUID] `json:"resolved_id,omitzero"`
+	DOI        Optional[types.DOI] `json:"doi,omitzero"`
+	Verbatim   Optional[string]    `json:"verbatim,omitzero"`
 }
 
 func PublicationResolutionFromDB(r biomedb.PublicationResolution) PublicationResolution {
@@ -173,11 +173,11 @@ type PublicationResolutionWithCandidates struct {
 
 type PublicationStagingInput struct {
 	Authors  []string                  `json:"authors,omitempty"`
-	Year     Optional[int32]           `json:"year,omitempty"`
-	Title    Optional[string]          `json:"title,omitempty"`
-	Journal  Optional[string]          `json:"journal,omitempty"`
+	Year     Optional[int32]           `json:"year,omitzero"`
+	Title    Optional[string]          `json:"title,omitzero"`
+	Journal  Optional[string]          `json:"journal,omitzero"`
 	Verbatim string                    `json:"verbatim"`
-	DOI      Optional[types.DOI]       `json:"doi,omitempty"`
+	DOI      Optional[types.DOI]       `json:"doi,omitzero"`
 	Source   biomedb.PublicationSource `json:"source"`
 }
 

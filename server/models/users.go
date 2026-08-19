@@ -16,9 +16,9 @@ type User struct {
 	FirstName    string           `json:"first_name"`
 	LastName     string           `json:"last_name"`
 	FullName     string           `json:"full_name"`
-	Organisation Optional[string] `json:"organization,omitempty"`
-	Contact      Optional[string] `json:"contact,omitempty"`
-	Bio          Optional[string] `json:"bio,omitempty"`
+	Organisation Optional[string] `json:"organization,omitzero"`
+	Contact      Optional[string] `json:"contact,omitzero"`
+	Bio          Optional[string] `json:"bio,omitzero"`
 	Active       bool             `json:"active"`
 }
 

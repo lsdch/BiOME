@@ -27,10 +27,10 @@ func ErrUnknownFixativeCode(code string) ErrUnknownCode {
 }
 
 type Site struct {
-	Name     Optional[string]  `json:"name,omitempty"`
-	Code     Optional[string]  `json:"code,omitempty"`
-	Locality Optional[string]  `json:"locality,omitempty"`
-	Country  Optional[Country] `json:"country,omitempty"`
+	Name     Optional[string]  `json:"name,omitzero"`
+	Code     Optional[string]  `json:"code,omitzero"`
+	Locality Optional[string]  `json:"locality,omitzero"`
+	Country  Optional[Country] `json:"country,omitzero"`
 }
 
 func OptionalDateWithPrecisionFromDB(date pgtype.Date, precision *biomedb.EventDatePrecision) Optional[DateWithPrecision] {
@@ -45,13 +45,13 @@ type Sampling struct {
 	ID           uuid.UUID                   `json:"id"`
 	Site         Site                        `json:"site"`
 	Coordinates  CoordinatesWithPrecision    `json:"coordinates"`
-	Altitude     Optional[int32]             `json:"altitude,omitempty"`
-	PerformedOn  Optional[DateWithPrecision] `json:"performed_on,omitempty"`
+	Altitude     Optional[int32]             `json:"altitude,omitzero"`
+	PerformedOn  Optional[DateWithPrecision] `json:"performed_on,omitzero"`
 	PerformedBy  []string                    `json:"performed_by,omitempty"`
-	Duration     Optional[int32]             `json:"duration,omitempty"`
+	Duration     Optional[int32]             `json:"duration,omitzero"`
 	AccessPoints []string                    `json:"access_points,omitempty"`
 	H3Cell       h3.Cell                     `json:"h3_cell"`
-	Comments     Optional[string]            `json:"comments,omitempty"`
+	Comments     Optional[string]            `json:"comments,omitzero"`
 }
 
 func (s Sampling) Code() string {
@@ -127,7 +127,7 @@ type SamplingInput struct {
 	Site         SiteInput              `json:"site"`
 	PerformedOn  DateWithPrecisionInput `json:"performed_on"`
 	PerformedBy  []string               `json:"performed_by,omitempty"`
-	Duration     Optional[int32]        `json:"duration,omitempty"`
+	Duration     Optional[int32]        `json:"duration,omitzero"`
 	AccessPoints []string               `json:"access_points,omitempty"`
 	Methods      []string               `json:"methods,omitempty"`
 	Fixatives    []string               `json:"fixatives,omitempty"`
@@ -158,20 +158,20 @@ func (i SamplingInput) ToParams() biomedb.CreateSamplingParams {
 }
 
 type SiteInput struct {
-	Name        Optional[string]         `json:"name,omitempty"`
-	Code        Optional[string]         `json:"code,omitempty"`
-	Locality    Optional[string]         `json:"locality,omitempty"`
-	CountryCode Optional[string]         `json:"country_code,omitempty"`
+	Name        Optional[string]         `json:"name,omitzero"`
+	Code        Optional[string]         `json:"code,omitzero"`
+	Locality    Optional[string]         `json:"locality,omitzero"`
+	CountryCode Optional[string]         `json:"country_code,omitzero"`
 	Coordinates CoordinatesWithPrecision `json:"coordinates"`
-	Altitude    Optional[int32]          `json:"altitude,omitempty"`
+	Altitude    Optional[int32]          `json:"altitude,omitzero"`
 }
 
 type ListSamplingsAtProximityInput struct {
 	Latitude         float64                 `json:"latitude" query:"latitude" required:"true"`
 	Longitude        float64                 `json:"longitude" query:"longitude" required:"true"`
 	RadiusMeters     int32                   `json:"radius_meters" query:"radius_meters" required:"true"`
-	EventDate        Optional[CompositeDate] `json:"event_date,omitempty" query:"event_date"`
-	DateIntervalDays Optional[int32]         `json:"date_interval_days,omitempty" query:"date_interval_days"`
+	EventDate        Optional[CompositeDate] `json:"event_date,omitzero" query:"event_date"`
+	DateIntervalDays Optional[int32]         `json:"date_interval_days,omitzero" query:"date_interval_days"`
 	ExcludeIds       []uuid.UUID             `json:"exclude_ids,omitempty" query:"exclude_ids"`
 }
 

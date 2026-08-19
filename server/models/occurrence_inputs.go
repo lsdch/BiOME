@@ -10,12 +10,12 @@ import (
 )
 
 type BaseOccurrenceInput struct {
-	TypeStatus         Optional[OccurrenceTypeStatus] `json:"type_status,omitempty"`
+	TypeStatus         Optional[OccurrenceTypeStatus] `json:"type_status,omitzero"`
 	Identification     IdentificationInput            `json:"identification"`
-	Quantity           Optional[QuantityInput]        `json:"quantity,omitempty"`
-	ContentDescription Optional[string]               `json:"content_description,omitempty"`
+	Quantity           Optional[QuantityInput]        `json:"quantity,omitzero"`
+	ContentDescription Optional[string]               `json:"content_description,omitzero"`
 	Sources            []string                       `json:"sources,omitempty"`
-	Comments           Optional[string]               `json:"comments,omitempty"`
+	Comments           Optional[string]               `json:"comments,omitzero"`
 }
 
 func (i BaseOccurrenceInput) ToParams(samplingID uuid.UUID, code string) biomedb.AddOccurrenceToSamplingParams {

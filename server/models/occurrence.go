@@ -56,31 +56,31 @@ type OccurrenceTypeStatus = biomedb.OccurrenceTypeStatus
 
 type Identification struct {
 	IdentifiedBy []string                    `json:"identified_by,omitempty"`
-	IdentifiedOn Optional[DateWithPrecision] `json:"identified_on,omitempty"`
+	IdentifiedOn Optional[DateWithPrecision] `json:"identified_on,omitzero"`
 	Confer       bool                        `json:"confer"`
-	Addendum     Optional[string]            `json:"addendum,omitempty"`
+	Addendum     Optional[string]            `json:"addendum,omitzero"`
 	Taxon        Taxon                       `json:"taxon"`
-	Verbatim     Optional[string]            `json:"verbatim,omitempty"`
+	Verbatim     Optional[string]            `json:"verbatim,omitzero"`
 }
 
 type IdentificationInput struct {
 	IdentifiedBy []string               `json:"identified_by,omitempty"`
 	IdentifiedOn DateWithPrecisionInput `json:"identified_on"`
 	Confer       bool                   `json:"confer"`
-	Addendum     Optional[string]       `json:"addendum,omitempty"`
+	Addendum     Optional[string]       `json:"addendum,omitzero"`
 	TaxonID      uuid.UUID              `json:"taxon_id"`
-	Verbatim     Optional[string]       `json:"verbatim,omitempty"`
+	Verbatim     Optional[string]       `json:"verbatim,omitzero"`
 }
 
 type BaseOccurrence struct {
 	ID                 types.ULID                     `json:"id"`
 	Code               string                         `json:"code"`
-	TypeStatus         Optional[OccurrenceTypeStatus] `json:"type_status,omitempty"`
+	TypeStatus         Optional[OccurrenceTypeStatus] `json:"type_status,omitzero"`
 	Identification     Identification                 `json:"identification"`
-	Quantity           Optional[OccurrenceQuantity]   `json:"quantity,omitempty"`
-	ContentDescription Optional[string]               `json:"content_description,omitempty"`
+	Quantity           Optional[OccurrenceQuantity]   `json:"quantity,omitzero"`
+	ContentDescription Optional[string]               `json:"content_description,omitzero"`
 	Sources            []string                       `json:"sources,omitempty"`
-	Comments           Optional[string]               `json:"comments,omitempty"`
+	Comments           Optional[string]               `json:"comments,omitzero"`
 }
 
 func BaseOccurrenceFromDB(o biomedb.Occurrence, taxon biomedb.Taxon) BaseOccurrence {
@@ -177,7 +177,7 @@ type OccurrenceMetadata struct {
 	References  []Publication         `json:"references,omitempty"`
 	Datasets    []Dataset             `json:"datasets,omitempty"`
 	Collections []Collection          `json:"collections,omitempty"`
-	ImportBatch Optional[ImportBatch] `json:"import_batch,omitempty"`
+	ImportBatch Optional[ImportBatch] `json:"import_batch,omitzero"`
 }
 
 func NewOccurrenceMetadata(
@@ -214,10 +214,10 @@ func CollectionFromDB(c biomedb.OccurrenceCollection) Collection {
 // OccurrenceOverviewItem is a representation of the occurrences count for one taxon
 type OccurrenceOverviewItem struct {
 	ID          uuid.UUID           `json:"id"`
-	ParentID    Optional[uuid.UUID] `json:"parent_id,omitempty"`
+	ParentID    Optional[uuid.UUID] `json:"parent_id,omitzero"`
 	Name        string              `json:"name"`
-	Authorship  Optional[string]    `json:"authorship,omitempty"`
-	ParentName  Optional[string]    `json:"parent_name,omitempty"`
+	Authorship  Optional[string]    `json:"authorship,omitzero"`
+	ParentName  Optional[string]    `json:"parent_name,omitzero"`
 	Occurrences int32               `json:"occurrences"`
 	Rank        TaxonRank           `json:"rank"`
 }
