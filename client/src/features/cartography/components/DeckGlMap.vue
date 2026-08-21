@@ -178,7 +178,7 @@ import {
 } from '@vueuse/core'
 import { LngLatBounds, Map, Marker, setWorkerUrl, type StyleSpecification } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
+// import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 
 import {
   computed,
@@ -233,7 +233,7 @@ export type GlobalMarkerOptions = {
   tooltips?: boolean
 }
 
-setWorkerUrl(workerUrl)
+// setWorkerUrl(workerUrl)
 
 type HexData = H3CellWithRichness
 // type MarkerData = HexData
