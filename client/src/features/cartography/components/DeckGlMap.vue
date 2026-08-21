@@ -176,7 +176,7 @@ import {
   useFullscreen,
   useThrottleFn
 } from '@vueuse/core'
-import maplibregl, { LngLatBounds, type StyleSpecification } from 'maplibre-gl'
+import { LngLatBounds, Map, Marker, type StyleSpecification } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import {
   computed,
@@ -243,7 +243,7 @@ type HexData = H3CellWithRichness
 
 const mapContainer = ref<HTMLElement>()
 const mapHost = ref<HTMLElement>()
-const map = shallowRef<maplibregl.Map>()
+const map = shallowRef<Map>()
 const overlay = shallowRef<MapboxOverlay>()
 const mapInitialized = ref(false)
 
@@ -268,7 +268,6 @@ const {
   markerLayers?: MarkerLayer<MarkerData>[]
   autoFit?: boolean | number
   closable?: boolean
-  regions?: boolean
   center?: [number, number]
   minZoom?: number
   maxZoom?: number
@@ -371,10 +370,10 @@ function displaySiteRadius(site: ItemWithCoordinates) {
   })
 }
 
-function removeSiteRadius(mapInstance: maplibregl.Map) {
-  mapInstance.getLayer(`site-radius`) && mapInstance.removeLayer(`site-radius`)
-  mapInstance.getLayer(`site-radius-outline`) && mapInstance.removeLayer(`site-radius-outline`)
-  mapInstance.getSource(`site-radius`) && mapInstance.removeSource(`site-radius`)
+function removeSiteRadius(mapInstance: Map) {
+  if (mapInstance.getLayer(`site-radius`)) mapInstance.removeLayer(`site-radius`)
+  if (mapInstance.getLayer(`site-radius-outline`)) mapInstance.removeLayer(`site-radius-outline`)
+  if (mapInstance.getSource(`site-radius`)) mapInstance.removeSource(`site-radius`)
 }
 
 watch(selected, () => {
@@ -507,12 +506,12 @@ function fitMapView(radiusMeters = 0) {
   if (!points.length) return
 
   const geojsonPoints = turf.points(points)
-  let buffered =
+  const buffered =
     radiusMeters > 0 && points.length > 0
       ? turf.buffer(geojsonPoints, radiusMeters, { units: 'meters' })
       : undefined
   const [minLng, minLat, maxLng, maxLat] = turf.bbox(buffered ?? geojsonPoints)
-  let bufferedBounds = new LngLatBounds([minLng, minLat], [maxLng, maxLat])
+  const bufferedBounds = new LngLatBounds([minLng, minLat], [maxLng, maxLat])
   map.value.fitBounds(bufferedBounds, {
     padding: 40,
     duration: 350,
@@ -538,14 +537,14 @@ watch(
   { flush: 'post' }
 )
 
-const mapMarkers = ref<maplibregl.Marker[]>()
+const mapMarkers = ref<Marker[]>()
 const siteMarkersVisible = ref<boolean>(true)
 watchEffect(() => {
   if (!map.value) return
   mapMarkers.value?.forEach((marker) => marker.remove())
   if (!siteMarkersVisible.value) return
   mapMarkers.value = props.pinMarkers?.map((marker, index) => {
-    const m = new maplibregl.Marker(marker.options)
+    const m = new Marker(marker.options)
       .setLngLat([marker.coordinates.longitude, marker.coordinates.latitude])
       .addTo(map.value!)
 
@@ -589,7 +588,7 @@ async function downloadMapScreenshot() {
   URL.revokeObjectURL(url)
 }
 
-async function waitForMapIdle(mapInstance: maplibregl.Map) {
+async function waitForMapIdle(mapInstance: Map) {
   if (mapInstance.loaded() && !mapInstance.isMoving() && !mapInstance.isZooming()) {
     return
   }
@@ -641,7 +640,7 @@ onMounted(() => {
     if (mapHost.value.clientWidth === 0 || mapHost.value.clientHeight === 0) return
 
     const [lat, lng] = center
-    const mapInstance = new maplibregl.Map({
+    const mapInstance = new Map({
       container: mapHost.value,
       style: mapStyle,
       center: [lng, lat],

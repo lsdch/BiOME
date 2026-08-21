@@ -136,7 +136,7 @@ import { formatDistance } from '@/lib/distances'
 import { useQuery } from '@tanstack/vue-query'
 import { circle } from '@turf/turf'
 import { cellToLatLng } from 'h3-js'
-import { MarkerOptions } from 'maplibre-gl'
+import { Map, MarkerOptions } from 'maplibre-gl'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { Coordinates, ItemWithCoordinates } from '../coordinates'
@@ -200,7 +200,7 @@ function displayProximityRadius(radius: number) {
   })
 }
 
-function removeProximityRadius(mapInstance: maplibregl.Map) {
+function removeProximityRadius(mapInstance: Map) {
   mapInstance.getLayer(`proximity-radius`) && mapInstance.removeLayer(`proximity-radius`)
   mapInstance.getLayer(`proximity-radius-outline`) &&
     mapInstance.removeLayer(`proximity-radius-outline`)
