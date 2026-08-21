@@ -75,6 +75,7 @@
 </template>
 
 <script setup lang="ts" generic="HexData extends H3Cell, MarkerData extends H3Cell">
+import SvgCircle from '@/components/toolkit/ui/SvgCircle.vue'
 import { H3Cell, HexgridLayer, MarkerLayer } from '../layers-manager/map-layers'
 
 const regions = defineModel<boolean>('regions', {
