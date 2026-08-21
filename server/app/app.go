@@ -54,6 +54,23 @@ func NewPgxPool(ctx context.Context, cfg config.DBConfig) (*pgxpool.Pool, error)
 	return pool, nil
 }
 
+type AppServices struct {
+	AbioticService     *services.AbioticService
+	ImportBatchService *services.ImportBatchService
+	AuthService        *services.AuthService
+	SettingsService    *services.SettingsService
+	SamplingsService   *services.SamplingService
+	HabitatService     *services.HabitatService
+	PublicationService *services.PublicationService
+	DatasetService     *services.DatasetsService
+	GeoapifyService    *geoapify.GeoapifyService
+	OccurrencesService *services.OccurrencesService
+	AccountsService    *services.AccountService
+	LocationService    *services.LocationService
+	TaxonomyService    *services.TaxonomyService
+	TaxonResolver      imports.TaxonResolver
+}
+
 type App struct {
 	DB             *db.DB
 	Config         config.Config
@@ -80,7 +97,7 @@ func NewApp(config config.Config) *App {
 		SettingsService:    services.NewSettingsService(config),
 		SamplingsService:   services.NewSamplingService(),
 		HabitatService:     services.NewHabitatService(),
-		ArticleService:     services.NewPublicationService(),
+		PublicationService: services.NewPublicationService(),
 		DatasetService:     services.NewDatasetsService(),
 		LocationService:    services.NewLocationService(),
 		GeoapifyService:    geoapify.NewGeoapifyService(http.DefaultClient, config.Geoapify),
@@ -137,7 +154,7 @@ func (a *App) RegisterRoutes() {
 	a.Controllers = []controllers.Controller{
 		controllers.NewAbioticsController(a.DB, a.Services.AbioticService),
 		controllers.NewImportController(a.DB, a.importsManager),
-		controllers.NewArticlesController(a.DB, a.Services.ArticleService),
+		controllers.NewArticlesController(a.DB, a.Services.PublicationService),
 		controllers.NewGeoapifyController(a.DB, a.Services.GeoapifyService),
 		controllers.NewHabitatsController(a.DB, a.Services.HabitatService),
 		controllers.NewOccurrenceController(a.DB, a.Services.OccurrencesService),
