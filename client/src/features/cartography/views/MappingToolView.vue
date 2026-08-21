@@ -9,16 +9,6 @@
       <div class="fill-height d-flex flex-column">
         <v-tabs v-model="tab" class="flex-shrink-0">
           <v-tab value="layers" prepend-icon="mdi-layers"> Layers </v-tab>
-          <!-- <v-tab value="sites" prepend-icon="mdi-map-marker">
-            Sites
-            <v-badge
-              v-if="layerSpecs.sites?.length"
-              :content="layerSpecs.sites.length"
-              color="primary"
-              inline
-              class="ml-1"
-            />
-          </v-tab> -->
           <v-tab value="config">
             <v-icon icon="mdi-cog" />
           </v-tab>
@@ -42,18 +32,6 @@
               :global-opts="markerOptions"
             />
           </v-tabs-window-item>
-          <!-- <v-tabs-window-item value="sites">
-            <SiteSearchPanel
-              v-model="layerSpecs.sites"
-              @focus-site="
-                (site) => {
-                  const info = siteMarkers?.find((s) => s.data.code === site.code)
-                  if (info) map?.select({ type: 'site', info })
-                  map?.fitViewToSite(site)
-                }
-              "
-            />
-          </v-tabs-window-item> -->
           <v-tabs-window-item value="config">
             <MapViewConfig v-model:save-layers="saveLayers" v-model:markerOptions="markerOptions" />
           </v-tabs-window-item>
@@ -131,19 +109,6 @@
           </template>
           <v-sheet :height="48" class="my-0 d-flex align-center"> Layers </v-sheet>
         </v-tooltip>
-        <!-- <v-tooltip content-class="bg-surface text-overline py-0" :height="48">
-          <template #activator="{ props }">
-            <v-list-item
-              v-bind="props"
-              prepend-icon="mdi-map-marker"
-              title="Sites"
-              @click="toggleTab('sites')"
-              :active="tab === 'sites' && drawer"
-              color="primary"
-            />
-          </template>
-          <v-sheet :height="48" class="my-0 d-flex align-center"> Sites </v-sheet>
-        </v-tooltip> -->
       </v-list>
     </v-navigation-drawer>
 
@@ -160,13 +125,6 @@
           :marker-options
           v-model:zoom="zoom"
         >
-          <!-- :pinMarkers="siteMarkers" -->
-          <!-- <template #cluster-popup="{ data, resolution, params }"> </template>
-          <template #pin-popup="{ item }">
-            <KeepAlive>
-              <SitePopupWithOccurrences :item="item.data" />
-            </KeepAlive>
-          </template> -->
           <template #popup="{ selection }">
             <SiteClusterPopup
               v-if="selection.type === 'hexagon' && !!selection.info.object"
@@ -264,29 +222,6 @@ watch(
   { deep: true }
 )
 
-// const singleSites = useQuery(
-//   computed(() => {
-//     return {
-//       enabled: layerSpecs.value.sites.length > 0,
-//       ...occurrencesBySiteOptions({
-//         body: {
-//           site_codes: layerSpecs.value.sites.map((s) => s.data.code),
-//           sampling_target: {}
-//         }
-//       })
-//     }
-//   })
-// )
-// const siteMarkers = computed(() => {
-//   if (!layerSpecs.value.sites?.length) return []
-//   const colorMap = new Map(layerSpecs.value.sites.map((s) => [s.data.code, s.options?.color]))
-//   return singleSites.data.value?.map<PinMarker<SiteWithOccurrences>>((site) => ({
-//     data: site,
-//     coordinates: site.coordinates,
-//     options: { color: colorMap.get(site.code) }
-//   }))
-// })
-
 const drawerPinned = useLocalStorage('mapping-tool-drawer-pinned', false, {
   initOnMounted: true
 })
@@ -336,7 +271,6 @@ const markerLayers = computedAsync<MarkerLayer<H3CellWithRichness>[]>(async () =
           return [lng, lat]
         }
       })
-      // return markerLayerFromSpec(layer, applySiteFilter(remote?.data.value, layer.include_sites))
     })
   )
 })

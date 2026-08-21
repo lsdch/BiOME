@@ -176,8 +176,10 @@ import {
   useFullscreen,
   useThrottleFn
 } from '@vueuse/core'
-import { LngLatBounds, Map, Marker, type StyleSpecification } from 'maplibre-gl'
+import { LngLatBounds, Map, Marker, setWorkerUrl, type StyleSpecification } from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
+
 import {
   computed,
   nextTick,
@@ -230,6 +232,8 @@ export type GlobalMarkerOptions = {
   }
   tooltips?: boolean
 }
+
+setWorkerUrl(workerUrl)
 
 type HexData = H3CellWithRichness
 // type MarkerData = HexData

@@ -1,4 +1,4 @@
-import { StyleSpecification } from 'maplibre-gl'
+import { Map, StyleSpecification } from 'maplibre-gl'
 import regionsLayerStyle from './data/regions-layer.json'
 import { MaybeRef, unref } from 'vue'
 const regionLayerIds = [
@@ -68,10 +68,7 @@ export function createRoadsLayers(visible: boolean): StyleSpecification['layers'
 
 export { regionsLayerStyle }
 
-export function updateRegionsLayerVisibility(
-  map: MaybeRef<maplibregl.Map | undefined>,
-  value: boolean
-) {
+export function updateRegionsLayerVisibility(map: MaybeRef<Map | undefined>, value: boolean) {
   const instance = unref(map)
   if (!instance) return
   const visibility = value ? 'visible' : 'none'
@@ -83,10 +80,7 @@ export function updateRegionsLayerVisibility(
   })
 }
 
-export function updateRoadsLayerVisibility(
-  map: MaybeRef<maplibregl.Map | undefined>,
-  value: boolean
-) {
+export function updateRoadsLayerVisibility(map: MaybeRef<Map | undefined>, value: boolean) {
   const instance = unref(map)
   if (!instance) return
   const visibility = value ? 'visible' : 'none'
