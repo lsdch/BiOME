@@ -46,6 +46,6 @@ type Filter struct {
 }
 
 type PaginatedList[T any] struct {
-	Items      []T   `json:"items" gel:"items"`
-	TotalCount int64 `json:"total_count" gel:"total_count"`
+	Items      []T   `json:"items"`
+	TotalCount int64 `json:"total_count"`
 }

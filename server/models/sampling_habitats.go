@@ -73,8 +73,8 @@ type HabitatGroupWithElements struct {
 }
 
 type HabitatUpdate struct {
-	Label       Optional[string]     `gel:"label" json:"label,omitempty"`
-	Description OptionalNull[string] `gel:"description" json:"description,omitempty"`
+	Label       Optional[string]     `json:"label,omitempty"`
+	Description OptionalNull[string] `json:"description,omitempty"`
 }
 
 func (u HabitatUpdate) ToDBParams(id uuid.UUID) biomedb.UpdateHabitatParams {
@@ -87,9 +87,9 @@ func (u HabitatUpdate) ToDBParams(id uuid.UUID) biomedb.UpdateHabitatParams {
 }
 
 type HabitatGroupUpdate struct {
-	Label          Optional[string]            `gel:"label" json:"label,omitempty"`
-	Depends        OptionalNull[uuid.UUID]     `gel:"depends" json:"depends,omitempty"`
-	Exclusive      Optional[bool]              `gel:"exclusive_elements" json:"exclusive_elements,omitempty"`
+	Label          Optional[string]            `json:"label,omitempty"`
+	Depends        OptionalNull[uuid.UUID]     `json:"depends,omitempty"`
+	Exclusive      Optional[bool]              `json:"exclusive_elements,omitempty"`
 	CreateElements []HabitatInput              `json:"create_elements,omitempty"`
 	UpdateElements map[uuid.UUID]HabitatUpdate `json:"update_elements,omitempty"`
 	DeleteElements []uuid.UUID                 `json:"delete_elements,omitempty"`
