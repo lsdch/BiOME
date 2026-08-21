@@ -1,46 +1,48 @@
 <template>
-  <fieldset>
-    <legend>{{ props.label }}</legend>
-    <v-input :model-value v-bind="$attrs">
-      <template #default="{ isDisabled, isValid }">
-        <v-number-input
-          label="Hours"
-          class="flex-grow-1"
-          v-model="hours"
-          control-variant="stacked"
-          rounded="e-0"
-          @update:model-value="onInput()"
-          :min="0"
-          hide-details
-          :disabled="isDisabled.value"
-          :error="!isValid.value"
-        />
-        <v-number-input
-          label="Minutes"
-          class="flex-grow-1"
-          v-model="minutes"
-          control-variant="stacked"
-          rounded="s-0"
-          @update:model-value="onMinutesInput"
-          @update:focused="onMinutesInput(minutes)"
-          :min="0"
-          hide-details
-          :disabled="isDisabled.value"
-          :error="!isValid.value"
-        />
-      </template>
-      <template #append>
-        <v-btn
-          v-if="clearable && (hours || minutes)"
-          @click="clear"
-          color=""
-          variant="tonal"
-          icon="mdi-close"
-          density="compact"
-        />
-      </template>
-    </v-input>
-  </fieldset>
+  <v-input :model-value v-bind="$attrs">
+    <template #default="{ isDisabled, isValid }">
+      <v-number-input
+        :label="label"
+        class="flex-grow-1"
+        v-model="hours"
+        control-variant="stacked"
+        rounded="e-0"
+        @update:model-value="onInput()"
+        :min="0"
+        hide-details
+        :disabled="isDisabled.value"
+        :error="!isValid.value"
+        placeholder="Hours"
+        persistent-placeholder
+        suffix="h"
+      />
+      <v-number-input
+        class="flex-grow-1"
+        v-model="minutes"
+        control-variant="stacked"
+        rounded="s-0"
+        @update:model-value="onMinutesInput"
+        @update:focused="onMinutesInput(minutes)"
+        :min="0"
+        hide-details
+        :disabled="isDisabled.value"
+        :error="!isValid.value"
+        placeholder="Minutes"
+        persistent-placeholder
+        suffix="min"
+      />
+    </template>
+    <template #append>
+      <v-btn
+        v-if="clearable && (hours || minutes)"
+        @click="clear"
+        color=""
+        variant="tonal"
+        icon="mdi-close"
+        density="compact"
+      />
+    </template>
+  </v-input>
 </template>
 
 <script setup lang="ts">

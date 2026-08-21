@@ -21,7 +21,7 @@
         ref="toolbar"
         id="table-toolbar"
         v-model:search="filters.search_term"
-        @reload="refetch()"
+        @reload="reload()"
       >
         <template #extension>
           <slot name="toolbar-extension" />
@@ -123,17 +123,6 @@
                       hide-details
                     />
                   </v-list-item>
-                  <v-list-item prepend-icon="mdi-star-four-points">
-                    <TypeStatusPicker
-                      v-model="filters.type_status"
-                      class="mt-2"
-                      label="Type status"
-                      clearable
-                      :multiple="false"
-                      density="compact"
-                      hide-details
-                    />
-                  </v-list-item>
                   <DateFiltersListItem v-model="filters.date" />
                   <!-- <v-list-item prepend-icon="mdi-dna">
                     <ClearableSwitch v-model="filters.has_sequences" class="pl-2" label="Sequences available"
@@ -173,8 +162,25 @@
                       class="mt-1"
                       clearable
                       multiple
+                      hide-details
                       chips
                       closable-chips
+                    />
+                    <ClearableSwitch
+                      v-model="filters.confer"
+                      class="pl-2"
+                      label="Confer (cf.)"
+                      base-color="grey"
+                      color-true="primary"
+                      color-false="red"
+                      :hint="
+                        filters.confer
+                          ? 'Show only occurrences with a confer identification'
+                          : filters.confer !== undefined
+                            ? 'Show only occurrences without a confer identification'
+                            : undefined
+                      "
+                      density="compact"
                     />
                     <div class="d-flex align-center ga-3 flex-wrap">
                       <v-select
@@ -196,20 +202,16 @@
                         :min-width="200"
                       />
                     </div>
-                    <ClearableSwitch
-                      v-model="filters.confer"
-                      class="pl-2"
-                      label="Confer (cf.)"
-                      color-true="primary"
-                      color-false="red"
-                      :hint="
-                        filters.confer
-                          ? 'Show only occurrences with a confer identification'
-                          : filters.confer !== undefined
-                            ? 'Show only occurrences without a confer identification'
-                            : undefined
-                      "
+                  </v-list-item>
+
+                  <v-list-item prepend-icon="mdi-star-four-points">
+                    <TypeStatusPicker
+                      v-model="filters.type_status"
+                      label="Type status"
+                      clearable
+                      :multiple="false"
                       density="compact"
+                      hide-details
                     />
                   </v-list-item>
                 </v-list>
@@ -587,6 +589,11 @@ function dateQuery(
     include_unknown: filters.include_unknown,
     buffer: filters.buffer
   }
+}
+
+async function reload() {
+  await refetch()
+  feedback({ message: 'Reloaded occurrences' })
 }
 
 const { data, error, isPending, isFetching, refetch } = useQuery(
