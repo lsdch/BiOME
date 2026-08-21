@@ -34,3 +34,8 @@ func (i CoordinatesWithPrecisionInput) String() string {
 	}
 	return fmt.Sprintf("%f,%f[%dm]", i.Latitude, i.Longitude, *i.PrecisionM)
 }
+
+type ExportCSVOptions struct {
+	Delimiter CSVDelimiter `query:"delimiter" default:"\t"`
+	QuoteChar CSVQuoteChar `query:"quoteChar" default:"\""`
+}

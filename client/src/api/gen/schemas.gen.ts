@@ -506,20 +506,10 @@ export const $EventDatePrecision = {
   type: 'string'
 } as const
 
-export const $ExportCSVOptions = {
-  additionalProperties: false,
-  properties: {
-    Delimiter: {
-      $ref: '#/components/schemas/CSVDelimiter',
-      default: '\t'
-    },
-    QuoteChar: {
-      $ref: '#/components/schemas/CSVQuoteChar',
-      default: '"'
-    }
-  },
-  required: ['Delimiter', 'QuoteChar'],
-  type: 'object'
+export const $ExportFormat = {
+  enum: ['csv', 'json', 'dwc'],
+  title: 'ExportFormat',
+  type: 'string'
 } as const
 
 export const $Fixative = {

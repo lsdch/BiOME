@@ -214,10 +214,10 @@ export type ErrorDetail = {
  */
 export type EventDatePrecision = 'day' | 'month' | 'year'
 
-export type ExportCsvOptions = {
-  Delimiter: CsvDelimiter
-  QuoteChar: CsvQuoteChar
-}
+/**
+ * ExportFormat
+ */
+export type ExportFormat = 'csv' | 'json' | 'dwc'
 
 export type Fixative = {
   /**
@@ -2645,9 +2645,10 @@ export type ExportSamplingsWithOccurrencesData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
-    format?: 'csv' | 'json' | 'darwinCore'
+    format?: ExportFormat
     filename: string
-    csvOptions?: ExportCsvOptions
+    delimiter?: CsvDelimiter
+    quoteChar?: CsvQuoteChar
   }
   url: '/occurrences/export'
 }

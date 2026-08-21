@@ -13,6 +13,7 @@ import (
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/models"
+	csvmodels "github.com/lsdch/biome/models/csv"
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/stores"
@@ -152,21 +153,26 @@ func (c *OccurrenceController) ListSamplingsWithOccurrences(ctx context.Context,
 	return &BodyTransporter[[]models.SamplingWithOccurrences]{Body: samplings}, nil
 }
 
-func (c *OccurrenceController) ExportSamplingsWithOccurrences(ctx context.Context, input *struct {
+type ExportSamplingsWithOccurrencesInput struct {
 	stores.ListOccurrencesParams
-	Format string `query:"format" enum:"csv,tsv,json,darwinCore" default:"json"`
-}) (*huma.StreamResponse, error) {
+	Format   models.ExportFormat `query:"format" default:"json"`
+	Filename string              `query:"filename" required:"true"`
+	csvmodels.ExportCSVOptions
+}
+
+func (c *OccurrenceController) ExportSamplingsWithOccurrences(ctx context.Context, input *ExportSamplingsWithOccurrencesInput) (*huma.StreamResponse, error) {
 	data, err := c.service.ListSamplingsWithOccurrences(ctx, c.db, input.ListOccurrencesParams)
 	if err != nil {
 		return nil, err
 	}
+	contentDisposition := fmt.Sprintf("attachment; filename=\"%s\"", input.Filename)
 	switch input.Format {
 	case "json":
 		return &huma.StreamResponse{
 			Body: func(ctx huma.Context) {
 				writer := ctx.BodyWriter()
 				ctx.SetHeader("Content-Type", "application/json")
-				ctx.SetHeader("Content-Disposition", "attachment; filename=\"samplings_with_occurrences.json\"")
+				ctx.SetHeader("Content-Disposition", contentDisposition)
 				json.NewEncoder(writer).Encode(data)
 			},
 		}, nil
@@ -175,7 +181,7 @@ func (c *OccurrenceController) ExportSamplingsWithOccurrences(ctx context.Contex
 			Body: func(ctx huma.Context) {
 				writer := ctx.BodyWriter()
 				ctx.SetHeader("Content-Type", "text/tab-separated-values")
-				ctx.SetHeader("Content-Disposition", fmt.Sprintf("attachment; filename=\"samplings_with_occurrences.%s\"", input.Format))
+				ctx.SetHeader("Content-Disposition", contentDisposition)
 				header := []string{"sampling_id", "site_name", "site_code", "latitude", "longitude", "coordinates_precision_m", "sampling_date", "occurrence_id", "taxon_id", "taxon_name", "taxon_rank"}
 				_, err := writer.Write(
 					[]byte(strings.Join(header, ",") + "\n"),

@@ -578,23 +578,14 @@
 				"title": "EventDatePrecision",
 				"type": "string"
 			},
-			"ExportCSVOptions": {
-				"additionalProperties": false,
-				"properties": {
-					"Delimiter": {
-						"$ref": "#/components/schemas/CSVDelimiter",
-						"default": "\t"
-					},
-					"QuoteChar": {
-						"$ref": "#/components/schemas/CSVQuoteChar",
-						"default": "\""
-					}
-				},
-				"required": [
-					"Delimiter",
-					"QuoteChar"
+			"ExportFormat": {
+				"enum": [
+					"csv",
+					"json",
+					"dwc"
 				],
-				"type": "object"
+				"title": "ExportFormat",
+				"type": "string"
 			},
 			"Fixative": {
 				"additionalProperties": false,
@@ -6355,13 +6346,8 @@
 						"in": "query",
 						"name": "format",
 						"schema": {
-							"default": "json",
-							"enum": [
-								"csv",
-								"json",
-								"darwinCore"
-							],
-							"type": "string"
+							"$ref": "#/components/schemas/ExportFormat",
+							"default": "json"
 						}
 					},
 					{
@@ -6376,9 +6362,19 @@
 					{
 						"explode": false,
 						"in": "query",
-						"name": "csvOptions",
+						"name": "delimiter",
 						"schema": {
-							"$ref": "#/components/schemas/ExportCSVOptions"
+							"$ref": "#/components/schemas/CSVDelimiter",
+							"default": "\t"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "quoteChar",
+						"schema": {
+							"$ref": "#/components/schemas/CSVQuoteChar",
+							"default": "\""
 						}
 					}
 				],

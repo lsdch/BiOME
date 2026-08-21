@@ -120,12 +120,23 @@
             <OccurrencesStats :cells="remote.data.value" />
             <v-divider></v-divider>
             <v-card-text>
-              <v-select :items="['JSON', 'CSV']" density="compact" hide-details>
-                <template #prepend> Export as </template>
-                <template #append>
-                  <v-btn icon="mdi-download" variant="text" color="primary" @click="exportData()" />
-                </template>
-              </v-select>
+              <div class="d-flex justify-end">
+                <ExportDialogServer
+                  @submit="(options, suffix) => exportData(options)"
+                  :disabled="remote.isFetching.value"
+                >
+                  <template #activator="{ props }">
+                    <v-btn
+                      prepend-icon="mdi-download"
+                      text="Export data"
+                      variant="tonal"
+                      color="primary"
+                      v-bind="props"
+                    ></v-btn>
+                  </template>
+                  <!-- <v-btn icon="mdi-download" variant="text" color="primary" @click="exportData()" /> -->
+                </ExportDialogServer>
+              </div>
             </v-card-text>
           </v-tabs-window-item>
         </v-tabs-window>
@@ -152,6 +163,9 @@ import LayerDataFeed from './LayerDataFeed.vue'
 import { automaticResolution, HexLayerSpec, mappingFiltersToQuery } from './map-layers'
 import MarkerLayerStylePanel from './MarkerLayerStylePanel.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
+import ExportDialogServer, {
+  ExportOptions
+} from '@/components/toolkit/ui/exports/ExportDialogServer.vue'
 
 const layer = defineModel<HexLayerSpec>('layer', { required: true })
 const { zoom } = defineProps<{ zoom: number }>()
@@ -183,11 +197,15 @@ watch(
   { immediate: true }
 )
 
-async function exportData() {
+async function exportData(options: ExportOptions) {
   const queryClient = client
   const requestUrl = queryClient.buildUrl<ExportSamplingsWithOccurrencesData>({
     url: '/occurrences/export',
     query: {
+      filename: options.filename,
+      format: options.format,
+      delimiter: options.csvOptions.delimiter,
+      quoteChar: options.csvOptions.quoteChar,
       taxa: layer.value.filters.taxa,
       whole_clade: layer.value.filters.whole_clade,
       countries: layer.value.filters.countries,

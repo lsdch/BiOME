@@ -138,7 +138,7 @@ export type {
   ErrorCode,
   ErrorDetail,
   EventDatePrecision,
-  ExportCsvOptions,
+  ExportFormat,
   ExportSamplingsWithOccurrencesData,
   ExportSamplingsWithOccurrencesError,
   ExportSamplingsWithOccurrencesErrors,
