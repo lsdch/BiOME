@@ -65,12 +65,12 @@ func NewClient(cfg config.GBIFConfig) *GBIFClient {
 func (c *GBIFClient) acquire(ctx context.Context) error {
 
 	select {
-	case c.concurrency <- struct{}{}:
-		return nil
-
 	case <-ctx.Done():
 		return ctx.Err()
+	case c.concurrency <- struct{}{}:
+		return nil
 	}
+
 }
 
 func (c *GBIFClient) release() {
