@@ -1557,8 +1557,8 @@ export const listOccurrencesInfiniteQueryKey = (
 /**
  * List occurrences with optional filters and pagination
  */
-export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrencesData>) =>
-  infiniteQueryOptions<
+export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrencesData>) => {
+  const opts = infiniteQueryOptions<
     ListOccurrencesResponse,
     ListOccurrencesError,
     InfiniteData<ListOccurrencesResponse>,
@@ -1592,6 +1592,8 @@ export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrences
       queryKey: listOccurrencesInfiniteQueryKey(options)
     }
   )
+  return opts as Omit<typeof opts, 'initialData'>
+}
 
 /**
  * Create a new occurrence with its sampling and taxon
@@ -1658,8 +1660,8 @@ export const listSamplingsWithOccurrencesInfiniteQueryKey = (
  */
 export const listSamplingsWithOccurrencesInfiniteOptions = (
   options?: Options<ListSamplingsWithOccurrencesData>
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     ListSamplingsWithOccurrencesResponse,
     ListSamplingsWithOccurrencesError,
     InfiniteData<ListSamplingsWithOccurrencesResponse>,
@@ -1697,6 +1699,8 @@ export const listSamplingsWithOccurrencesInfiniteOptions = (
       queryKey: listSamplingsWithOccurrencesInfiniteQueryKey(options)
     }
   )
+  return opts as Omit<typeof opts, 'initialData'>
+}
 
 export const listCollectionNamesQueryKey = (options?: Options<ListCollectionNamesData>) =>
   createQueryKey('listCollectionNames', options)
@@ -1761,8 +1765,8 @@ export const exportSamplingsWithOccurrencesInfiniteQueryKey = (
  */
 export const exportSamplingsWithOccurrencesInfiniteOptions = (
   options: Options<ExportSamplingsWithOccurrencesData>
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     unknown,
     ExportSamplingsWithOccurrencesError,
     InfiniteData<unknown>,
@@ -1800,6 +1804,8 @@ export const exportSamplingsWithOccurrencesInfiniteOptions = (
       queryKey: exportSamplingsWithOccurrencesInfiniteQueryKey(options)
     }
   )
+  return opts as Omit<typeof opts, 'initialData'>
+}
 
 export const listSamplingsH3QueryKey = (options: Options<ListSamplingsH3Data>) =>
   createQueryKey('listSamplingsH3', options)
@@ -1833,8 +1839,8 @@ export const listSamplingsH3InfiniteQueryKey = (
 /**
  * List samplings aggregated by H3 cells
  */
-export const listSamplingsH3InfiniteOptions = (options: Options<ListSamplingsH3Data>) =>
-  infiniteQueryOptions<
+export const listSamplingsH3InfiniteOptions = (options: Options<ListSamplingsH3Data>) => {
+  const opts = infiniteQueryOptions<
     ListSamplingsH3Response,
     ListSamplingsH3Error,
     InfiniteData<ListSamplingsH3Response>,
@@ -1868,6 +1874,8 @@ export const listSamplingsH3InfiniteOptions = (options: Options<ListSamplingsH3D
       queryKey: listSamplingsH3InfiniteQueryKey(options)
     }
   )
+  return opts as Omit<typeof opts, 'initialData'>
+}
 
 export const listOccurrencesH3QueryKey = (options: Options<ListOccurrencesH3Data>) =>
   createQueryKey('listOccurrencesH3', options)
@@ -1901,8 +1909,8 @@ export const listOccurrencesH3InfiniteQueryKey = (
 /**
  * List occurrences aggregated by H3 cells
  */
-export const listOccurrencesH3InfiniteOptions = (options: Options<ListOccurrencesH3Data>) =>
-  infiniteQueryOptions<
+export const listOccurrencesH3InfiniteOptions = (options: Options<ListOccurrencesH3Data>) => {
+  const opts = infiniteQueryOptions<
     ListOccurrencesH3Response,
     ListOccurrencesH3Error,
     InfiniteData<ListOccurrencesH3Response>,
@@ -1937,6 +1945,8 @@ export const listOccurrencesH3InfiniteOptions = (options: Options<ListOccurrence
       queryKey: listOccurrencesH3InfiniteQueryKey(options)
     }
   )
+  return opts as Omit<typeof opts, 'initialData'>
+}
 
 export const listSamplingsWithOccurrencesAtCellQueryKey = (
   options: Options<ListSamplingsWithOccurrencesAtCellData>
@@ -1976,8 +1986,8 @@ export const listSamplingsWithOccurrencesAtCellInfiniteQueryKey = (
  */
 export const listSamplingsWithOccurrencesAtCellInfiniteOptions = (
   options: Options<ListSamplingsWithOccurrencesAtCellData>
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     ListSamplingsWithOccurrencesAtCellResponse,
     ListSamplingsWithOccurrencesAtCellError,
     InfiniteData<ListSamplingsWithOccurrencesAtCellResponse>,
@@ -2015,6 +2025,8 @@ export const listSamplingsWithOccurrencesAtCellInfiniteOptions = (
       queryKey: listSamplingsWithOccurrencesAtCellInfiniteQueryKey(options)
     }
   )
+  return opts as Omit<typeof opts, 'initialData'>
+}
 
 export const listOccurringTaxaAtCellQueryKey = (options: Options<ListOccurringTaxaAtCellData>) =>
   createQueryKey('listOccurringTaxaAtCell', options)
@@ -2051,8 +2063,8 @@ export const listOccurringTaxaAtCellInfiniteQueryKey = (
  */
 export const listOccurringTaxaAtCellInfiniteOptions = (
   options: Options<ListOccurringTaxaAtCellData>
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     ListOccurringTaxaAtCellResponse,
     ListOccurringTaxaAtCellError,
     InfiniteData<ListOccurringTaxaAtCellResponse>,
@@ -2087,6 +2099,8 @@ export const listOccurringTaxaAtCellInfiniteOptions = (
       queryKey: listOccurringTaxaAtCellInfiniteQueryKey(options)
     }
   )
+  return opts as Omit<typeof opts, 'initialData'>
+}
 
 export const getOccurrenceQueryKey = (options: Options<GetOccurrenceData>) =>
   createQueryKey('getOccurrence', options)
@@ -2776,8 +2790,8 @@ export const searchTaxaInfiniteQueryKey = (
 /**
  * Search for taxa
  */
-export const searchTaxaInfiniteOptions = (options?: Options<SearchTaxaData>) =>
-  infiniteQueryOptions<
+export const searchTaxaInfiniteOptions = (options?: Options<SearchTaxaData>) => {
+  const opts = infiniteQueryOptions<
     SearchTaxaResponse,
     SearchTaxaError,
     InfiniteData<SearchTaxaResponse>,
@@ -2811,6 +2825,8 @@ export const searchTaxaInfiniteOptions = (options?: Options<SearchTaxaData>) =>
       queryKey: searchTaxaInfiniteQueryKey(options)
     }
   )
+  return opts as Omit<typeof opts, 'initialData'>
+}
 
 /**
  * Create a new taxon

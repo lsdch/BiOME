@@ -5,7 +5,7 @@ const config: Promise<UserConfig> = defineConfig({
   input: './openapi.json',
   output: {
     path: 'src/api/gen/',
-    postProcess: ['eslint', 'prettier']
+    postProcess: ['prettier']
   },
   parser: {
     transforms: {
@@ -27,7 +27,7 @@ const config: Promise<UserConfig> = defineConfig({
     ...defaultPlugins,
     {
       name: '@hey-api/client-fetch',
-      runtimeConfigPath: '../openapi-client.cfg.ts'
+      runtimeConfigPath: './openapi-client.cfg.ts'
     },
     {
       name: '@tanstack/vue-query'

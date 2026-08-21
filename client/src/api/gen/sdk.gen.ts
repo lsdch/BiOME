@@ -2,8 +2,11 @@
 
 import {
   type Client,
+  type ClientMeta,
   formDataBodySerializer,
   type Options as Options2,
+  type RequestResult,
+  type ServerSentEventsResult,
   type TDataShape
 } from './client'
 import { client } from './client.gen'
@@ -313,7 +316,7 @@ export type Options<
    * You can pass arbitrary values through the `meta` object. This can be
    * used to access values that aren't defined as part of the SDK function.
    */
-  meta?: Record<string, unknown>
+  meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta
 }
 
 export class AbioticsService {
@@ -322,7 +325,7 @@ export class AbioticsService {
    */
   public static listAbioticParameters<ThrowOnError extends boolean = false>(
     options?: Options<ListAbioticParametersData, ThrowOnError>
-  ) {
+  ): RequestResult<ListAbioticParametersResponses, ListAbioticParametersErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListAbioticParametersResponses,
       ListAbioticParametersErrors,
@@ -350,7 +353,7 @@ export class SamplingsService {
    */
   public static listAccessPoints<ThrowOnError extends boolean = false>(
     options?: Options<ListAccessPointsData, ThrowOnError>
-  ) {
+  ): RequestResult<ListAccessPointsResponses, ListAccessPointsErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListAccessPointsResponses,
       ListAccessPointsErrors,
@@ -376,7 +379,11 @@ export class SamplingsService {
    */
   public static listSamplingsAtProximity<ThrowOnError extends boolean = false>(
     options: Options<ListSamplingsAtProximityData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    ListSamplingsAtProximityResponses,
+    ListSamplingsAtProximityErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       ListSamplingsAtProximityResponses,
       ListSamplingsAtProximityErrors,
@@ -404,7 +411,11 @@ export class SamplingsService {
    */
   public static listSamplingsH3AtProximity<ThrowOnError extends boolean = false>(
     options: Options<ListSamplingsH3AtProximityData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    ListSamplingsH3AtProximityResponses,
+    ListSamplingsH3AtProximityErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       ListSamplingsH3AtProximityResponses,
       ListSamplingsH3AtProximityErrors,
@@ -431,7 +442,7 @@ export class SamplingsService {
    */
   public static createSampling<ThrowOnError extends boolean = false>(
     options: Options<CreateSamplingData, ThrowOnError>
-  ) {
+  ): RequestResult<CreateSamplingResponses, CreateSamplingErrors, ThrowOnError> {
     return (options.client ?? client).post<
       CreateSamplingResponses,
       CreateSamplingErrors,
@@ -462,7 +473,7 @@ export class SamplingsService {
    */
   public static listSamplingYears<ThrowOnError extends boolean = false>(
     options?: Options<ListSamplingYearsData, ThrowOnError>
-  ) {
+  ): RequestResult<ListSamplingYearsResponses, ListSamplingYearsErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListSamplingYearsResponses,
       ListSamplingYearsErrors,
@@ -488,7 +499,7 @@ export class AccountsService {
    */
   public static listUsers<ThrowOnError extends boolean = false>(
     options?: Options<ListUsersData, ThrowOnError>
-  ) {
+  ): RequestResult<ListUsersResponses, ListUsersErrors, ThrowOnError> {
     return (options?.client ?? client).get<ListUsersResponses, ListUsersErrors, ThrowOnError>({
       security: [
         { scheme: 'bearer', type: 'http' },
@@ -510,7 +521,7 @@ export class AuthenticationService {
    */
   public static login<ThrowOnError extends boolean = false>(
     options: Options<LoginData, ThrowOnError>
-  ) {
+  ): RequestResult<LoginResponses, LoginErrors, ThrowOnError> {
     return (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
       responseTransformer: loginResponseTransformer,
       security: [
@@ -535,7 +546,7 @@ export class AuthenticationService {
    */
   public static logout<ThrowOnError extends boolean = false>(
     options?: Options<LogoutData, ThrowOnError>
-  ) {
+  ): RequestResult<LogoutResponses, LogoutErrors, ThrowOnError> {
     return (options?.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({
       security: [
         { scheme: 'bearer', type: 'http' },
@@ -555,7 +566,7 @@ export class AuthenticationService {
    */
   public static getCurrentUser<ThrowOnError extends boolean = false>(
     options?: Options<GetCurrentUserData, ThrowOnError>
-  ) {
+  ): RequestResult<GetCurrentUserResponses, GetCurrentUserErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       GetCurrentUserResponses,
       GetCurrentUserErrors,
@@ -579,7 +590,7 @@ export class AuthenticationService {
    */
   public static refreshSession<ThrowOnError extends boolean = false>(
     options: Options<RefreshSessionData, ThrowOnError>
-  ) {
+  ): RequestResult<RefreshSessionResponses, RefreshSessionErrors, ThrowOnError> {
     return (options.client ?? client).post<
       RefreshSessionResponses,
       RefreshSessionErrors,
@@ -606,7 +617,7 @@ export class DatasetsService {
    */
   public static listDatasets<ThrowOnError extends boolean = false>(
     options?: Options<ListDatasetsData, ThrowOnError>
-  ) {
+  ): RequestResult<ListDatasetsResponses, ListDatasetsErrors, ThrowOnError> {
     return (options?.client ?? client).get<ListDatasetsResponses, ListDatasetsErrors, ThrowOnError>(
       {
         responseTransformer: listDatasetsResponseTransformer,
@@ -629,7 +640,7 @@ export class DatasetsService {
    */
   public static getDatasetById<ThrowOnError extends boolean = false>(
     options: Options<GetDatasetByIdData, ThrowOnError>
-  ) {
+  ): RequestResult<GetDatasetByIdResponses, GetDatasetByIdErrors, ThrowOnError> {
     return (options.client ?? client).get<
       GetDatasetByIdResponses,
       GetDatasetByIdErrors,
@@ -654,7 +665,11 @@ export class DatasetsService {
    */
   public static loadOccurrencesForDataset<ThrowOnError extends boolean = false>(
     options: Options<LoadOccurrencesForDatasetData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    LoadOccurrencesForDatasetResponses,
+    LoadOccurrencesForDatasetErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       LoadOccurrencesForDatasetResponses,
       LoadOccurrencesForDatasetErrors,
@@ -681,7 +696,7 @@ export class SamplingService {
    */
   public static listFixatives<ThrowOnError extends boolean = false>(
     options?: Options<ListFixativesData, ThrowOnError>
-  ) {
+  ): RequestResult<ListFixativesResponses, ListFixativesErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListFixativesResponses,
       ListFixativesErrors,
@@ -705,7 +720,7 @@ export class SamplingService {
    */
   public static createFixative<ThrowOnError extends boolean = false>(
     options: Options<CreateFixativeData, ThrowOnError>
-  ) {
+  ): RequestResult<CreateFixativeResponses, CreateFixativeErrors, ThrowOnError> {
     return (options.client ?? client).post<
       CreateFixativeResponses,
       CreateFixativeErrors,
@@ -733,7 +748,7 @@ export class SamplingService {
    */
   public static deleteFixative<ThrowOnError extends boolean = false>(
     options: Options<DeleteFixativeData, ThrowOnError>
-  ) {
+  ): RequestResult<DeleteFixativeResponses, DeleteFixativeErrors, ThrowOnError> {
     return (options.client ?? client).delete<
       DeleteFixativeResponses,
       DeleteFixativeErrors,
@@ -757,7 +772,7 @@ export class SamplingService {
    */
   public static updateFixative<ThrowOnError extends boolean = false>(
     options: Options<UpdateFixativeData, ThrowOnError>
-  ) {
+  ): RequestResult<UpdateFixativeResponses, UpdateFixativeErrors, ThrowOnError> {
     return (options.client ?? client).patch<
       UpdateFixativeResponses,
       UpdateFixativeErrors,
@@ -785,7 +800,7 @@ export class SamplingService {
    */
   public static listSamplingMethods<ThrowOnError extends boolean = false>(
     options?: Options<ListSamplingMethodsData, ThrowOnError>
-  ) {
+  ): RequestResult<ListSamplingMethodsResponses, ListSamplingMethodsErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListSamplingMethodsResponses,
       ListSamplingMethodsErrors,
@@ -809,7 +824,7 @@ export class SamplingService {
    */
   public static createSamplingMethod<ThrowOnError extends boolean = false>(
     options: Options<CreateSamplingMethodData, ThrowOnError>
-  ) {
+  ): RequestResult<CreateSamplingMethodResponses, CreateSamplingMethodErrors, ThrowOnError> {
     return (options.client ?? client).post<
       CreateSamplingMethodResponses,
       CreateSamplingMethodErrors,
@@ -837,7 +852,7 @@ export class SamplingService {
    */
   public static deleteSamplingMethod<ThrowOnError extends boolean = false>(
     options: Options<DeleteSamplingMethodData, ThrowOnError>
-  ) {
+  ): RequestResult<DeleteSamplingMethodResponses, DeleteSamplingMethodErrors, ThrowOnError> {
     return (options.client ?? client).delete<
       DeleteSamplingMethodResponses,
       DeleteSamplingMethodErrors,
@@ -861,7 +876,7 @@ export class SamplingService {
    */
   public static updateSamplingMethod<ThrowOnError extends boolean = false>(
     options: Options<UpdateSamplingMethodData, ThrowOnError>
-  ) {
+  ): RequestResult<UpdateSamplingMethodResponses, UpdateSamplingMethodErrors, ThrowOnError> {
     return (options.client ?? client).patch<
       UpdateSamplingMethodResponses,
       UpdateSamplingMethodErrors,
@@ -891,7 +906,7 @@ export class ServicesService {
    */
   public static reverseGeocode<ThrowOnError extends boolean = false>(
     options?: Options<ReverseGeocodeData, ThrowOnError>
-  ) {
+  ): RequestResult<ReverseGeocodeResponses, ReverseGeocodeErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ReverseGeocodeResponses,
       ReverseGeocodeErrors,
@@ -915,7 +930,7 @@ export class ServicesService {
    */
   public static batchReverseGeocode<ThrowOnError extends boolean = false>(
     options: Options<BatchReverseGeocodeData, ThrowOnError>
-  ) {
+  ): RequestResult<BatchReverseGeocodeResponses, BatchReverseGeocodeErrors, ThrowOnError> {
     return (options.client ?? client).post<
       BatchReverseGeocodeResponses,
       BatchReverseGeocodeErrors,
@@ -943,7 +958,7 @@ export class ServicesService {
    */
   public static getGeoapifyStatus<ThrowOnError extends boolean = false>(
     options?: Options<GetGeoapifyStatusData, ThrowOnError>
-  ) {
+  ): RequestResult<GetGeoapifyStatusResponses, GetGeoapifyStatusErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       GetGeoapifyStatusResponses,
       GetGeoapifyStatusErrors,
@@ -967,7 +982,7 @@ export class ServicesService {
    */
   public static listGeoapifyUsage<ThrowOnError extends boolean = false>(
     options?: Options<ListGeoapifyUsageData, ThrowOnError>
-  ) {
+  ): RequestResult<ListGeoapifyUsageResponses, ListGeoapifyUsageErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListGeoapifyUsageResponses,
       ListGeoapifyUsageErrors,
@@ -994,7 +1009,7 @@ export class HabitatsService {
    */
   public static getHabitatGroups<ThrowOnError extends boolean = false>(
     options?: Options<GetHabitatGroupsData, ThrowOnError>
-  ) {
+  ): RequestResult<GetHabitatGroupsResponses, GetHabitatGroupsErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       GetHabitatGroupsResponses,
       GetHabitatGroupsErrors,
@@ -1018,7 +1033,7 @@ export class HabitatsService {
    */
   public static createHabitatGroup<ThrowOnError extends boolean = false>(
     options: Options<CreateHabitatGroupData, ThrowOnError>
-  ) {
+  ): RequestResult<CreateHabitatGroupResponses, CreateHabitatGroupErrors, ThrowOnError> {
     return (options.client ?? client).post<
       CreateHabitatGroupResponses,
       CreateHabitatGroupErrors,
@@ -1046,7 +1061,7 @@ export class HabitatsService {
    */
   public static deleteHabitatGroup<ThrowOnError extends boolean = false>(
     options: Options<DeleteHabitatGroupData, ThrowOnError>
-  ) {
+  ): RequestResult<DeleteHabitatGroupResponses, DeleteHabitatGroupErrors, ThrowOnError> {
     return (options.client ?? client).delete<
       DeleteHabitatGroupResponses,
       DeleteHabitatGroupErrors,
@@ -1070,7 +1085,7 @@ export class HabitatsService {
    */
   public static updateHabitatGroup<ThrowOnError extends boolean = false>(
     options: Options<UpdateHabitatGroupData, ThrowOnError>
-  ) {
+  ): RequestResult<UpdateHabitatGroupResponses, UpdateHabitatGroupErrors, ThrowOnError> {
     return (options.client ?? client).patch<
       UpdateHabitatGroupResponses,
       UpdateHabitatGroupErrors,
@@ -1100,7 +1115,7 @@ export class ImportsService {
    */
   public static listImportBatches<ThrowOnError extends boolean = false>(
     options?: Options<ListImportBatchesData, ThrowOnError>
-  ) {
+  ): RequestResult<ListImportBatchesResponses, ListImportBatchesErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListImportBatchesResponses,
       ListImportBatchesErrors,
@@ -1125,7 +1140,11 @@ export class ImportsService {
    */
   public static listImportBatchesWithContent<ThrowOnError extends boolean = false>(
     options?: Options<ListImportBatchesWithContentData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    ListImportBatchesWithContentResponses,
+    ListImportBatchesWithContentErrors,
+    ThrowOnError
+  > {
     return (options?.client ?? client).get<
       ListImportBatchesWithContentResponses,
       ListImportBatchesWithContentErrors,
@@ -1150,7 +1169,7 @@ export class ImportsService {
    */
   public static deleteImportBatch<ThrowOnError extends boolean = false>(
     options: Options<DeleteImportBatchData, ThrowOnError>
-  ) {
+  ): RequestResult<DeleteImportBatchResponses, DeleteImportBatchErrors, ThrowOnError> {
     return (options.client ?? client).delete<
       DeleteImportBatchResponses,
       DeleteImportBatchErrors,
@@ -1174,7 +1193,7 @@ export class ImportsService {
    */
   public static getImportBatch<ThrowOnError extends boolean = false>(
     options: Options<GetImportBatchData, ThrowOnError>
-  ) {
+  ): RequestResult<GetImportBatchResponses, GetImportBatchErrors, ThrowOnError> {
     return (options.client ?? client).get<
       GetImportBatchResponses,
       GetImportBatchErrors,
@@ -1199,7 +1218,11 @@ export class ImportsService {
    */
   public static getImportBatchWithContent<ThrowOnError extends boolean = false>(
     options: Options<GetImportBatchWithContentData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    GetImportBatchWithContentResponses,
+    GetImportBatchWithContentErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       GetImportBatchWithContentResponses,
       GetImportBatchWithContentErrors,
@@ -1226,7 +1249,7 @@ export class BatchImportsService {
    */
   public static trackImportStatus<ThrowOnError extends boolean = false>(
     options: Options<TrackImportStatusData, ThrowOnError, TrackImportStatusResponse>
-  ) {
+  ): Promise<ServerSentEventsResult<TrackImportStatusResponses>> {
     return (options.client ?? client).sse.get<
       TrackImportStatusResponses,
       TrackImportStatusErrors,
@@ -1251,7 +1274,7 @@ export class BatchImportsService {
    */
   public static listImports<ThrowOnError extends boolean = false>(
     options?: Options<ListImportsData, ThrowOnError>
-  ) {
+  ): RequestResult<ListImportsResponses, ListImportsErrors, ThrowOnError> {
     return (options?.client ?? client).get<ListImportsResponses, ListImportsErrors, ThrowOnError>({
       responseTransformer: listImportsResponseTransformer,
       security: [
@@ -1272,7 +1295,7 @@ export class BatchImportsService {
    */
   public static importOccurrencesCsv<ThrowOnError extends boolean = false>(
     options?: Options<ImportOccurrencesCsvData, ThrowOnError>
-  ) {
+  ): RequestResult<ImportOccurrencesCsvResponses, ImportOccurrencesCsvErrors, ThrowOnError> {
     return (options?.client ?? client).post<
       ImportOccurrencesCsvResponses,
       ImportOccurrencesCsvErrors,
@@ -1302,7 +1325,11 @@ export class BatchImportsService {
    */
   public static listImportsForCurrentUser<ThrowOnError extends boolean = false>(
     options?: Options<ListImportsForCurrentUserData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    ListImportsForCurrentUserResponses,
+    ListImportsForCurrentUserErrors,
+    ThrowOnError
+  > {
     return (options?.client ?? client).get<
       ListImportsForCurrentUserResponses,
       ListImportsForCurrentUserErrors,
@@ -1327,7 +1354,11 @@ export class BatchImportsService {
    */
   public static getBibliographyResolutions<ThrowOnError extends boolean = false>(
     options: Options<GetBibliographyResolutionsData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    GetBibliographyResolutionsResponses,
+    GetBibliographyResolutionsErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       GetBibliographyResolutionsResponses,
       GetBibliographyResolutionsErrors,
@@ -1351,7 +1382,7 @@ export class BatchImportsService {
    */
   public static resolvePublication<ThrowOnError extends boolean = false>(
     options: Options<ResolvePublicationData, ThrowOnError>
-  ) {
+  ): RequestResult<ResolvePublicationResponses, ResolvePublicationErrors, ThrowOnError> {
     return (options.client ?? client).patch<
       ResolvePublicationResponses,
       ResolvePublicationErrors,
@@ -1379,7 +1410,7 @@ export class BatchImportsService {
    */
   public static getFixativesResolution<ThrowOnError extends boolean = false>(
     options: Options<GetFixativesResolutionData, ThrowOnError>
-  ) {
+  ): RequestResult<GetFixativesResolutionResponses, GetFixativesResolutionErrors, ThrowOnError> {
     return (options.client ?? client).get<
       GetFixativesResolutionResponses,
       GetFixativesResolutionErrors,
@@ -1403,7 +1434,7 @@ export class BatchImportsService {
    */
   public static resolveFixative<ThrowOnError extends boolean = false>(
     options: Options<ResolveFixativeData, ThrowOnError>
-  ) {
+  ): RequestResult<ResolveFixativeResponses, ResolveFixativeErrors, ThrowOnError> {
     return (options.client ?? client).patch<
       ResolveFixativeResponses,
       ResolveFixativeErrors,
@@ -1431,7 +1462,7 @@ export class BatchImportsService {
    */
   public static getMethodsResolution<ThrowOnError extends boolean = false>(
     options: Options<GetMethodsResolutionData, ThrowOnError>
-  ) {
+  ): RequestResult<GetMethodsResolutionResponses, GetMethodsResolutionErrors, ThrowOnError> {
     return (options.client ?? client).get<
       GetMethodsResolutionResponses,
       GetMethodsResolutionErrors,
@@ -1455,7 +1486,7 @@ export class BatchImportsService {
    */
   public static resolveMethod<ThrowOnError extends boolean = false>(
     options: Options<ResolveMethodData, ThrowOnError>
-  ) {
+  ): RequestResult<ResolveMethodResponses, ResolveMethodErrors, ThrowOnError> {
     return (options.client ?? client).patch<
       ResolveMethodResponses,
       ResolveMethodErrors,
@@ -1483,7 +1514,7 @@ export class BatchImportsService {
    */
   public static getTaxonResolutions<ThrowOnError extends boolean = false>(
     options: Options<GetTaxonResolutionsData, ThrowOnError>
-  ) {
+  ): RequestResult<GetTaxonResolutionsResponses, GetTaxonResolutionsErrors, ThrowOnError> {
     return (options.client ?? client).get<
       GetTaxonResolutionsResponses,
       GetTaxonResolutionsErrors,
@@ -1507,7 +1538,7 @@ export class BatchImportsService {
    */
   public static resolveTaxon<ThrowOnError extends boolean = false>(
     options: Options<ResolveTaxonData, ThrowOnError>
-  ) {
+  ): RequestResult<ResolveTaxonResponses, ResolveTaxonErrors, ThrowOnError> {
     return (options.client ?? client).patch<
       ResolveTaxonResponses,
       ResolveTaxonErrors,
@@ -1535,7 +1566,11 @@ export class BatchImportsService {
    */
   public static createManualTaxonCandidate<ThrowOnError extends boolean = false>(
     options: Options<CreateManualTaxonCandidateData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    CreateManualTaxonCandidateResponses,
+    CreateManualTaxonCandidateErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).post<
       CreateManualTaxonCandidateResponses,
       CreateManualTaxonCandidateErrors,
@@ -1565,7 +1600,7 @@ export class BatchImportsService {
    */
   public static deleteBatchWorkflow<ThrowOnError extends boolean = false>(
     options: Options<DeleteBatchWorkflowData, ThrowOnError>
-  ) {
+  ): RequestResult<DeleteBatchWorkflowResponses, DeleteBatchWorkflowErrors, ThrowOnError> {
     return (options.client ?? client).delete<
       DeleteBatchWorkflowResponses,
       DeleteBatchWorkflowErrors,
@@ -1591,7 +1626,7 @@ export class BatchImportsService {
    */
   public static addBibliographyCsv<ThrowOnError extends boolean = false>(
     options: Options<AddBibliographyCsvData, ThrowOnError>
-  ) {
+  ): RequestResult<AddBibliographyCsvResponses, AddBibliographyCsvErrors, ThrowOnError> {
     return (options.client ?? client).post<
       AddBibliographyCsvResponses,
       AddBibliographyCsvErrors,
@@ -1623,7 +1658,7 @@ export class BatchImportsService {
    */
   public static materializeBatch<ThrowOnError extends boolean = false>(
     options: Options<MaterializeBatchData, ThrowOnError>
-  ) {
+  ): RequestResult<MaterializeBatchResponses, MaterializeBatchErrors, ThrowOnError> {
     return (options.client ?? client).post<
       MaterializeBatchResponses,
       MaterializeBatchErrors,
@@ -1648,7 +1683,7 @@ export class BatchImportsService {
    */
   public static getImportStatus<ThrowOnError extends boolean = false>(
     options: Options<GetImportStatusData, ThrowOnError>
-  ) {
+  ): RequestResult<GetImportStatusResponses, GetImportStatusErrors, ThrowOnError> {
     return (options.client ?? client).get<
       GetImportStatusResponses,
       GetImportStatusErrors,
@@ -1675,7 +1710,7 @@ export class LocationService {
    */
   public static listCountries<ThrowOnError extends boolean = false>(
     options?: Options<ListCountriesData, ThrowOnError>
-  ) {
+  ): RequestResult<ListCountriesResponses, ListCountriesErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListCountriesResponses,
       ListCountriesErrors,
@@ -1699,7 +1734,7 @@ export class LocationService {
    */
   public static coordinatesToCountry<ThrowOnError extends boolean = false>(
     options?: Options<CoordinatesToCountryData, ThrowOnError>
-  ) {
+  ): RequestResult<CoordinatesToCountryResponses, CoordinatesToCountryErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       CoordinatesToCountryResponses,
       CoordinatesToCountryErrors,
@@ -1723,7 +1758,7 @@ export class LocationService {
    */
   public static listCountriesSummary<ThrowOnError extends boolean = false>(
     options?: Options<ListCountriesSummaryData, ThrowOnError>
-  ) {
+  ): RequestResult<ListCountriesSummaryResponses, ListCountriesSummaryErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListCountriesSummaryResponses,
       ListCountriesSummaryErrors,
@@ -1749,7 +1784,7 @@ export class OccurrencesService {
    */
   public static listOccurrences<ThrowOnError extends boolean = false>(
     options?: Options<ListOccurrencesData, ThrowOnError>
-  ) {
+  ): RequestResult<ListOccurrencesResponses, ListOccurrencesErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListOccurrencesResponses,
       ListOccurrencesErrors,
@@ -1783,7 +1818,7 @@ export class OccurrencesService {
    */
   public static createOccurrence<ThrowOnError extends boolean = false>(
     options: Options<CreateOccurrenceData, ThrowOnError>
-  ) {
+  ): RequestResult<CreateOccurrenceResponses, CreateOccurrenceErrors, ThrowOnError> {
     return (options.client ?? client).post<
       CreateOccurrenceResponses,
       CreateOccurrenceErrors,
@@ -1812,7 +1847,11 @@ export class OccurrencesService {
    */
   public static listSamplingsWithOccurrences<ThrowOnError extends boolean = false>(
     options?: Options<ListSamplingsWithOccurrencesData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    ListSamplingsWithOccurrencesResponses,
+    ListSamplingsWithOccurrencesErrors,
+    ThrowOnError
+  > {
     return (options?.client ?? client).get<
       ListSamplingsWithOccurrencesResponses,
       ListSamplingsWithOccurrencesErrors,
@@ -1846,7 +1885,7 @@ export class OccurrencesService {
    */
   public static listCollectionNames<ThrowOnError extends boolean = false>(
     options?: Options<ListCollectionNamesData, ThrowOnError>
-  ) {
+  ): RequestResult<ListCollectionNamesResponses, ListCollectionNamesErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListCollectionNamesResponses,
       ListCollectionNamesErrors,
@@ -1870,7 +1909,11 @@ export class OccurrencesService {
    */
   public static exportSamplingsWithOccurrences<ThrowOnError extends boolean = false>(
     options: Options<ExportSamplingsWithOccurrencesData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    ExportSamplingsWithOccurrencesResponses,
+    ExportSamplingsWithOccurrencesErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       ExportSamplingsWithOccurrencesResponses,
       ExportSamplingsWithOccurrencesErrors,
@@ -1903,7 +1946,7 @@ export class OccurrencesService {
    */
   public static listSamplingsH3<ThrowOnError extends boolean = false>(
     options: Options<ListSamplingsH3Data, ThrowOnError>
-  ) {
+  ): RequestResult<ListSamplingsH3Responses, ListSamplingsH3Errors, ThrowOnError> {
     return (options.client ?? client).get<
       ListSamplingsH3Responses,
       ListSamplingsH3Errors,
@@ -1934,7 +1977,7 @@ export class OccurrencesService {
    */
   public static listOccurrencesH3<ThrowOnError extends boolean = false>(
     options: Options<ListOccurrencesH3Data, ThrowOnError>
-  ) {
+  ): RequestResult<ListOccurrencesH3Responses, ListOccurrencesH3Errors, ThrowOnError> {
     return (options.client ?? client).get<
       ListOccurrencesH3Responses,
       ListOccurrencesH3Errors,
@@ -1967,7 +2010,11 @@ export class OccurrencesService {
    */
   public static listSamplingsWithOccurrencesAtCell<ThrowOnError extends boolean = false>(
     options: Options<ListSamplingsWithOccurrencesAtCellData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    ListSamplingsWithOccurrencesAtCellResponses,
+    ListSamplingsWithOccurrencesAtCellErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       ListSamplingsWithOccurrencesAtCellResponses,
       ListSamplingsWithOccurrencesAtCellErrors,
@@ -2001,7 +2048,7 @@ export class OccurrencesService {
    */
   public static listOccurringTaxaAtCell<ThrowOnError extends boolean = false>(
     options: Options<ListOccurringTaxaAtCellData, ThrowOnError>
-  ) {
+  ): RequestResult<ListOccurringTaxaAtCellResponses, ListOccurringTaxaAtCellErrors, ThrowOnError> {
     return (options.client ?? client).get<
       ListOccurringTaxaAtCellResponses,
       ListOccurringTaxaAtCellErrors,
@@ -2034,7 +2081,7 @@ export class OccurrencesService {
    */
   public static getOccurrence<ThrowOnError extends boolean = false>(
     options: Options<GetOccurrenceData, ThrowOnError>
-  ) {
+  ): RequestResult<GetOccurrenceResponses, GetOccurrenceErrors, ThrowOnError> {
     return (options.client ?? client).get<
       GetOccurrenceResponses,
       GetOccurrenceErrors,
@@ -2059,7 +2106,11 @@ export class OccurrencesService {
    */
   public static listOccurrencesAtProximity<ThrowOnError extends boolean = false>(
     options: Options<ListOccurrencesAtProximityData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    ListOccurrencesAtProximityResponses,
+    ListOccurrencesAtProximityErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       ListOccurrencesAtProximityResponses,
       ListOccurrencesAtProximityErrors,
@@ -2085,7 +2136,11 @@ export class OccurrencesService {
    */
   public static createOccurrenceAtSampling<ThrowOnError extends boolean = false>(
     options: Options<CreateOccurrenceAtSamplingData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    CreateOccurrenceAtSamplingResponses,
+    CreateOccurrenceAtSamplingErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).post<
       CreateOccurrenceAtSamplingResponses,
       CreateOccurrenceAtSamplingErrors,
@@ -2114,7 +2169,7 @@ export class OccurrencesService {
    */
   public static occurrencesTaxaOverview<ThrowOnError extends boolean = false>(
     options?: Options<OccurrencesTaxaOverviewData, ThrowOnError>
-  ) {
+  ): RequestResult<OccurrencesTaxaOverviewResponses, OccurrencesTaxaOverviewErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       OccurrencesTaxaOverviewResponses,
       OccurrencesTaxaOverviewErrors,
@@ -2138,7 +2193,11 @@ export class OccurrencesService {
    */
   public static loadDatasetsForOccurrence<ThrowOnError extends boolean = false>(
     options: Options<LoadDatasetsForOccurrenceData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    LoadDatasetsForOccurrenceResponses,
+    LoadDatasetsForOccurrenceErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).get<
       LoadDatasetsForOccurrenceResponses,
       LoadDatasetsForOccurrenceErrors,
@@ -2165,7 +2224,7 @@ export class BibliographyService {
    */
   public static listPublications<ThrowOnError extends boolean = false>(
     options?: Options<ListPublicationsData, ThrowOnError>
-  ) {
+  ): RequestResult<ListPublicationsResponses, ListPublicationsErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       ListPublicationsResponses,
       ListPublicationsErrors,
@@ -2189,7 +2248,7 @@ export class BibliographyService {
    */
   public static createPublication<ThrowOnError extends boolean = false>(
     options: Options<CreatePublicationData, ThrowOnError>
-  ) {
+  ): RequestResult<CreatePublicationResponses, CreatePublicationErrors, ThrowOnError> {
     return (options.client ?? client).post<
       CreatePublicationResponses,
       CreatePublicationErrors,
@@ -2217,7 +2276,7 @@ export class BibliographyService {
    */
   public static deletePublication<ThrowOnError extends boolean = false>(
     options: Options<DeletePublicationData, ThrowOnError>
-  ) {
+  ): RequestResult<DeletePublicationResponses, DeletePublicationErrors, ThrowOnError> {
     return (options.client ?? client).delete<
       DeletePublicationResponses,
       DeletePublicationErrors,
@@ -2243,7 +2302,7 @@ export class SettingsService {
    */
   public static getInstanceSettings<ThrowOnError extends boolean = false>(
     options?: Options<GetInstanceSettingsData, ThrowOnError>
-  ) {
+  ): RequestResult<GetInstanceSettingsResponses, GetInstanceSettingsErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       GetInstanceSettingsResponses,
       GetInstanceSettingsErrors,
@@ -2267,7 +2326,7 @@ export class SettingsService {
    */
   public static updateInstanceSettings<ThrowOnError extends boolean = false>(
     options: Options<UpdateInstanceSettingsData, ThrowOnError>
-  ) {
+  ): RequestResult<UpdateInstanceSettingsResponses, UpdateInstanceSettingsErrors, ThrowOnError> {
     return (options.client ?? client).put<
       UpdateInstanceSettingsResponses,
       UpdateInstanceSettingsErrors,
@@ -2295,7 +2354,7 @@ export class SettingsService {
    */
   public static setAppIcon<ThrowOnError extends boolean = false>(
     options?: Options<SetAppIconData, ThrowOnError>
-  ) {
+  ): RequestResult<SetAppIconResponses, SetAppIconErrors, ThrowOnError> {
     return (options?.client ?? client).post<SetAppIconResponses, SetAppIconErrors, ThrowOnError>({
       ...formDataBodySerializer,
       security: [
@@ -2320,7 +2379,7 @@ export class SettingsService {
    */
   public static getDashboardMessage<ThrowOnError extends boolean = false>(
     options?: Options<GetDashboardMessageData, ThrowOnError>
-  ) {
+  ): RequestResult<GetDashboardMessageResponses, GetDashboardMessageErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       GetDashboardMessageResponses,
       GetDashboardMessageErrors,
@@ -2344,7 +2403,7 @@ export class SettingsService {
    */
   public static setDashboardMessage<ThrowOnError extends boolean = false>(
     options?: Options<SetDashboardMessageData, ThrowOnError>
-  ) {
+  ): RequestResult<SetDashboardMessageResponses, SetDashboardMessageErrors, ThrowOnError> {
     return (options?.client ?? client).put<
       SetDashboardMessageResponses,
       SetDashboardMessageErrors,
@@ -2372,7 +2431,7 @@ export class SettingsService {
    */
   public static togglePublicAccess<ThrowOnError extends boolean = false>(
     options: Options<TogglePublicAccessData, ThrowOnError>
-  ) {
+  ): RequestResult<TogglePublicAccessResponses, TogglePublicAccessErrors, ThrowOnError> {
     return (options.client ?? client).put<
       TogglePublicAccessResponses,
       TogglePublicAccessErrors,
@@ -2400,7 +2459,11 @@ export class SettingsService {
    */
   public static togglePublicRegistration<ThrowOnError extends boolean = false>(
     options: Options<TogglePublicRegistrationData, ThrowOnError>
-  ) {
+  ): RequestResult<
+    TogglePublicRegistrationResponses,
+    TogglePublicRegistrationErrors,
+    ThrowOnError
+  > {
     return (options.client ?? client).put<
       TogglePublicRegistrationResponses,
       TogglePublicRegistrationErrors,
@@ -2428,7 +2491,7 @@ export class SettingsService {
    */
   public static testSmtpConnection<ThrowOnError extends boolean = false>(
     options?: Options<TestSmtpConnectionData, ThrowOnError>
-  ) {
+  ): RequestResult<TestSmtpConnectionResponses, TestSmtpConnectionErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       TestSmtpConnectionResponses,
       TestSmtpConnectionErrors,
@@ -2456,7 +2519,7 @@ export class TaxonomyService {
    */
   public static getGbifKingdoms<ThrowOnError extends boolean = false>(
     options?: Options<GetGbifKingdomsData, ThrowOnError>
-  ) {
+  ): RequestResult<GetGbifKingdomsResponses, GetGbifKingdomsErrors, ThrowOnError> {
     return (options?.client ?? client).get<
       GetGbifKingdomsResponses,
       GetGbifKingdomsErrors,
@@ -2480,7 +2543,7 @@ export class TaxonomyService {
    */
   public static getTaxaAtRank<ThrowOnError extends boolean = false>(
     options: Options<GetTaxaAtRankData, ThrowOnError>
-  ) {
+  ): RequestResult<GetTaxaAtRankResponses, GetTaxaAtRankErrors, ThrowOnError> {
     return (options.client ?? client).get<
       GetTaxaAtRankResponses,
       GetTaxaAtRankErrors,
@@ -2504,7 +2567,7 @@ export class TaxonomyService {
    */
   public static searchTaxa<ThrowOnError extends boolean = false>(
     options?: Options<SearchTaxaData, ThrowOnError>
-  ) {
+  ): RequestResult<SearchTaxaResponses, SearchTaxaErrors, ThrowOnError> {
     return (options?.client ?? client).get<SearchTaxaResponses, SearchTaxaErrors, ThrowOnError>({
       querySerializer: { parameters: { ranks: { array: { explode: false } } } },
       security: [
@@ -2525,7 +2588,7 @@ export class TaxonomyService {
    */
   public static createTaxon<ThrowOnError extends boolean = false>(
     options?: Options<CreateTaxonData, ThrowOnError>
-  ) {
+  ): RequestResult<CreateTaxonResponses, CreateTaxonErrors, ThrowOnError> {
     return (options?.client ?? client).post<CreateTaxonResponses, CreateTaxonErrors, ThrowOnError>({
       security: [
         { scheme: 'bearer', type: 'http' },
@@ -2551,7 +2614,7 @@ export class TaxonomyService {
    */
   public static deleteTaxon<ThrowOnError extends boolean = false>(
     options: Options<DeleteTaxonData, ThrowOnError>
-  ) {
+  ): RequestResult<DeleteTaxonResponses, DeleteTaxonErrors, ThrowOnError> {
     return (options.client ?? client).delete<DeleteTaxonResponses, DeleteTaxonErrors, ThrowOnError>(
       {
         security: [
@@ -2573,7 +2636,7 @@ export class TaxonomyService {
    */
   public static getTaxon<ThrowOnError extends boolean = false>(
     options: Options<GetTaxonData, ThrowOnError>
-  ) {
+  ): RequestResult<GetTaxonResponses, GetTaxonErrors, ThrowOnError> {
     return (options.client ?? client).get<GetTaxonResponses, GetTaxonErrors, ThrowOnError>({
       security: [
         { scheme: 'bearer', type: 'http' },

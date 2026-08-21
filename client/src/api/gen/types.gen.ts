@@ -1075,11 +1075,7 @@ export type UserRole = 'visitor' | 'contributor' | 'maintainer' | 'admin'
  * VocabResolutionStatus
  */
 export type VocabResolutionStatus =
-  | 'auto_resolved'
-  | 'selected'
-  | 'pending'
-  | 'request_creation'
-  | 'discard'
+  'auto_resolved' | 'selected' | 'pending' | 'request_creation' | 'discard'
 
 export type ListAbioticParametersData = {
   body?: never
