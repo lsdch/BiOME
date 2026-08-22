@@ -123,7 +123,7 @@
 <script setup lang="ts">
 import { $HabitatGroupInput, $HabitatGroupUpdate } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { HabitatModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
@@ -143,9 +143,9 @@ const emit = defineEmits<{
   submit: [model: HabitatModel.HabitatGroupModel | undefined]
 }>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() => useSchema(mode === 'Create' ? $HabitatGroupInput : $HabitatGroupUpdate))
+const { schema } = reactiveComputed(() =>
+  useSchemaBinding(mode === 'Create' ? $HabitatGroupInput : $HabitatGroupUpdate)
+)
 
 function elementsCountHeadline(model: HabitatModel.HabitatGroupModel) {
   const eltCount = model.elements.length

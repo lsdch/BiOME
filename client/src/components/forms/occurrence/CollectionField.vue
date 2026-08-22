@@ -37,16 +37,14 @@
 <script setup lang="ts">
 import { $CollectionInput, CollectionInput } from '@/api'
 import { listCollectionNamesOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { useQuery } from '@tanstack/vue-query'
 
 const { data: collections } = useQuery(listCollectionNamesOptions())
 
 const model = defineModel<CollectionInput>({ required: true })
 
-const {
-  bind: { schema }
-} = useSchema($CollectionInput)
+const { schema } = useSchemaBinding($CollectionInput)
 </script>
 
 <style scoped lang="scss"></style>

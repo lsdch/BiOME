@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import { $TaxonInput, $TaxonUpdate, Taxon, TaxonRank } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { TaxonModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
@@ -91,9 +91,9 @@ const emit = defineEmits<{
   submit: [model: TaxonModel.TaxonFormModel | undefined]
 }>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() => useSchema(mode === 'Create' ? $TaxonInput : $TaxonUpdate))
+const { schema } = reactiveComputed(() =>
+  useSchemaBinding(mode === 'Create' ? $TaxonInput : $TaxonUpdate)
+)
 
 watch(
   parent,

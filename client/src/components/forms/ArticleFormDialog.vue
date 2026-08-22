@@ -76,7 +76,7 @@
 import { $ArticleInput, $ArticleUpdate } from '@/api'
 import DoiInputFetcher from '@/features/registries/components/DoiInputFetcher.vue'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { ArticleModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
@@ -96,9 +96,9 @@ const emit = defineEmits<{
   submit: [model: ArticleModel.ArticleFormModel | undefined]
 }>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() => useSchema(mode === 'Create' ? $ArticleInput : $ArticleUpdate))
+const { schema } = reactiveComputed(() =>
+  useSchemaBinding(mode === 'Create' ? $ArticleInput : $ArticleUpdate)
+)
 </script>
 
 <style scoped lang="scss"></style>

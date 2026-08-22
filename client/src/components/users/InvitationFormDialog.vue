@@ -20,7 +20,7 @@
 import { $InvitationInput, InvitationInput, PendingUserRequest, UserRole } from '@/api'
 import { ref, watch } from 'vue'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import UserRolePicker from './UserRolePicker.vue'
 import PersonPicker from '@/features/people/components/PersonPicker.vue'
 
@@ -45,9 +45,7 @@ const model = ref<InvitationInput>({
   role: 'contributor'
 })
 
-const {
-  bind: { schema }
-} = useSchema($InvitationInput)
+const { schema } = useSchemaBinding($InvitationInput)
 </script>
 
 <style scoped></style>

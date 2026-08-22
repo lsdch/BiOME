@@ -134,7 +134,7 @@
 <script setup lang="ts">
 import { $SiteInput, $SiteUpdate } from '@/api'
 import FTextField from '@/components/toolkit/forms/FTextField'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.vue'
 import { FormProps } from '@/lib/mutations'
 import { SiteModel } from '@/models'
@@ -147,9 +147,7 @@ const model = defineModel<SiteModel.SiteFormModel>({
 
 const { mode = 'Create' } = defineProps<FormProps>()
 
-const {
-  bind: { schema }
-} = useSchema(mode === 'Create' ? $SiteInput : $SiteUpdate)
+const { schema } = useSchemaBinding(mode === 'Create' ? $SiteInput : $SiteUpdate)
 
 /**
  * Geolocation

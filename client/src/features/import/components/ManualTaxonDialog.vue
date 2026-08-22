@@ -38,7 +38,7 @@
 import { $TaxonStagingParams, TaxonRank, TaxonStatus } from '@/api'
 import { createManualTaxonCandidateMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import TaxonRankPicker from '@/features/taxonomy/components/TaxonRankPicker'
 import { useMutation } from '@tanstack/vue-query'
 const dialog = defineModel<boolean>('dialog')
@@ -62,9 +62,7 @@ const emit = defineEmits<{
 
 const { mutateAsync, error, isPending } = useMutation(createManualTaxonCandidateMutation())
 
-const {
-  bind: { schema }
-} = useSchema($TaxonStagingParams)
+const { schema } = useSchemaBinding($TaxonStagingParams)
 
 function submit() {
   if (!model.value.name || !model.value.rank || !model.value.parent_name) {

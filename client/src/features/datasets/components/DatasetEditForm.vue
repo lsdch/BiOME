@@ -36,15 +36,12 @@
 import { $DatasetUpdate, DatasetUpdate, OccurrenceDataset, SiteDataset } from '@/api'
 import { updateDatasetMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import PersonPicker from '@/features/people/components/PersonPicker.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation } from '@tanstack/vue-query'
 
 const dataset = defineModel<DatasetType>({ required: true })
-const {
-  bind: { schema },
-  dispatchErrors
-} = useSchema($DatasetUpdate)
+const { schema, dispatchErrors } = useSchemaBinding($DatasetUpdate)
 const { feedback } = useFeedback()
 
 const emit = defineEmits<{

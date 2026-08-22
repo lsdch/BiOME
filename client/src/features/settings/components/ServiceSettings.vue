@@ -57,7 +57,7 @@ import {
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import SettingsFormActions from './SettingsFormActions.vue'
 
@@ -65,10 +65,7 @@ const { feedback } = useFeedback()
 
 const { data: model, error, refetch, isPending } = useQuery(serviceSettingsOptions())
 
-const {
-  bind: { schema },
-  dispatchErrors
-} = useSchema($ServiceSettingsUpdate)
+const { schema, dispatchErrors } = useSchemaBinding($ServiceSettingsUpdate)
 
 const {
   mutateAsync,

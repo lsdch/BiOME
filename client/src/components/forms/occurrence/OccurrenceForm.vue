@@ -194,7 +194,7 @@
 import { $OccurrenceInput, OccurrenceInput, SamplingInput } from '@/api'
 import IdentificationFormFields from '@/components/forms/occurrence/IdentificationFormFields.vue'
 import QuantityPicker from '@/components/forms/occurrence/QuantityPicker.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import ArticlesPicker from '@/features/registries/components/ArticlesPicker.vue'
 import { FormProps } from '@/lib/mutations'
@@ -215,9 +215,7 @@ const model = defineModel<OccurrenceModel>({
 
 const { mode = 'Create' } = defineProps<FormProps>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() => useSchema($OccurrenceInput))
+const { schema } = reactiveComputed(() => useSchemaBinding($OccurrenceInput))
 
 function addCollection() {
   if (!model.value.collections) {

@@ -127,7 +127,7 @@ import { SiteItem, TaxonRank } from '@/api/adapters'
 import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import HoursMinutesInput from '@/components/toolkit/forms/HoursMinutesInput.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import AccessPointsPicker from '@/features/occurrences/components/sampling/AccessPointsPicker.vue'
 import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
 import PersonPicker from '@/features/people/components/PersonPicker.vue'
@@ -156,9 +156,9 @@ const emit = defineEmits<{
   submit: [model: SamplingModel.SamplingFormModel | undefined]
 }>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() => useSchema(mode === 'Create' ? $SamplingInput : $SamplingUpdate))
+const { schema } = reactiveComputed(() =>
+  useSchemaBinding(mode === 'Create' ? $SamplingInput : $SamplingUpdate)
+)
 </script>
 
 <style scoped lang="scss"></style>

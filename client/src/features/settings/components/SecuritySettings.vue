@@ -68,17 +68,14 @@ import {
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import DaysHoursInput from './DaysHoursInput.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
 
 const { feedback } = useFeedback()
 
-const {
-  bind: { schema },
-  dispatchErrors
-} = useSchema($SecuritySettingsInput)
+const { schema, dispatchErrors } = useSchemaBinding($SecuritySettingsInput)
 
 const { data: model, refetch, error, isPending } = useQuery(securitySettingsOptions())
 

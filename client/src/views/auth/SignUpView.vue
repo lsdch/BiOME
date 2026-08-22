@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import { $PendingUserRequestInput, AccountService, PendingUserRequestInput } from '@/api'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { accountRoutes } from '@/router/routes'
 import { ref } from 'vue'
 
@@ -91,10 +91,7 @@ const model = ref<PendingUserRequestInput>({
   organisation: undefined
 })
 
-const {
-  bind: { schema },
-  handleErrors: errorHandler
-} = useSchema($PendingUserRequestInput)
+const { schema, handleErrors: errorHandler } = useSchemaBinding($PendingUserRequestInput)
 
 function submit() {
   AccountService.register({

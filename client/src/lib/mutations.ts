@@ -1,5 +1,5 @@
 import { ErrorModel } from '@/api'
-import { joinPath, PathPrefix, Schema, useSchema } from '@/composables/schema'
+import { joinPath, PathPrefix, Schema, useSchemaBinding } from '@/composables/schema'
 import { useMutation, UseMutationOptions } from '@tanstack/vue-query'
 import { reactiveComputed } from '@vueuse/core'
 import { StatusCodes } from 'http-status-codes'
@@ -198,7 +198,7 @@ export function useMutationForm<
 
   // Schema bindings
   const schemaBindings = reactiveComputed(() =>
-    useSchema(mode.value === 'Create' ? create.schema : update.schema)
+    useSchemaBinding(mode.value === 'Create' ? create.schema : update.schema)
   )
 
   const createMutation = useMutation({

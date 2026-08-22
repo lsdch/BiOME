@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { $PasswordResetRequest, AccountService, PasswordResetRequest } from '@/api'
 import { ref } from 'vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -42,9 +42,7 @@ const state = ref<PasswordResetRequest>({
   email: '',
   handler: window.location.origin + router.resolve('password-reset').fullPath
 })
-const {
-  bind: { schema }
-} = useSchema($PasswordResetRequest)
+const { schema } = useSchemaBinding($PasswordResetRequest)
 
 const requestSent = ref(false)
 

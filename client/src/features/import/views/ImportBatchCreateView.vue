@@ -170,7 +170,7 @@ import { ImportDataCSV } from '../components/FileInputCSV.vue'
 import CSVQuotePicker from '@/components/toolkit/ui/exports/CSVQuotePicker.vue'
 import { useRouter } from 'vuetify/lib/composables/router.mjs'
 import { ImportBatchInput, TaxonDefinition, TaxonRank } from '@/api/adapters.ts'
-import { useSchema } from '@/composables/schema.ts'
+import { useSchemaBinding } from '@/composables/schema.ts'
 import { $ImportBatchInput } from '@/api/index.ts'
 import ImportBatchesTable from '../components/ImportBatchesTable.vue'
 import GBIFKingdomPicker from '../components/GBIFKingdomPicker.vue'
@@ -198,9 +198,7 @@ const inconsistentTaxaError = ref<{
   taxa: InconsistentTaxon[]
 }>()
 
-const {
-  bind: { schema }
-} = useSchema($ImportBatchInput)
+const { schema } = useSchemaBinding($ImportBatchInput)
 const csv = ref<ImportDataCSV>({ file: undefined, separator: '\t', quotes: '"' })
 
 const { mutateAsync, error, isPending: isImporting } = useMutation(importOccurrencesCsvMutation())

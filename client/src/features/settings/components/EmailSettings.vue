@@ -110,7 +110,7 @@ import {
 } from '@/api/gen/@tanstack/vue-query.gen'
 import PasswordField from '@/components/toolkit/forms/PasswordField.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
@@ -126,10 +126,7 @@ const status = ref<{
 
 const { data: model, error, isPending, refetch } = useQuery(emailSettingsOptions())
 
-const {
-  bind: { schema },
-  dispatchErrors
-} = useSchema($EmailSettingsInput)
+const { schema, dispatchErrors } = useSchemaBinding($EmailSettingsInput)
 const { feedback } = useFeedback()
 
 const {

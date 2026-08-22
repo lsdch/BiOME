@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { $EventDatePrecision, DateWithPrecisionInput } from '@/api'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { $schema, DateWithPrecisionModel } from '@/models/date_with_precision'
 import CompositeDateField from './CompositeDateField.vue'
 
@@ -27,9 +27,7 @@ const model = defineModel<DateWithPrecisionModel>({
   default: { date: undefined, precision: 'Day' }
 })
 
-const {
-  bind: { schema }
-} = useSchema($schema)
+const { schema } = useSchemaBinding($schema)
 
 const items: Array<DateWithPrecisionInput['precision'] | 'Unknown'> = [
   ...$EventDatePrecision.enum,

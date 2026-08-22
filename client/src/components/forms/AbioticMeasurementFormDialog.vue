@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { $AbioticParameterInput, $AbioticParameterUpdate } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { AbioticParamModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
@@ -55,10 +55,8 @@ const emit = defineEmits<{
   submit: [model: AbioticParamModel.AbioticParamModel | undefined]
 }>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() =>
-  useSchema(mode === 'Create' ? $AbioticParameterInput : $AbioticParameterUpdate)
+const { schema } = reactiveComputed(() =>
+  useSchemaBinding(mode === 'Create' ? $AbioticParameterInput : $AbioticParameterUpdate)
 )
 </script>
 

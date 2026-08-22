@@ -191,7 +191,7 @@ import { deleteTaxonMutation, getTaxonOptions } from '@/api/gen/@tanstack/vue-qu
 import ActivableField from '@/components/toolkit/forms/ActivableField.vue'
 import DeleteBtn from '@/components/toolkit/ui/DeleteBtn.vue'
 import { useAppConfirmDialog } from '@/composables/confirm_dialog'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { useMutation, useQuery } from '@tanstack/vue-query'
@@ -206,9 +206,7 @@ const { isGranted } = useUserStore()
 const taxon = defineModel<Taxon>({ required: true })
 const open = defineModel<boolean>('open')
 
-const {
-  bind: { schema }
-} = useSchema($CreateTaxonInput)
+const { schema } = useSchemaBinding($CreateTaxonInput)
 
 const emit = defineEmits<{
   'add-child': [parent: Taxon]

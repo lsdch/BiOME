@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { $CoordinatesWithPrecision, CoordinatesWithPrecision } from '@/api'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { Coordinates } from '@/features/cartography/coordinates'
 import { useGeolocation, useToggle, watchOnce } from '@vueuse/core'
 
@@ -104,9 +104,7 @@ function setCoordsFromGPS(model: Partial<Coordinates>) {
   )
 }
 
-const {
-  bind: { schema }
-} = useSchema($CoordinatesWithPrecision)
+const { schema } = useSchemaBinding($CoordinatesWithPrecision)
 </script>
 
 <style scoped lang="scss">

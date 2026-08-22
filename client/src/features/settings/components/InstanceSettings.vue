@@ -94,7 +94,7 @@ import {
   updateInstanceSettingsMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { useInstanceSettings } from '.'
@@ -105,7 +105,7 @@ const { instance, reload, isPending, error: fetchError } = useInstanceSettings()
 const {
   bind: { schema, field },
   dispatchErrors
-} = useSchema($InstanceSettingsUpdate)
+} = useSchemaBinding($InstanceSettingsUpdate)
 
 const { feedback } = useFeedback()
 

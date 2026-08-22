@@ -61,7 +61,7 @@
 <script setup lang="ts">
 import { $DataSourceInput, $DataSourceUpdate } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { DataSourceModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
@@ -78,9 +78,9 @@ const emit = defineEmits<{
   submit: [model: DataSourceModel.DataSourceFormModel | undefined]
 }>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() => useSchema(mode === 'Create' ? $DataSourceInput : $DataSourceUpdate))
+const { schema } = reactiveComputed(() =>
+  useSchemaBinding(mode === 'Create' ? $DataSourceInput : $DataSourceUpdate)
+)
 </script>
 
 <style scoped lang="scss"></style>

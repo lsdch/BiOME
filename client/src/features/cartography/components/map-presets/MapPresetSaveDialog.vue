@@ -39,7 +39,7 @@
 import { $MapToolPresetInput, MapToolPresetInput } from '@/api'
 import { createUpdateMapPresetMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { useMutation } from '@tanstack/vue-query'
@@ -58,9 +58,7 @@ const { specs } = defineProps<{
   specs: MapPresetSpec
 }>()
 
-const {
-  bind: { schema }
-} = useSchema($MapToolPresetInput)
+const { schema } = useSchemaBinding($MapToolPresetInput)
 
 const { isGranted } = useUserStore()
 

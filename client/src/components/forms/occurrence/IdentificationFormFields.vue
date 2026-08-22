@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { $IdentificationInput, IdentificationInput, Taxon, TaxonRank } from '@/api'
 import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { FormProps } from '@/lib/mutations'
 import { DateWithPrecisionModel } from '@/models/date_with_precision'
@@ -65,9 +65,7 @@ const model = defineModel<Partial<IdentificationInput>>({ required: true })
 
 const { mode = 'Create' } = defineProps<FormProps>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() => useSchema($IdentificationInput))
+const { schema } = reactiveComputed(() => useSchemaBinding($IdentificationInput))
 </script>
 
 <style scoped lang="scss"></style>

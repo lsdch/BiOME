@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { $SamplingMethodInput, $SamplingMethodUpdateParams } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { useSchema } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { SamplingMethodModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
@@ -52,10 +52,8 @@ const emit = defineEmits<{
   submit: [model: SamplingMethodModel.SamplingMethodFormModel | undefined]
 }>()
 
-const {
-  bind: { schema }
-} = reactiveComputed(() =>
-  useSchema(mode === 'Create' ? $SamplingMethodInput : $SamplingMethodUpdateParams)
+const { schema } = reactiveComputed(() =>
+  useSchemaBinding(mode === 'Create' ? $SamplingMethodInput : $SamplingMethodUpdateParams)
 )
 </script>
 
