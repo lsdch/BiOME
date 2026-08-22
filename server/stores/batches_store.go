@@ -55,7 +55,12 @@ func (s *BatchesStore) Bootstrap(ctx context.Context, q db.Querier, importID uui
 	return q.Queries().CleanUpGBIFDependencies(ctx, importID)
 }
 
-func (s *BatchesStore) InsertStaging(ctx context.Context, q db.Querier, importID uuid.UUID, rows []csvmodels.OccurrenceImportRow, taxonDefinitions []models.TaxonDefinition) error {
+func (s *BatchesStore) InsertStaging(
+	ctx context.Context, q db.Querier, importID uuid.UUID,
+	rows []csvmodels.OccurrenceImportRow,
+	taxonDefinitions []models.TaxonDefinition,
+	mergeUndated bool,
+) error {
 
 	taxonDefinitionsMap := make(map[string]models.TaxonDefinition)
 	for _, td := range taxonDefinitions {
@@ -69,7 +74,7 @@ func (s *BatchesStore) InsertStaging(ctx context.Context, q db.Querier, importID
 
 	stagingRows := make([]biomedb.CopyImportStagingParams, len(rows))
 	for i, row := range rows {
-		stagingRows[i] = row.ToStaging(importID)
+		stagingRows[i] = row.ToStaging(importID, mergeUndated)
 	}
 	_, err := q.Queries().CopyImportStaging(ctx, stagingRows)
 	return err

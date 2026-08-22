@@ -3324,10 +3324,7 @@
 		}
 	},
 	"info": {
-		"contact": {
-			"email": "ls.duchemin@gmail.com",
-			"name": "Louis Duchemin"
-		},
+		"contact": {},
 		"description": "BiOME API: Biodiversity and Occurrences for Molecular Ecology",
 		"title": "BiOME API",
 		"version": ""
@@ -4653,10 +4650,13 @@
 						"multipart/form-data": {
 							"encoding": {
 								"batch": {
-									"contentType": "application/json"
+									"contentType": "text/plain"
 								},
 								"file": {
 									"contentType": "text/tab-separated-values"
+								},
+								"merge_undated_samplings": {
+									"contentType": "text/plain"
 								},
 								"quotes": {
 									"contentType": "text/plain"
@@ -4665,7 +4665,7 @@
 									"contentType": "text/plain"
 								},
 								"taxon_definitions": {
-									"contentType": "application/json"
+									"contentType": "text/plain"
 								}
 							},
 							"schema": {
@@ -4678,6 +4678,10 @@
 										"contentMediaType": "application/octet-stream",
 										"format": "binary",
 										"type": "string"
+									},
+									"merge_undated_samplings": {
+										"description": "If true, undated samplings with the same location and method will be merged into a single sampling.",
+										"type": "boolean"
 									},
 									"quotes": {
 										"type": "string"

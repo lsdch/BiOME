@@ -58,11 +58,12 @@ func (j *JSONField[T]) Schema(r huma.Registry) *huma.Schema {
 
 type OccurrenceBatchInput struct {
 	RawBody huma.MultipartFormFiles[struct {
-		Batch            JSONField[models.ImportBatchInput]  `form:"batch" contentType:"application/json" required:"true"`
-		TaxonDefinitions JSONField[[]models.TaxonDefinition] `form:"taxon_definitions" contentType:"application/json" required:"false" doc:"List of taxon definitions to resolve inconsistent taxa in the import batch."`
-		File             huma.FormFile                       `form:"file" contentType:"text/tab-separated-values" required:"true"`
-		Separator        string                              `form:"separator"`
-		QuoteChar        string                              `form:"quotes"`
+		Batch                 JSONField[models.ImportBatchInput]  `form:"batch" contentType:"application/json" required:"true"`
+		TaxonDefinitions      JSONField[[]models.TaxonDefinition] `form:"taxon_definitions" contentType:"application/json" required:"false" doc:"List of taxon definitions to resolve inconsistent taxa in the import batch."`
+		File                  huma.FormFile                       `form:"file" contentType:"text/tab-separated-values" required:"true"`
+		Separator             string                              `form:"separator"`
+		QuoteChar             string                              `form:"quotes"`
+		MergeUndatedSamplings bool                                `form:"merge_undated_samplings" required:"false" doc:"If true, undated samplings with the same location and method will be merged into a single sampling."`
 	}]
 }
 
@@ -88,7 +89,7 @@ func (c *ImportController) ImportOccurrencesCSV(
 	}
 
 	logrus.Infof("Parsing file %s with separator '%s' and quote char '%s'", file.Filename, formData.Separator, formData.QuoteChar)
-	err = runner.StartBatchCSV(file, rune(input.RawBody.Data().Separator[0]), input.RawBody.Data().TaxonDefinitions.Value)
+	err = runner.StartBatchCSV(file, rune(formData.Separator[0]), formData.TaxonDefinitions.Value, formData.MergeUndatedSamplings)
 	if err != nil {
 		if err2 := runner.Delete(context.Background()); err2 != nil {
 			logrus.Errorf("failed to delete import batch: %v", err2)

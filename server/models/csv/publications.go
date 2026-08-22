@@ -29,6 +29,15 @@ func (r PublicationImportRow) RowNumber() int32 {
 func (r PublicationImportRow) Validate(v *validator.Validate) error {
 	return v.Struct(r)
 }
+func (r PublicationImportRow) String() string {
+	if r.DOI != nil {
+		return r.DOI.String()
+	}
+	if r.Verbatim != nil {
+		return *r.Verbatim
+	}
+	return ""
+}
 
 type PublicationResolutionInput struct {
 	Authors    *string    `csv:"authors,omitempty"`

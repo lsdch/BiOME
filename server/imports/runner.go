@@ -122,7 +122,7 @@ func (r *ImportRunner) Status() RunnerStatus {
 	return r.status
 }
 
-func (r *ImportRunner) StartBatchCSV(csvFile io.Reader, separator rune, taxonDefinitions []models.TaxonDefinition) error {
+func (r *ImportRunner) StartBatchCSV(csvFile io.Reader, separator rune, taxonDefinitions []models.TaxonDefinition, mergeUndated bool) error {
 
 	if err := r.StartStaging(); err != nil {
 		return err
@@ -157,7 +157,7 @@ func (r *ImportRunner) StartBatchCSV(csvFile io.Reader, separator rune, taxonDef
 	}
 
 	err = r.db.WithTx(r.ctx, func(tx *db.Tx) error {
-		if err := r.store.InsertStaging(r.ctx, tx, r.batch.ID, rows, taxonDefinitions); err != nil {
+		if err := r.store.InsertStaging(r.ctx, tx, r.batch.ID, rows, taxonDefinitions, mergeUndated); err != nil {
 			return fmt.Errorf("insert staging occurrences: %w", err)
 		}
 		if _, err = r.taxonResolver.InitResolution(r.ctx, tx, r.batch.ID); err != nil {

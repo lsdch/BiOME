@@ -122,7 +122,7 @@ func (r *OccurrenceImportRow) SetRowNumber(rowNumber int32) *OccurrenceImportRow
 	return r
 }
 
-func (r *OccurrenceImportRow) SamplingHash() string {
+func (r *OccurrenceImportRow) SamplingHash(mergeUndated bool) string {
 
 	// If SamplingID is provided, use it directly as the hash
 	if r.SamplingID != nil && *r.SamplingID != "" {
@@ -131,7 +131,7 @@ func (r *OccurrenceImportRow) SamplingHash() string {
 
 	datePart := r.EventDate.String()
 	// If the date is not set, use the row number as a fallback to ensure uniqueness
-	if datePart == "" {
+	if !mergeUndated && datePart == "" {
 		datePart = string(r.rowNumber)
 	}
 
@@ -149,10 +149,11 @@ func (r *OccurrenceImportRow) SamplingHash() string {
 		strings.Join(r.SamplingTargets.Values, "|"),
 		strings.Join(r.SamplingMethods.Values, "|"),
 		strings.Join(r.SamplingFixatives.Values, "|"),
+		r.Publication.String(),
 	}, "|")
 }
 
-func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID) biomedb.CopyImportStagingParams {
+func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID, mergeUndated bool) biomedb.CopyImportStagingParams {
 
 	return biomedb.CopyImportStagingParams{
 		RowNumber: r.rowNumber,
@@ -160,7 +161,7 @@ func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID) biomedb.CopyImportSt
 		ID:        types.MakeULID(),
 
 		// Sampling fields
-		SamplingHash:         r.SamplingHash(),
+		SamplingHash:         r.SamplingHash(mergeUndated),
 		SiteCode:             r.SiteCode,
 		SiteName:             r.SiteName,
 		SiteLocality:         r.SiteLocality,

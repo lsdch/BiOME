@@ -1905,6 +1905,10 @@ export type ImportOccurrencesCsvData = {
   body?: {
     batch: ImportBatchInput
     file: Blob | File
+    /**
+     * If true, undated samplings with the same location and method will be merged into a single sampling.
+     */
+    merge_undated_samplings?: boolean
     quotes: string
     separator: string
     /**
