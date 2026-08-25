@@ -609,6 +609,7 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
         taxon_rank: filters.value.rank,
         taxon_status: filters.value.status,
         taxa: filters.value.taxa,
+        whole_clade: filters.value.whole_clade,
         search_term: filters.value.search_term,
         type_status: filters.value.type_status,
         date: dateQuery(filters.value.date),
