@@ -332,6 +332,13 @@ WHERE r.import_id = w.import_id
     AND r.id = w.resolution_id
     AND r.status = 'pending';
 
+-- name: SetNeedsResolutionForUnresolvedCandidates :exec
+-- Mark taxon resolutions as needing user resolution if they have candidates but are still unresolved.
+UPDATE taxon_resolution r
+SET status = 'needs_decision'
+WHERE r.import_id = @import_id
+    AND r.status = 'pending';
+
 -- name: UpdateMaterializedGBIFCandidates :exec
 -- Update the taxon_id field in taxon_candidates for candidates that have a matching gbif_id in the taxa table.
 -- This is necessary because the taxa table is populated after the taxon_candidates table, 

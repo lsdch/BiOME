@@ -282,6 +282,14 @@ func (r *TaxonResolutionStore) AutoResolveUnambiguousCandidates(ctx context.Cont
 	return nil
 }
 
+func (r *TaxonResolutionStore) SetNeedsResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	err = q.Queries().SetNeedsResolutionForUnresolvedCandidates(ctx, importID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *TaxonResolutionStore) ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveInput) (err error) {
 	err = q.Queries().ResolveTaxon(ctx, biomedb.ResolveTaxonParams{
 		ImportID:     importID,

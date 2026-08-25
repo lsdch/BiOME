@@ -647,6 +647,19 @@ func (q *Queries) ResolveTaxon(ctx context.Context, arg ResolveTaxonParams) erro
 	return err
 }
 
+const setNeedsResolutionForUnresolvedCandidates = `-- name: SetNeedsResolutionForUnresolvedCandidates :exec
+UPDATE taxon_resolution r
+SET status = 'needs_decision'
+WHERE r.import_id = $1
+    AND r.status = 'pending'
+`
+
+// Mark taxon resolutions as needing user resolution if they have candidates but are still unresolved.
+func (q *Queries) SetNeedsResolutionForUnresolvedCandidates(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, setNeedsResolutionForUnresolvedCandidates, importID)
+	return err
+}
+
 const syncMaterializedTaxa = `-- name: SyncMaterializedTaxa :exec
 UPDATE taxon_candidates c
 SET taxon_id = t.id

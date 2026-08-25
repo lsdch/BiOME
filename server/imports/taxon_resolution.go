@@ -401,6 +401,9 @@ func (r *taxonResolver) AutoResolveUnambiguousCandidates(ctx context.Context, q 
 			return err
 		}
 	}
+	if err = r.store.SetNeedsResolution(ctx, q, importID); err != nil {
+		return err
+	}
 	return nil
 }
 
