@@ -45,7 +45,7 @@ func (m *AuthMiddleware) AuthN(ctx huma.Context, next func(huma.Context)) {
 	authHeader := ctx.Header("Authorization")
 	token := extractBearer(authHeader)
 	if token == "" {
-		logrus.Infof("Reading cookie for authentication token: %s", m.config.AuthTokenCookieName)
+		logrus.Debugf("Reading cookie for authentication token: %s", m.config.AuthTokenCookieName)
 		cookie, err := huma.ReadCookie(ctx, m.config.AuthTokenCookieName)
 		if err == nil {
 			token = cookie.Value

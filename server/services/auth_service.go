@@ -14,13 +14,14 @@ import (
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
+	"github.com/lsdch/biome/lib/app_errors"
 	"github.com/lsdch/biome/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var (
-	ErrInvalidRefreshToken = fmt.Errorf("invalid refresh token")
-	ErrRefreshTokenReuse   = fmt.Errorf("refresh token reuse detected")
+	ErrInvalidRefreshToken = app_errors.ForbiddenError(fmt.Errorf("invalid refresh token"))
+	ErrRefreshTokenReuse   = app_errors.ForbiddenError(fmt.Errorf("refresh token reuse detected"))
 )
 
 type AuthService struct {
@@ -82,12 +83,12 @@ func (s *AuthService) HashPassword(password string) ([]byte, error) {
 func (s *AuthService) AuthenticateCredentials(ctx context.Context, q db.Querier, credentials models.UserCredentials) (biomedb.User, error) {
 	user, err := q.Queries().GetUserByLoginOrEmail(ctx, credentials.Identifier)
 	if err != nil {
-		return biomedb.User{}, fmt.Errorf("invalid credentials")
+		return biomedb.User{}, app_errors.ForbiddenError(fmt.Errorf("invalid credentials"))
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(credentials.Password))
 	if err != nil {
-		return biomedb.User{}, fmt.Errorf("invalid credentials")
+		return biomedb.User{}, app_errors.ForbiddenError(fmt.Errorf("invalid credentials"))
 	}
 
 	return user, nil
@@ -143,28 +144,28 @@ func (s *AuthService) ValidateJWT(token string) (*models.AuthContext, error) {
 		claims,
 		func(jwtToken *jwt.Token) (interface{}, error) {
 			if _, ok := jwtToken.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", jwtToken.Header["alg"])
+				return nil, app_errors.ForbiddenError(fmt.Errorf("unexpected signing method: %v", jwtToken.Header["alg"]))
 			}
 			return []byte(s.config.SecretKey), nil
 		},
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse token: %w", err)
+		return nil, app_errors.ForbiddenError(fmt.Errorf("failed to parse token: %w", err))
 	}
 
 	if !tok.Valid {
-		return nil, fmt.Errorf("invalid token")
+		return nil, app_errors.ForbiddenError(fmt.Errorf("invalid token"))
 	}
 
 	userID, err := uuid.Parse(claims.Sub)
 	if err != nil {
-		return nil, fmt.Errorf("invalid user ID in token: %w", err)
+		return nil, app_errors.ForbiddenError(fmt.Errorf("invalid user ID in token: %w", err))
 	}
 
 	sessionID, err := uuid.Parse(claims.Sid)
 	if err != nil {
-		return nil, fmt.Errorf("invalid session ID in token: %w", err)
+		return nil, app_errors.ForbiddenError(fmt.Errorf("invalid session ID in token: %w", err))
 	}
 
 	return &models.AuthContext{

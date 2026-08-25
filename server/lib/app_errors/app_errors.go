@@ -62,6 +62,16 @@ func NotFoundError(err error) *AppError {
 	}
 }
 
+func ForbiddenError(err error) *AppError {
+	return &AppError{
+		ErrorModel: huma.ErrorModel{
+			Status: 403,
+			Title:  "Forbidden",
+			Detail: err.Error(),
+		},
+	}
+}
+
 func AsAppError(err error) *AppError {
 	logrus.Infof("AsAppError: %v", err)
 	if err == nil {
