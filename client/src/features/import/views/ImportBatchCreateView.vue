@@ -62,78 +62,11 @@
                   </li>
                 </ul></v-alert
               >
-              <v-list v-if="inconsistentTaxaError" class="pa-0">
-                <v-list-group :title="inconsistentTaxaError.title">
-                  <template #activator="{ props }">
-                    <v-list-item
-                      :title="inconsistentTaxaError.title"
-                      :subtitle="inconsistentTaxaError.detail"
-                      lines="three"
-                      color="error"
-                      class="text-error"
-                      prepend-icon="mdi-alert-circle"
-                      v-bind="props"
-                    ></v-list-item>
-                  </template>
-                  <template #default>
-                    <v-divider></v-divider>
-                    <v-data-table
-                      :items="inconsistentTaxaError.taxa"
-                      :headers="[
-                        { title: 'Taxon', value: 'name' },
-                        { title: 'Authorships', value: 'authorships' },
-                        { title: 'Ranks', value: 'ranks' }
-                      ]"
-                      v-model:page="page"
-                      v-model:items-per-page="itemsPerPage"
-                    >
-                      <template
-                        #item.authorships="{ value, index }: { value: string[]; index: number }"
-                      >
-                        <v-chip-group
-                          v-model="taxonDefinitions[(page - 1) * itemsPerPage + index].authorship"
-                          mandatory
-                          color="primary"
-                          class="d-flex ga-2"
-                        >
-                          <v-chip
-                            v-for="(authorship, index) in value"
-                            :key="index"
-                            :value="authorship"
-                            :text="authorship"
-                            filter
-                            label
-                            variant="tonal"
-                          >
-                          </v-chip>
-                        </v-chip-group>
-                      </template>
-                      <template #item.ranks="{ value, index }: { value: string[]; index: number }">
-                        <div class="d-flex ga-2">
-                          <v-chip-group
-                            v-model="taxonDefinitions[(page - 1) * itemsPerPage + index].rank"
-                            mandatory
-                            color="primary"
-                            class="d-flex ga-2"
-                          >
-                            <v-chip
-                              v-for="(rank, index) in value"
-                              :key="index"
-                              :text="rank"
-                              :value="rank"
-                              class="text-capitalize"
-                              filter
-                              label
-                              variant="tonal"
-                            >
-                            </v-chip>
-                          </v-chip-group>
-                        </div>
-                      </template>
-                    </v-data-table>
-                  </template>
-                </v-list-group>
-              </v-list>
+              <InconsistentTaxaImportError
+                v-if="inconsistentTaxaError"
+                :error="inconsistentTaxaError"
+                v-model="taxonDefinitions"
+              ></InconsistentTaxaImportError>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
@@ -160,20 +93,21 @@
 </template>
 
 <script setup lang="ts">
-import {
-  importOccurrencesCsvMutation,
-  listImportsForCurrentUserOptions
-} from '@/api/gen/@tanstack/vue-query.gen'
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import { ref, watch } from 'vue'
-import { ImportDataCSV } from '../components/FileInputCSV.vue'
-import CSVQuotePicker from '@/components/toolkit/ui/exports/CSVQuotePicker.vue'
-import { useRouter } from 'vuetify/lib/composables/router.mjs'
 import { ImportBatchInput, TaxonDefinition, TaxonRank } from '@/api/adapters.ts'
-import { useSchemaBinding } from '@/composables/schema.ts'
+import { importOccurrencesCsvMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import { $ImportBatchInput } from '@/api/index.ts'
-import ImportBatchesTable from '../components/ImportBatchesTable.vue'
+import CSVQuotePicker from '@/components/toolkit/ui/exports/CSVQuotePicker.vue'
+import { useSchemaBinding } from '@/composables/schema.ts'
+import { useMutation } from '@tanstack/vue-query'
+import { ref } from 'vue'
+import { useRouter } from 'vuetify/lib/composables/router.mjs'
+import { ImportDataCSV } from '../components/FileInputCSV.vue'
 import GBIFKingdomPicker from '../components/GBIFKingdomPicker.vue'
+import ImportBatchesTable from '../components/ImportBatchesTable.vue'
+import InconsistentTaxaImportError, {
+  InconsistentTaxaError,
+  InconsistentTaxon
+} from '../components/InconsistentTaxaImportError.vue'
 
 const tab = ref<'new' | 'existing'>('new')
 
@@ -184,19 +118,8 @@ const model = ref<ImportBatchInput>({
   taxonomic_scope: 1
 })
 const taxonDefinitions = ref<TaxonDefinition[]>([])
-const itemsPerPage = ref(10)
-const page = ref(1)
 
-type InconsistentTaxon = {
-  name: string
-  authorships: string[]
-  ranks: string[]
-}
-const inconsistentTaxaError = ref<{
-  title: string
-  detail: string
-  taxa: InconsistentTaxon[]
-}>()
+const inconsistentTaxaError = ref<InconsistentTaxaError>()
 
 const { schema } = useSchemaBinding($ImportBatchInput)
 const csv = ref<ImportDataCSV>({ file: undefined, separator: '\t', quotes: '"' })
