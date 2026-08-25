@@ -351,6 +351,12 @@ func (r *ImportRunner) EnrichGBIF() {
 		r.gbif.Fail(err)
 		return
 	}
+
+	if err := r.taxonResolver.SetNeedsResolution(r.ctx, r.db, r.batch.ID); err != nil {
+		r.Fail(err)
+		r.gbif.Fail(err)
+		return
+	}
 	r.gbif.Complete()
 }
 

@@ -17,6 +17,9 @@
     <template #item.input_name="{ item }">
       <div class="d-flex flex-column">
         {{ item.input_name }}
+        <span v-if="item.input_authorship" class="text-label-small text-muted">{{
+          item.input_authorship
+        }}</span>
         <span v-if="item.from_resolution_name" class="text-label-small text-muted"
           >From: {{ item.from_resolution_name }}</span
         >

@@ -2,7 +2,7 @@ CREATE TABLE taxa (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
     gbif_id INTEGER UNIQUE,
     name CITEXT NOT NULL CONSTRAINT taxon_name_length CHECK (char_length(name) >= 2),
-    scientific_name CITEXT NOT NULL GENERATED ALWAYS AS (name || COALESCE(' ' || authorship, '')) STORED,
+    scientific_name CITEXT NOT NULL GENERATED ALWAYS AS (TRIM(name || COALESCE(' ' || authorship, ''))) STORED,
     rank taxon_rank NOT NULL,
     status taxon_status NOT NULL,
     authorship CITEXT,

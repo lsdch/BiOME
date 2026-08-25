@@ -44,6 +44,12 @@
                   class="flex-grow-0"
                   v-bind="schema('taxonomic_scope')"
                 ></GBIFKingdomPicker>
+                <v-checkbox
+                  v-model="mergeUndatedSamplings"
+                  label="Merge undated samplings"
+                  hint="Samplings without dates are always registered separately by default. Check this option to merge them whenever they share the same informations and metadata. Please always provide dates for samplings whenever possible."
+                  persistent-hint
+                />
                 <div class="d-flex ga-3 mt-5">
                   <v-file-input
                     label="Occurrences TSV file"
@@ -108,6 +114,8 @@ import InconsistentTaxaImportError, {
   InconsistentTaxaError,
   InconsistentTaxon
 } from '../components/InconsistentTaxaImportError.vue'
+import { watch } from 'vue'
+import { formDataBodySerializer } from '@/api/gen/core/bodySerializer.gen.ts'
 
 const tab = ref<'new' | 'existing'>('new')
 
@@ -123,24 +131,60 @@ const inconsistentTaxaError = ref<InconsistentTaxaError>()
 
 const { schema } = useSchemaBinding($ImportBatchInput)
 const csv = ref<ImportDataCSV>({ file: undefined, separator: '\t', quotes: '"' })
+const mergeUndatedSamplings = ref<boolean>(false)
 
 const { mutateAsync, error, isPending: isImporting } = useMutation(importOccurrencesCsvMutation())
 
 const router = useRouter()
+
+watch(
+  taxonDefinitions,
+  (value) => {
+    console.log('taxonDefinitions changed', value)
+  },
+  { deep: true }
+)
 
 async function submit() {
   if (!model.value.label || !csv.value.file) {
     throw new Error('Label and CSV file are required')
   }
 
+  const body = {
+    batch: model.value,
+    file: csv.value.file,
+    separator: csv.value.separator,
+    quotes: csv.value.quotes,
+    taxon_definitions: taxonDefinitions.value,
+    merge_undated_samplings: mergeUndatedSamplings.value
+  }
+
+  const fd = formDataBodySerializer.bodySerializer(body)
+
+  for (const [key, value] of fd.entries()) {
+    console.log(key, value)
+  }
+
+  console.log('taxonDefinitions', taxonDefinitions.value)
+
+  console.log({
+    batch: model.value,
+    file: csv.value.file,
+    separator: csv.value.separator,
+    quotes: csv.value.quotes,
+    taxon_definitions: taxonDefinitions.value,
+    merge_undated_samplings: mergeUndatedSamplings.value
+  })
+
   await mutateAsync(
     {
       body: {
         batch: model.value,
-        file: csv.value.file,
         separator: csv.value.separator,
         quotes: csv.value.quotes,
-        taxon_definitions: taxonDefinitions.value
+        taxon_definitions: taxonDefinitions.value,
+        merge_undated_samplings: mergeUndatedSamplings.value,
+        file: csv.value.file
       }
     },
     {

@@ -4650,7 +4650,7 @@
 						"multipart/form-data": {
 							"encoding": {
 								"batch": {
-									"contentType": "text/plain"
+									"contentType": "application/json"
 								},
 								"file": {
 									"contentType": "text/tab-separated-values"
@@ -4665,7 +4665,7 @@
 									"contentType": "text/plain"
 								},
 								"taxon_definitions": {
-									"contentType": "text/plain"
+									"contentType": "application/json"
 								}
 							},
 							"schema": {

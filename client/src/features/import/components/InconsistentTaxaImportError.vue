@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { TaxonDefinition } from '@/api'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 
 export type InconsistentTaxon = {
   name: string

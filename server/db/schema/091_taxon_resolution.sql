@@ -102,5 +102,4 @@ SET NULL;
 CREATE UNIQUE INDEX taxon_candidates_internal_unique ON taxon_candidates (import_id, resolution_id, taxon_id)
 WHERE source = 'internal';
 
-CREATE UNIQUE INDEX taxon_candidates_gbif_unique ON taxon_candidates (import_id, resolution_id, gbif_id)
-WHERE source = 'gbif';
+CREATE UNIQUE INDEX taxon_candidates_gbif_unique ON taxon_candidates (import_id, resolution_id, gbif_id);

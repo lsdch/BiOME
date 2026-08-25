@@ -45,6 +45,7 @@ type TaxonResolver interface {
 	InsertGBIFCandidates(ctx context.Context, q db.Querier, importID uuid.UUID, candidates map[uuid.UUID][]models.TaxonGBIFWithPriority) (err error)
 	MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID) error
 	AutoResolveUnambiguousCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error)
+	SetNeedsResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (err error)
 	ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveInput) (err error)
 	FillGBIFDependencies(ctx context.Context, q db.Querier, importID uuid.UUID, trackers ...progress.ProgressReporter) error
 	AutoCreateManualCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error)
@@ -401,7 +402,12 @@ func (r *taxonResolver) AutoResolveUnambiguousCandidates(ctx context.Context, q 
 			return err
 		}
 	}
-	if err = r.store.SetNeedsResolution(ctx, q, importID); err != nil {
+	return nil
+}
+
+func (r *taxonResolver) SetNeedsResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	err = r.store.SetNeedsResolution(ctx, q, importID)
+	if err != nil {
 		return err
 	}
 	return nil

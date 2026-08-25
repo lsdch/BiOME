@@ -66,6 +66,12 @@ WITH resolution AS (
     FROM publication_resolution r
     WHERE r.import_id = @import_id
         AND r.doi IS NULL
+        AND NOT EXISTS (
+            SELECT 1
+            FROM publication_candidates c
+                JOIN publications p ON p.id = c.internal_id
+            WHERE p.verbatim = r.verbatim
+        )
 ),
 staging AS (
     INSERT INTO publications_staging (
