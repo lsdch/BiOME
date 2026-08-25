@@ -123,6 +123,21 @@
                       hide-details
                     />
                   </v-list-item>
+                  <v-list-item>
+                    <CountryPicker
+                      v-model="filters.countries"
+                      :filter="(c) => !!c.occurrence_count"
+                      label="Countries"
+                      class="mt-2"
+                      item-value="code"
+                      clearable
+                      multiple
+                      chips
+                      closable-chips
+                      density="compact"
+                      hide-details
+                    />
+                  </v-list-item>
                   <DateFiltersListItem v-model="filters.date" />
                   <!-- <v-list-item prepend-icon="mdi-dna">
                     <ClearableSwitch v-model="filters.has_sequences" class="pl-2" label="Sequences available"
@@ -356,6 +371,7 @@ import {
 
 import { DateWithPrecision, Identification, Occurrence, TaxonStatus } from '@/api'
 import { listOccurrencesOptions, listOccurrencesQueryKey } from '@/api/gen/@tanstack/vue-query.gen'
+import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import CRUDTableSearchBar from '@/components/toolkit/tables/CRUDTableSearchBar.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
@@ -442,6 +458,7 @@ const urlParams = toRef(
 
 type TableFilters = {
   search_term?: string
+  countries?: string[]
   datasets?: string[]
   batches?: UUID[]
   type_status?: OccurrenceTypeStatus
@@ -602,6 +619,7 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
     ...listOccurrencesOptions({
       query: {
         limit: pagination.value.itemsPerPage,
+        countries: filters.value.countries,
         offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
         confer: filters.value.confer,
         datasets: filters.value.datasets,
