@@ -8,13 +8,16 @@ import (
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/services/storage"
 	"github.com/lsdch/biome/types"
 )
 
-type ImportBatchService struct{}
+type ImportBatchService struct {
+	storage storage.RawFileStorage
+}
 
-func NewImportBatchService() *ImportBatchService {
-	return &ImportBatchService{}
+func NewImportBatchService(storage storage.RawFileStorage) *ImportBatchService {
+	return &ImportBatchService{storage: storage}
 }
 
 func (s *ImportBatchService) GetImportBatch(ctx context.Context, q db.Querier, id uuid.UUID) (models.ImportBatch, error) {

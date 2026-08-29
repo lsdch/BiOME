@@ -71,20 +71,29 @@ func (c *ImportController) ImportOccurrencesCSV(
 	ctx context.Context,
 	input *OccurrenceBatchInput,
 ) (*BodyTransporter[models.ImportBatch], error) {
-	formData := input.RawBody.Data()
-	file := formData.File
 
 	session, ok := auth.SessionFromContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("failed to retrieve session")
 	}
-	runner, err := c.manager.NewBatch(ctx, session.UserID, models.ImportBatchInput{
-		Label:          formData.Batch.Value.Label,
-		Description:    formData.Batch.Value.Description,
-		AssembledBy:    formData.Batch.Value.AssembledBy,
-		TaxonomicScope: formData.Batch.Value.TaxonomicScope,
+
+	formData := input.RawBody.Data()
+	file := formData.File
+	storage := c.manager.FileStorage()
+	hash, err := storage.Store(ctx,, file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to store file: %v", err)
+	}
+	runner, err := c.manager.NewBatch(ctx, session.UserID, models.ImportBatchWithFileInput{
+		ImportBatchInput: formData.Batch.Value,
+		File: models.FileMetadata{
+			Name: file.Filename,
+			Size: file.Size,
+			Hash: hash,
+		},
 	})
 	if err != nil {
+		storage.Delete(context.Background(), )
 		return nil, err
 	}
 

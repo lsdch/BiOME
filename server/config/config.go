@@ -142,6 +142,7 @@ type Config struct {
 	appPublicBaseURL     string           `mapstructure:"APP_PUBLIC_BASE_URL"`
 	AppPublicBaseURL     url.URL          `json:"-"`
 	DB                   DBConfig         `mapstructure:"DB"`
+	RawFileStorageRoot   string           `mapstructure:"RAW_FILE_STORAGE_ROOT"`
 	SMTP                 SMTPConfig       `mapstructure:"SMTP"`
 	Env                  AppEnv           `mapstructure:"ENV"`
 	API                  APIConfig        `mapstructure:"API"`

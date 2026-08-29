@@ -21,7 +21,7 @@ func (s *BatchesStore) GetImportState(ctx context.Context, q db.Querier, importI
 	return state, err
 }
 
-func (s *BatchesStore) CreateBatch(ctx context.Context, q db.Querier, userID uuid.UUID, w models.ImportBatchInput) (models.ImportBatch, error) {
+func (s *BatchesStore) CreateBatch(ctx context.Context, q db.Querier, userID uuid.UUID, w models.ImportBatchWithFileInput) (models.ImportBatch, error) {
 	batch, err := q.Queries().InitImportBatch(ctx, w.ToParams(userID))
 	if err != nil {
 		return models.ImportBatch{}, err

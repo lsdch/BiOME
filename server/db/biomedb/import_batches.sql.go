@@ -15,7 +15,7 @@ import (
 const deleteImportBatch = `-- name: DeleteImportBatch :one
 DELETE FROM import_batches
 WHERE id = $1
-RETURNING id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
+RETURNING id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope, imported_file_name, imported_file_size, imported_file_hash
 `
 
 func (q *Queries) DeleteImportBatch(ctx context.Context, importBatchID uuid.UUID) (ImportBatch, error) {
@@ -32,6 +32,9 @@ func (q *Queries) DeleteImportBatch(ctx context.Context, importBatchID uuid.UUID
 		&i.CompletedAt,
 		&i.CompletedBy,
 		&i.TaxonomicScope,
+		&i.ImportedFileName,
+		&i.ImportedFileSize,
+		&i.ImportedFileHash,
 	)
 	return i, err
 }
@@ -64,7 +67,7 @@ func (q *Queries) DeleteOccurrencesFromBatch(ctx context.Context, importBatchID 
 }
 
 const getImportBatch = `-- name: GetImportBatch :one
-SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
+SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope, imported_file_name, imported_file_size, imported_file_hash
 FROM import_batches ib
 WHERE ib.id = $1
 `
@@ -83,12 +86,15 @@ func (q *Queries) GetImportBatch(ctx context.Context, importBatchID uuid.UUID) (
 		&i.CompletedAt,
 		&i.CompletedBy,
 		&i.TaxonomicScope,
+		&i.ImportedFileName,
+		&i.ImportedFileSize,
+		&i.ImportedFileHash,
 	)
 	return i, err
 }
 
 const getImportBatchForOccurrence = `-- name: GetImportBatchForOccurrence :one
-SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope
+SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope, ib.imported_file_name, ib.imported_file_size, ib.imported_file_hash
 FROM import_batches ib
     JOIN occurrences o ON o.import_batch_id = ib.id
 WHERE o.id = $1
@@ -108,12 +114,15 @@ func (q *Queries) GetImportBatchForOccurrence(ctx context.Context, occurrenceID 
 		&i.CompletedAt,
 		&i.CompletedBy,
 		&i.TaxonomicScope,
+		&i.ImportedFileName,
+		&i.ImportedFileSize,
+		&i.ImportedFileHash,
 	)
 	return i, err
 }
 
 const getImportBatchWithContent = `-- name: GetImportBatchWithContent :one
-SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope,
+SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope, ib.imported_file_name, ib.imported_file_size, ib.imported_file_hash,
     -- created by user
     u.id, u.login, u.email, u.password_hash, u.role, u.first_name, u.last_name, u.organisation, u.contact, u.bio, u.full_name, u.active, u.email_verified_at,
     -- completed by user
@@ -154,6 +163,9 @@ func (q *Queries) GetImportBatchWithContent(ctx context.Context, importBatchID u
 		&i.ImportBatch.CompletedAt,
 		&i.ImportBatch.CompletedBy,
 		&i.ImportBatch.TaxonomicScope,
+		&i.ImportBatch.ImportedFileName,
+		&i.ImportBatch.ImportedFileSize,
+		&i.ImportBatch.ImportedFileHash,
 		&i.User.ID,
 		&i.User.Login,
 		&i.User.Email,
@@ -187,7 +199,7 @@ func (q *Queries) GetImportBatchWithContent(ctx context.Context, importBatchID u
 }
 
 const listImportBatches = `-- name: ListImportBatches :many
-SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
+SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope, imported_file_name, imported_file_size, imported_file_hash
 FROM import_batches ib
 ORDER BY ib.created_at DESC
 `
@@ -212,6 +224,9 @@ func (q *Queries) ListImportBatches(ctx context.Context) ([]ImportBatch, error) 
 			&i.CompletedAt,
 			&i.CompletedBy,
 			&i.TaxonomicScope,
+			&i.ImportedFileName,
+			&i.ImportedFileSize,
+			&i.ImportedFileHash,
 		); err != nil {
 			return nil, err
 		}
@@ -224,7 +239,7 @@ func (q *Queries) ListImportBatches(ctx context.Context) ([]ImportBatch, error) 
 }
 
 const listImportBatchesWithContent = `-- name: ListImportBatchesWithContent :many
-SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope,
+SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope, ib.imported_file_name, ib.imported_file_size, ib.imported_file_hash,
     -- created by user
     u.id, u.login, u.email, u.password_hash, u.role, u.first_name, u.last_name, u.organisation, u.contact, u.bio, u.full_name, u.active, u.email_verified_at,
     -- completed by user
@@ -271,6 +286,9 @@ func (q *Queries) ListImportBatchesWithContent(ctx context.Context) ([]ListImpor
 			&i.ImportBatch.CompletedAt,
 			&i.ImportBatch.CompletedBy,
 			&i.ImportBatch.TaxonomicScope,
+			&i.ImportBatch.ImportedFileName,
+			&i.ImportBatch.ImportedFileSize,
+			&i.ImportBatch.ImportedFileHash,
 			&i.User.ID,
 			&i.User.Login,
 			&i.User.Email,

@@ -126,7 +126,7 @@
           v-model:zoom="zoom"
         >
           <template #popup="{ selection }">
-            <SiteClusterPopup
+            <MultiSamplingsPopup
               v-if="selection.type === 'hexagon' && !!selection.info.object"
               :data="selection.info.object"
               :resolution="selection.resolution"
@@ -134,7 +134,7 @@
               :attach="map?.el"
             />
 
-            <SiteClusterPopup
+            <MultiSamplingsPopup
               v-else-if="selection.type === 'marker' && !!selection.info.object"
               :data="selection.info.object"
               :resolution="selection.resolution"
@@ -178,7 +178,7 @@ import { useRoute } from 'vue-router'
 import { CellMarkerData, useLayerData } from '../components/layers-manager/layer-data'
 import LayersManager from '../components/layers-manager/LayersManager.vue'
 import MapViewConfig from '../components/MapViewConfig.vue'
-import SiteClusterPopup from '../components/popups/MultiSamplingsPopup.vue'
+import MultiSamplingsPopup from '../components/popups/MultiSamplingsPopup.vue'
 import { H3CellWithRichness } from '@/api/adapters.ts'
 import { cellToLatLng } from 'h3-js'
 import { hexgridLayerFromSpec } from '../composables/hexgrid-layer'

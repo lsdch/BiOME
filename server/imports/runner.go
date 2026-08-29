@@ -18,6 +18,7 @@ import (
 	"github.com/lsdch/biome/models"
 	csvmodels "github.com/lsdch/biome/models/csv"
 	"github.com/lsdch/biome/services"
+	"github.com/lsdch/biome/services/storage"
 	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
 )
@@ -49,6 +50,7 @@ type ImportRunner struct {
 	bibliography  *BibliographyResolver
 	samplings     *services.SamplingService
 	occurrences   *services.OccurrencesService
+	fileStorage   storage.RawFileStorage
 
 	parser    CSVParser
 	validator *validator.Validate
@@ -73,6 +75,7 @@ func NewImportRunner(ctx context.Context, db *db.DB,
 	taxonResolver TaxonResolver,
 	bibliography *BibliographyResolver,
 	occurrences *services.OccurrencesService,
+	fileStorage storage.RawFileStorage,
 ) *ImportRunner {
 	ctx, cancel := context.WithCancel(ctx)
 

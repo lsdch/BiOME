@@ -38,14 +38,20 @@ INSERT INTO import_batches (
         description,
         assembled_by,
         created_by,
-        taxonomic_scope
+        taxonomic_scope,
+        imported_file_name,
+        imported_file_size,
+        imported_file_hash
     )
 VALUES (
         @label,
         @description,
         @assembled_by::TEXT [],
         @created_by::UUID,
-        @taxonomic_scope
+        @taxonomic_scope,
+        @imported_file_name,
+        @imported_file_size,
+        @imported_file_hash
     )
 RETURNING *;
 
