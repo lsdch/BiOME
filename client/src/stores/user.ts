@@ -136,7 +136,10 @@ export const useUserStore = defineStore('user', () => {
     onSuccess: clearSession
   })
   function logout() {
-    return mutateLogout({ headers: { 'X-Refresh-Token': refresh_token.value } })
+    return mutateLogout(
+      { headers: { 'X-Refresh-Token': refresh_token.value } },
+      { onSuccess: clearSession }
+    )
   }
   const logoutState = computed(() => ({
     error: logoutError.value,
