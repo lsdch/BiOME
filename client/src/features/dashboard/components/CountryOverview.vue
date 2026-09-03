@@ -25,6 +25,9 @@
     <v-card-text v-else-if="error">
       <v-alert color="error"> Failed to load {{ facet }} </v-alert>
     </v-card-text>
+    <v-card-text v-else-if="!hasOccurrences">
+      <v-alert>No occurrences to display</v-alert>
+    </v-card-text>
     <VChart v-else class="chart" :option autoresize />
   </ActivableCardDialog>
 </template>
@@ -52,6 +55,10 @@ const { height = 600 } = defineProps<{
 const [fullscreen, toggleFullscreen] = useToggle(false)
 
 const { data: items, error, isPending } = useQuery(listCountriesSummaryOptions())
+
+const hasOccurrences = computed(() => {
+  return items.value?.some((item) => item.occurrence_count > 0)
+})
 
 type Facet = 'samplings' | 'occurrences'
 const facet = ref<Facet>('occurrences')
