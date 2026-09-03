@@ -101,8 +101,8 @@
     </div>
 
     <div class="map-popup bottom-left">
-      <div v-if="selected" class="screenshot-exclude">
-        <slot name="popup" :selection="selected" />
+      <div v-if="selected && !!map && !!mapContainer" class="screenshot-exclude">
+        <slot name="popup" :selection="selected" :map :map-container />
       </div>
       <!-- <div v-else-if="selected?.type === 'site'">
         <slot name="pin-popup" :item="selected.info" :zoom="currentZoom" />
@@ -166,7 +166,7 @@ export default {
 }
 </script>
 
-<script setup lang="ts" generic="PinMarkerData, MarkerData extends H3Cell">
+<script setup lang="ts" generic="PinMarkerData, MarkerData extends H3CellWithRichness">
 import type { Layer } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import {
@@ -282,6 +282,8 @@ const {
 defineSlots<{
   popup: (props: {
     selection: MarkerSelectionInfo<MarkerData, HexData, PinMarker<PinMarkerData>>
+    map: Map
+    mapContainer: HTMLElement
   }) => any
   // 'pin-popup': (props: { item: PinMarker<PinMarkerData>; zoom: number }) => any
   // 'cluster-popup': (props: {
