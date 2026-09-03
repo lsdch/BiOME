@@ -18,6 +18,7 @@ import (
 	"github.com/lsdch/biome/models"
 	csvmodels "github.com/lsdch/biome/models/csv"
 	"github.com/lsdch/biome/services"
+	"github.com/lsdch/biome/services/storage"
 	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
 )
@@ -28,6 +29,7 @@ const (
 
 type RunnerStatus string
 
+//generate:enum
 const (
 	Created            RunnerStatus = "created"
 	Staging            RunnerStatus = "staging"
@@ -41,6 +43,20 @@ const (
 	Cancelled          RunnerStatus = "cancelled"
 )
 
+type MaterializationSteps struct {
+	FillGBIF                bool `json:"fill_gbif_dependencies"`
+	MaterializeTaxa         bool `json:"materialize_taxa"`
+	MaterializeSamplings    bool `json:"materialize_samplings"`
+	MaterializeOccurrences  bool `json:"materialize_occurrences"`
+	MaterializeBibliography bool `json:"materialize_bibliography"`
+	RefreshOccurrenceCodes  bool `json:"refresh_occurrence_codes"`
+	MaterializationComplete bool `json:"materialization_complete"`
+}
+
+func (m *MaterializationSteps) reset() {
+	*m = MaterializationSteps{}
+}
+
 type ImportRunner struct {
 	db            *db.DB
 	batch         models.ImportBatch
@@ -49,13 +65,15 @@ type ImportRunner struct {
 	bibliography  *BibliographyResolver
 	samplings     *services.SamplingService
 	occurrences   *services.OccurrencesService
+	fileStorage   storage.RawFileStorage
 
 	parser    CSVParser
 	validator *validator.Validate
 
-	status           RunnerStatus
-	resolutionStatus models.MaterializationReadyCheck
-	gbif             *progress.ProgressTracker
+	status               RunnerStatus
+	resolutionStatus     models.MaterializationReadyCheck
+	materializationSteps MaterializationSteps
+	gbif                 *progress.ProgressTracker
 
 	mu         sync.Mutex
 	ctx        context.Context
@@ -73,6 +91,7 @@ func NewImportRunner(ctx context.Context, db *db.DB,
 	taxonResolver TaxonResolver,
 	bibliography *BibliographyResolver,
 	occurrences *services.OccurrencesService,
+	fileStorage storage.RawFileStorage,
 ) *ImportRunner {
 	ctx, cancel := context.WithCancel(ctx)
 
@@ -90,6 +109,7 @@ func NewImportRunner(ctx context.Context, db *db.DB,
 		cancel:        cancel,
 		events:        events,
 		validator:     validator.New(validator.WithRequiredStructEnabled()),
+		fileStorage:   fileStorage,
 	}
 	runner.gbif = progress.NewProgressTracker().WithCallback(func(status progress.ProgressStatus) {
 		if status == progress.Running && time.Since(runner.lastNotificationTime()) < 1000*time.Millisecond {
@@ -412,7 +432,9 @@ func (r *ImportRunner) Fail(err error) {
 		r.cancel()
 		r.err = err
 		r.status = Failed
+		r.materializationSteps.reset()
 	})
+	r.notify()
 }
 
 func (r *ImportRunner) Complete(db db.Querier, userID uuid.UUID) error {
@@ -455,12 +477,13 @@ func (r *ImportRunner) Snapshot() BatchSnapshot {
 	err := r.err
 	r.mu.Unlock()
 	return BatchSnapshot{
-		ImportID:         r.batch.ID,
-		Batch:            r.batch,
-		Status:           status,
-		ResolutionStatus: r.resolutionStatus,
-		GBIF:             r.GBIFProgress(),
-		Error:            err,
+		ImportID:             r.batch.ID,
+		Batch:                r.batch,
+		Status:               status,
+		ResolutionStatus:     r.resolutionStatus,
+		MaterializationSteps: r.materializationSteps,
+		GBIF:                 r.GBIFProgress(),
+		Error:                err,
 	}
 }
 
@@ -537,10 +560,14 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 	}
 	r.withMutex(func() {
 		r.status = Materializing
+		r.materializationSteps.reset()
 	})
 	if err := r.taxonResolver.FillGBIFDependencies(r.ctx, r.db, r.batch.ID, r.gbif); err != nil {
 		return nil, fmt.Errorf("fill GBIF dependencies: %w", err)
 	}
+	r.materializationSteps.FillGBIF = true
+	r.notify()
+
 	if err := r.db.WithTx(r.ctx, func(tx *db.Tx) error {
 		logrus.Infof("Materializing import batch: %s", r.batch.Label)
 
@@ -552,29 +579,43 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 			}
 			return fmt.Errorf("materialize taxa: %w", err)
 		}
+		r.materializationSteps.MaterializeTaxa = true
+		r.notify()
 
 		logrus.Infof("Materializing samplings for import batch: %s", r.batch.Label)
 		if err := r.samplings.MaterializeSamplings(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("materialize samplings: %w", err)
 		}
+		r.materializationSteps.MaterializeSamplings = true
+		r.notify()
 
 		logrus.Infof("Materializing occurrences for import batch: %s", r.batch.Label)
 		if err := r.occurrences.MaterializeOccurrences(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("materialize occurrences: %w", err)
 		}
+		r.materializationSteps.MaterializeOccurrences = true
+		r.notify()
 
 		logrus.Infof("Materializing bibliography for import batch: %s", r.batch.Label)
 		if err := r.bibliography.MaterializeBibliography(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("materialize bibliography: %w", err)
 		}
+		r.materializationSteps.MaterializeBibliography = true
+		r.notify()
 
 		logrus.Infof("Refreshing occurrence codes for import batch: %s", r.batch.Label)
 		if err := r.occurrences.RefreshOccurrenceCodes(r.ctx, tx); err != nil {
 			return fmt.Errorf("refresh occurrence codes: %w", err)
 		}
+		r.materializationSteps.RefreshOccurrenceCodes = true
+		r.notify()
+
+		logrus.Infof("Completing import batch: %s", r.batch.Label)
 		if err := r.Complete(tx, userID); err != nil {
 			return fmt.Errorf("complete import: %w", err)
 		}
+		r.materializationSteps.MaterializationComplete = true
+		r.notify()
 		return nil
 	}); err != nil {
 		r.Fail(err)
@@ -587,6 +628,17 @@ func (r *ImportRunner) Delete(ctx context.Context) error {
 	if err := r.store.DeleteBatch(ctx, r.db, r.batch.ID); err != nil {
 		return fmt.Errorf("delete batch: %w", err)
 	}
+	if err := r.fileStorage.Delete(ctx, r.batch.FileKey()); err != nil {
+		return fmt.Errorf("delete raw file: %w", err)
+	}
 	r.Stop()
 	return nil
+}
+
+func (r *ImportRunner) GetRawFileReader(ctx context.Context) (io.ReadCloser, error) {
+	reader, err := r.fileStorage.Open(ctx, r.batch.FileKey())
+	if err != nil {
+		return nil, fmt.Errorf("get raw file reader: %w", err)
+	}
+	return reader, nil
 }

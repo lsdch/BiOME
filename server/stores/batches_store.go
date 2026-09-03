@@ -8,6 +8,7 @@ import (
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
 	csvmodels "github.com/lsdch/biome/models/csv"
+	"github.com/sirupsen/logrus"
 )
 
 type BatchesStore struct{}
@@ -21,7 +22,8 @@ func (s *BatchesStore) GetImportState(ctx context.Context, q db.Querier, importI
 	return state, err
 }
 
-func (s *BatchesStore) CreateBatch(ctx context.Context, q db.Querier, userID uuid.UUID, w models.ImportBatchInput) (models.ImportBatch, error) {
+func (s *BatchesStore) CreateBatch(ctx context.Context, q db.Querier, userID uuid.UUID, w models.ImportBatchWithStoredFile) (models.ImportBatch, error) {
+	logrus.Debugf("Creating import batch '%s' with ID %s", w.Label, w.ID())
 	batch, err := q.Queries().InitImportBatch(ctx, w.ToParams(userID))
 	if err != nil {
 		return models.ImportBatch{}, err

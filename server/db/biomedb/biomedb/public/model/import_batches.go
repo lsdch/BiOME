@@ -14,14 +14,18 @@ import (
 )
 
 type ImportBatches struct {
-	ID             uuid.UUID `sql:"primary_key"`
-	Label          string
-	Description    *string
-	Status         ImportBatchStatus
-	AssembledBy    *pq.StringArray
-	CreatedBy      uuid.UUID
-	CreatedAt      time.Time
-	CompletedAt    *time.Time
-	CompletedBy    *uuid.UUID
-	TaxonomicScope int32
+	ID                      uuid.UUID `sql:"primary_key"`
+	Label                   string
+	Description             *string
+	Status                  ImportBatchStatus
+	AssembledBy             *pq.StringArray
+	CreatedBy               uuid.UUID
+	CreatedAt               time.Time
+	CompletedAt             *time.Time
+	CompletedBy             *uuid.UUID
+	TaxonomicScope          int32
+	ImportedFileName        string
+	ImportedFileSize        int64
+	ImportedFileHash        string
+	ImportedFileContentType string
 }

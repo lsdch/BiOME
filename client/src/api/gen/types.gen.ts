@@ -65,8 +65,9 @@ export type BatchSnapshot = {
   batch: ImportBatch
   error: unknown
   id: string
+  materialization_steps: MaterializationSteps
   resolution_status: MaterializationReadyCheck
-  status: string
+  status: RunnerStatus
 }
 
 /**
@@ -421,6 +422,10 @@ export type ImportBatch = {
   created_by: string
   description?: string
   id: string
+  imported_file_content_type: string
+  imported_file_hash: string
+  imported_file_name: string
+  imported_file_size: number
   label: string
   status: ImportBatchStatus
   taxonomic_scope: number
@@ -452,6 +457,10 @@ export type ImportBatchWithContent = {
   created_by_user: User
   description?: string
   id: string
+  imported_file_content_type: string
+  imported_file_hash: string
+  imported_file_name: string
+  imported_file_size: number
   label: string
   occurrence_count: number
   sampling_count: number
@@ -502,6 +511,16 @@ export type MaterializationReadyCheck = {
   fixatives: boolean
   methods: boolean
   taxonomy: boolean
+}
+
+export type MaterializationSteps = {
+  fill_gbif_dependencies: boolean
+  materialization_complete: boolean
+  materialize_bibliography: boolean
+  materialize_occurrences: boolean
+  materialize_samplings: boolean
+  materialize_taxa: boolean
+  refresh_occurrence_codes: boolean
 }
 
 export type Occurrence = {
@@ -696,6 +715,21 @@ export type ResolveInput = {
   candidate_id: string
   resolution_id: string
 }
+
+/**
+ * RunnerStatus
+ */
+export type RunnerStatus =
+  | 'created'
+  | 'staging'
+  | 'staged'
+  | 'running'
+  | 'needs_resolution'
+  | 'ready_to_materialize'
+  | 'materializing'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
 
 export type Sampling = {
   access_points?: Array<string>
@@ -1815,6 +1849,35 @@ export type GetImportBatchResponses = {
 }
 
 export type GetImportBatchResponse = GetImportBatchResponses[keyof GetImportBatchResponses]
+
+export type DownloadRawFileData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/import-batches/{id}/raw'
+}
+
+export type DownloadRawFileErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type DownloadRawFileError = DownloadRawFileErrors[keyof DownloadRawFileErrors]
+
+export type DownloadRawFileResponses = {
+  /**
+   * OK
+   */
+  200: unknown
+}
 
 export type GetImportBatchWithContentData = {
   body?: never

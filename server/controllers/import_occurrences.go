@@ -71,24 +71,30 @@ func (c *ImportController) ImportOccurrencesCSV(
 	ctx context.Context,
 	input *OccurrenceBatchInput,
 ) (*BodyTransporter[models.ImportBatch], error) {
-	formData := input.RawBody.Data()
-	file := formData.File
 
 	session, ok := auth.SessionFromContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("failed to retrieve session")
 	}
-	runner, err := c.manager.NewBatch(ctx, session.UserID, models.ImportBatchInput{
-		Label:          formData.Batch.Value.Label,
-		Description:    formData.Batch.Value.Description,
-		AssembledBy:    formData.Batch.Value.AssembledBy,
-		TaxonomicScope: formData.Batch.Value.TaxonomicScope,
-	})
-	if err != nil {
-		return nil, err
-	}
+
+	formData := input.RawBody.Data()
+	file := formData.File
+
+	runner, err := c.manager.NewBatch(ctx, session.UserID,
+		models.ImportBatchWithFileInput{
+			ImportBatchInput: formData.Batch.Value,
+			File: models.File{
+				ContentType: file.ContentType,
+				Reader:      file,
+				Name:        file.Filename,
+				Size:        file.Size,
+			},
+		})
 
 	logrus.Infof("Parsing file %s with separator '%s' and quote char '%s'", file.Filename, formData.Separator, formData.QuoteChar)
+	if _, err := file.Seek(0, 0); err != nil {
+		return nil, fmt.Errorf("failed to seek file: %v", err)
+	}
 	err = runner.StartBatchCSV(file, rune(formData.Separator[0]), formData.TaxonDefinitions.Value, formData.MergeUndatedSamplings)
 	if err != nil {
 		if err2 := runner.Delete(context.Background()); err2 != nil {

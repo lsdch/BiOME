@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -11,17 +12,21 @@ import (
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services"
+	"github.com/lsdch/biome/services/storage"
+	"github.com/sirupsen/logrus"
 )
 
 type ImportBatchController struct {
-	DB      *db.DB
-	service *services.ImportBatchService
+	DB          *db.DB
+	service     *services.ImportBatchService
+	fileStorage storage.RawFileStorage
 }
 
-func NewImportBatchController(db *db.DB, service *services.ImportBatchService) *ImportBatchController {
+func NewImportBatchController(db *db.DB, service *services.ImportBatchService, fileStorage storage.RawFileStorage) *ImportBatchController {
 	return &ImportBatchController{
-		DB:      db,
-		service: service,
+		DB:          db,
+		service:     service,
+		fileStorage: fileStorage,
 	}
 }
 
@@ -77,6 +82,31 @@ func (c *ImportBatchController) DeleteImportBatch(ctx context.Context, input *st
 	return nil, nil
 }
 
+func (c *ImportBatchController) DownloadRawFile(ctx context.Context, input *struct {
+	UUIDInput
+}) (*huma.StreamResponse, error) {
+	batch, err := c.service.GetImportBatch(ctx, c.DB, input.ID)
+	if err != nil {
+		return nil, err
+	}
+	reader, err := c.fileStorage.Open(ctx, batch.FileKey())
+	if err != nil {
+		return nil, err
+	}
+	return &huma.StreamResponse{
+		Body: func(ctx huma.Context) {
+			writer := ctx.BodyWriter()
+			ctx.SetHeader("Content-Type", batch.ImportedFileContentType)
+			ctx.SetHeader("Content-Disposition", "attachment; filename=\""+batch.ImportedFileName+"\"")
+			_, err := io.Copy(writer, reader)
+			if err != nil {
+				logrus.Errorf("Error streaming raw file: %v", err)
+			}
+			reader.Close()
+		},
+	}, nil
+}
+
 func (c *ImportBatchController) RegisterRoutes(r *router.Router) {
 
 	batchesAPI := r.RouteGroup("/import-batches").WithTags([]string{"Imports"})
@@ -130,4 +160,14 @@ func (c *ImportBatchController) RegisterRoutes(r *router.Router) {
 		},
 		c.DeleteImportBatch,
 	).WithAccessPolicy(auth.Role(biomedb.UserRoleMaintainer)).Register(r)
+
+	router.NewSpec(batchesAPI,
+		"DownloadRawFile",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/{id}/raw",
+			Summary: "Download the raw file for an import batch",
+		},
+		c.DownloadRawFile,
+	).WithAccessPolicy(auth.Public()).Register(r)
 }

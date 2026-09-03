@@ -136,14 +136,25 @@ export const $BatchSnapshot = {
     id: {
       type: 'string'
     },
+    materialization_steps: {
+      $ref: '#/components/schemas/MaterializationSteps'
+    },
     resolution_status: {
       $ref: '#/components/schemas/MaterializationReadyCheck'
     },
     status: {
-      type: 'string'
+      $ref: '#/components/schemas/RunnerStatus'
     }
   },
-  required: ['id', 'batch', 'status', 'resolution_status', 'GBIF', 'error'],
+  required: [
+    'id',
+    'batch',
+    'status',
+    'resolution_status',
+    'materialization_steps',
+    'GBIF',
+    'error'
+  ],
   type: 'object'
 } as const
 
@@ -1100,6 +1111,19 @@ export const $ImportBatch = {
     id: {
       type: 'string'
     },
+    imported_file_content_type: {
+      type: 'string'
+    },
+    imported_file_hash: {
+      type: 'string'
+    },
+    imported_file_name: {
+      type: 'string'
+    },
+    imported_file_size: {
+      format: 'int64',
+      type: 'integer'
+    },
     label: {
       type: 'string'
     },
@@ -1111,7 +1135,18 @@ export const $ImportBatch = {
       type: 'integer'
     }
   },
-  required: ['id', 'label', 'status', 'created_by', 'created_at', 'taxonomic_scope'],
+  required: [
+    'id',
+    'label',
+    'status',
+    'created_by',
+    'created_at',
+    'taxonomic_scope',
+    'imported_file_name',
+    'imported_file_size',
+    'imported_file_hash',
+    'imported_file_content_type'
+  ],
   type: 'object'
 } as const
 
@@ -1187,6 +1222,19 @@ export const $ImportBatchWithContent = {
     id: {
       type: 'string'
     },
+    imported_file_content_type: {
+      type: 'string'
+    },
+    imported_file_hash: {
+      type: 'string'
+    },
+    imported_file_name: {
+      type: 'string'
+    },
+    imported_file_size: {
+      format: 'int64',
+      type: 'integer'
+    },
     label: {
       type: 'string'
     },
@@ -1216,7 +1264,11 @@ export const $ImportBatchWithContent = {
     'status',
     'created_by',
     'created_at',
-    'taxonomic_scope'
+    'taxonomic_scope',
+    'imported_file_name',
+    'imported_file_size',
+    'imported_file_hash',
+    'imported_file_content_type'
   ],
   type: 'object'
 } as const
@@ -1341,6 +1393,43 @@ export const $MaterializationReadyCheck = {
     }
   },
   required: ['taxonomy', 'methods', 'fixatives', 'bibliography'],
+  type: 'object'
+} as const
+
+export const $MaterializationSteps = {
+  additionalProperties: false,
+  properties: {
+    fill_gbif_dependencies: {
+      type: 'boolean'
+    },
+    materialization_complete: {
+      type: 'boolean'
+    },
+    materialize_bibliography: {
+      type: 'boolean'
+    },
+    materialize_occurrences: {
+      type: 'boolean'
+    },
+    materialize_samplings: {
+      type: 'boolean'
+    },
+    materialize_taxa: {
+      type: 'boolean'
+    },
+    refresh_occurrence_codes: {
+      type: 'boolean'
+    }
+  },
+  required: [
+    'fill_gbif_dependencies',
+    'materialize_taxa',
+    'materialize_samplings',
+    'materialize_occurrences',
+    'materialize_bibliography',
+    'refresh_occurrence_codes',
+    'materialization_complete'
+  ],
   type: 'object'
 } as const
 
@@ -1888,6 +1977,23 @@ export const $ResolveInput = {
   },
   required: ['resolution_id', 'candidate_id'],
   type: 'object'
+} as const
+
+export const $RunnerStatus = {
+  enum: [
+    'created',
+    'staging',
+    'staged',
+    'running',
+    'needs_resolution',
+    'ready_to_materialize',
+    'materializing',
+    'completed',
+    'failed',
+    'cancelled'
+  ],
+  title: 'RunnerStatus',
+  type: 'string'
 } as const
 
 export const $Sampling = {

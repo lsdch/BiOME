@@ -8,8 +8,16 @@
     <template #subtitle>
       <v-chip label prepend-icon="mdi-file-arrow-up-down"></v-chip>
     </template>
+    <template #append>
+      <v-btn
+        prepend-icon="mdi-file-download"
+        text="Download raw data"
+        variant="tonal"
+        @click="downloadRawFile()"
+      ></v-btn>
+    </template>
     <div class="d-flex flex-column flex-grow-1 min-h-0 overflow-y-auto">
-      <v-container v-if="batch" class="bg-main flex-shrink-0" fluid>
+      <!-- <v-container v-if="batch" class="bg-main flex-shrink-0" fluid>
         <v-row>
           <v-col cols="12">
             <v-card>
@@ -53,17 +61,8 @@
               </v-list>
             </v-card>
           </v-col>
-          <!-- <v-col cols="6">
-          <v-card class="w-100 h-100" :min-height="600">
-            <DeckGlMap
-              :hexgrid="hexLayer"
-              v-model:zoom="zoom"
-              @update:zoom="(v) => console.log('update zoom', v)"
-            />
-          </v-card>
-        </v-col> -->
         </v-row>
-      </v-container>
+      </v-container> -->
       <v-tabs v-model="tab" class="flex-shrink-0">
         <v-tab value="map">Map</v-tab>
         <v-tab value="samplings">Samplings</v-tab>
@@ -79,7 +78,25 @@
           class="fill-height"
         >
           <v-sheet height="100%" :min-height="600">
-            <DeckGlMap :hexgrid="hexLayer" v-model:zoom="zoom" />
+            <DeckGlMap :hexgrid="hexLayer" v-model:zoom="zoom">
+              <template #popup="{ selection, mapContainer }">
+                <MultiSamplingsPopup
+                  v-if="selection.type === 'hexagon' && !!selection.info.object"
+                  :data="selection.info.object"
+                  :resolution="selection.resolution"
+                  :params="selection.params"
+                  :attach="mapContainer"
+                />
+
+                <MultiSamplingsPopup
+                  v-else-if="selection.type === 'marker' && !!selection.info.object"
+                  :data="selection.info.object"
+                  :resolution="selection.resolution"
+                  :params="selection.params"
+                  :attach="mapContainer"
+                />
+              </template>
+            </DeckGlMap>
           </v-sheet>
         </v-tabs-window-item>
         <v-tabs-window-item value="samplings" key="samplings">
@@ -94,23 +111,24 @@
 </template>
 
 <script setup lang="ts">
+import { DownloadRawFileData } from '@/api'
 import {
   getImportBatchWithContentOptions,
   listOccurrencesH3Options,
   listOccurrencesOptions,
   listSamplingsWithOccurrencesOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
+import { client } from '@/api/gen/client.gen'
 import DeckGlMap from '@/features/cartography/components/DeckGlMap.vue'
 import {
   automaticResolution,
   makeHexLayer
 } from '@/features/cartography/components/layers-manager/map-layers'
+import MultiSamplingsPopup from '@/features/cartography/components/popups/MultiSamplingsPopup.vue'
 import { hexgridLayerFromSpec } from '@/features/cartography/composables/hexgrid-layer'
 import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
-import UserChip from '@/features/users/components/UserChip'
 import { useQuery } from '@tanstack/vue-query'
-import { DateTime } from 'luxon'
 import { computed, ref, watch } from 'vue'
 
 const { uuid } = defineProps<{
@@ -156,6 +174,14 @@ const { data: batchOccurrences } = useQuery(
     })
   }))
 )
+
+function downloadRawFile() {
+  const url = client.buildUrl<DownloadRawFileData>({
+    path: { id: uuid },
+    url: '/import-batches/{id}/raw'
+  })
+  window.open(url, '_blank')
+}
 </script>
 
 <style lang="scss">

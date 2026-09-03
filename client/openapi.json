@@ -156,11 +156,14 @@
 					"id": {
 						"type": "string"
 					},
+					"materialization_steps": {
+						"$ref": "#/components/schemas/MaterializationSteps"
+					},
 					"resolution_status": {
 						"$ref": "#/components/schemas/MaterializationReadyCheck"
 					},
 					"status": {
-						"type": "string"
+						"$ref": "#/components/schemas/RunnerStatus"
 					}
 				},
 				"required": [
@@ -168,6 +171,7 @@
 					"batch",
 					"status",
 					"resolution_status",
+					"materialization_steps",
 					"GBIF",
 					"error"
 				],
@@ -1234,6 +1238,19 @@
 					"id": {
 						"type": "string"
 					},
+					"imported_file_content_type": {
+						"type": "string"
+					},
+					"imported_file_hash": {
+						"type": "string"
+					},
+					"imported_file_name": {
+						"type": "string"
+					},
+					"imported_file_size": {
+						"format": "int64",
+						"type": "integer"
+					},
 					"label": {
 						"type": "string"
 					},
@@ -1251,7 +1268,11 @@
 					"status",
 					"created_by",
 					"created_at",
-					"taxonomic_scope"
+					"taxonomic_scope",
+					"imported_file_name",
+					"imported_file_size",
+					"imported_file_hash",
+					"imported_file_content_type"
 				],
 				"type": "object"
 			},
@@ -1336,6 +1357,19 @@
 					"id": {
 						"type": "string"
 					},
+					"imported_file_content_type": {
+						"type": "string"
+					},
+					"imported_file_hash": {
+						"type": "string"
+					},
+					"imported_file_name": {
+						"type": "string"
+					},
+					"imported_file_size": {
+						"format": "int64",
+						"type": "integer"
+					},
 					"label": {
 						"type": "string"
 					},
@@ -1365,7 +1399,11 @@
 					"status",
 					"created_by",
 					"created_at",
-					"taxonomic_scope"
+					"taxonomic_scope",
+					"imported_file_name",
+					"imported_file_size",
+					"imported_file_hash",
+					"imported_file_content_type"
 				],
 				"type": "object"
 			},
@@ -1505,6 +1543,42 @@
 					"methods",
 					"fixatives",
 					"bibliography"
+				],
+				"type": "object"
+			},
+			"MaterializationSteps": {
+				"additionalProperties": false,
+				"properties": {
+					"fill_gbif_dependencies": {
+						"type": "boolean"
+					},
+					"materialization_complete": {
+						"type": "boolean"
+					},
+					"materialize_bibliography": {
+						"type": "boolean"
+					},
+					"materialize_occurrences": {
+						"type": "boolean"
+					},
+					"materialize_samplings": {
+						"type": "boolean"
+					},
+					"materialize_taxa": {
+						"type": "boolean"
+					},
+					"refresh_occurrence_codes": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"fill_gbif_dependencies",
+					"materialize_taxa",
+					"materialize_samplings",
+					"materialize_occurrences",
+					"materialize_bibliography",
+					"refresh_occurrence_codes",
+					"materialization_complete"
 				],
 				"type": "object"
 			},
@@ -2112,6 +2186,22 @@
 					"candidate_id"
 				],
 				"type": "object"
+			},
+			"RunnerStatus": {
+				"enum": [
+					"created",
+					"staging",
+					"staged",
+					"running",
+					"needs_resolution",
+					"ready_to_materialize",
+					"materializing",
+					"completed",
+					"failed",
+					"cancelled"
+				],
+				"title": "RunnerStatus",
+				"type": "string"
 			},
 			"Sampling": {
 				"additionalProperties": false,
@@ -3324,7 +3414,10 @@
 		}
 	},
 	"info": {
-		"contact": {},
+		"contact": {
+			"email": "ls.duchemin@gmail.com",
+			"name": "Louis Duchemin"
+		},
 		"description": "BiOME API: Biodiversity and Occurrences for Molecular Ecology",
 		"title": "BiOME API",
 		"version": ""
@@ -4503,6 +4596,52 @@
 					}
 				},
 				"summary": "Get a specific import batch",
+				"tags": [
+					"Imports"
+				],
+				"x-policy": {}
+			}
+		},
+		"/import-batches/{id}/raw": {
+			"get": {
+				"operationId": "DownloadRawFile",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Download the raw file for an import batch",
 				"tags": [
 					"Imports"
 				],

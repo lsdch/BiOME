@@ -18,6 +18,7 @@ import (
 	"github.com/lsdch/biome/services/crossref"
 	"github.com/lsdch/biome/services/gbif"
 	"github.com/lsdch/biome/services/geoapify"
+	"github.com/lsdch/biome/services/storage"
 	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
@@ -69,6 +70,7 @@ type AppServices struct {
 	LocationService    *services.LocationService
 	TaxonomyService    *services.TaxonomyService
 	TaxonResolver      imports.TaxonResolver
+	FileStorage        storage.RawFileStorage
 }
 
 type App struct {
@@ -92,7 +94,6 @@ func NewApp(config config.Config) *App {
 
 	appServices := &AppServices{
 		AbioticService:     services.NewAbioticService(),
-		ImportBatchService: services.NewImportBatchService(),
 		AuthService:        services.NewAuthService(config.AuthTokens),
 		SettingsService:    services.NewSettingsService(config),
 		SamplingsService:   services.NewSamplingService(),
@@ -102,6 +103,13 @@ func NewApp(config config.Config) *App {
 		LocationService:    services.NewLocationService(),
 		GeoapifyService:    geoapify.NewGeoapifyService(http.DefaultClient, config.Geoapify),
 	}
+
+	fileStorage, err := storage.NewFilesystemRawFileStorage(config.RawFileStorageRoot)
+	if err != nil {
+		panic(fmt.Sprintf("failed to create file storage: %v", err))
+	}
+	appServices.FileStorage = fileStorage
+	appServices.ImportBatchService = services.NewImportBatchService(fileStorage)
 
 	appServices.AccountsService = services.NewAccountService(appServices.AuthService, config.Bootstrap)
 
@@ -129,11 +137,14 @@ func NewApp(config config.Config) *App {
 		Router:    router,
 		Services:  appServices,
 		bootstrap: NewAppBootstrap(database, config.Bootstrap, appServices),
-		importsManager: imports.NewImportManager(database,
-			stores.NewBatchesStore(), appServices.TaxonResolver,
+		importsManager: imports.NewImportManager(
+			database,
+			stores.NewBatchesStore(),
+			appServices.TaxonResolver,
 			bibliographyResolver,
 			appServices.SamplingsService,
 			appServices.OccurrencesService,
+			fileStorage,
 		),
 	}
 }
@@ -165,7 +176,7 @@ func (a *App) RegisterRoutes() {
 		controllers.NewSamplingController(a.DB, a.Services.SamplingsService),
 		controllers.NewTaxonomyController(a.DB, a.Services.TaxonomyService),
 		controllers.NewDatasetController(a.DB, a.Services.DatasetService),
-		controllers.NewImportBatchController(a.DB, a.Services.ImportBatchService),
+		controllers.NewImportBatchController(a.DB, a.Services.ImportBatchService, a.Services.FileStorage),
 	}
 	for _, controller := range a.Controllers {
 		controller.RegisterRoutes(a.Router)

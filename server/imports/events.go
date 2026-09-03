@@ -9,12 +9,13 @@ import (
 )
 
 type BatchSnapshot struct {
-	ImportID         uuid.UUID                        `json:"id"`
-	Batch            models.ImportBatch               `json:"batch"`
-	Status           RunnerStatus                     `json:"status"`
-	ResolutionStatus models.MaterializationReadyCheck `json:"resolution_status"`
-	GBIF             progress.ProgressSnapshot        `json:"GBIF"`
-	Error            error                            `json:"error"`
+	ImportID             uuid.UUID                        `json:"id"`
+	Batch                models.ImportBatch               `json:"batch"`
+	Status               RunnerStatus                     `json:"status"`
+	ResolutionStatus     models.MaterializationReadyCheck `json:"resolution_status"`
+	MaterializationSteps MaterializationSteps             `json:"materialization_steps"`
+	GBIF                 progress.ProgressSnapshot        `json:"GBIF"`
+	Error                error                            `json:"error"`
 }
 
 type ImportEventSink[T any] interface {

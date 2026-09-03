@@ -1470,16 +1470,20 @@ type HabitatGroup struct {
 }
 
 type ImportBatch struct {
-	ID             uuid.UUID          `json:"id"`
-	Label          string             `json:"label"`
-	Description    *string            `json:"description"`
-	Status         ImportBatchStatus  `json:"status"`
-	AssembledBy    []string           `json:"assembled_by"`
-	CreatedBy      uuid.UUID          `json:"created_by"`
-	CreatedAt      time.Time          `json:"created_at"`
-	CompletedAt    pgtype.Timestamptz `json:"completed_at"`
-	CompletedBy    pgtype.UUID        `json:"completed_by"`
-	TaxonomicScope int32              `json:"taxonomic_scope"`
+	ID                      uuid.UUID          `json:"id"`
+	Label                   string             `json:"label"`
+	Description             *string            `json:"description"`
+	Status                  ImportBatchStatus  `json:"status"`
+	AssembledBy             []string           `json:"assembled_by"`
+	CreatedBy               uuid.UUID          `json:"created_by"`
+	CreatedAt               time.Time          `json:"created_at"`
+	CompletedAt             pgtype.Timestamptz `json:"completed_at"`
+	CompletedBy             pgtype.UUID        `json:"completed_by"`
+	TaxonomicScope          int32              `json:"taxonomic_scope"`
+	ImportedFileName        string             `json:"imported_file_name"`
+	ImportedFileSize        int64              `json:"imported_file_size"`
+	ImportedFileHash        string             `json:"imported_file_hash"`
+	ImportedFileContentType string             `json:"imported_file_content_type"`
 }
 
 type ImportSamplingsOccurrence struct {

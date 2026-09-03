@@ -17,16 +17,20 @@ type importBatchesTable struct {
 	postgres.Table
 
 	// Columns
-	ID             postgres.ColumnString
-	Label          postgres.ColumnString
-	Description    postgres.ColumnString
-	Status         postgres.ColumnString
-	AssembledBy    postgres.ColumnStringArray
-	CreatedBy      postgres.ColumnString
-	CreatedAt      postgres.ColumnTimestampz
-	CompletedAt    postgres.ColumnTimestampz
-	CompletedBy    postgres.ColumnString
-	TaxonomicScope postgres.ColumnInteger
+	ID                      postgres.ColumnString
+	Label                   postgres.ColumnString
+	Description             postgres.ColumnString
+	Status                  postgres.ColumnString
+	AssembledBy             postgres.ColumnStringArray
+	CreatedBy               postgres.ColumnString
+	CreatedAt               postgres.ColumnTimestampz
+	CompletedAt             postgres.ColumnTimestampz
+	CompletedBy             postgres.ColumnString
+	TaxonomicScope          postgres.ColumnInteger
+	ImportedFileName        postgres.ColumnString
+	ImportedFileSize        postgres.ColumnInteger
+	ImportedFileHash        postgres.ColumnString
+	ImportedFileContentType postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -68,35 +72,43 @@ func newImportBatchesTable(schemaName, tableName, alias string) *ImportBatchesTa
 
 func newImportBatchesTableImpl(schemaName, tableName, alias string) importBatchesTable {
 	var (
-		IDColumn             = postgres.StringColumn("id")
-		LabelColumn          = postgres.StringColumn("label")
-		DescriptionColumn    = postgres.StringColumn("description")
-		StatusColumn         = postgres.StringColumn("status")
-		AssembledByColumn    = postgres.StringArrayColumn("assembled_by")
-		CreatedByColumn      = postgres.StringColumn("created_by")
-		CreatedAtColumn      = postgres.TimestampzColumn("created_at")
-		CompletedAtColumn    = postgres.TimestampzColumn("completed_at")
-		CompletedByColumn    = postgres.StringColumn("completed_by")
-		TaxonomicScopeColumn = postgres.IntegerColumn("taxonomic_scope")
-		allColumns           = postgres.ColumnList{IDColumn, LabelColumn, DescriptionColumn, StatusColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, CompletedAtColumn, CompletedByColumn, TaxonomicScopeColumn}
-		mutableColumns       = postgres.ColumnList{LabelColumn, DescriptionColumn, StatusColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, CompletedAtColumn, CompletedByColumn, TaxonomicScopeColumn}
-		defaultColumns       = postgres.ColumnList{IDColumn, StatusColumn, CreatedAtColumn}
+		IDColumn                      = postgres.StringColumn("id")
+		LabelColumn                   = postgres.StringColumn("label")
+		DescriptionColumn             = postgres.StringColumn("description")
+		StatusColumn                  = postgres.StringColumn("status")
+		AssembledByColumn             = postgres.StringArrayColumn("assembled_by")
+		CreatedByColumn               = postgres.StringColumn("created_by")
+		CreatedAtColumn               = postgres.TimestampzColumn("created_at")
+		CompletedAtColumn             = postgres.TimestampzColumn("completed_at")
+		CompletedByColumn             = postgres.StringColumn("completed_by")
+		TaxonomicScopeColumn          = postgres.IntegerColumn("taxonomic_scope")
+		ImportedFileNameColumn        = postgres.StringColumn("imported_file_name")
+		ImportedFileSizeColumn        = postgres.IntegerColumn("imported_file_size")
+		ImportedFileHashColumn        = postgres.StringColumn("imported_file_hash")
+		ImportedFileContentTypeColumn = postgres.StringColumn("imported_file_content_type")
+		allColumns                    = postgres.ColumnList{IDColumn, LabelColumn, DescriptionColumn, StatusColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, CompletedAtColumn, CompletedByColumn, TaxonomicScopeColumn, ImportedFileNameColumn, ImportedFileSizeColumn, ImportedFileHashColumn, ImportedFileContentTypeColumn}
+		mutableColumns                = postgres.ColumnList{LabelColumn, DescriptionColumn, StatusColumn, AssembledByColumn, CreatedByColumn, CreatedAtColumn, CompletedAtColumn, CompletedByColumn, TaxonomicScopeColumn, ImportedFileNameColumn, ImportedFileSizeColumn, ImportedFileHashColumn, ImportedFileContentTypeColumn}
+		defaultColumns                = postgres.ColumnList{IDColumn, StatusColumn, CreatedAtColumn}
 	)
 
 	return importBatchesTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:             IDColumn,
-		Label:          LabelColumn,
-		Description:    DescriptionColumn,
-		Status:         StatusColumn,
-		AssembledBy:    AssembledByColumn,
-		CreatedBy:      CreatedByColumn,
-		CreatedAt:      CreatedAtColumn,
-		CompletedAt:    CompletedAtColumn,
-		CompletedBy:    CompletedByColumn,
-		TaxonomicScope: TaxonomicScopeColumn,
+		ID:                      IDColumn,
+		Label:                   LabelColumn,
+		Description:             DescriptionColumn,
+		Status:                  StatusColumn,
+		AssembledBy:             AssembledByColumn,
+		CreatedBy:               CreatedByColumn,
+		CreatedAt:               CreatedAtColumn,
+		CompletedAt:             CompletedAtColumn,
+		CompletedBy:             CompletedByColumn,
+		TaxonomicScope:          TaxonomicScopeColumn,
+		ImportedFileName:        ImportedFileNameColumn,
+		ImportedFileSize:        ImportedFileSizeColumn,
+		ImportedFileHash:        ImportedFileHashColumn,
+		ImportedFileContentType: ImportedFileContentTypeColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

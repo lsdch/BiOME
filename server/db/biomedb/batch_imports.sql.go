@@ -120,7 +120,7 @@ type CopyImportStagingParams struct {
 }
 
 const getImportState = `-- name: GetImportState :one
-SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
+SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope, imported_file_name, imported_file_size, imported_file_hash, imported_file_content_type
 FROM import_batches
 WHERE id = $1::uuid
 `
@@ -139,43 +139,67 @@ func (q *Queries) GetImportState(ctx context.Context, importID uuid.UUID) (Impor
 		&i.CompletedAt,
 		&i.CompletedBy,
 		&i.TaxonomicScope,
+		&i.ImportedFileName,
+		&i.ImportedFileSize,
+		&i.ImportedFileHash,
+		&i.ImportedFileContentType,
 	)
 	return i, err
 }
 
 const initImportBatch = `-- name: InitImportBatch :one
 INSERT INTO import_batches (
+        id,
         label,
         description,
         assembled_by,
         created_by,
-        taxonomic_scope
+        taxonomic_scope,
+        imported_file_name,
+        imported_file_size,
+        imported_file_hash,
+        imported_file_content_type
     )
 VALUES (
         $1,
         $2,
-        $3::TEXT [],
-        $4::UUID,
-        $5
+        $3,
+        $4::TEXT [],
+        $5::UUID,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10
     )
-RETURNING id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
+RETURNING id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope, imported_file_name, imported_file_size, imported_file_hash, imported_file_content_type
 `
 
 type InitImportBatchParams struct {
-	Label          string    `json:"label"`
-	Description    *string   `json:"description"`
-	AssembledBy    []string  `json:"assembled_by"`
-	CreatedBy      uuid.UUID `json:"created_by"`
-	TaxonomicScope int32     `json:"taxonomic_scope"`
+	ID                      uuid.UUID `json:"id"`
+	Label                   string    `json:"label"`
+	Description             *string   `json:"description"`
+	AssembledBy             []string  `json:"assembled_by"`
+	CreatedBy               uuid.UUID `json:"created_by"`
+	TaxonomicScope          int32     `json:"taxonomic_scope"`
+	ImportedFileName        string    `json:"imported_file_name"`
+	ImportedFileSize        int64     `json:"imported_file_size"`
+	ImportedFileHash        string    `json:"imported_file_hash"`
+	ImportedFileContentType string    `json:"imported_file_content_type"`
 }
 
 func (q *Queries) InitImportBatch(ctx context.Context, arg InitImportBatchParams) (ImportBatch, error) {
 	row := q.db.QueryRow(ctx, initImportBatch,
+		arg.ID,
 		arg.Label,
 		arg.Description,
 		arg.AssembledBy,
 		arg.CreatedBy,
 		arg.TaxonomicScope,
+		arg.ImportedFileName,
+		arg.ImportedFileSize,
+		arg.ImportedFileHash,
+		arg.ImportedFileContentType,
 	)
 	var i ImportBatch
 	err := row.Scan(
@@ -189,12 +213,16 @@ func (q *Queries) InitImportBatch(ctx context.Context, arg InitImportBatchParams
 		&i.CompletedAt,
 		&i.CompletedBy,
 		&i.TaxonomicScope,
+		&i.ImportedFileName,
+		&i.ImportedFileSize,
+		&i.ImportedFileHash,
+		&i.ImportedFileContentType,
 	)
 	return i, err
 }
 
 const listImportBatchs = `-- name: ListImportBatchs :many
-SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
+SELECT id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope, imported_file_name, imported_file_size, imported_file_hash, imported_file_content_type
 FROM import_batches
 ORDER BY created_at DESC
 `
@@ -219,6 +247,10 @@ func (q *Queries) ListImportBatchs(ctx context.Context) ([]ImportBatch, error) {
 			&i.CompletedAt,
 			&i.CompletedBy,
 			&i.TaxonomicScope,
+			&i.ImportedFileName,
+			&i.ImportedFileSize,
+			&i.ImportedFileHash,
+			&i.ImportedFileContentType,
 		); err != nil {
 			return nil, err
 		}

@@ -97,6 +97,9 @@ import type {
   DeleteTaxonData,
   DeleteTaxonErrors,
   DeleteTaxonResponses,
+  DownloadRawFileData,
+  DownloadRawFileErrors,
+  DownloadRawFileResponses,
   ExportSamplingsWithOccurrencesData,
   ExportSamplingsWithOccurrencesErrors,
   ExportSamplingsWithOccurrencesResponses,
@@ -1209,6 +1212,30 @@ export class ImportsService {
         }
       ],
       url: '/import-batches/{id}',
+      ...options
+    })
+  }
+
+  /**
+   * Download the raw file for an import batch
+   */
+  public static downloadRawFile<ThrowOnError extends boolean = false>(
+    options: Options<DownloadRawFileData, ThrowOnError>
+  ): RequestResult<DownloadRawFileResponses, DownloadRawFileErrors, ThrowOnError> {
+    return (options.client ?? client).get<
+      DownloadRawFileResponses,
+      DownloadRawFileErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import-batches/{id}/raw',
       ...options
     })
   }

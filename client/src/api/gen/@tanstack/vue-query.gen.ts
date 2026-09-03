@@ -84,6 +84,8 @@ import type {
   DeleteTaxonData,
   DeleteTaxonError,
   DeleteTaxonResponse,
+  DownloadRawFileData,
+  DownloadRawFileError,
   ExportSamplingsWithOccurrencesData,
   ExportSamplingsWithOccurrencesError,
   GetBibliographyResolutionsData,
@@ -966,6 +968,26 @@ export const getImportBatchOptions = (options: Options<GetImportBatchData>) =>
       return data
     },
     queryKey: getImportBatchQueryKey(options)
+  })
+
+export const downloadRawFileQueryKey = (options: Options<DownloadRawFileData>) =>
+  createQueryKey('downloadRawFile', options)
+
+/**
+ * Download the raw file for an import batch
+ */
+export const downloadRawFileOptions = (options: Options<DownloadRawFileData>) =>
+  queryOptions<unknown, DownloadRawFileError, unknown, ReturnType<typeof downloadRawFileQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await ImportsService.downloadRawFile({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: downloadRawFileQueryKey(options)
   })
 
 export const getImportBatchWithContentQueryKey = (

@@ -15,7 +15,7 @@ import (
 )
 
 const checkStagingCodesGenerated = `-- name: CheckStagingCodesGenerated :many
-SELECT o.id, import_id, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, generated_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments, taxon_resolution_id, materialized_sampling_id, materialized_occurrence_id, b.id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope
+SELECT o.id, import_id, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, generated_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments, taxon_resolution_id, materialized_sampling_id, materialized_occurrence_id, b.id, label, description, status, assembled_by, created_by, created_at, completed_at, completed_by, taxonomic_scope, imported_file_name, imported_file_size, imported_file_hash, imported_file_content_type
 FROM import_samplings_occurrences o
     JOIN import_batches b ON b.id = o.import_id
 WHERE o.generated_code IS NULL
@@ -79,6 +79,10 @@ type CheckStagingCodesGeneratedRow struct {
 	CompletedAt                 pgtype.Timestamptz    `json:"completed_at"`
 	CompletedBy                 pgtype.UUID           `json:"completed_by"`
 	TaxonomicScope              int32                 `json:"taxonomic_scope"`
+	ImportedFileName            string                `json:"imported_file_name"`
+	ImportedFileSize            int64                 `json:"imported_file_size"`
+	ImportedFileHash            string                `json:"imported_file_hash"`
+	ImportedFileContentType     string                `json:"imported_file_content_type"`
 }
 
 func (q *Queries) CheckStagingCodesGenerated(ctx context.Context, batchID uuid.UUID) ([]CheckStagingCodesGeneratedRow, error) {
@@ -147,6 +151,10 @@ func (q *Queries) CheckStagingCodesGenerated(ctx context.Context, batchID uuid.U
 			&i.CompletedAt,
 			&i.CompletedBy,
 			&i.TaxonomicScope,
+			&i.ImportedFileName,
+			&i.ImportedFileSize,
+			&i.ImportedFileHash,
+			&i.ImportedFileContentType,
 		); err != nil {
 			return nil, err
 		}

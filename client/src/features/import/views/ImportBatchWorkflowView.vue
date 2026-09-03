@@ -9,7 +9,22 @@
   >
     <template #append>
       <v-btn
-        @click="materialize.mutate({ path: { id: uuid } })"
+        prepend-icon="mdi-file-download"
+        text="Download raw data"
+        variant="tonal"
+        @click="downloadRawFile()"
+      ></v-btn>
+      <v-btn
+        @click="
+          materialize.mutate(
+            { path: { id: uuid } },
+            {
+              onSuccess: () => {
+                router?.replace(router.currentRoute.value)
+              }
+            }
+          )
+        "
         :loading="materialize.isPending.value"
         variant="text"
         color="primary"
@@ -69,10 +84,100 @@
       </v-tabs-window-item>
     </v-tabs-window>
   </v-card>
+
+  <v-dialog
+    :model-value="
+      model?.status === 'materializing' && !model?.materialization_steps.materialization_complete
+    "
+    persistent
+  >
+    <v-card title="Materializing batch...">
+      <v-list>
+        <v-list-item title="Filling GBIF dependencies">
+          <template #prepend>
+            <v-icon v-if="model?.materialization_steps.fill_gbif_dependencies" color="success"
+              >mdi-check-circle</v-icon
+            >
+            <v-progress-circular
+              v-else
+              indeterminate
+              color="primary"
+              size="20"
+            ></v-progress-circular>
+          </template>
+        </v-list-item>
+        <v-list-item title="Materializing taxa">
+          <template #prepend>
+            <v-icon v-if="model?.materialization_steps.materialize_taxa" color="success"
+              >mdi-check-circle</v-icon
+            >
+            <v-progress-circular
+              v-else
+              indeterminate
+              color="primary"
+              size="20"
+            ></v-progress-circular>
+          </template>
+        </v-list-item>
+        <v-list-item title="Materializing samplings">
+          <template #prepend>
+            <v-icon v-if="model?.materialization_steps.materialize_samplings" color="success"
+              >mdi-check-circle</v-icon
+            >
+            <v-progress-circular
+              v-else
+              indeterminate
+              color="primary"
+              size="20"
+            ></v-progress-circular>
+          </template>
+        </v-list-item>
+        <v-list-item title="Materializing occurrences">
+          <template #prepend>
+            <v-icon v-if="model?.materialization_steps.materialize_occurrences" color="success"
+              >mdi-check-circle</v-icon
+            >
+            <v-progress-circular
+              v-else
+              indeterminate
+              color="primary"
+              size="20"
+            ></v-progress-circular>
+          </template>
+        </v-list-item>
+        <v-list-item title="Materializing bibliography">
+          <template #prepend>
+            <v-icon v-if="model?.materialization_steps.materialize_bibliography" color="success"
+              >mdi-check-circle</v-icon
+            >
+            <v-progress-circular
+              v-else
+              indeterminate
+              color="primary"
+              size="20"
+            ></v-progress-circular>
+          </template>
+        </v-list-item>
+        <v-list-item title="Generating occurrence codes">
+          <template #prepend>
+            <v-icon v-if="model?.materialization_steps.refresh_occurrence_codes" color="success"
+              >mdi-check-circle</v-icon
+            >
+            <v-progress-circular
+              v-else
+              indeterminate
+              color="primary"
+              size="20"
+            ></v-progress-circular>
+          </template>
+        </v-list-item>
+      </v-list>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { BatchImportsService, BatchSnapshot } from '@/api'
+import { BatchImportsService, BatchSnapshot, DownloadRawFileData } from '@/api'
 import {
   getImportStatusOptions,
   materializeBatchMutation
@@ -83,12 +188,16 @@ import AddBibliographyDialog from '../components/AddBibliographyDialog.vue'
 import BibliographyResolver from '../components/BibliographyResolver.vue'
 import SamplingMetadataResolver from '../components/SamplingMetadataResolver.vue'
 import TaxonomyResolver from '../components/TaxonomyResolver.vue'
+import { client } from '@/api/gen/client.gen.ts'
+import { useRouter } from 'vuetify/lib/composables/router.mjs'
 
 const { uuid } = defineProps<{
   uuid: UUID
 }>()
 
 const model = ref<BatchSnapshot>()
+
+const router = useRouter()
 
 type Tabs = 'overview' | 'taxonomy' | 'sampling-metadata'
 const tab = ref<Tabs>('overview')
@@ -120,6 +229,14 @@ onMounted(async () => {
     }
   })
 })
+
+function downloadRawFile() {
+  const url = client.buildUrl<DownloadRawFileData>({
+    path: { id: uuid },
+    url: '/import-batches/{id}/raw'
+  })
+  window.open(url, '_blank')
+}
 </script>
 
 <style scoped lang="scss"></style>

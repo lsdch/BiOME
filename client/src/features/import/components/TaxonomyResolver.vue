@@ -146,7 +146,7 @@ const { data: taxonResolutions, refetch } = useQuery(
 )
 
 watch(
-  () => progress,
+  () => progress?.Completed,
   (newProgress) => {
     // if (newProgress?.Status === 'completed') {
     refetch()

@@ -9,14 +9,17 @@ import (
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/services"
+	"github.com/lsdch/biome/services/storage"
 	"github.com/lsdch/biome/stores"
+	"github.com/sirupsen/logrus"
 )
 
 type ImportManager struct {
 	db *db.DB
 	mu sync.RWMutex
 
-	batchStore *stores.BatchesStore
+	batchStore  *stores.BatchesStore
+	fileStorage storage.RawFileStorage
 
 	taxonResolver TaxonResolver
 	bibliography  *BibliographyResolver
@@ -34,6 +37,7 @@ func NewImportManager(db *db.DB,
 	bibliography *BibliographyResolver,
 	samplings *services.SamplingService,
 	occurrences *services.OccurrencesService,
+	storage storage.RawFileStorage,
 ) *ImportManager {
 	return &ImportManager{
 		mu:            sync.RWMutex{},
@@ -43,9 +47,14 @@ func NewImportManager(db *db.DB,
 		bibliography:  bibliography,
 		samplings:     samplings,
 		occurrences:   occurrences,
+		fileStorage:   storage,
 		runners:       make(map[uuid.UUID]*ImportRunner),
 		broker:        NewEventBroker[BatchSnapshot](),
 	}
+}
+
+func (m *ImportManager) FileStorage() storage.RawFileStorage {
+	return m.fileStorage
 }
 
 func (m *ImportManager) addRunner(runner *ImportRunner) {
@@ -55,12 +64,27 @@ func (m *ImportManager) addRunner(runner *ImportRunner) {
 	m.runners[runner.Batch().ID] = runner
 }
 
-func (m *ImportManager) NewBatch(ctx context.Context, userID uuid.UUID, w models.ImportBatchInput) (*ImportRunner, error) {
-	batch, err := m.batchStore.CreateBatch(ctx, m.db, userID, w)
+func (m *ImportManager) NewBatch(ctx context.Context, userID uuid.UUID, w models.ImportBatchWithFileInput) (*ImportRunner, error) {
+	batchID := w.ID()
+	logrus.Debugf("Creating new import batch with ID %s", batchID.String())
+	hash, err := m.fileStorage.Store(ctx, w.FileKey(), w.File.Reader)
 	if err != nil {
 		return nil, err
 	}
-	runner := NewImportRunner(context.Background(), m.db, m.broker, batch, m.batchStore, m.samplings, m.taxonResolver, m.bibliography, m.occurrences)
+	wWithHash := w.WithFileHash(hash)
+	batch, err := m.batchStore.CreateBatch(ctx, m.db, userID, wWithHash)
+	if err != nil {
+		if err := m.fileStorage.Delete(context.Background(), w.FileKey()); err != nil {
+			logrus.Errorf("failed to delete file after failed batch creation: %v", err)
+		}
+		return nil, err
+	}
+	runner := NewImportRunner(context.Background(),
+		m.db, m.broker,
+		batch, m.batchStore,
+		m.samplings, m.taxonResolver, m.bibliography,
+		m.occurrences,
+		m.fileStorage)
 	m.addRunner(runner)
 	return runner, nil
 }
@@ -74,7 +98,12 @@ func (m *ImportManager) Restore(ctx context.Context) error {
 		if batch.Status == biomedb.ImportBatchStatusCompleted {
 			continue
 		}
-		runner := NewImportRunner(ctx, m.db, m.broker, batch, m.batchStore, m.samplings, m.taxonResolver, m.bibliography, m.occurrences)
+		runner := NewImportRunner(ctx,
+			m.db, m.broker,
+			batch, m.batchStore,
+			m.samplings, m.taxonResolver, m.bibliography,
+			m.occurrences,
+			m.fileStorage)
 		runner.Run()
 		m.addRunner(runner)
 	}

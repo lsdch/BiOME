@@ -34,18 +34,28 @@ FROM taxonomy,
 
 -- name: InitImportBatch :one
 INSERT INTO import_batches (
+        id,
         label,
         description,
         assembled_by,
         created_by,
-        taxonomic_scope
+        taxonomic_scope,
+        imported_file_name,
+        imported_file_size,
+        imported_file_hash,
+        imported_file_content_type
     )
 VALUES (
+        @id,
         @label,
         @description,
         @assembled_by::TEXT [],
         @created_by::UUID,
-        @taxonomic_scope
+        @taxonomic_scope,
+        @imported_file_name,
+        @imported_file_size,
+        @imported_file_hash,
+        @imported_file_content_type
     )
 RETURNING *;
 
