@@ -5,14 +5,31 @@ import (
 	"fmt"
 	"net/url"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/go-playground/validator/v10"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/services/crossref"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
+
+var validate = validator.
+	New(validator.WithRequiredStructEnabled(), validator.WithTagNameFuncBlankOmit())
+
+type Validable interface {
+	Valid() bool
+}
+
+func validateEnum(fl validator.FieldLevel) bool {
+	validable, ok := fl.Field().Interface().(Validable)
+	if ok {
+		return validable.Valid()
+	}
+	return true
+}
 
 type AppEnv string
 
@@ -21,15 +38,24 @@ const (
 	EnvProd AppEnv = "prod"
 )
 
+func (e AppEnv) Valid() bool {
+	switch e {
+	case EnvDev, EnvProd:
+		return true
+	default:
+		return false
+	}
+}
+
 type APIConfig struct {
-	BasePath     string `mapstructure:"API_BASE_PATH"`
-	Host         string `mapstructure:"API_HOST"`
-	Port         string `mapstructure:"API_PORT"`
-	Version      string `mapstructure:"VERSION"`
-	Title        string `mapstructure:"API_TITLE"`
+	BasePath     string `mapstructure:"API_BASE_PATH" validate:"required"`
+	Host         string `mapstructure:"API_HOST" validate:"required"`
+	Port         string `mapstructure:"API_PORT" validate:"required"`
+	Version      string `mapstructure:"VERSION" validate:"required,semver"`
+	Title        string `mapstructure:"API_TITLE" validate:"required,min=3"`
 	Description  string `mapstructure:"API_DESCRIPTION"`
-	ContactName  string `mapstructure:"API_CONTACT_NAME"`
-	ContactEmail string `mapstructure:"API_CONTACT_EMAIL"`
+	ContactName  string `mapstructure:"API_CONTACT_NAME" validate:"required"`
+	ContactEmail string `mapstructure:"API_CONTACT_EMAIL" validate:"required,email"`
 }
 
 func (c APIConfig) ToHumaConfig() huma.Config {
@@ -68,30 +94,30 @@ func (c APIConfig) ToHumaConfig() huma.Config {
 }
 
 type DBConfig struct {
-	DSN             string        `mapstructure:"DSN"`
-	MaxConns        int32         `mapstructure:"MAX_CONNS"`
-	MinConns        int32         `mapstructure:"MIN_CONNS"`
+	DSN             string        `mapstructure:"DSN" validate:"required"`
+	MaxConns        int32         `mapstructure:"MAX_CONNS" validate:"required,gt=0,gtefield=MinConns"`
+	MinConns        int32         `mapstructure:"MIN_CONNS" validate:"gt=0"`
 	MaxConnLifetime time.Duration `mapstructure:"MAX_CONN_LIFETIME"`
 	MaxConnIdleTime time.Duration `mapstructure:"MAX_CONN_IDLE_TIME"`
-	HealthTimeout   time.Duration `mapstructure:"HEALTH_TIMEOUT"`
+	HealthTimeout   time.Duration `mapstructure:"HEALTH_TIMEOUT" validate:"gt=0"`
 }
 
 type UserBootstrap struct {
-	Login     string          `mapstructure:"login"`
-	Email     string          `mapstructure:"email"`
-	Password  string          `mapstructure:"password"`
-	Role      models.UserRole `mapstructure:"role"`
-	FirstName string          `mapstructure:"first_name"`
-	LastName  string          `mapstructure:"last_name"`
+	Login     string          `mapstructure:"login" validate:"required"`
+	Email     string          `mapstructure:"email" validate:"required,email"`
+	Password  string          `mapstructure:"password" validate:"required,min=6"`
+	Role      models.UserRole `mapstructure:"role" validate:"required,enum"`
+	FirstName string          `mapstructure:"first_name" validate:"required,min=2"`
+	LastName  string          `mapstructure:"last_name" validate:"required,min=2"`
 }
 
 type CountriesBootstrap struct {
-	CountriesJSON_URL      string `mapstructure:"COUNTRIES_JSON_URL"`
-	CountryJSON_CachePath  string `mapstructure:"COUNTRIES_JSON_CACHE_PATH"`
-	CountryNameKey         string `mapstructure:"COUNTRY_NAME_KEY"`
-	CountryCodeKey         string `mapstructure:"COUNTRY_CODE_KEY"`
-	CountryContinentKey    string `mapstructure:"COUNTRY_CONTINENT_KEY"`
-	CountrySubcontinentKey string `mapstructure:"COUNTRY_SUBCONTINENT_KEY"`
+	CountriesJSON_URL      string `mapstructure:"COUNTRIES_JSON_URL" validate:"required,url"`
+	CountryJSON_CachePath  string `mapstructure:"COUNTRIES_JSON_CACHE_PATH" validate:"required"`
+	CountryNameKey         string `mapstructure:"COUNTRY_NAME_KEY" validate:"required"`
+	CountryCodeKey         string `mapstructure:"COUNTRY_CODE_KEY" validate:"required"`
+	CountryContinentKey    string `mapstructure:"COUNTRY_CONTINENT_KEY" validate:"required"`
+	CountrySubcontinentKey string `mapstructure:"COUNTRY_SUBCONTINENT_KEY" validate:"required"`
 }
 type BootstrapConfig struct {
 	Countries CountriesBootstrap `mapstructure:"countries"`
@@ -99,81 +125,66 @@ type BootstrapConfig struct {
 }
 
 type AuthTokensConfig struct {
-	AuthTokenCookieName    string        `mapstructure:"AUTH_TOKEN_COOKIE_NAME"`
-	AuthTokenLifetime      time.Duration `mapstructure:"AUTH_TOKEN_LIFETIME"`
-	SecretKey              string        `mapstructure:"JWT_SECRET_KEY"`
-	RefreshTokenCookieName string        `mapstructure:"REFRESH_TOKEN_COOKIE_NAME"`
-	RefreshTokenLifetime   time.Duration `mapstructure:"REFRESH_TOKEN_LIFETIME"`
-	RefreshTokenPepper     string        `mapstructure:"REFRESH_TOKEN_PEPPER"`
+	AuthTokenCookieName    string        `mapstructure:"AUTH_TOKEN_COOKIE_NAME" validate:"required,min=3"`
+	AuthTokenLifetime      time.Duration `mapstructure:"AUTH_TOKEN_LIFETIME" validate:"gt=0"`
+	SecretKey              string        `mapstructure:"JWT_SECRET_KEY" validate:"required,min=32"`
+	RefreshTokenCookieName string        `mapstructure:"REFRESH_TOKEN_COOKIE_NAME" validate:"required,min=3"`
+	RefreshTokenLifetime   time.Duration `mapstructure:"REFRESH_TOKEN_LIFETIME" validate:"gt=0"`
+	RefreshTokenPepper     string        `mapstructure:"REFRESH_TOKEN_PEPPER" validate:"required,min=8"`
 }
 
 type SMTPConfig struct {
-	SMTPHost     string `mapstructure:"SMTP_HOST"`
-	SMTPPort     int    `mapstructure:"SMTP_PORT"`
-	SMTPUser     string `mapstructure:"SMTP_USER"`
-	SMTPPassword string `mapstructure:"SMTP_PASSWORD"`
+	SMTPHost     string `mapstructure:"SMTP_HOST" validate:"required,hostname"`
+	SMTPPort     uint   `mapstructure:"SMTP_PORT" validate:"required,port"`
+	SMTPUser     string `mapstructure:"SMTP_USER" validate:"required,min=3"`
+	SMTPPassword string `mapstructure:"SMTP_PASSWORD" validate:"required,min=3"`
 }
 
 type InstanceConfig struct {
-	AppName                string  `mapstructure:"APP_NAME"`
-	AppSubtitle            *string `mapstructure:"APP_SUBTITLE"`
-	AppDescription         *string `mapstructure:"APP_DESCRIPTION"`
-	AdminEmail             string  `mapstructure:"ADMIN_EMAIL"`
+	AppName                string  `mapstructure:"APP_NAME" validate:"required,min=3"`
+	AppSubtitle            *string `mapstructure:"APP_SUBTITLE" validate:"omitempty,min=3"`
+	AppDescription         *string `mapstructure:"APP_DESCRIPTION" validate:"omitempty"`
+	AdminEmail             string  `mapstructure:"ADMIN_EMAIL" validate:"required,email"`
 	IsPublic               bool    `mapstructure:"IS_PUBLIC"`
 	AccountRequestsEnabled bool    `mapstructure:"ACCOUNT_REQUESTS_ENABLED"`
-	MailFromAddress        string  `mapstructure:"MAIL_FROM_ADDRESS"`
-	MailFromName           string  `mapstructure:"MAIL_FROM_NAME"`
+	MailFromAddress        string  `mapstructure:"MAIL_FROM_ADDRESS" validate:"required,email"`
+	MailFromName           string  `mapstructure:"MAIL_FROM_NAME" validate:"required,min=3"`
 	MolecularDataEnabled   bool    `mapstructure:"MOLECULAR_DATA_ENABLED"`
 }
 
 type GeoapifyConfig struct {
 	GeoApifyApiKey  string `mapstructure:"GEOAPIFY_API_KEY"`
-	DailyUsageLimit int32  `mapstructure:"GEOAPIFY_DAILY_USAGE_LIMIT"`
+	DailyUsageLimit int32  `mapstructure:"GEOAPIFY_DAILY_USAGE_LIMIT" validate:"min=0"`
 }
 
 type GBIFConfig struct {
-	UserAgent          string `mapstructure:"GBIF_USER_AGENT"`
-	BackboneDatasetKey string `mapstructure:"GBIF_BACKBONE_DATASET_KEY"`
-	MaxConcurrent      int    `mapstructure:"GBIF_MAX_CONCURRENT"`
+	UserAgent          string `mapstructure:"GBIF_USER_AGENT" validate:"required"`
+	BackboneDatasetKey string `mapstructure:"GBIF_BACKBONE_DATASET_KEY" validate:"required,uuid"`
+	MaxConcurrent      int    `mapstructure:"GBIF_MAX_CONCURRENT" validate:"min=1"`
 }
 
 type Config struct {
-	Instance             InstanceConfig   `mapstructure:"instance"`
-	appPublicBaseURL     string           `mapstructure:"APP_PUBLIC_BASE_URL"`
+	Instance             InstanceConfig   `mapstructure:"instance" validate:"required"`
+	appPublicBaseURL     string           `mapstructure:"APP_PUBLIC_BASE_URL" validate:"required,url"`
 	AppPublicBaseURL     url.URL          `json:"-"`
-	DB                   DBConfig         `mapstructure:"DB"`
-	RawFileStorageRoot   string           `mapstructure:"RAW_FILE_STORAGE_ROOT"`
-	SMTP                 SMTPConfig       `mapstructure:"SMTP"`
-	Env                  AppEnv           `mapstructure:"ENV"`
-	API                  APIConfig        `mapstructure:"API"`
-	AuthTokens           AuthTokensConfig `mapstructure:"auth_tokens"`
-	GeneratedTokenLength uint             `mapstructure:"TOKEN_LENGTH"`
-	Geoapify             GeoapifyConfig   `mapstructure:"geoapify"`
-	GBIF                 GBIFConfig       `mapstructure:"gbif"`
-	CountriesJSON_URL    string           `mapstructure:"COUNTRIES_JSON_URL"`
-	Bootstrap            BootstrapConfig  `mapstructure:"bootstrap"`
-	CrossRef             crossref.Config  `mapstructure:"crossref"`
+	DB                   DBConfig         `mapstructure:"DB" validate:"required"`
+	RawFileStorageRoot   string           `mapstructure:"RAW_FILE_STORAGE_ROOT" validate:"required"`
+	SMTP                 SMTPConfig       `mapstructure:"SMTP" validate:"required"`
+	Env                  AppEnv           `mapstructure:"ENV" validate:"required,enum"`
+	API                  APIConfig        `mapstructure:"API" validate:"required"`
+	AuthTokens           AuthTokensConfig `mapstructure:"auth_tokens" validate:"required"`
+	GeneratedTokenLength uint             `mapstructure:"TOKEN_LENGTH" validate:"min=16"`
+	Geoapify             GeoapifyConfig   `mapstructure:"geoapify" validate:"required"`
+	GBIF                 GBIFConfig       `mapstructure:"gbif" validate:"required"`
+	Bootstrap            BootstrapConfig  `mapstructure:"bootstrap" validate:"required"`
+	CrossRef             crossref.Config  `mapstructure:"crossref" validate:"required"`
 }
 
 func (c *Config) Validate() error {
-	if c.AuthTokens.SecretKey == "" {
-		return fmt.Errorf("missing JWT_SECRET_KEY")
+	if err := validate.RegisterValidation("enum", validateEnum); err != nil {
+		return err
 	}
-	if u, err := url.Parse(c.appPublicBaseURL); err != nil {
-		return fmt.Errorf("invalid APP_PUBLIC_BASE_URL: %w", err)
-	} else {
-		c.AppPublicBaseURL = *u
-	}
-	if c.GeneratedTokenLength < 16 {
-		return fmt.Errorf("TOKEN_LENGTH must be at least 16")
-	}
-	if c.Geoapify.DailyUsageLimit <= 0 {
-		return fmt.Errorf("GEOAPIFY_DAILY_USAGE_LIMIT must be greater than 0")
-	}
-	if c.GBIF.MaxConcurrent <= 0 {
-		return fmt.Errorf("GBIF_MAX_CONCURRENT must be greater than 0")
-	}
-	return nil
+	return validate.Struct(c)
 }
 
 func LoadConfig(dir string, name string) (Config, error) {
@@ -181,6 +192,9 @@ func LoadConfig(dir string, name string) (Config, error) {
 	v.AddConfigPath(dir)
 	v.SetConfigName(name)
 	v.SetConfigType("yaml")
+
+	v.SetEnvPrefix("BIOME")
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	v.AutomaticEnv()
 
@@ -211,8 +225,10 @@ func LoadConfig(dir string, name string) (Config, error) {
 		return Config{}, err
 	}
 
-	cfgJSON, _ := json.MarshalIndent(cfg, "", "\t")
-	logrus.Infof("Loaded config :\n%s", cfgJSON)
+	if cfg.Env == EnvDev {
+		cfgJSON, _ := json.MarshalIndent(cfg, "", "\t")
+		logrus.Infof("Loaded config :\n%s", cfgJSON)
+	}
 
 	return cfg, cfg.Validate()
 }
