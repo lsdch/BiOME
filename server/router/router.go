@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"path"
@@ -11,6 +12,7 @@ import (
 	"reflect"
 	"slices"
 
+	"github.com/goccy/go-yaml"
 	"github.com/lsdch/biome/lib/app_errors"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/middleware"
@@ -96,24 +98,60 @@ func New(r *gin.Engine, basePath string, config huma.Config) Router {
 	}
 }
 
-func (r *Router) WriteSpecJSON(outputPath string) error {
+type OpenAPIFormat string
+
+const (
+	OpenAPIFormatJSON OpenAPIFormat = "json"
+	OpenAPIFormatYAML OpenAPIFormat = "yaml"
+)
+
+func (r *Router) WriteSpec(outputPath string, format OpenAPIFormat) error {
 	if err := os.MkdirAll(filepath.Dir(outputPath), os.ModeDir); err != nil {
 		return err
 	}
+
+	fileExt := filepath.Ext(outputPath)
+	switch format {
+	case OpenAPIFormatJSON:
+		if fileExt != ".json" {
+			outputPath += ".json"
+		}
+	case OpenAPIFormatYAML:
+		if fileExt != ".yaml" && fileExt != ".yml" {
+			outputPath += ".yaml"
+		}
+	default:
+		return fmt.Errorf("unsupported OpenAPI format: %s", format)
+	}
+
 	file, err := os.Create(outputPath)
 	if err != nil {
 		return err
 	}
-	var indentedJSON bytes.Buffer
-	bytes, err := r.API.OpenAPI().MarshalJSON()
-	if err != nil {
+
+	defer file.Close()
+	switch format {
+	case OpenAPIFormatJSON:
+		var indentedJSON bytes.Buffer
+		bytes, err := r.API.OpenAPI().MarshalJSON()
+		if err != nil {
+			return err
+		}
+		if err = json.Indent(&indentedJSON, bytes, "", "\t"); err != nil {
+			return err
+		}
+		_, err = file.Write(indentedJSON.Bytes())
 		return err
-	}
-	if err = json.Indent(&indentedJSON, bytes, "", "\t"); err != nil {
+	case OpenAPIFormatYAML:
+		bytes, err := yaml.Marshal(r.API.OpenAPI())
+		if err != nil {
+			return err
+		}
+		_, err = file.Write(bytes)
 		return err
+	default:
+		return fmt.Errorf("unsupported OpenAPI format: %s", format)
 	}
-	_, err = file.Write(indentedJSON.Bytes())
-	return err
 }
 
 func (r *Router) RouteGroup(prefix string) Group {

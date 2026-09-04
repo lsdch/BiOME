@@ -1,0 +1,6008 @@
+openapi: 3.1.0
+info:
+  title: BiOME API
+  description: "BiOME API: Biodiversity and Occurrences for Molecular Ecology"
+  contact:
+    name: Louis Duchemin
+    email: ls.duchemin@gmail.com
+  version: 0.0.0
+servers:
+- url: //localhost:5173/api/v1
+paths:
+  /abiotics/parameters:
+    get:
+      tags:
+      - Abiotics
+      summary: List abiotic parameters
+      operationId: ListAbioticParameters
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AbioticParam"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /access-points:
+    get:
+      tags:
+      - Samplings
+      summary: List access points
+      description: List all unique access points for samplings.
+      operationId: ListAccessPoints
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /accounts:
+    get:
+      tags:
+      - Accounts
+      summary: List all users
+      operationId: ListUsers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Authenticate a user and return a JWT token
+      operationId: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCredentials"
+        required: true
+      responses:
+        "200":
+          description: OK
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResult"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /auth/logout:
+    post:
+      tags:
+      - Authentication
+      summary: Invalidate the current user's session
+      operationId: Logout
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /auth/me:
+    get:
+      tags:
+      - Authentication
+      summary: Get the current authenticated user's information
+      operationId: GetCurrentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /auth/refresh:
+    post:
+      tags:
+      - Authentication
+      summary: Refresh the current user's session
+      operationId: RefreshSession
+      parameters:
+      - name: X-Refresh-Token
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: X-Session-ID
+        in: header
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionTokens"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /datasets:
+    get:
+      tags:
+      - Datasets
+      summary: List datasets
+      operationId: ListDatasets
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dataset"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /datasets/{ulid}:
+    get:
+      tags:
+      - Datasets
+      summary: Get dataset by ID
+      operationId: GetDatasetByID
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dataset"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /datasets/{ulid}/occurrences:
+    get:
+      tags:
+      - Datasets
+      summary: Load occurrences for dataset
+      operationId: LoadOccurrencesForDataset
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Occurrence"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /fixatives:
+    get:
+      tags:
+      - Sampling
+      summary: List sampling fixatives
+      operationId: ListFixatives
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Fixative"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+    post:
+      tags:
+      - Sampling
+      summary: Create a new sampling fixative
+      operationId: CreateFixative
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FixativeInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fixative"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+  /fixatives/{code}:
+    delete:
+      tags:
+      - Sampling
+      summary: Delete a sampling fixative by code
+      operationId: DeleteFixative
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+    patch:
+      tags:
+      - Sampling
+      summary: Update a sampling fixative by code
+      operationId: UpdateFixative
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FixativeUpdateParams"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Fixative"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+  /geoapify/reverse-geocode:
+    get:
+      tags:
+      - Services
+      summary: Reverse geocode coordinates using Geoapify API
+      operationId: ReverseGeocode
+      parameters:
+      - name: latitude
+        in: query
+        explode: false
+        schema:
+          type: number
+          format: double
+      - name: longitude
+        in: query
+        explode: false
+        schema:
+          type: number
+          format: double
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeoapifyResult"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /geoapify/reverse-geocode/batch:
+    post:
+      tags:
+      - Services
+      summary: Batch reverse geocode coordinates using Geoapify API
+      operationId: BatchReverseGeocode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/GeoapifyCoords"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GeoapifyResult"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /geoapify/status:
+    get:
+      tags:
+      - Services
+      summary: Get Geoapify API status
+      operationId: GetGeoapifyStatus
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeoapifyStatus"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /geoapify/usage/history:
+    get:
+      tags:
+      - Services
+      summary: List Geoapify usage history
+      operationId: ListGeoapifyUsage
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GeoapifyUsage"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /habitats:
+    get:
+      tags:
+      - Habitats
+      summary: Get all habitat groups with their elements
+      operationId: GetHabitatGroups
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HabitatGroupWithElements"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+    post:
+      tags:
+      - Habitats
+      summary: Create a new habitat group with its elements
+      operationId: CreateHabitatGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HabitatGroupInput"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /habitats/{id}:
+    delete:
+      tags:
+      - Habitats
+      summary: Delete a habitat group by its ID
+      operationId: DeleteHabitatGroup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+    patch:
+      tags:
+      - Habitats
+      summary: Update a habitat group by its ID
+      operationId: UpdateHabitatGroup
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HabitatGroupUpdate"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /import-batches:
+    get:
+      tags:
+      - Imports
+      summary: List import batches
+      operationId: ListImportBatches
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ImportBatch"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /import-batches/with-content:
+    get:
+      tags:
+      - Imports
+      summary: List import batches with content summary
+      operationId: ListImportBatchesWithContent
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ImportBatchWithContent"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /import-batches/{id}:
+    get:
+      tags:
+      - Imports
+      summary: Get a specific import batch
+      operationId: GetImportBatch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportBatch"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+    delete:
+      tags:
+      - Imports
+      summary: Delete an import batch
+      operationId: DeleteImportBatch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+  /import-batches/{id}/raw:
+    get:
+      tags:
+      - Imports
+      summary: Download the raw file for an import batch
+      operationId: DownloadRawFile
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /import-batches/{id}/with-content:
+    get:
+      tags:
+      - Imports
+      summary: Get a specific import batch with content summary
+      operationId: GetImportBatchWithContent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportBatchWithContent"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /imports/batch/{id}/status/track:
+    get:
+      tags:
+      - Batch Imports
+      summary: Get import status updates via Server-Sent Events (SSE)
+      operationId: TrackImportStatus
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            text/event-stream:
+              schema:
+                $ref: "#/components/schemas/BatchSnapshot"
+        default:
+          description: Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches:
+    get:
+      tags:
+      - Batch Imports
+      summary: List import batchs
+      operationId: ListImports
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BatchSnapshot"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+    post:
+      tags:
+      - Batch Imports
+      summary: Import occurrence data from CSV
+      operationId: ImportOccurrencesCSV
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                batch:
+                  $ref: "#/components/schemas/ImportBatchInput"
+                file:
+                  type: string
+                  format: binary
+                  contentEncoding: binary
+                merge_undated_samplings:
+                  type: boolean
+                  description: If true, undated samplings with the same location and method will be merged into a single sampling.
+                quotes:
+                  type: string
+                separator:
+                  type: string
+                taxon_definitions:
+                  type: array
+                  description: List of taxon definitions to resolve inconsistent taxa in the import batch.
+                  items:
+                    $ref: "#/components/schemas/TaxonDefinition"
+              required:
+              - batch
+              - file
+              - separator
+              - quotes
+            encoding:
+              batch:
+                contentType: application/json
+              file:
+                contentType: text/tab-separated-values
+              merge_undated_samplings:
+                contentType: text/plain
+              quotes:
+                contentType: text/plain
+              separator:
+                contentType: text/plain
+              taxon_definitions:
+                contentType: application/json
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportBatch"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches/by-user:
+    get:
+      tags:
+      - Batch Imports
+      summary: List import batchs for the current user
+      operationId: ListImportsForCurrentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BatchSnapshot"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches/imports/batch/{id}/bibliography:
+    get:
+      tags:
+      - Batch Imports
+      summary: Get bibliography resolution state and candidates
+      operationId: GetBibliographyResolutions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicationResolutionWithCandidates"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+    patch:
+      tags:
+      - Batch Imports
+      summary: Resolve publication for import ID
+      operationId: ResolvePublication
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolveInput"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches/imports/batch/{id}/fixatives:
+    get:
+      tags:
+      - Batch Imports
+      summary: Get sampling fixatives resolution state
+      operationId: GetFixativesResolution
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SamplingFixativeResolution"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+    patch:
+      tags:
+      - Batch Imports
+      summary: Resolve sampling fixative for import ID
+      operationId: ResolveFixative
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SamplingFixativeResolutionInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SamplingFixativeResolution"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches/imports/batch/{id}/sampling-methods:
+    get:
+      tags:
+      - Batch Imports
+      summary: Get sampling methods resolution state
+      operationId: GetMethodsResolution
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SamplingMethodResolution"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+    patch:
+      tags:
+      - Batch Imports
+      summary: Resolve sampling method for import ID
+      operationId: ResolveMethod
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SamplingMethodResolutionInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SamplingMethodResolution"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches/imports/batch/{id}/taxonomy:
+    get:
+      tags:
+      - Batch Imports
+      summary: Get taxonomy resolution state and candidates
+      operationId: GetTaxonResolutions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaxonResolutionWithCandidates"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+    patch:
+      tags:
+      - Batch Imports
+      summary: Resolve taxon for import ID
+      operationId: ResolveTaxon
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResolveInput"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches/imports/batch/{id}/taxonomy/candidates:
+    post:
+      tags:
+      - Batch Imports
+      summary: Create a manual taxon candidate for import ID
+      operationId: CreateManualTaxonCandidate
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaxonStagingParams"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches/{id}:
+    delete:
+      tags:
+      - Batch Imports
+      summary: Delete the import batch
+      description: Delete the import batch and all associated data, including staging tables and taxon resolutions. This operation is irreversible.
+      operationId: DeleteBatchWorkflow
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /imports/batches/{id}/bibliography:
+    post:
+      tags:
+      - Batch Imports
+      summary: Add bibliography to occurrences batch
+      description: Add bibliography to occurrences batch. This operation will stage the publications and generate candidates for resolution.
+      operationId: AddBibliographyCSV
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  contentEncoding: binary
+                quotes:
+                  type: string
+                separator:
+                  type: string
+              required:
+              - file
+              - separator
+              - quotes
+            encoding:
+              file:
+                contentType: text/tab-separated-values
+              quotes:
+                contentType: text/plain
+              separator:
+                contentType: text/plain
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportBatch"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /imports/batches/{id}/materialize:
+    post:
+      tags:
+      - Batch Imports
+      summary: Materialize the import batch into the database
+      description: Materialize the import batch into the database, creating samplings, occurrences, and resolving taxa. This operation is irreversible.
+      operationId: MaterializeBatch
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportBatch"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+  /imports/batches/{id}/status:
+    get:
+      tags:
+      - Batch Imports
+      summary: Get the current status of the import batch
+      operationId: GetImportStatus
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchSnapshot"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /locations/countries:
+    get:
+      tags:
+      - Location
+      summary: List countries
+      operationId: ListCountries
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Country"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /locations/countries/from-coordinates:
+    get:
+      tags:
+      - Location
+      summary: Get country from coordinates
+      operationId: CoordinatesToCountry
+      parameters:
+      - name: latitude
+        in: query
+        explode: false
+        schema:
+          type: number
+          format: double
+      - name: longitude
+        in: query
+        explode: false
+        schema:
+          type: number
+          format: double
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Country"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /locations/countries/summary:
+    get:
+      tags:
+      - Location
+      summary: List countries summary
+      operationId: ListCountriesSummary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountrySummary"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences:
+    get:
+      tags:
+      - Occurrences
+      summary: List occurrences with optional filters and pagination
+      operationId: ListOccurrences
+      parameters:
+      - name: batches
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa_whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: countries
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: date
+        in: query
+        style: deepObject
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DateFilterParams"
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: sort
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceSortKey"
+      - name: sort_direction
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortOrder"
+      - name: search_term
+        in: query
+        explode: false
+        schema:
+          type: string
+      - name: datasets
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: confer
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: type_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      - name: taxon_rank
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonRank"
+      - name: taxon_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonStatus"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedListOccurrence"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+    post:
+      tags:
+      - Occurrences
+      summary: Create a new occurrence with its sampling and taxon
+      operationId: CreateOccurrence
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FullOccurrenceInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OccurrenceWithDetails"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /occurrences/by-sampling:
+    get:
+      tags:
+      - Occurrences
+      summary: List samplings with occurrences
+      operationId: ListSamplingsWithOccurrences
+      parameters:
+      - name: batches
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa_whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: countries
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: date
+        in: query
+        style: deepObject
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DateFilterParams"
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: sort
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceSortKey"
+      - name: sort_direction
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortOrder"
+      - name: search_term
+        in: query
+        explode: false
+        schema:
+          type: string
+      - name: datasets
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: confer
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: type_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      - name: taxon_rank
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonRank"
+      - name: taxon_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonStatus"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SamplingWithOccurrences"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/collection-names:
+    get:
+      tags:
+      - Occurrences
+      summary: List all unique collection names
+      operationId: ListCollectionNames
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/export:
+    get:
+      tags:
+      - Occurrences
+      summary: Export samplings with occurrences
+      operationId: ExportSamplingsWithOccurrences
+      parameters:
+      - name: batches
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa_whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: countries
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: date
+        in: query
+        style: deepObject
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DateFilterParams"
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: sort
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceSortKey"
+      - name: sort_direction
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortOrder"
+      - name: search_term
+        in: query
+        explode: false
+        schema:
+          type: string
+      - name: datasets
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: confer
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: type_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      - name: taxon_rank
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonRank"
+      - name: taxon_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonStatus"
+      - name: format
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/ExportFormat"
+          default: json
+      - name: filename
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: string
+      - name: delimiter
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/CSVDelimiter"
+          default: 	
+      - name: quoteChar
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/CSVQuoteChar"
+          default: "\""
+      responses:
+        "200":
+          description: OK
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/h3-samplings/{resolution}:
+    get:
+      tags:
+      - Occurrences
+      summary: List samplings aggregated by H3 cells
+      operationId: ListSamplingsH3
+      parameters:
+      - name: batches
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa_whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: countries
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: date
+        in: query
+        style: deepObject
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DateFilterParams"
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: resolution
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0.0
+          maximum: 12.0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/H3CellWithRichness"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/h3/{resolution}:
+    get:
+      tags:
+      - Occurrences
+      summary: List occurrences aggregated by H3 cells
+      operationId: ListOccurrencesH3
+      parameters:
+      - name: batches
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa_whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: countries
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: date
+        in: query
+        style: deepObject
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DateFilterParams"
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: sort
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceSortKey"
+      - name: sort_direction
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortOrder"
+      - name: search_term
+        in: query
+        explode: false
+        schema:
+          type: string
+      - name: datasets
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: confer
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: type_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      - name: taxon_rank
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonRank"
+      - name: taxon_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonStatus"
+      - name: resolution
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0.0
+          maximum: 12.0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/H3CellWithRichness"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/h3/{resolution}/{cell}/data:
+    get:
+      tags:
+      - Occurrences
+      summary: List samplings with occurrences at a specific H3 cell
+      operationId: ListSamplingsWithOccurrencesAtCell
+      parameters:
+      - name: batches
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa_whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: countries
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: date
+        in: query
+        style: deepObject
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DateFilterParams"
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: sort
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceSortKey"
+      - name: sort_direction
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortOrder"
+      - name: search_term
+        in: query
+        explode: false
+        schema:
+          type: string
+      - name: datasets
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: confer
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: type_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      - name: taxon_rank
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonRank"
+      - name: taxon_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonStatus"
+      - name: resolution
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0.0
+          maximum: 12.0
+      - name: cell
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SamplingWithOccurrences"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/h3/{resolution}/{cell}/taxa:
+    get:
+      tags:
+      - Occurrences
+      summary: List taxa occurring at a specific H3 cell with optional filters and pagination
+      operationId: ListOccurringTaxaAtCell
+      parameters:
+      - name: batches
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: target_taxa_whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: countries
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: date
+        in: query
+        style: deepObject
+        explode: false
+        schema:
+          $ref: "#/components/schemas/DateFilterParams"
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: sort
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceSortKey"
+      - name: sort_direction
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/SortOrder"
+      - name: search_term
+        in: query
+        explode: false
+        schema:
+          type: string
+      - name: datasets
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: taxa
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: whole_clade
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: confer
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: type_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      - name: taxon_rank
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonRank"
+      - name: taxon_status
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/TaxonStatus"
+      - name: resolution
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          minimum: 0.0
+          maximum: 12.0
+      - name: cell
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OccurrenceOverviewItem"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/item/{ulid}:
+    get:
+      tags:
+      - Occurrences
+      summary: Get Occurrence with all relevant metadata
+      operationId: GetOccurrence
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OccurrenceWithDetails"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/proximity:
+    get:
+      tags:
+      - Occurrences
+      summary: List samplings with occurrences within a certain distance of a given point
+      operationId: ListOccurrencesAtProximity
+      parameters:
+      - name: latitude
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: number
+          format: double
+      - name: longitude
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: number
+          format: double
+      - name: radius_meters
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: event_date
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/CompositeDate"
+      - name: date_interval_days
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: exclude_ids
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SamplingWithOccurrencesAndDistance"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/samplings/{uuid}:
+    post:
+      tags:
+      - Occurrences
+      summary: Create a new occurrence at a specific sampling point
+      operationId: CreateOccurrenceAtSampling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OccurrenceInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OccurrenceWithMetadata"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /occurrences/taxa-overview:
+    get:
+      tags:
+      - Occurrences
+      summary: Get an overview of occurrences count by taxa
+      operationId: OccurrencesTaxaOverview
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OccurrenceOverviewItem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /occurrences/{ulid}/datasets:
+    get:
+      tags:
+      - Occurrences
+      summary: Load datasets for occurrence
+      operationId: LoadDatasetsForOccurrence
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Dataset"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /proximity:
+    get:
+      tags:
+      - Samplings
+      summary: List samplings at proximity
+      description: List samplings at proximity to a given point, within a given radius and date range.
+      operationId: ListSamplingsAtProximity
+      parameters:
+      - name: latitude
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: number
+          format: double
+      - name: longitude
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: number
+          format: double
+      - name: radius_meters
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: event_date
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/CompositeDate"
+      - name: date_interval_days
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: exclude_ids
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SamplingWithDistance"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /proximity/h3:
+    get:
+      tags:
+      - Samplings
+      summary: List samplings at proximity (H3)
+      description: List H3 cells at proximity to a given point, within a given radius and date range.
+      operationId: ListSamplingsH3AtProximity
+      parameters:
+      - name: latitude
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: number
+          format: double
+      - name: longitude
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: number
+          format: double
+      - name: radius_meters
+        in: query
+        required: true
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: event_date
+        in: query
+        explode: false
+        schema:
+          $ref: "#/components/schemas/CompositeDate"
+      - name: date_interval_days
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: exclude_ids
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/H3CellWithRichnessAndDistance"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /publications:
+    get:
+      tags:
+      - Bibliography
+      summary: List bibliography
+      operationId: ListPublications
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Publication"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+    post:
+      tags:
+      - Bibliography
+      summary: Create a new publication
+      operationId: CreatePublication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePublicationParams"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Publication"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /publications/{id}:
+    delete:
+      tags:
+      - Bibliography
+      summary: Delete a publication by ID
+      operationId: DeletePublication
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+  /sampling-methods:
+    get:
+      tags:
+      - Sampling
+      summary: List sampling methods
+      operationId: ListSamplingMethods
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SamplingMethod"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+    post:
+      tags:
+      - Sampling
+      summary: Create a new sampling method
+      operationId: CreateSamplingMethod
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SamplingMethodInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SamplingMethod"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+  /sampling-methods/{code}:
+    delete:
+      tags:
+      - Sampling
+      summary: Delete a sampling method by code
+      operationId: DeleteSamplingMethod
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+    patch:
+      tags:
+      - Sampling
+      summary: Update a sampling method by code
+      operationId: UpdateSamplingMethod
+      parameters:
+      - name: code
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SamplingMethodUpdateParams"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SamplingMethod"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+  /samplings:
+    post:
+      tags:
+      - Samplings
+      summary: Create a new sampling
+      description: Create a new sampling with the provided details.
+      operationId: CreateSampling
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SamplingInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SamplingWithDetails"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+  /settings/instance:
+    get:
+      tags:
+      - Settings
+      summary: Get instance settings
+      operationId: GetInstanceSettings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceSettings"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+    put:
+      tags:
+      - Settings
+      summary: Update instance settings
+      operationId: UpdateInstanceSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InstanceSettingsUpdate"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /settings/instance/app-icon:
+    post:
+      tags:
+      - Settings
+      summary: Set the application icon
+      operationId: SetAppIcon
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                icon:
+                  type: string
+                  format: binary
+                  contentEncoding: binary
+              required:
+              - icon
+            encoding:
+              icon:
+                contentType: image/png,image/jpeg
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /settings/instance/dashboard-message:
+    get:
+      tags:
+      - Settings
+      summary: Get the dashboard message
+      operationId: GetDashboardMessage
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+    put:
+      tags:
+      - Settings
+      summary: Set the dashboard message
+      operationId: SetDashboardMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /settings/instance/public-access:
+    put:
+      tags:
+      - Settings
+      summary: Toggle public access to the instance
+      operationId: TogglePublicAccess
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: boolean
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /settings/instance/public-registration:
+    put:
+      tags:
+      - Settings
+      summary: Toggle public registration for the instance
+      operationId: TogglePublicRegistration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: boolean
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /settings/smtp/test:
+    get:
+      tags:
+      - Settings
+      summary: Test SMTP connection
+      operationId: TestSMTPConnection
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /taxonomy/gbif/kingdoms:
+    get:
+      tags:
+      - Taxonomy
+      summary: Get GBIF kingdoms
+      description: Retrieves a list of all GBIF kingdoms. Response is cached to avoid repeated calls to the GBIF API.
+      operationId: GetGBIFKingdoms
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TaxonGBIF"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /taxonomy/rank/{rank}:
+    get:
+      tags:
+      - Taxonomy
+      summary: Get all taxa at a specific rank
+      operationId: GetTaxaAtRank
+      parameters:
+      - name: rank
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/TaxonRank"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Taxon"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /taxonomy/search:
+    get:
+      tags:
+      - Taxonomy
+      summary: Search for taxa
+      operationId: SearchTaxa
+      parameters:
+      - name: search_term
+        in: query
+        explode: false
+        schema:
+          type: string
+      - name: ranks
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaxonRank"
+      - name: sampled_only
+        in: query
+        explode: false
+        schema:
+          type: boolean
+      - name: limit
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: offset
+        in: query
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Taxon"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /taxonomy/taxa:
+    post:
+      tags:
+      - Taxonomy
+      summary: Create a new taxon
+      operationId: CreateTaxon
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTaxonInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Taxon"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /taxonomy/taxa/{id}:
+    get:
+      tags:
+      - Taxonomy
+      summary: Get a taxon by ID
+      operationId: GetTaxon
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaxonWithFullLineage"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+    delete:
+      tags:
+      - Taxonomy
+      summary: Delete a taxon by ID
+      description: Deletes a taxon and all of its descendants. This operation will also delete all occurrences associated with the taxon and its descendants.
+      operationId: DeleteTaxon
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /years:
+    get:
+      tags:
+      - Samplings
+      summary: List sampling years
+      description: List all unique years for samplings.
+      operationId: ListSamplingYears
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  format: int32
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+components:
+  schemas:
+    AbioticParam:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        unit:
+          type: string
+      required:
+      - id
+      - name
+      - code
+      - unit
+    AppError:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/AppError.json
+          readOnly: true
+        category:
+          $ref: "#/components/schemas/ErrorCategory"
+        code:
+          $ref: "#/components/schemas/ErrorCode"
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+          examples:
+          - Property foo is required but is missing.
+        errors:
+          type: array
+          description: Optional list of individual error details
+          items:
+            $ref: "#/components/schemas/ErrorDetail"
+        instance:
+          type: string
+          description: A URI reference that identifies the specific occurrence of the problem.
+          format: uri
+          examples:
+          - https://example.com/error-log/abc123
+        status:
+          type: integer
+          description: HTTP status code
+          format: int64
+          examples:
+          - 400.0
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type. This value should not change between occurrences of the error.
+          examples:
+          - Bad Request
+        type:
+          type: string
+          description: A URI reference to human-readable documentation for the error.
+          format: uri
+          default: about:blank
+          examples:
+          - https://example.com/errors/example
+    BaseOccurrence:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        comments:
+          type: string
+        content_description:
+          type: string
+        id:
+          type: string
+        identification:
+          $ref: "#/components/schemas/Identification"
+        quantity:
+          $ref: "#/components/schemas/OccurrenceQuantity"
+        sources:
+          type: array
+          items:
+            type: string
+        type_status:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      required:
+      - id
+      - code
+      - identification
+    BatchSnapshot:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/BatchSnapshot.json
+          readOnly: true
+        GBIF:
+          $ref: "#/components/schemas/ProgressSnapshot"
+        batch:
+          $ref: "#/components/schemas/ImportBatch"
+        error: {}
+        id:
+          type: string
+        materialization_steps:
+          $ref: "#/components/schemas/MaterializationSteps"
+        resolution_status:
+          $ref: "#/components/schemas/MaterializationReadyCheck"
+        status:
+          $ref: "#/components/schemas/RunnerStatus"
+      required:
+      - id
+      - batch
+      - status
+      - resolution_status
+      - materialization_steps
+      - GBIF
+      - error
+    CSVDelimiter:
+      type: string
+      title: CSVDelimiter
+      enum:
+      - ","
+      - ;
+      - 	
+    CSVQuoteChar:
+      type: string
+      title: CSVQuoteChar
+      enum:
+      - "\""
+      - "'"
+    CodeHistoryEntry:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - code
+      - created_at
+    Collection:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        vouchers:
+          type: array
+          items:
+            type: string
+      required:
+      - id
+      - name
+    CollectionInput:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        vouchers:
+          type: array
+          items:
+            type: string
+      required:
+      - name
+    CompositeDate:
+      type: object
+      additionalProperties: false
+      properties:
+        day:
+          type: integer
+          format: int32
+          default: 1
+          minimum: 1.0
+          maximum: 31.0
+        month:
+          type: integer
+          format: int32
+          default: 1
+          minimum: 1.0
+          maximum: 12.0
+        year:
+          type: integer
+          format: int32
+          minimum: 1500.0
+          maximum: 3000.0
+    CoordinatesWithPrecision:
+      type: object
+      additionalProperties: false
+      properties:
+        latitude:
+          type: number
+          format: double
+        longitude:
+          type: number
+          format: double
+        precision:
+          type: integer
+          format: int32
+      required:
+      - precision
+      - latitude
+      - longitude
+    Country:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/Country.json
+          readOnly: true
+        code:
+          type: string
+        continent:
+          type: string
+        name:
+          type: string
+        subcontinent:
+          type: string
+      required:
+      - code
+      - name
+      - continent
+      - subcontinent
+    CountrySummary:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        continent:
+          type: string
+        name:
+          type: string
+        occurrence_count:
+          type: integer
+          format: int64
+        sampling_count:
+          type: integer
+          format: int64
+        subcontinent:
+          type: string
+      required:
+      - sampling_count
+      - occurrence_count
+      - code
+      - name
+      - continent
+      - subcontinent
+    CreatePublicationParams:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/CreatePublicationParams.json
+          readOnly: true
+        authors:
+          type: array
+          items:
+            type: string
+        doi:
+          type: string
+        journal:
+          type: string
+        title:
+          type: string
+        verbatim:
+          type: string
+        year:
+          type: integer
+          format: int32
+    CreateTaxonInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/CreateTaxonInput.json
+          readOnly: true
+        accepted_id:
+          type: string
+        authorship:
+          type: string
+        comments:
+          type: string
+        name:
+          type: string
+        parent_id:
+          type: string
+        rank:
+          $ref: "#/components/schemas/TaxonRank"
+        status:
+          $ref: "#/components/schemas/TaxonStatus"
+      required:
+      - name
+      - rank
+      - status
+      - parent_id
+    Dataset:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/Dataset.json
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+        description:
+          type: string
+        id:
+          type: string
+        label:
+          type: string
+        pinned:
+          type: boolean
+        slug:
+          type: string
+      required:
+      - id
+      - label
+      - slug
+      - pinned
+      - created_at
+    DateFilterParams:
+      type: object
+      additionalProperties: false
+      properties:
+        buffer:
+          type: string
+          format: duration
+        from:
+          type: string
+          pattern: "^\\d{4}(-\\d{2})?(-\\d{2})?$"
+        include_unknown:
+          type: boolean
+        to:
+          type: string
+          pattern: "^\\d{4}(-\\d{2})?(-\\d{2})?$"
+    DateWithPrecision:
+      type: object
+      additionalProperties: false
+      properties:
+        date:
+          type: string
+          format: date-time
+        precision:
+          $ref: "#/components/schemas/EventDatePrecision"
+      required:
+      - date
+      - precision
+    DateWithPrecisionInput:
+      type: object
+      additionalProperties: false
+      properties:
+        date:
+          $ref: "#/components/schemas/CompositeDate"
+        precision:
+          $ref: "#/components/schemas/EventDatePrecision"
+      required:
+      - date
+      - precision
+    ErrorCategory:
+      type: string
+      title: ErrorCategory
+      enum:
+      - import
+    ErrorCode:
+      type: string
+      title: ErrorCode
+      enum:
+      - inconsistent_taxa
+      - invalid_csv_format
+    ErrorDetail:
+      type: object
+      additionalProperties: false
+      properties:
+        location:
+          type: string
+          description: Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
+        message:
+          type: string
+          description: Error message text
+        value:
+          description: The value at the given location
+    EventDatePrecision:
+      type: string
+      title: EventDatePrecision
+      enum:
+      - day
+      - month
+      - year
+    ExportFormat:
+      type: string
+      title: ExportFormat
+      enum:
+      - csv
+      - json
+      - dwc
+    Fixative:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/Fixative.json
+          readOnly: true
+        code:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - code
+      - name
+    FixativeInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/FixativeInput.json
+          readOnly: true
+        code:
+          type: string
+        description:
+          type: string
+        name:
+          type: string
+      required:
+      - code
+      - name
+    FixativeUpdateParams:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/FixativeUpdateParams.json
+          readOnly: true
+        code:
+          type: string
+        description:
+          type: string
+        name:
+          type: string
+    FormFile:
+      type: object
+      additionalProperties: false
+      properties:
+        ContentType:
+          type: string
+        Filename:
+          type: string
+        IsSet:
+          type: boolean
+        Size:
+          type: integer
+          format: int64
+      required:
+      - ContentType
+      - IsSet
+      - Size
+      - Filename
+    FullOccurrenceInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/FullOccurrenceInput.json
+          readOnly: true
+        occurrence:
+          $ref: "#/components/schemas/OccurrenceInput"
+        sampling:
+          $ref: "#/components/schemas/SamplingInput"
+      required:
+      - occurrence
+      - sampling
+    GeoapifyCoords:
+      type: object
+      additionalProperties: false
+      properties:
+        lat:
+          type: number
+          format: float
+        lon:
+          type: number
+          format: float
+      required:
+      - lat
+      - lon
+    GeoapifyResult:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/GeoapifyResult.json
+          readOnly: true
+        city:
+          type: string
+        country:
+          type: string
+        country_code:
+          type: string
+        county:
+          type: string
+        formatted:
+          type: string
+        housenumber:
+          type: string
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        municipality:
+          type: string
+        postcode:
+          type: string
+        state:
+          type: string
+        street:
+          type: string
+        suburb:
+          type: string
+      required:
+      - formatted
+      - municipality
+      - city
+      - county
+      - state
+      - country
+      - country_code
+      - lat
+      - lon
+      - postcode
+      - street
+      - housenumber
+      - suburb
+    GeoapifyStatus:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/GeoapifyStatus.json
+          readOnly: true
+        available:
+          type: boolean
+        has_api_key:
+          type: boolean
+        limit:
+          type: integer
+          format: int32
+        requests:
+          type: integer
+          format: int32
+      required:
+      - available
+      - has_api_key
+      - requests
+      - limit
+    GeoapifyUsage:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          format: int32
+        requests_count:
+          type: integer
+          format: int32
+        usage_date:
+          type: string
+          format: date-time
+      required:
+      - id
+      - usage_date
+      - requests_count
+    H3CellWithRichness:
+      type: object
+      additionalProperties: false
+      properties:
+        family_richness:
+          type: integer
+          format: int64
+        genus_richness:
+          type: integer
+          format: int64
+        h3_index:
+          type: string
+        occurrences_count:
+          type: integer
+          format: int32
+        occurring_taxa:
+          type: integer
+          format: int64
+        samplings_count:
+          type: integer
+          format: int32
+        species_richness:
+          type: integer
+          format: int64
+      required:
+      - species_richness
+      - genus_richness
+      - family_richness
+      - occurring_taxa
+      - h3_index
+      - samplings_count
+      - occurrences_count
+    H3CellWithRichnessAndDistance:
+      type: object
+      additionalProperties: false
+      properties:
+        distance_meters:
+          type: integer
+          format: int32
+        family_richness:
+          type: integer
+          format: int64
+        genus_richness:
+          type: integer
+          format: int64
+        h3_index:
+          type: string
+        occurrences_count:
+          type: integer
+          format: int32
+        occurring_taxa:
+          type: integer
+          format: int64
+        samplings_count:
+          type: integer
+          format: int32
+        species_richness:
+          type: integer
+          format: int64
+      required:
+      - distance_meters
+      - species_richness
+      - genus_richness
+      - family_richness
+      - occurring_taxa
+      - h3_index
+      - samplings_count
+      - occurrences_count
+    Habitat:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - name
+    HabitatGroupInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/HabitatGroupInput.json
+          readOnly: true
+        depends:
+          type: string
+          description: Habitat tag that this group is a refinement of
+          examples:
+          - Aquatic, Surface
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/HabitatInput"
+          minItems: 1
+        exclusive_elements:
+          type: boolean
+        label:
+          type: string
+          description: Name for the group of habitat tags
+          examples:
+          - Water flow
+          minLength: 3
+          maxLength: 32
+      required:
+      - label
+      - elements
+    HabitatGroupUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/HabitatGroupUpdate.json
+          readOnly: true
+        create_elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/HabitatInput"
+        delete_elements:
+          type: array
+          items:
+            type: string
+        depends:
+          type: string
+        exclusive_elements:
+          type: boolean
+        label:
+          type: string
+        update_elements:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/HabitatUpdate"
+    HabitatGroupWithElements:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        elements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Habitat"
+        id:
+          type: string
+        name:
+          type: string
+        parent_id:
+          type: string
+      required:
+      - elements
+      - id
+      - name
+    HabitatInput:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+          description: Optional habitat description
+        label:
+          type: string
+          description: A short label for the habitat.
+          examples:
+          - Lotic
+          minLength: 3
+          maxLength: 32
+      required:
+      - label
+    HabitatUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        label:
+          type: string
+    HabitatWithGroupName:
+      type: object
+      additionalProperties: false
+      properties:
+        description:
+          type: string
+        group_name:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - group_name
+      - id
+      - name
+    Identification:
+      type: object
+      additionalProperties: false
+      properties:
+        addendum:
+          type: string
+        confer:
+          type: boolean
+        identified_by:
+          type: array
+          items:
+            type: string
+        identified_on:
+          $ref: "#/components/schemas/DateWithPrecision"
+        taxon:
+          $ref: "#/components/schemas/Taxon"
+        verbatim:
+          type: string
+      required:
+      - confer
+      - taxon
+    IdentificationInput:
+      type: object
+      additionalProperties: false
+      properties:
+        addendum:
+          type: string
+        confer:
+          type: boolean
+        identified_by:
+          type: array
+          items:
+            type: string
+        identified_on:
+          $ref: "#/components/schemas/DateWithPrecisionInput"
+        taxon_id:
+          type: string
+        verbatim:
+          type: string
+      required:
+      - identified_on
+      - confer
+      - taxon_id
+    ImportBatch:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/ImportBatch.json
+          readOnly: true
+        assembled_by:
+          type: array
+          items:
+            type: string
+        completed_at:
+          type: string
+          format: date-time
+        completed_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+        imported_file_content_type:
+          type: string
+        imported_file_hash:
+          type: string
+        imported_file_name:
+          type: string
+        imported_file_size:
+          type: integer
+          format: int64
+        label:
+          type: string
+        status:
+          $ref: "#/components/schemas/ImportBatchStatus"
+        taxonomic_scope:
+          type: integer
+          format: int32
+      required:
+      - id
+      - label
+      - status
+      - created_by
+      - created_at
+      - taxonomic_scope
+      - imported_file_name
+      - imported_file_size
+      - imported_file_hash
+      - imported_file_content_type
+    ImportBatchInput:
+      type: object
+      additionalProperties: false
+      properties:
+        assembled_by:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        label:
+          type: string
+        taxonomic_scope:
+          type: integer
+          format: int32
+      required:
+      - label
+      - taxonomic_scope
+    ImportBatchStatus:
+      type: string
+      title: ImportBatchStatus
+      enum:
+      - created
+      - staged
+      - completed
+      - failed
+      - canceled
+    ImportBatchWithContent:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/ImportBatchWithContent.json
+          readOnly: true
+        assembled_by:
+          type: array
+          items:
+            type: string
+        completed_at:
+          type: string
+          format: date-time
+        completed_by:
+          type: string
+        completed_by_user:
+          $ref: "#/components/schemas/User"
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+        created_by_user:
+          $ref: "#/components/schemas/User"
+        description:
+          type: string
+        id:
+          type: string
+        imported_file_content_type:
+          type: string
+        imported_file_hash:
+          type: string
+        imported_file_name:
+          type: string
+        imported_file_size:
+          type: integer
+          format: int64
+        label:
+          type: string
+        occurrence_count:
+          type: integer
+          format: int64
+        sampling_count:
+          type: integer
+          format: int64
+        status:
+          $ref: "#/components/schemas/ImportBatchStatus"
+        taxonomic_scope:
+          type: integer
+          format: int32
+      required:
+      - occurrence_count
+      - sampling_count
+      - created_by_user
+      - completed_by_user
+      - id
+      - label
+      - status
+      - created_by
+      - created_at
+      - taxonomic_scope
+      - imported_file_name
+      - imported_file_size
+      - imported_file_hash
+      - imported_file_content_type
+    InstanceSettings:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/InstanceSettings.json
+          readOnly: true
+        account_requests_enabled:
+          type: boolean
+        admin_email:
+          type: string
+        description:
+          type: string
+        is_public:
+          type: boolean
+        mail_from_address:
+          type: string
+        mail_from_name:
+          type: string
+        molecular_data_enabled:
+          type: boolean
+        subtitle:
+          type: string
+        title:
+          type: string
+      required:
+      - title
+      - admin_email
+      - is_public
+      - account_requests_enabled
+      - mail_from_address
+      - mail_from_name
+      - molecular_data_enabled
+    InstanceSettingsUpdate:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/InstanceSettingsUpdate.json
+          readOnly: true
+        admin_email:
+          type: string
+        description:
+          type: string
+        mail_from_address:
+          type: string
+        mail_from_name:
+          type: string
+        subtitle:
+          type: string
+        title:
+          type: string
+    ListOccurrencesParams:
+      type: object
+      additionalProperties: false
+      properties:
+        Date:
+          $ref: "#/components/schemas/DateFilterParams"
+        batches:
+          type: array
+          items:
+            type: string
+        confer:
+          type: boolean
+        countries:
+          type: array
+          items:
+            type: string
+        datasets:
+          type: array
+          items:
+            type: string
+        key:
+          $ref: "#/components/schemas/OccurrenceSortKey"
+        order:
+          $ref: "#/components/schemas/SortOrder"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        search_term:
+          type: string
+        target_taxa:
+          type: array
+          items:
+            type: string
+        target_taxa_whole_clade:
+          type: boolean
+        taxa:
+          type: array
+          items:
+            type: string
+        taxon_rank:
+          $ref: "#/components/schemas/TaxonRank"
+        taxon_status:
+          $ref: "#/components/schemas/TaxonStatus"
+        type_status:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+        whole_clade:
+          type: boolean
+      required:
+      - Date
+      - pagination
+    LoginResult:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/LoginResult.json
+          readOnly: true
+        session:
+          $ref: "#/components/schemas/SessionTokens"
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+      - user
+      - session
+    MaterializationReadyCheck:
+      type: object
+      additionalProperties: false
+      properties:
+        bibliography:
+          type: boolean
+        fixatives:
+          type: boolean
+        methods:
+          type: boolean
+        taxonomy:
+          type: boolean
+      required:
+      - taxonomy
+      - methods
+      - fixatives
+      - bibliography
+    MaterializationSteps:
+      type: object
+      additionalProperties: false
+      properties:
+        fill_gbif_dependencies:
+          type: boolean
+        materialization_complete:
+          type: boolean
+        materialize_bibliography:
+          type: boolean
+        materialize_occurrences:
+          type: boolean
+        materialize_samplings:
+          type: boolean
+        materialize_taxa:
+          type: boolean
+        refresh_occurrence_codes:
+          type: boolean
+      required:
+      - fill_gbif_dependencies
+      - materialize_taxa
+      - materialize_samplings
+      - materialize_occurrences
+      - materialize_bibliography
+      - refresh_occurrence_codes
+      - materialization_complete
+    Occurrence:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        comments:
+          type: string
+        content_description:
+          type: string
+        id:
+          type: string
+        identification:
+          $ref: "#/components/schemas/Identification"
+        quantity:
+          $ref: "#/components/schemas/OccurrenceQuantity"
+        sampling:
+          $ref: "#/components/schemas/Sampling"
+        sources:
+          type: array
+          items:
+            type: string
+        type_status:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      required:
+      - sampling
+      - id
+      - code
+      - identification
+    OccurrenceInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/OccurrenceInput.json
+          readOnly: true
+        collections:
+          type: array
+          items:
+            $ref: "#/components/schemas/CollectionInput"
+        comments:
+          type: string
+        content_description:
+          type: string
+        datasets:
+          type: array
+          items:
+            type: string
+        identification:
+          $ref: "#/components/schemas/IdentificationInput"
+        published_in:
+          type: array
+          items:
+            type: string
+        quantity:
+          $ref: "#/components/schemas/QuantityInput"
+        sources:
+          type: array
+          items:
+            type: string
+        type_status:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      required:
+      - identification
+    OccurrenceOverviewItem:
+      type: object
+      additionalProperties: false
+      properties:
+        authorship:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        occurrences:
+          type: integer
+          format: int32
+        parent_id:
+          type: string
+        parent_name:
+          type: string
+        rank:
+          $ref: "#/components/schemas/TaxonRank"
+      required:
+      - id
+      - name
+      - occurrences
+      - rank
+    OccurrenceQuantity:
+      type: object
+      additionalProperties: false
+      properties:
+        exact:
+          type: integer
+          format: int32
+        lower:
+          type: integer
+          format: int32
+        upper:
+          type: integer
+          format: int32
+    OccurrenceSortKey:
+      type: string
+      title: OccurrenceSortKey
+      enum:
+      - code
+      - site_name
+      - site_code
+      - event_date
+      - taxon_name
+      - identified_on
+      - created_at
+      - updated_at
+    OccurrenceTypeStatus:
+      type: string
+      title: OccurrenceTypeStatus
+      enum:
+      - holotype
+      - neotype
+      - topotype
+    OccurrenceWithDetails:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/OccurrenceWithDetails.json
+          readOnly: true
+        code:
+          type: string
+        code_history:
+          type: array
+          items:
+            $ref: "#/components/schemas/CodeHistoryEntry"
+        collections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Collection"
+        comments:
+          type: string
+        content_description:
+          type: string
+        datasets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Dataset"
+        id:
+          type: string
+        identification:
+          $ref: "#/components/schemas/Identification"
+        import_batch:
+          $ref: "#/components/schemas/ImportBatch"
+        quantity:
+          $ref: "#/components/schemas/OccurrenceQuantity"
+        references:
+          type: array
+          items:
+            $ref: "#/components/schemas/Publication"
+        sampling:
+          $ref: "#/components/schemas/SamplingWithDetails"
+        sources:
+          type: array
+          items:
+            type: string
+        type_status:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      required:
+      - sampling
+      - id
+      - code
+      - identification
+    OccurrenceWithMetadata:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/OccurrenceWithMetadata.json
+          readOnly: true
+        code:
+          type: string
+        code_history:
+          type: array
+          items:
+            $ref: "#/components/schemas/CodeHistoryEntry"
+        collections:
+          type: array
+          items:
+            $ref: "#/components/schemas/Collection"
+        comments:
+          type: string
+        content_description:
+          type: string
+        datasets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Dataset"
+        id:
+          type: string
+        identification:
+          $ref: "#/components/schemas/Identification"
+        import_batch:
+          $ref: "#/components/schemas/ImportBatch"
+        quantity:
+          $ref: "#/components/schemas/OccurrenceQuantity"
+        references:
+          type: array
+          items:
+            $ref: "#/components/schemas/Publication"
+        sources:
+          type: array
+          items:
+            type: string
+        type_status:
+          $ref: "#/components/schemas/OccurrenceTypeStatus"
+      required:
+      - id
+      - code
+      - identification
+    PaginatedListOccurrence:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/PaginatedListOccurrence.json
+          readOnly: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Occurrence"
+        total_count:
+          type: integer
+          format: int64
+      required:
+      - items
+      - total_count
+    ProgressSnapshot:
+      type: object
+      additionalProperties: false
+      properties:
+        Completed:
+          type: integer
+          format: int32
+        CompletedAt:
+          type: string
+          format: date-time
+        Error:
+          type: string
+        StartedAt:
+          type: string
+          format: date-time
+        Status:
+          type: string
+        Total:
+          type: integer
+          format: int32
+      required:
+      - Status
+      - Total
+      - Completed
+      - StartedAt
+      - CompletedAt
+      - Error
+    PubMatchType:
+      type: string
+      title: PubMatchType
+      enum:
+      - doi
+      - verbatim
+    Publication:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/Publication.json
+          readOnly: true
+        authors:
+          type: array
+          items:
+            type: string
+        comments:
+          type: string
+        doi:
+          type: string
+        id:
+          type: string
+        journal:
+          type: string
+        title:
+          type: string
+        verbatim:
+          type: string
+        year:
+          type: integer
+          format: int32
+      required:
+      - id
+    PublicationCandidate:
+      type: object
+      additionalProperties: false
+      properties:
+        authors:
+          type: array
+          items:
+            type: string
+        doi:
+          type: string
+        id:
+          type: string
+        import_id:
+          type: string
+        internal_id:
+          type: string
+        journal:
+          type: string
+        match_type:
+          $ref: "#/components/schemas/PubMatchType"
+        resolution_id:
+          type: string
+        score:
+          type: number
+          format: float
+        source:
+          $ref: "#/components/schemas/PublicationCandidateSource"
+        staging_id:
+          type: string
+        title:
+          type: string
+        verbatim:
+          type: string
+        year:
+          type: integer
+          format: int32
+      required:
+      - verbatim
+      - id
+      - import_id
+      - resolution_id
+      - source
+      - match_type
+      - score
+    PublicationCandidateSource:
+      type: string
+      title: PublicationCandidateSource
+      enum:
+      - internal
+      - crossref
+      - manual
+    PublicationResolutionWithCandidates:
+      type: object
+      additionalProperties: false
+      properties:
+        candidates:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicationCandidate"
+        doi:
+          type: string
+        id:
+          type: string
+        import_id:
+          type: string
+        resolved_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/ResolutionStatus"
+        verbatim:
+          type: string
+      required:
+      - candidates
+      - id
+      - import_id
+      - status
+    QuantityInput:
+      type: object
+      additionalProperties: false
+      properties:
+        exact:
+          type: integer
+          format: int32
+        lower:
+          type: integer
+          format: int32
+        upper:
+          type: integer
+          format: int32
+    ResolutionStatus:
+      type: string
+      title: ResolutionStatus
+      enum:
+      - pending
+      - auto_resolved
+      - user_resolved
+      - needs_decision
+    ResolveInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/ResolveInput.json
+          readOnly: true
+        candidate_id:
+          type: string
+        resolution_id:
+          type: string
+      required:
+      - resolution_id
+      - candidate_id
+    RunnerStatus:
+      type: string
+      title: RunnerStatus
+      enum:
+      - created
+      - staging
+      - staged
+      - running
+      - needs_resolution
+      - ready_to_materialize
+      - materializing
+      - completed
+      - failed
+      - cancelled
+    Sampling:
+      type: object
+      additionalProperties: false
+      properties:
+        access_points:
+          type: array
+          items:
+            type: string
+        altitude:
+          type: integer
+          format: int32
+        comments:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesWithPrecision"
+        duration:
+          type: integer
+          format: int32
+        h3_cell:
+          type: string
+        id:
+          type: string
+        performed_by:
+          type: array
+          items:
+            type: string
+        performed_on:
+          $ref: "#/components/schemas/DateWithPrecision"
+        site:
+          $ref: "#/components/schemas/Site"
+      required:
+      - id
+      - site
+      - coordinates
+      - h3_cell
+    SamplingFixativeResolution:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingFixativeResolution.json
+          readOnly: true
+        import_id:
+          type: string
+        input_text:
+          type: string
+        resolved_fixative_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/VocabResolutionStatus"
+      required:
+      - import_id
+      - input_text
+      - status
+    SamplingFixativeResolutionInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingFixativeResolutionInput.json
+          readOnly: true
+        input_text:
+          type: string
+        resolved_fixative_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/VocabResolutionStatus"
+      required:
+      - input_text
+      - status
+    SamplingInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingInput.json
+          readOnly: true
+        access_points:
+          type: array
+          items:
+            type: string
+        duration:
+          type: integer
+          format: int32
+        fixatives:
+          type: array
+          items:
+            type: string
+        methods:
+          type: array
+          items:
+            type: string
+        performed_by:
+          type: array
+          items:
+            type: string
+        performed_on:
+          $ref: "#/components/schemas/DateWithPrecisionInput"
+        site:
+          $ref: "#/components/schemas/SiteInput"
+        target_taxa:
+          type: array
+          items:
+            type: string
+      required:
+      - site
+      - performed_on
+    SamplingMethod:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingMethod.json
+          readOnly: true
+        code:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+      required:
+      - id
+      - code
+      - name
+    SamplingMethodInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingMethodInput.json
+          readOnly: true
+        code:
+          type: string
+        description:
+          type: string
+        name:
+          type: string
+      required:
+      - code
+      - name
+    SamplingMethodResolution:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingMethodResolution.json
+          readOnly: true
+        import_id:
+          type: string
+        input_text:
+          type: string
+        resolved_method_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/VocabResolutionStatus"
+      required:
+      - import_id
+      - input_text
+      - status
+    SamplingMethodResolutionInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingMethodResolutionInput.json
+          readOnly: true
+        input_text:
+          type: string
+        resolved_method_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/VocabResolutionStatus"
+      required:
+      - input_text
+      - status
+    SamplingMethodUpdateParams:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingMethodUpdateParams.json
+          readOnly: true
+        code:
+          type: string
+        description:
+          type: string
+        name:
+          type: string
+    SamplingWithDetails:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SamplingWithDetails.json
+          readOnly: true
+        access_points:
+          type: array
+          items:
+            type: string
+        altitude:
+          type: integer
+          format: int32
+        comments:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesWithPrecision"
+        duration:
+          type: integer
+          format: int32
+        fixatives:
+          type: array
+          items:
+            $ref: "#/components/schemas/Fixative"
+        h3_cell:
+          type: string
+        habitats:
+          type: array
+          items:
+            $ref: "#/components/schemas/HabitatWithGroupName"
+        id:
+          type: string
+        methods:
+          type: array
+          items:
+            $ref: "#/components/schemas/SamplingMethod"
+        performed_by:
+          type: array
+          items:
+            type: string
+        performed_on:
+          $ref: "#/components/schemas/DateWithPrecision"
+        site:
+          $ref: "#/components/schemas/Site"
+        target_taxa:
+          type: array
+          items:
+            $ref: "#/components/schemas/Taxon"
+      required:
+      - id
+      - site
+      - coordinates
+      - h3_cell
+    SamplingWithDistance:
+      type: object
+      additionalProperties: false
+      properties:
+        access_points:
+          type: array
+          items:
+            type: string
+        altitude:
+          type: integer
+          format: int32
+        comments:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesWithPrecision"
+        distance_meters:
+          type: integer
+          format: int32
+        duration:
+          type: integer
+          format: int32
+        h3_cell:
+          type: string
+        id:
+          type: string
+        performed_by:
+          type: array
+          items:
+            type: string
+        performed_on:
+          $ref: "#/components/schemas/DateWithPrecision"
+        site:
+          $ref: "#/components/schemas/Site"
+      required:
+      - distance_meters
+      - id
+      - site
+      - coordinates
+      - h3_cell
+    SamplingWithOccurrences:
+      type: object
+      additionalProperties: false
+      properties:
+        access_points:
+          type: array
+          items:
+            type: string
+        altitude:
+          type: integer
+          format: int32
+        comments:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesWithPrecision"
+        duration:
+          type: integer
+          format: int32
+        h3_cell:
+          type: string
+        id:
+          type: string
+        occurrences:
+          type: array
+          items:
+            $ref: "#/components/schemas/BaseOccurrence"
+        performed_by:
+          type: array
+          items:
+            type: string
+        performed_on:
+          $ref: "#/components/schemas/DateWithPrecision"
+        site:
+          $ref: "#/components/schemas/Site"
+      required:
+      - id
+      - site
+      - coordinates
+      - h3_cell
+    SamplingWithOccurrencesAndDistance:
+      type: object
+      additionalProperties: false
+      properties:
+        access_points:
+          type: array
+          items:
+            type: string
+        altitude:
+          type: integer
+          format: int32
+        comments:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesWithPrecision"
+        distance_meters:
+          type: integer
+          format: int32
+        duration:
+          type: integer
+          format: int32
+        h3_cell:
+          type: string
+        id:
+          type: string
+        occurrences:
+          type: array
+          items:
+            $ref: "#/components/schemas/BaseOccurrence"
+        performed_by:
+          type: array
+          items:
+            type: string
+        performed_on:
+          $ref: "#/components/schemas/DateWithPrecision"
+        site:
+          $ref: "#/components/schemas/Site"
+      required:
+      - distance_meters
+      - id
+      - site
+      - coordinates
+      - h3_cell
+    SessionTokens:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/SessionTokens.json
+          readOnly: true
+        auth_token:
+          type: string
+        auth_token_expiration:
+          type: string
+          format: date-time
+        refresh_token:
+          type: string
+        session_id:
+          type: string
+      required:
+      - session_id
+      - auth_token
+      - auth_token_expiration
+      - refresh_token
+    Site:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        country:
+          $ref: "#/components/schemas/Country"
+        locality:
+          type: string
+        name:
+          type: string
+    SiteInput:
+      type: object
+      additionalProperties: false
+      properties:
+        altitude:
+          type: integer
+          format: int32
+        code:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesWithPrecision"
+        country_code:
+          type: string
+        locality:
+          type: string
+        name:
+          type: string
+      required:
+      - coordinates
+    SortOrder:
+      type: string
+      title: SortOrder
+      enum:
+      - asc
+      - desc
+    Taxon:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/Taxon.json
+          readOnly: true
+        accepted_id:
+          type: string
+        authorship:
+          type: string
+        comments:
+          type: string
+        gbif_id:
+          type: integer
+          format: int32
+        id:
+          type: string
+        name:
+          type: string
+        parent_id:
+          type: string
+        rank:
+          $ref: "#/components/schemas/TaxonRank"
+        status:
+          $ref: "#/components/schemas/TaxonStatus"
+      required:
+      - id
+      - gbif_id
+      - name
+      - rank
+      - status
+    TaxonCandidate:
+      type: object
+      additionalProperties: false
+      properties:
+        authorship:
+          type: string
+        gbif_id:
+          type: integer
+          format: int32
+        id:
+          type: string
+        match_type:
+          $ref: "#/components/schemas/TaxonMatchType"
+        name:
+          type: string
+        priority:
+          type: integer
+          format: int32
+        rank:
+          $ref: "#/components/schemas/TaxonRank"
+        resolution_id:
+          type: string
+        score:
+          type: number
+          format: double
+        source:
+          $ref: "#/components/schemas/TaxonMatchSource"
+        status:
+          $ref: "#/components/schemas/TaxonStatus"
+        taxon_id:
+          type: string
+      required:
+      - id
+      - resolution_id
+      - name
+      - rank
+      - status
+      - source
+      - match_type
+      - priority
+    TaxonDefinition:
+      type: object
+      additionalProperties: false
+      properties:
+        authorship:
+          type: string
+        name:
+          type: string
+        rank:
+          $ref: "#/components/schemas/TaxonRank"
+      required:
+      - name
+    TaxonGBIF:
+      type: object
+      additionalProperties: false
+      properties:
+        accepted:
+          type: string
+        acceptedKey:
+          type: integer
+          format: int32
+        authorship:
+          type: string
+        canonicalName:
+          type: string
+        classKey:
+          type: integer
+          format: int32
+        familyKey:
+          type: integer
+          format: int32
+        genusKey:
+          type: integer
+          format: int32
+        higherClassificationMap:
+          type: object
+          additionalProperties:
+            type: string
+        key:
+          type: integer
+          format: int32
+        kingdomKey:
+          type: integer
+          format: int32
+        nameType:
+          type: string
+        numDescendants:
+          type: integer
+          format: int32
+        orderKey:
+          type: integer
+          format: int32
+        parent:
+          type: string
+        parentKey:
+          type: integer
+          format: int32
+        phylumKey:
+          type: integer
+          format: int32
+        rank:
+          type: string
+        scientificName:
+          type: string
+        speciesKey:
+          type: integer
+          format: int32
+        taxonomicStatus:
+          type: string
+      required:
+      - key
+      - canonicalName
+      - scientificName
+      - taxonomicStatus
+      - rank
+      - nameType
+      - higherClassificationMap
+    TaxonGBIFStatus:
+      type: string
+      title: TaxonGBIFStatus
+      enum:
+      - skipped
+      - pending
+      - completed
+      - failed
+      - no_candidates
+    TaxonMatchSource:
+      type: string
+      title: TaxonMatchSource
+      enum:
+      - internal
+      - gbif
+      - manual
+    TaxonMatchType:
+      type: string
+      title: TaxonMatchType
+      enum:
+      - exact
+      - fuzzy
+      - name_only
+    TaxonRank:
+      type: string
+      title: TaxonRank
+      enum:
+      - subspecies
+      - species
+      - subgenus
+      - genus
+      - family
+      - order
+      - class
+      - phylum
+      - kingdom
+    TaxonResolutionWithCandidates:
+      type: object
+      additionalProperties: false
+      properties:
+        candidates:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaxonCandidate"
+        from_resolution_id:
+          type: string
+        from_resolution_name:
+          type: string
+        gbif_status:
+          $ref: "#/components/schemas/TaxonGBIFStatus"
+        id:
+          type: string
+        import_id:
+          type: string
+        input_authorship:
+          type: string
+        input_name:
+          type: string
+        input_rank:
+          type: string
+        resolved_to:
+          type: string
+        sampling_target:
+          type: boolean
+        scientific_name:
+          type: string
+        status:
+          $ref: "#/components/schemas/ResolutionStatus"
+      required:
+      - candidates
+      - id
+      - import_id
+      - input_name
+      - scientific_name
+      - sampling_target
+    TaxonStagingParams:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/TaxonStagingParams.json
+          readOnly: true
+        authorship:
+          type: string
+        name:
+          type: string
+        parent_name:
+          type: string
+        rank:
+          $ref: "#/components/schemas/TaxonRank"
+        resolution_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/TaxonStatus"
+      required:
+      - resolution_id
+      - name
+      - rank
+      - status
+      - parent_name
+    TaxonStatus:
+      type: string
+      title: TaxonStatus
+      enum:
+      - accepted
+      - synonym
+      - doubtful
+      - unreferenced
+      - unclassified
+    TaxonWithFullLineage:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/TaxonWithFullLineage.json
+          readOnly: true
+        accepted_id:
+          type: string
+        accepted_taxon:
+          $ref: "#/components/schemas/Taxon"
+        authorship:
+          type: string
+        comments:
+          type: string
+        descendants:
+          type: array
+          items:
+            $ref: "#/components/schemas/Taxon"
+        gbif_id:
+          type: integer
+          format: int32
+        id:
+          type: string
+        lineage:
+          type: array
+          items:
+            $ref: "#/components/schemas/Taxon"
+        name:
+          type: string
+        parent_id:
+          type: string
+        parent_taxon:
+          $ref: "#/components/schemas/Taxon"
+        rank:
+          $ref: "#/components/schemas/TaxonRank"
+        status:
+          $ref: "#/components/schemas/TaxonStatus"
+      required:
+      - descendants
+      - lineage
+      - id
+      - gbif_id
+      - name
+      - rank
+      - status
+    User:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/User.json
+          readOnly: true
+        active:
+          type: boolean
+        bio:
+          type: string
+        contact:
+          type: string
+        email:
+          type: string
+        first_name:
+          type: string
+        full_name:
+          type: string
+        id:
+          type: string
+        last_name:
+          type: string
+        login:
+          type: string
+        organization:
+          type: string
+        role:
+          $ref: "#/components/schemas/UserRole"
+      required:
+      - id
+      - email
+      - login
+      - role
+      - first_name
+      - last_name
+      - full_name
+      - active
+    UserCredentials:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - //localhost:5173/api/v1/schemas/UserCredentials.json
+          readOnly: true
+        identifier:
+          type: string
+        password:
+          type: string
+      required:
+      - identifier
+      - password
+    UserRole:
+      type: string
+      title: UserRole
+      enum:
+      - visitor
+      - contributor
+      - maintainer
+      - admin
+    VocabResolutionStatus:
+      type: string
+      title: VocabResolutionStatus
+      enum:
+      - auto_resolved
+      - selected
+      - pending
+      - request_creation
+      - discard
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      name: auth_token
+      in: cookie
+security:
+- bearer: []
+- cookieAuth: []

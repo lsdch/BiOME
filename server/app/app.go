@@ -183,15 +183,15 @@ func (a *App) RegisterRoutes() {
 	}
 }
 
-func (a *App) WriteOpenAPISpec(outputPath string) error {
+func (a *App) WriteOpenAPISpec(outputPath string, format router.OpenAPIFormat) error {
 	absPath, err := filepath.Abs(outputPath)
 	if err != nil {
 		return fmt.Errorf("failed to get absolute path for OpenAPI spec: %v", err)
 	}
-	logrus.Infof("Writing OpenAPI spec to %s", absPath)
+	logrus.Infof("Writing OpenAPI spec to %s.%s", absPath, format)
 	// registry := a.Router.API.OpenAPI().Components.Schemas
 	// registry.Map()["ListOccurrencesParams"] = registry.Schema(reflect.TypeFor[stores.ListOccurrencesParams](), false, "ListOccurrencesParams")
-	return a.Router.WriteSpecJSON(outputPath)
+	return a.Router.WriteSpec(outputPath, format)
 }
 
 func (a *App) Run() {
