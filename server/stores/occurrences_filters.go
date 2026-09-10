@@ -111,7 +111,7 @@ func (p *ListSamplingsParams) dateFilter() []BoolExpression {
 			dateFrom.Date.Add(-p.Date.bufferValue)
 		}
 		lowerBound := DateExpFromDateWithPrecision(dateFrom)
-		lowerBoundFilter := table.Samplings.EventDate.GT_EQ(lowerBound)
+		lowerBoundFilter := DateExp(COALESCE(table.Samplings.EventDate, table.Occurrences.IdentificationDate)).GT_EQ(lowerBound)
 		filters = append(filters, lowerBoundFilter)
 	}
 
@@ -121,12 +121,12 @@ func (p *ListSamplingsParams) dateFilter() []BoolExpression {
 			dateTo.Date.Add(p.Date.bufferValue)
 		}
 		upperBound := DateExpFromDateWithPrecision(dateTo)
-		upperBoundFilter := table.Samplings.EventDate.LT_EQ(upperBound)
+		upperBoundFilter := DateExp(COALESCE(table.Samplings.EventDate, table.Occurrences.IdentificationDate)).LT_EQ(upperBound)
 		filters = append(filters, upperBoundFilter)
 	}
 
 	if p.Date.IncludeUnknown {
-		unknownFilter := table.Samplings.EventDate.IS_NULL()
+		unknownFilter := DateExp(COALESCE(table.Samplings.EventDate, table.Occurrences.IdentificationDate)).IS_NULL()
 		return []BoolExpression{OR(unknownFilter, AND(filters...))}
 	}
 	return filters
@@ -257,24 +257,38 @@ func (p *ListOccurrencesParams) batchFilter() []BoolExpression {
 }
 
 func (p *ListOccurrencesParams) datasetFilter() []BoolExpression {
-
 	if len(p.Datasets) == 0 {
 		return nil
 	}
-	var datasetsExpr = make([]Expression, 0, len(p.Datasets))
+
+	datasetsExpr := make([]Expression, 0, len(p.Datasets))
 	for _, id := range p.Datasets {
 		datasetsExpr = append(datasetsExpr, String(id.String()))
 	}
 
 	od := table.OccurrencesDatasets
-	return []BoolExpression{EXISTS(
-		SELECT(Bool(true)).
-			FROM(od).
-			WHERE(
-				od.OccurrenceID.EQ(table.Occurrences.ID).
-					AND(od.DatasetID.IN(datasetsExpr...)),
+	dib := table.DatasetsImportBatches
+
+	return []BoolExpression{
+		OR(
+			EXISTS(
+				SELECT(Bool(true)).
+					FROM(od).
+					WHERE(
+						od.OccurrenceID.EQ(table.Occurrences.ID).
+							AND(od.DatasetID.IN(datasetsExpr...)),
+					),
 			),
-	)}
+			EXISTS(
+				SELECT(Bool(true)).
+					FROM(dib).
+					WHERE(
+						dib.ImportBatchID.EQ(table.Occurrences.ImportBatchID).
+							AND(dib.DatasetID.IN(datasetsExpr...)),
+					),
+			),
+		),
+	}
 }
 
 func (p *ListOccurrencesParams) typeStatusFilter() []BoolExpression {
