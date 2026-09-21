@@ -50,7 +50,7 @@ func (e AppEnv) Valid() bool {
 type APIConfig struct {
 	BasePath     string `mapstructure:"API_BASE_PATH" validate:"required"`
 	Host         string `mapstructure:"API_HOST" validate:"required"`
-	Port         string `mapstructure:"API_PORT" validate:"required"`
+	Port         uint   `mapstructure:"API_PORT" validate:"required,port"`
 	Version      string `mapstructure:"VERSION" validate:"required,semver"`
 	Title        string `mapstructure:"API_TITLE" validate:"required,min=3"`
 	Description  string `mapstructure:"API_DESCRIPTION"`
@@ -78,12 +78,12 @@ func (c APIConfig) ToHumaConfig() huma.Config {
 		Email: c.ContactEmail,
 	}
 
-	serverURL := url.URL{
-		Host: fmt.Sprintf("%s:%d", c.Host, 5173),
-		Path: c.BasePath,
-	}
+	// serverURL := url.URL{
+	// 	Host: fmt.Sprintf("%s:%d", c.Host, 5173),
+	// 	Path: c.BasePath,
+	// }
 	cfg.OpenAPI.Servers = []*huma.Server{
-		{URL: serverURL.String()},
+		{URL: c.BasePath},
 	}
 	cfg.Security = []map[string][]string{
 		{"bearer": {}},
