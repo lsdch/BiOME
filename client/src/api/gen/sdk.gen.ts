@@ -12,6 +12,8 @@ import {
 import { client } from './client.gen'
 import {
   addBibliographyCsvResponseTransformer,
+  addCuratorToDatasetResponseTransformer,
+  createDatasetResponseTransformer,
   createOccurrenceAtSamplingResponseTransformer,
   createOccurrenceResponseTransformer,
   createSamplingResponseTransformer,
@@ -23,6 +25,7 @@ import {
   importOccurrencesCsvResponseTransformer,
   listDatasetsResponseTransformer,
   listGeoapifyUsageResponseTransformer,
+  listImportBatchesInDatasetResponseTransformer,
   listImportBatchesResponseTransformer,
   listImportBatchesWithContentResponseTransformer,
   listImportsForCurrentUserResponseTransformer,
@@ -37,18 +40,31 @@ import {
   loginResponseTransformer,
   materializeBatchResponseTransformer,
   refreshSessionResponseTransformer,
+  removeCuratorFromDatasetResponseTransformer,
   trackImportStatusResponseTransformer
 } from './transformers.gen'
 import type {
   AddBibliographyCsvData,
   AddBibliographyCsvErrors,
   AddBibliographyCsvResponses,
+  AddCuratorToDatasetData,
+  AddCuratorToDatasetErrors,
+  AddCuratorToDatasetResponses,
+  AddImportBatchToDatasetData,
+  AddImportBatchToDatasetErrors,
+  AddImportBatchToDatasetResponses,
+  AddOccurrenceToDatasetData,
+  AddOccurrenceToDatasetErrors,
+  AddOccurrenceToDatasetResponses,
   BatchReverseGeocodeData,
   BatchReverseGeocodeErrors,
   BatchReverseGeocodeResponses,
   CoordinatesToCountryData,
   CoordinatesToCountryErrors,
   CoordinatesToCountryResponses,
+  CreateDatasetData,
+  CreateDatasetErrors,
+  CreateDatasetResponses,
   CreateFixativeData,
   CreateFixativeErrors,
   CreateFixativeResponses,
@@ -183,6 +199,9 @@ import type {
   ListGeoapifyUsageResponses,
   ListImportBatchesData,
   ListImportBatchesErrors,
+  ListImportBatchesInDatasetData,
+  ListImportBatchesInDatasetErrors,
+  ListImportBatchesInDatasetResponses,
   ListImportBatchesResponses,
   ListImportBatchesWithContentData,
   ListImportBatchesWithContentErrors,
@@ -253,6 +272,15 @@ import type {
   RefreshSessionData,
   RefreshSessionErrors,
   RefreshSessionResponses,
+  RemoveCuratorFromDatasetData,
+  RemoveCuratorFromDatasetErrors,
+  RemoveCuratorFromDatasetResponses,
+  RemoveImportBatchFromDatasetData,
+  RemoveImportBatchFromDatasetErrors,
+  RemoveImportBatchFromDatasetResponses,
+  RemoveOccurrenceFromDatasetData,
+  RemoveOccurrenceFromDatasetErrors,
+  RemoveOccurrenceFromDatasetResponses,
   ResolveFixativeData,
   ResolveFixativeErrors,
   ResolveFixativeResponses,
@@ -639,6 +667,35 @@ export class DatasetsService {
   }
 
   /**
+   * Create a new dataset
+   */
+  public static createDataset<ThrowOnError extends boolean = false>(
+    options: Options<CreateDatasetData, ThrowOnError>
+  ): RequestResult<CreateDatasetResponses, CreateDatasetErrors, ThrowOnError> {
+    return (options.client ?? client).post<
+      CreateDatasetResponses,
+      CreateDatasetErrors,
+      ThrowOnError
+    >({
+      responseTransformer: createDatasetResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/datasets',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
    * Get dataset by ID
    */
   public static getDatasetById<ThrowOnError extends boolean = false>(
@@ -659,6 +716,89 @@ export class DatasetsService {
         }
       ],
       url: '/datasets/{ulid}',
+      ...options
+    })
+  }
+
+  /**
+   * List import batches in a dataset
+   */
+  public static listImportBatchesInDataset<ThrowOnError extends boolean = false>(
+    options: Options<ListImportBatchesInDatasetData, ThrowOnError>
+  ): RequestResult<
+    ListImportBatchesInDatasetResponses,
+    ListImportBatchesInDatasetErrors,
+    ThrowOnError
+  > {
+    return (options.client ?? client).get<
+      ListImportBatchesInDatasetResponses,
+      ListImportBatchesInDatasetErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listImportBatchesInDatasetResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/datasets/{ulid}/batches',
+      ...options
+    })
+  }
+
+  /**
+   * Remove a curator from a dataset
+   */
+  public static removeCuratorFromDataset<ThrowOnError extends boolean = false>(
+    options: Options<RemoveCuratorFromDatasetData, ThrowOnError>
+  ): RequestResult<
+    RemoveCuratorFromDatasetResponses,
+    RemoveCuratorFromDatasetErrors,
+    ThrowOnError
+  > {
+    return (options.client ?? client).delete<
+      RemoveCuratorFromDatasetResponses,
+      RemoveCuratorFromDatasetErrors,
+      ThrowOnError
+    >({
+      responseTransformer: removeCuratorFromDatasetResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/datasets/{ulid}/curators/{user_id}',
+      ...options
+    })
+  }
+
+  /**
+   * Add a curator to a dataset
+   */
+  public static addCuratorToDataset<ThrowOnError extends boolean = false>(
+    options: Options<AddCuratorToDatasetData, ThrowOnError>
+  ): RequestResult<AddCuratorToDatasetResponses, AddCuratorToDatasetErrors, ThrowOnError> {
+    return (options.client ?? client).post<
+      AddCuratorToDatasetResponses,
+      AddCuratorToDatasetErrors,
+      ThrowOnError
+    >({
+      responseTransformer: addCuratorToDatasetResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/datasets/{ulid}/curators/{user_id}',
       ...options
     })
   }
@@ -688,6 +828,58 @@ export class DatasetsService {
         }
       ],
       url: '/datasets/{ulid}/occurrences',
+      ...options
+    })
+  }
+
+  /**
+   * Remove an occurrence from a dataset
+   */
+  public static removeOccurrenceFromDataset<ThrowOnError extends boolean = false>(
+    options: Options<RemoveOccurrenceFromDatasetData, ThrowOnError>
+  ): RequestResult<
+    RemoveOccurrenceFromDatasetResponses,
+    RemoveOccurrenceFromDatasetErrors,
+    ThrowOnError
+  > {
+    return (options.client ?? client).delete<
+      RemoveOccurrenceFromDatasetResponses,
+      RemoveOccurrenceFromDatasetErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/datasets/{ulid}/occurrences/{occurrence_id}',
+      ...options
+    })
+  }
+
+  /**
+   * Add an occurrence to a dataset
+   */
+  public static addOccurrenceToDataset<ThrowOnError extends boolean = false>(
+    options: Options<AddOccurrenceToDatasetData, ThrowOnError>
+  ): RequestResult<AddOccurrenceToDatasetResponses, AddOccurrenceToDatasetErrors, ThrowOnError> {
+    return (options.client ?? client).post<
+      AddOccurrenceToDatasetResponses,
+      AddOccurrenceToDatasetErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/datasets/{ulid}/occurrences/{occurrence_id}',
       ...options
     })
   }
@@ -1212,6 +1404,58 @@ export class ImportsService {
         }
       ],
       url: '/import-batches/{id}',
+      ...options
+    })
+  }
+
+  /**
+   * Remove an import batch from a dataset
+   */
+  public static removeImportBatchFromDataset<ThrowOnError extends boolean = false>(
+    options: Options<RemoveImportBatchFromDatasetData, ThrowOnError>
+  ): RequestResult<
+    RemoveImportBatchFromDatasetResponses,
+    RemoveImportBatchFromDatasetErrors,
+    ThrowOnError
+  > {
+    return (options.client ?? client).delete<
+      RemoveImportBatchFromDatasetResponses,
+      RemoveImportBatchFromDatasetErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import-batches/{id}/datasets/{dataset_id}',
+      ...options
+    })
+  }
+
+  /**
+   * Add an import batch to a dataset
+   */
+  public static addImportBatchToDataset<ThrowOnError extends boolean = false>(
+    options: Options<AddImportBatchToDatasetData, ThrowOnError>
+  ): RequestResult<AddImportBatchToDatasetResponses, AddImportBatchToDatasetErrors, ThrowOnError> {
+    return (options.client ?? client).post<
+      AddImportBatchToDatasetResponses,
+      AddImportBatchToDatasetErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import-batches/{id}/datasets/{dataset_id}',
       ...options
     })
   }

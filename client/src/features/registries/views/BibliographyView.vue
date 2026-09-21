@@ -42,7 +42,7 @@
       </v-row>
     </template>
     <template #item.authors="{ value }: { value: string[] }">
-      {{ Article.shortAuthors(value) }}
+      {{ Publication.shortAuthors(value) }}
     </template>
     <template #item.title="{ value, item }">
       <span v-if="value">{{ value }}</span>
@@ -101,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { Article, Publication } from '@/api/adapters'
+import { Publication } from '@/api/adapters'
 import {
   deletePublicationMutation,
   listPublicationsOptions

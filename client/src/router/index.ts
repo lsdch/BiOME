@@ -46,11 +46,10 @@ function setupRouter(settings: InstanceSettings) {
         }
       },
       {
-        path: '/datasets/occurrences/:slug',
+        path: '/datasets/occurrences/:ulid',
         name: 'occurrence-dataset-item',
-        component: () =>
-          import('@/features/datasets/views/occurrence/OccurrenceDatasetItemView.vue'),
-        props: (route) => ({ slug: route.params.slug })
+        component: () => import('@/features/datasets/views/OccurrenceDatasetItemView.vue'),
+        props: true
       },
       {
         path: '/occurrences/:id/:code?',
@@ -64,12 +63,12 @@ function setupRouter(settings: InstanceSettings) {
         component: () => import('@/features/import/views/ImportBatchItemView.vue'),
         props: true
       },
-      {
-        path: '/sequences/:code',
-        name: 'sequence',
-        component: () => import('@/features/sequences/views/SeqItemView.vue'),
-        props: true
-      },
+      // {
+      //   path: '/sequences/:code',
+      //   name: 'sequence',
+      //   component: () => import('@/features/sequences/views/SeqItemView.vue'),
+      //   props: true
+      // },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       ...Object.values(routes),
       ...navRouteDefinitions(settings)

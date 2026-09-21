@@ -9,11 +9,11 @@
     entity-name="Occurrence dataset"
     :toolbar="{ title: 'Occurrence datasets', icon: 'mdi-crosshairs-gps' }"
   >
-    <template #item.label="{ item }: { item: Dataset }">
+    <template #item.label="{ item }: { item: DatasetWithSummary }">
       <div class="d-flex justify-space-between ga-2">
         <RouterLink
           class="text-no-wrap"
-          :to="{ name: 'occurrence-dataset-item', params: { slug: item.slug } }"
+          :to="{ name: 'occurrence-dataset-item', params: { ulid: item.id } }"
           :text="item.label"
         />
       </div>
@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { Dataset } from '@/api'
+import { Dataset, DatasetWithMaintainers, DatasetWithSummary } from '@/api'
 import { listDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { LineClampedText } from '@/components/toolkit/ui/LineClampedText'
@@ -39,7 +39,7 @@ import { useQuery } from '@tanstack/vue-query'
 
 const { data: items, refetch, error, isPending: loading } = useQuery(listDatasetsOptions())
 
-const headers: CRUDTableHeader<Dataset>[] = [
+const headers: CRUDTableHeader<DatasetWithSummary>[] = [
   { key: 'label', title: 'Label' },
   {
     key: 'description',
@@ -47,14 +47,20 @@ const headers: CRUDTableHeader<Dataset>[] = [
     cellProps: { class: 'text-caption' }
   },
   {
-    key: 'sites',
-    title: 'Sites',
+    key: 'occurrence_count',
+    title: 'Occurrences',
     align: 'end',
     cellProps: { class: 'font-monospace' }
   },
   {
-    key: 'occurrences',
-    title: 'Occurrences',
+    key: 'sampling_count',
+    title: 'Samplings',
+    align: 'end',
+    cellProps: { class: 'font-monospace' }
+  },
+  {
+    key: 'import_batch_count',
+    title: 'Import batches',
     align: 'end',
     cellProps: { class: 'font-monospace' }
   }

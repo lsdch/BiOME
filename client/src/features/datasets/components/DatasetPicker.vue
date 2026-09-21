@@ -25,23 +25,47 @@
         </template>
       </v-list-item>
     </template>
+    <template #append v-if="withForm && userStore.isGranted('contributor')">
+      <dataset-create-form-dialog
+        @created="
+          (value) => {
+            refetch()
+            multiple
+              ? (model = [...(model || []), itemValue ? value[itemValue] : value] as ModelValue)
+              : (model = (itemValue ? value[itemValue] : value) as ModelValue)
+          }
+        "
+      >
+        <template #activator="{ props: activatorProps }">
+          <v-btn v-bind="activatorProps" icon="mdi-plus" v-tooltip="'Create dataset'" />
+        </template>
+      </dataset-create-form-dialog>
+    </template>
   </v-autocomplete>
 </template>
 
-<script setup lang="ts" generic="ModelValue extends unknown | unknown[] | null | undefined">
-import { Dataset } from '@/api'
+<script setup lang="ts" generic="Multiple extends boolean, ReturnObject extends boolean">
+import { Dataset, DatasetWithMaintainers } from '@/api'
 import { listDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
+import DatasetCreateFormDialog from './DatasetCreateFormDialog.vue'
+import { Value } from 'vuetify/lib/components/VAutocomplete/VAutocomplete.mjs'
+
+const userStore = useUserStore()
+
+type ModelValue = Value<DatasetWithMaintainers, ReturnObject, Multiple>
 
 const model = defineModel<ModelValue>()
 
-defineProps<{
+const { itemValue = 'id' } = defineProps<{
   multiple?: boolean
   label: string
   itemValue?: keyof Dataset
+  withForm?: boolean
 }>()
 
-const { data: items, isPending: loading, error } = useQuery(listDatasetsOptions())
+const { data: items, isPending: loading, error, refetch } = useQuery(listDatasetsOptions())
 </script>
 
 <style lang="scss" scoped></style>

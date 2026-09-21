@@ -144,6 +144,7 @@ func NewApp(config config.Config) *App {
 			bibliographyResolver,
 			appServices.SamplingsService,
 			appServices.OccurrencesService,
+			appServices.ImportBatchService,
 			fileStorage,
 		),
 	}
@@ -195,7 +196,7 @@ func (a *App) WriteOpenAPISpec(outputPath string, format router.OpenAPIFormat) e
 }
 
 func (a *App) Run() {
-	if err := a.Router.Engine.Run(fmt.Sprintf("%s:%s", a.Config.API.Host, a.Config.API.Port)); err != nil {
+	if err := a.Router.Engine.Run(fmt.Sprintf("%s:%d", a.Config.API.Host, a.Config.API.Port)); err != nil {
 		log.Fatalf("Failed to start Gin router: %v", err)
 	}
 }

@@ -35,7 +35,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/AppError.json"
+							"/api/v1/schemas/AppError.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -140,7 +140,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/BatchSnapshot.json"
+							"/api/v1/schemas/BatchSnapshot.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -306,7 +306,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/Country.json"
+							"/api/v1/schemas/Country.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -373,7 +373,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/CreatePublicationParams.json"
+							"/api/v1/schemas/CreatePublicationParams.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -410,7 +410,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/CreateTaxonInput.json"
+							"/api/v1/schemas/CreateTaxonInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -449,10 +449,84 @@
 			"Dataset": {
 				"additionalProperties": false,
 				"properties": {
+					"created_at": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"owner_id": {
+						"type": "string"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"label",
+					"slug",
+					"pinned",
+					"owner_id",
+					"created_at"
+				],
+				"type": "object"
+			},
+			"DatasetInput": {
+				"additionalProperties": false,
+				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/Dataset.json"
+							"/api/v1/schemas/DatasetInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"public": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"label",
+					"pinned",
+					"public"
+				],
+				"type": "object"
+			},
+			"DatasetWithMaintainers": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/DatasetWithMaintainers.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -471,6 +545,15 @@
 					"label": {
 						"type": "string"
 					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/User"
+						},
+						"type": "array"
+					},
+					"owner_id": {
+						"type": "string"
+					},
 					"pinned": {
 						"type": "boolean"
 					},
@@ -479,10 +562,70 @@
 					}
 				},
 				"required": [
+					"maintainers",
 					"id",
 					"label",
 					"slug",
 					"pinned",
+					"owner_id",
+					"created_at"
+				],
+				"type": "object"
+			},
+			"DatasetWithSummary": {
+				"additionalProperties": false,
+				"properties": {
+					"created_at": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"import_batch_count": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/User"
+						},
+						"type": "array"
+					},
+					"occurrence_count": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"owner_id": {
+						"type": "string"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"sampling_count": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"occurrence_count",
+					"sampling_count",
+					"import_batch_count",
+					"maintainers",
+					"id",
+					"label",
+					"slug",
+					"pinned",
+					"owner_id",
 					"created_at"
 				],
 				"type": "object"
@@ -597,7 +740,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/Fixative.json"
+							"/api/v1/schemas/Fixative.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -629,7 +772,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/FixativeInput.json"
+							"/api/v1/schemas/FixativeInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -657,7 +800,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/FixativeUpdateParams.json"
+							"/api/v1/schemas/FixativeUpdateParams.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -684,7 +827,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/FullOccurrenceInput.json"
+							"/api/v1/schemas/FullOccurrenceInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -727,7 +870,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/GeoapifyResult.json"
+							"/api/v1/schemas/GeoapifyResult.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -798,7 +941,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/GeoapifyStatus.json"
+							"/api/v1/schemas/GeoapifyStatus.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -964,7 +1107,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/HabitatGroupInput.json"
+							"/api/v1/schemas/HabitatGroupInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1009,7 +1152,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/HabitatGroupUpdate.json"
+							"/api/v1/schemas/HabitatGroupUpdate.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1206,7 +1349,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/ImportBatch.json"
+							"/api/v1/schemas/ImportBatch.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1285,6 +1428,12 @@
 						},
 						"type": "array"
 					},
+					"datasets": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
 					"description": {
 						"type": "string"
 					},
@@ -1302,29 +1451,9 @@
 				],
 				"type": "object"
 			},
-			"ImportBatchStatus": {
-				"enum": [
-					"created",
-					"staged",
-					"completed",
-					"failed",
-					"canceled"
-				],
-				"title": "ImportBatchStatus",
-				"type": "string"
-			},
-			"ImportBatchWithContent": {
+			"ImportBatchListItem": {
 				"additionalProperties": false,
 				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"//localhost:5173/api/v1/schemas/ImportBatchWithContent.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
 					"assembled_by": {
 						"items": {
 							"type": "string"
@@ -1407,13 +1536,124 @@
 				],
 				"type": "object"
 			},
+			"ImportBatchStatus": {
+				"enum": [
+					"created",
+					"staged",
+					"completed",
+					"failed",
+					"canceled"
+				],
+				"title": "ImportBatchStatus",
+				"type": "string"
+			},
+			"ImportBatchWithDetails": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ImportBatchWithDetails.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"assembled_by": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"completed_at": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"completed_by": {
+						"type": "string"
+					},
+					"completed_by_user": {
+						"$ref": "#/components/schemas/User"
+					},
+					"created_at": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"created_by": {
+						"type": "string"
+					},
+					"created_by_user": {
+						"$ref": "#/components/schemas/User"
+					},
+					"datasets": {
+						"items": {
+							"$ref": "#/components/schemas/Dataset"
+						},
+						"type": "array"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"type": "string"
+					},
+					"imported_file_content_type": {
+						"type": "string"
+					},
+					"imported_file_hash": {
+						"type": "string"
+					},
+					"imported_file_name": {
+						"type": "string"
+					},
+					"imported_file_size": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"label": {
+						"type": "string"
+					},
+					"occurrence_count": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"sampling_count": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"status": {
+						"$ref": "#/components/schemas/ImportBatchStatus"
+					},
+					"taxonomic_scope": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"occurrence_count",
+					"sampling_count",
+					"created_by_user",
+					"completed_by_user",
+					"id",
+					"label",
+					"status",
+					"created_by",
+					"created_at",
+					"taxonomic_scope",
+					"imported_file_name",
+					"imported_file_size",
+					"imported_file_hash",
+					"imported_file_content_type"
+				],
+				"type": "object"
+			},
 			"InstanceSettings": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/InstanceSettings.json"
+							"/api/v1/schemas/InstanceSettings.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1464,7 +1704,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/InstanceSettingsUpdate.json"
+							"/api/v1/schemas/InstanceSettingsUpdate.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1503,7 +1743,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/LoginResult.json"
+							"/api/v1/schemas/LoginResult.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1630,7 +1870,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/OccurrenceInput.json"
+							"/api/v1/schemas/OccurrenceInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1762,7 +2002,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/OccurrenceWithDetails.json"
+							"/api/v1/schemas/OccurrenceWithDetails.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1840,7 +2080,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/OccurrenceWithMetadata.json"
+							"/api/v1/schemas/OccurrenceWithMetadata.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1914,7 +2154,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/PaginatedListOccurrence.json"
+							"/api/v1/schemas/PaginatedListOccurrence.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1987,7 +2227,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/Publication.json"
+							"/api/v1/schemas/Publication.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2168,7 +2408,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/ResolveInput.json"
+							"/api/v1/schemas/ResolveInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2259,7 +2499,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingFixativeResolution.json"
+							"/api/v1/schemas/SamplingFixativeResolution.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2291,7 +2531,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingFixativeResolutionInput.json"
+							"/api/v1/schemas/SamplingFixativeResolutionInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2319,7 +2559,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingInput.json"
+							"/api/v1/schemas/SamplingInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2378,7 +2618,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingMethod.json"
+							"/api/v1/schemas/SamplingMethod.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2410,7 +2650,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingMethodInput.json"
+							"/api/v1/schemas/SamplingMethodInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2438,7 +2678,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingMethodResolution.json"
+							"/api/v1/schemas/SamplingMethodResolution.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2470,7 +2710,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingMethodResolutionInput.json"
+							"/api/v1/schemas/SamplingMethodResolutionInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2498,7 +2738,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingMethodUpdateParams.json"
+							"/api/v1/schemas/SamplingMethodUpdateParams.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2525,7 +2765,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SamplingWithDetails.json"
+							"/api/v1/schemas/SamplingWithDetails.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2780,7 +3020,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/SessionTokens.json"
+							"/api/v1/schemas/SessionTokens.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2868,7 +3108,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/Taxon.json"
+							"/api/v1/schemas/Taxon.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -3180,7 +3420,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/TaxonStagingParams.json"
+							"/api/v1/schemas/TaxonStagingParams.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -3231,7 +3471,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/TaxonWithFullLineage.json"
+							"/api/v1/schemas/TaxonWithFullLineage.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -3301,7 +3541,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/User.json"
+							"/api/v1/schemas/User.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -3359,7 +3599,7 @@
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"//localhost:5173/api/v1/schemas/UserCredentials.json"
+							"/api/v1/schemas/UserCredentials.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -3731,7 +3971,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/Dataset"
+										"$ref": "#/components/schemas/DatasetWithSummary"
 									},
 									"type": "array"
 								}
@@ -3755,6 +3995,58 @@
 					"Datasets"
 				],
 				"x-policy": {}
+			},
+			"post": {
+				"operationId": "CreateDataset",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DatasetInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DatasetWithMaintainers"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create a new dataset",
+				"tags": [
+					"Datasets"
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/datasets/{ulid}": {
@@ -3776,7 +4068,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Dataset"
+									"$ref": "#/components/schemas/DatasetWithMaintainers"
 								}
 							}
 						},
@@ -3808,6 +4100,188 @@
 					"Datasets"
 				],
 				"x-policy": {}
+			}
+		},
+		"/datasets/{ulid}/batches": {
+			"get": {
+				"operationId": "ListImportBatchesInDataset",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "ulid",
+						"required": true,
+						"schema": {
+							"format": "ulid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ImportBatchListItem"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List import batches in a dataset",
+				"tags": [
+					"Datasets"
+				],
+				"x-policy": {}
+			}
+		},
+		"/datasets/{ulid}/curators/{user_id}": {
+			"delete": {
+				"operationId": "RemoveCuratorFromDataset",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "ulid",
+						"required": true,
+						"schema": {
+							"format": "ulid",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "user_id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DatasetWithMaintainers"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Remove a curator from a dataset",
+				"tags": [
+					"Datasets"
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
+			},
+			"post": {
+				"operationId": "AddCuratorToDataset",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "ulid",
+						"required": true,
+						"schema": {
+							"format": "ulid",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "user_id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DatasetWithMaintainers"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Add a curator to a dataset",
+				"tags": [
+					"Datasets"
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/datasets/{ulid}/occurrences": {
@@ -3864,6 +4338,116 @@
 					"Datasets"
 				],
 				"x-policy": {}
+			}
+		},
+		"/datasets/{ulid}/occurrences/{occurrence_id}": {
+			"delete": {
+				"operationId": "RemoveOccurrenceFromDataset",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "ulid",
+						"required": true,
+						"schema": {
+							"format": "ulid",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "occurrence_id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Remove an occurrence from a dataset",
+				"tags": [
+					"Datasets"
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
+			},
+			"post": {
+				"operationId": "AddOccurrenceToDataset",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "ulid",
+						"required": true,
+						"schema": {
+							"format": "ulid",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "occurrence_id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Add an occurrence to a dataset",
+				"tags": [
+					"Datasets"
+				],
+				"x-policy": {
+					"role": "contributor"
+				}
 			}
 		},
 		"/fixatives": {
@@ -4477,7 +5061,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/ImportBatchWithContent"
+										"$ref": "#/components/schemas/ImportBatchListItem"
 									},
 									"type": "array"
 								}
@@ -4602,6 +5186,116 @@
 				"x-policy": {}
 			}
 		},
+		"/import-batches/{id}/datasets/{dataset_id}": {
+			"delete": {
+				"operationId": "RemoveImportBatchFromDataset",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "dataset_id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Remove an import batch from a dataset",
+				"tags": [
+					"Imports"
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
+			},
+			"post": {
+				"operationId": "AddImportBatchToDataset",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "dataset_id",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Add an import batch to a dataset",
+				"tags": [
+					"Imports"
+				],
+				"x-policy": {
+					"role": "maintainer"
+				}
+			}
+		},
 		"/import-batches/{id}/raw": {
 			"get": {
 				"operationId": "DownloadRawFile",
@@ -4667,7 +5361,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/ImportBatchWithContent"
+									"$ref": "#/components/schemas/ImportBatchWithDetails"
 								}
 							}
 						},
@@ -8984,7 +9678,7 @@
 	],
 	"servers": [
 		{
-			"url": "//localhost:5173/api/v1"
+			"url": "/api/v1"
 		}
 	]
 }

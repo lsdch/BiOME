@@ -13,6 +13,7 @@ import (
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/services/storage"
+	"github.com/lsdch/biome/types"
 	"github.com/sirupsen/logrus"
 )
 
@@ -41,15 +42,15 @@ func (c *ImportBatchController) GetImportBatch(ctx context.Context, input *struc
 	return &BodyTransporter[models.ImportBatch]{Body: batch}, nil
 }
 
-func (c *ImportBatchController) GetImportBatchWithContent(ctx context.Context, input *struct {
+func (c *ImportBatchController) GetImportBatchWithDetails(ctx context.Context, input *struct {
 	UUIDInput
-}) (*BodyTransporter[models.ImportBatchWithContent], error) {
-	batch, err := c.service.GetImportBatchWithContent(ctx, c.DB, input.ID)
+}) (*BodyTransporter[models.ImportBatchWithDetails], error) {
+	batch, err := c.service.GetImportBatchWithDetails(ctx, c.DB, input.ID)
 	if err != nil {
-		return &BodyTransporter[models.ImportBatchWithContent]{}, err
+		return &BodyTransporter[models.ImportBatchWithDetails]{}, err
 	}
 
-	return &BodyTransporter[models.ImportBatchWithContent]{Body: batch}, nil
+	return &BodyTransporter[models.ImportBatchWithDetails]{Body: batch}, nil
 }
 
 func (c *ImportBatchController) ListImportBatches(ctx context.Context, input *struct{}) (*BodyTransporter[[]models.ImportBatch], error) {
@@ -60,13 +61,13 @@ func (c *ImportBatchController) ListImportBatches(ctx context.Context, input *st
 
 	return &BodyTransporter[[]models.ImportBatch]{Body: batches}, nil
 }
-func (c *ImportBatchController) ListImportBatchesWithContent(ctx context.Context, input *struct{}) (*BodyTransporter[[]models.ImportBatchWithContent], error) {
+func (c *ImportBatchController) ListImportBatchesWithContent(ctx context.Context, input *struct{}) (*BodyTransporter[[]models.ImportBatchListItem], error) {
 	batches, err := c.service.ListImportBatchesWithContent(ctx, c.DB)
 	if err != nil {
-		return &BodyTransporter[[]models.ImportBatchWithContent]{}, err
+		return &BodyTransporter[[]models.ImportBatchListItem]{}, err
 	}
 
-	return &BodyTransporter[[]models.ImportBatchWithContent]{Body: batches}, nil
+	return &BodyTransporter[[]models.ImportBatchListItem]{Body: batches}, nil
 }
 
 func (c *ImportBatchController) DeleteImportBatch(ctx context.Context, input *struct {
@@ -79,6 +80,28 @@ func (c *ImportBatchController) DeleteImportBatch(ctx context.Context, input *st
 		return nil, err
 	}
 
+	return nil, nil
+}
+
+func (c *ImportBatchController) AddToDataset(ctx context.Context, input *struct {
+	UUIDInput
+	DatasetID types.ULID `path:"dataset_id"`
+}) (*struct{}, error) {
+	err := c.service.AddToDataset(ctx, c.DB, input.ID, input.DatasetID)
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (c *ImportBatchController) RemoveFromDataset(ctx context.Context, input *struct {
+	UUIDInput
+	DatasetID types.ULID `path:"dataset_id"`
+}) (*struct{}, error) {
+	err := c.service.RemoveFromDataset(ctx, c.DB, input.ID, input.DatasetID)
+	if err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 
@@ -128,7 +151,7 @@ func (c *ImportBatchController) RegisterRoutes(r *router.Router) {
 			Path:    "/{id}/with-content",
 			Summary: "Get a specific import batch with content summary",
 		},
-		c.GetImportBatchWithContent,
+		c.GetImportBatchWithDetails,
 	).WithAccessPolicy(auth.Public()).Register(r)
 
 	router.NewSpec(batchesAPI,
@@ -170,4 +193,24 @@ func (c *ImportBatchController) RegisterRoutes(r *router.Router) {
 		},
 		c.DownloadRawFile,
 	).WithAccessPolicy(auth.Public()).Register(r)
+
+	router.NewSpec(batchesAPI,
+		"AddImportBatchToDataset",
+		huma.Operation{
+			Method:  http.MethodPost,
+			Path:    "/{id}/datasets/{dataset_id}",
+			Summary: "Add an import batch to a dataset",
+		},
+		c.AddToDataset,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleMaintainer)).Register(r)
+
+	router.NewSpec(batchesAPI,
+		"RemoveImportBatchFromDataset",
+		huma.Operation{
+			Method:  http.MethodDelete,
+			Path:    "/{id}/datasets/{dataset_id}",
+			Summary: "Remove an import batch from a dataset",
+		},
+		c.RemoveFromDataset,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleMaintainer)).Register(r)
 }

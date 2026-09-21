@@ -1393,12 +1393,19 @@ type Dataset struct {
 	Slug        string     `json:"slug"`
 	Description *string    `json:"description"`
 	Pinned      bool       `json:"pinned"`
+	OwnerID     uuid.UUID  `json:"owner_id"`
+	IsPublic    bool       `json:"is_public"`
 	CreatedAt   time.Time  `json:"created_at"`
 }
 
 type DatasetsCurator struct {
 	DatasetID types.ULID `json:"dataset_id"`
 	UserID    uuid.UUID  `json:"user_id"`
+}
+
+type DatasetsImportBatch struct {
+	DatasetID     types.ULID `json:"dataset_id"`
+	ImportBatchID uuid.UUID  `json:"import_batch_id"`
 }
 
 type DatasetsPublication struct {

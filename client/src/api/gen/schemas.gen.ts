@@ -29,7 +29,7 @@ export const $AppError = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/AppError.json'],
+      examples: ['/api/v1/schemas/AppError.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -121,7 +121,7 @@ export const $BatchSnapshot = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/BatchSnapshot.json'],
+      examples: ['/api/v1/schemas/BatchSnapshot.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -274,7 +274,7 @@ export const $Country = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/Country.json'],
+      examples: ['/api/v1/schemas/Country.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -329,7 +329,7 @@ export const $CreatePublicationParams = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/CreatePublicationParams.json'],
+      examples: ['/api/v1/schemas/CreatePublicationParams.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -365,7 +365,7 @@ export const $CreateTaxonInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/CreateTaxonInput.json'],
+      examples: ['/api/v1/schemas/CreateTaxonInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -399,9 +399,72 @@ export const $CreateTaxonInput = {
 export const $Dataset = {
   additionalProperties: false,
   properties: {
+    created_at: {
+      format: 'date-time',
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    owner_id: {
+      type: 'string'
+    },
+    pinned: {
+      type: 'boolean'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: ['id', 'label', 'slug', 'pinned', 'owner_id', 'created_at'],
+  type: 'object'
+} as const
+
+export const $DatasetInput = {
+  additionalProperties: false,
+  properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/Dataset.json'],
+      examples: ['/api/v1/schemas/DatasetInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    maintainers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    pinned: {
+      type: 'boolean'
+    },
+    public: {
+      type: 'boolean'
+    }
+  },
+  required: ['label', 'pinned', 'public'],
+  type: 'object'
+} as const
+
+export const $DatasetWithMaintainers = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/DatasetWithMaintainers.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -419,6 +482,15 @@ export const $Dataset = {
     label: {
       type: 'string'
     },
+    maintainers: {
+      items: {
+        $ref: '#/components/schemas/User'
+      },
+      type: 'array'
+    },
+    owner_id: {
+      type: 'string'
+    },
     pinned: {
       type: 'boolean'
     },
@@ -426,7 +498,66 @@ export const $Dataset = {
       type: 'string'
     }
   },
-  required: ['id', 'label', 'slug', 'pinned', 'created_at'],
+  required: ['maintainers', 'id', 'label', 'slug', 'pinned', 'owner_id', 'created_at'],
+  type: 'object'
+} as const
+
+export const $DatasetWithSummary = {
+  additionalProperties: false,
+  properties: {
+    created_at: {
+      format: 'date-time',
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      type: 'string'
+    },
+    import_batch_count: {
+      format: 'int64',
+      type: 'integer'
+    },
+    label: {
+      type: 'string'
+    },
+    maintainers: {
+      items: {
+        $ref: '#/components/schemas/User'
+      },
+      type: 'array'
+    },
+    occurrence_count: {
+      format: 'int64',
+      type: 'integer'
+    },
+    owner_id: {
+      type: 'string'
+    },
+    pinned: {
+      type: 'boolean'
+    },
+    sampling_count: {
+      format: 'int64',
+      type: 'integer'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: [
+    'occurrence_count',
+    'sampling_count',
+    'import_batch_count',
+    'maintainers',
+    'id',
+    'label',
+    'slug',
+    'pinned',
+    'owner_id',
+    'created_at'
+  ],
   type: 'object'
 } as const
 
@@ -528,7 +659,7 @@ export const $Fixative = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/Fixative.json'],
+      examples: ['/api/v1/schemas/Fixative.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -555,7 +686,7 @@ export const $FixativeInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/FixativeInput.json'],
+      examples: ['/api/v1/schemas/FixativeInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -579,7 +710,7 @@ export const $FixativeUpdateParams = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/FixativeUpdateParams.json'],
+      examples: ['/api/v1/schemas/FixativeUpdateParams.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -602,7 +733,7 @@ export const $FullOccurrenceInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/FullOccurrenceInput.json'],
+      examples: ['/api/v1/schemas/FullOccurrenceInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -639,7 +770,7 @@ export const $GeoapifyResult = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/GeoapifyResult.json'],
+      examples: ['/api/v1/schemas/GeoapifyResult.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -709,7 +840,7 @@ export const $GeoapifyStatus = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/GeoapifyStatus.json'],
+      examples: ['/api/v1/schemas/GeoapifyStatus.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -866,7 +997,7 @@ export const $HabitatGroupInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/HabitatGroupInput.json'],
+      examples: ['/api/v1/schemas/HabitatGroupInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -903,7 +1034,7 @@ export const $HabitatGroupUpdate = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/HabitatGroupUpdate.json'],
+      examples: ['/api/v1/schemas/HabitatGroupUpdate.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1080,7 +1211,7 @@ export const $ImportBatch = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/ImportBatch.json'],
+      examples: ['/api/v1/schemas/ImportBatch.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1159,6 +1290,12 @@ export const $ImportBatchInput = {
       },
       type: 'array'
     },
+    datasets: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
     description: {
       type: 'string'
     },
@@ -1174,22 +1311,9 @@ export const $ImportBatchInput = {
   type: 'object'
 } as const
 
-export const $ImportBatchStatus = {
-  enum: ['created', 'staged', 'completed', 'failed', 'canceled'],
-  title: 'ImportBatchStatus',
-  type: 'string'
-} as const
-
-export const $ImportBatchWithContent = {
+export const $ImportBatchListItem = {
   additionalProperties: false,
   properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/ImportBatchWithContent.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
     assembled_by: {
       items: {
         type: 'string'
@@ -1273,12 +1397,117 @@ export const $ImportBatchWithContent = {
   type: 'object'
 } as const
 
+export const $ImportBatchStatus = {
+  enum: ['created', 'staged', 'completed', 'failed', 'canceled'],
+  title: 'ImportBatchStatus',
+  type: 'string'
+} as const
+
+export const $ImportBatchWithDetails = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ImportBatchWithDetails.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    assembled_by: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    completed_at: {
+      format: 'date-time',
+      type: 'string'
+    },
+    completed_by: {
+      type: 'string'
+    },
+    completed_by_user: {
+      $ref: '#/components/schemas/User'
+    },
+    created_at: {
+      format: 'date-time',
+      type: 'string'
+    },
+    created_by: {
+      type: 'string'
+    },
+    created_by_user: {
+      $ref: '#/components/schemas/User'
+    },
+    datasets: {
+      items: {
+        $ref: '#/components/schemas/Dataset'
+      },
+      type: 'array'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      type: 'string'
+    },
+    imported_file_content_type: {
+      type: 'string'
+    },
+    imported_file_hash: {
+      type: 'string'
+    },
+    imported_file_name: {
+      type: 'string'
+    },
+    imported_file_size: {
+      format: 'int64',
+      type: 'integer'
+    },
+    label: {
+      type: 'string'
+    },
+    occurrence_count: {
+      format: 'int64',
+      type: 'integer'
+    },
+    sampling_count: {
+      format: 'int64',
+      type: 'integer'
+    },
+    status: {
+      $ref: '#/components/schemas/ImportBatchStatus'
+    },
+    taxonomic_scope: {
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: [
+    'occurrence_count',
+    'sampling_count',
+    'created_by_user',
+    'completed_by_user',
+    'id',
+    'label',
+    'status',
+    'created_by',
+    'created_at',
+    'taxonomic_scope',
+    'imported_file_name',
+    'imported_file_size',
+    'imported_file_hash',
+    'imported_file_content_type'
+  ],
+  type: 'object'
+} as const
+
 export const $InstanceSettings = {
   additionalProperties: false,
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/InstanceSettings.json'],
+      examples: ['/api/v1/schemas/InstanceSettings.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1328,7 +1557,7 @@ export const $InstanceSettingsUpdate = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/InstanceSettingsUpdate.json'],
+      examples: ['/api/v1/schemas/InstanceSettingsUpdate.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1360,7 +1589,7 @@ export const $LoginResult = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/LoginResult.json'],
+      examples: ['/api/v1/schemas/LoginResult.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1476,7 +1705,7 @@ export const $OccurrenceInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/OccurrenceInput.json'],
+      examples: ['/api/v1/schemas/OccurrenceInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1600,7 +1829,7 @@ export const $OccurrenceWithDetails = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/OccurrenceWithDetails.json'],
+      examples: ['/api/v1/schemas/OccurrenceWithDetails.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1672,7 +1901,7 @@ export const $OccurrenceWithMetadata = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/OccurrenceWithMetadata.json'],
+      examples: ['/api/v1/schemas/OccurrenceWithMetadata.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1741,7 +1970,7 @@ export const $PaginatedListOccurrence = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/PaginatedListOccurrence.json'],
+      examples: ['/api/v1/schemas/PaginatedListOccurrence.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1802,7 +2031,7 @@ export const $Publication = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/Publication.json'],
+      examples: ['/api/v1/schemas/Publication.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1963,7 +2192,7 @@ export const $ResolveInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/ResolveInput.json'],
+      examples: ['/api/v1/schemas/ResolveInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2047,7 +2276,7 @@ export const $SamplingFixativeResolution = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingFixativeResolution.json'],
+      examples: ['/api/v1/schemas/SamplingFixativeResolution.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2074,7 +2303,7 @@ export const $SamplingFixativeResolutionInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingFixativeResolutionInput.json'],
+      examples: ['/api/v1/schemas/SamplingFixativeResolutionInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2098,7 +2327,7 @@ export const $SamplingInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingInput.json'],
+      examples: ['/api/v1/schemas/SamplingInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2153,7 +2382,7 @@ export const $SamplingMethod = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingMethod.json'],
+      examples: ['/api/v1/schemas/SamplingMethod.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2180,7 +2409,7 @@ export const $SamplingMethodInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingMethodInput.json'],
+      examples: ['/api/v1/schemas/SamplingMethodInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2204,7 +2433,7 @@ export const $SamplingMethodResolution = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingMethodResolution.json'],
+      examples: ['/api/v1/schemas/SamplingMethodResolution.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2231,7 +2460,7 @@ export const $SamplingMethodResolutionInput = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingMethodResolutionInput.json'],
+      examples: ['/api/v1/schemas/SamplingMethodResolutionInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2255,7 +2484,7 @@ export const $SamplingMethodUpdateParams = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingMethodUpdateParams.json'],
+      examples: ['/api/v1/schemas/SamplingMethodUpdateParams.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2278,7 +2507,7 @@ export const $SamplingWithDetails = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SamplingWithDetails.json'],
+      examples: ['/api/v1/schemas/SamplingWithDetails.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2513,7 +2742,7 @@ export const $SessionTokens = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/SessionTokens.json'],
+      examples: ['/api/v1/schemas/SessionTokens.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2593,7 +2822,7 @@ export const $Taxon = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/Taxon.json'],
+      examples: ['/api/v1/schemas/Taxon.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2874,7 +3103,7 @@ export const $TaxonStagingParams = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/TaxonStagingParams.json'],
+      examples: ['/api/v1/schemas/TaxonStagingParams.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2913,7 +3142,7 @@ export const $TaxonWithFullLineage = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/TaxonWithFullLineage.json'],
+      examples: ['/api/v1/schemas/TaxonWithFullLineage.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2974,7 +3203,7 @@ export const $User = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/User.json'],
+      examples: ['/api/v1/schemas/User.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -3022,7 +3251,7 @@ export const $UserCredentials = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/UserCredentials.json'],
+      examples: ['/api/v1/schemas/UserCredentials.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'

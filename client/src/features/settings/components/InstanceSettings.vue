@@ -102,10 +102,7 @@ import IconEditor from './InstanceIcon.vue'
 
 const { instance, reload, isPending, error: fetchError } = useInstanceSettings()
 
-const {
-  bind: { schema, field },
-  dispatchErrors
-} = useSchemaBinding($InstanceSettingsUpdate)
+const { schema } = useSchemaBinding($InstanceSettingsUpdate)
 
 const { feedback } = useFeedback()
 
@@ -121,8 +118,7 @@ const {
     // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
     reload()
     feedback({ message: 'Updated settings', type: 'success' })
-  },
-  onError: dispatchErrors
+  }
 })
 
 const {
@@ -135,8 +131,7 @@ const {
     // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
     reload()
     feedback({ message: 'Updated settings', type: 'success' })
-  },
-  onError: dispatchErrors
+  }
 })
 
 const {
@@ -149,8 +144,7 @@ const {
     // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
     reload()
     feedback({ message: 'Updated settings', type: 'success' })
-  },
-  onError: dispatchErrors
+  }
 })
 
 // async function setPublic(value: boolean | null) {

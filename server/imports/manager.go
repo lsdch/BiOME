@@ -26,6 +26,7 @@ type ImportManager struct {
 
 	samplings   *services.SamplingService
 	occurrences *services.OccurrencesService
+	batches     *services.ImportBatchService
 
 	runners map[uuid.UUID]*ImportRunner
 	broker  *EventBroker[BatchSnapshot]
@@ -37,6 +38,7 @@ func NewImportManager(db *db.DB,
 	bibliography *BibliographyResolver,
 	samplings *services.SamplingService,
 	occurrences *services.OccurrencesService,
+	batches *services.ImportBatchService,
 	storage storage.RawFileStorage,
 ) *ImportManager {
 	return &ImportManager{
@@ -47,6 +49,7 @@ func NewImportManager(db *db.DB,
 		bibliography:  bibliography,
 		samplings:     samplings,
 		occurrences:   occurrences,
+		batches:       batches,
 		fileStorage:   storage,
 		runners:       make(map[uuid.UUID]*ImportRunner),
 		broker:        NewEventBroker[BatchSnapshot](),
@@ -72,13 +75,26 @@ func (m *ImportManager) NewBatch(ctx context.Context, userID uuid.UUID, w models
 		return nil, err
 	}
 	wWithHash := w.WithFileHash(hash)
-	batch, err := m.batchStore.CreateBatch(ctx, m.db, userID, wWithHash)
+	var batch models.ImportBatch
+	err = m.db.WithTx(ctx, func(tx *db.Tx) error {
+		batch, err = m.batchStore.CreateBatch(ctx, tx, userID, wWithHash)
+		if err != nil {
+			return err
+		}
+		for _, datasetID := range w.Datasets {
+			if err := m.batches.AddToDataset(ctx, tx, batch.ID, datasetID); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 	if err != nil {
 		if err := m.fileStorage.Delete(context.Background(), w.FileKey()); err != nil {
 			logrus.Errorf("failed to delete file after failed batch creation: %v", err)
 		}
 		return nil, err
 	}
+
 	runner := NewImportRunner(context.Background(),
 		m.db, m.broker,
 		batch, m.batchStore,

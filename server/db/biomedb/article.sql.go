@@ -139,8 +139,8 @@ func (q *Queries) GetPublicationByID(ctx context.Context, id uuid.UUID) (Publica
 const listPublications = `-- name: ListPublications :many
 SELECT id, authors, year, title, journal, verbatim, doi, comments
 FROM publications
-ORDER BY authors [1] ASC,
-    year DESC
+ORDER BY year DESC,
+    authors [1] ASC
 `
 
 func (q *Queries) ListPublications(ctx context.Context) ([]Publication, error) {

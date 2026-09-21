@@ -22,6 +22,8 @@ type datasetsTable struct {
 	Slug        postgres.ColumnString
 	Description postgres.ColumnString
 	Pinned      postgres.ColumnBool
+	OwnerID     postgres.ColumnString
+	IsPublic    postgres.ColumnBool
 	CreatedAt   postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
@@ -69,10 +71,12 @@ func newDatasetsTableImpl(schemaName, tableName, alias string) datasetsTable {
 		SlugColumn        = postgres.StringColumn("slug")
 		DescriptionColumn = postgres.StringColumn("description")
 		PinnedColumn      = postgres.BoolColumn("pinned")
+		OwnerIDColumn     = postgres.StringColumn("owner_id")
+		IsPublicColumn    = postgres.BoolColumn("is_public")
 		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
-		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, SlugColumn, DescriptionColumn, PinnedColumn, CreatedAtColumn}
-		mutableColumns    = postgres.ColumnList{LabelColumn, SlugColumn, DescriptionColumn, PinnedColumn, CreatedAtColumn}
-		defaultColumns    = postgres.ColumnList{IDColumn, PinnedColumn, CreatedAtColumn}
+		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, SlugColumn, DescriptionColumn, PinnedColumn, OwnerIDColumn, IsPublicColumn, CreatedAtColumn}
+		mutableColumns    = postgres.ColumnList{LabelColumn, SlugColumn, DescriptionColumn, PinnedColumn, OwnerIDColumn, IsPublicColumn, CreatedAtColumn}
+		defaultColumns    = postgres.ColumnList{IDColumn, PinnedColumn, IsPublicColumn, CreatedAtColumn}
 	)
 
 	return datasetsTable{
@@ -84,6 +88,8 @@ func newDatasetsTableImpl(schemaName, tableName, alias string) datasetsTable {
 		Slug:        SlugColumn,
 		Description: DescriptionColumn,
 		Pinned:      PinnedColumn,
+		OwnerID:     OwnerIDColumn,
+		IsPublic:    IsPublicColumn,
 		CreatedAt:   CreatedAtColumn,
 
 		AllColumns:     allColumns,

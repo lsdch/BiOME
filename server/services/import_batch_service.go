@@ -29,13 +29,30 @@ func (s *ImportBatchService) GetImportBatch(ctx context.Context, q db.Querier, i
 	return importBatch, nil
 }
 
-func (s *ImportBatchService) GetImportBatchWithContent(ctx context.Context, q db.Querier, id uuid.UUID) (models.ImportBatchWithContent, error) {
+func (s *ImportBatchService) LoadDatasetsForImportBatch(ctx context.Context, q db.Querier, importBatchID uuid.UUID) ([]models.Dataset, error) {
+	datasets, err := q.Queries().LoadDatasetsForImportBatch(ctx, importBatchID)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]models.Dataset, len(datasets))
+	for i, d := range datasets {
+		result[i] = models.DatasetFromDB(d)
+	}
+	return result, nil
+}
+
+func (s *ImportBatchService) GetImportBatchWithDetails(ctx context.Context, q db.Querier, id uuid.UUID) (models.ImportBatchWithDetails, error) {
 	ib, err := q.Queries().GetImportBatchWithContent(ctx, id)
 	if err != nil {
-		return models.ImportBatchWithContent{}, err
+		return models.ImportBatchWithDetails{}, err
+	}
+	datasets, err := s.LoadDatasetsForImportBatch(ctx, q, id)
+	if err != nil {
+		return models.ImportBatchWithDetails{}, err
 	}
 	importBatch := models.ImportBatchFromDB(ib.ImportBatch).
-		WithContent(ib.OccurrenceCount, ib.SamplingCount, models.UserFromDB(ib.User), models.UserFromDB(ib.User_2))
+		WithContent(ib.OccurrenceCount, ib.SamplingCount, models.UserFromDB(ib.User), models.UserFromDB(ib.User_2)).
+		WithDatasets(datasets)
 	return importBatch, nil
 }
 
@@ -63,12 +80,12 @@ func (s *ImportBatchService) ListImportBatches(ctx context.Context, q db.Querier
 	return result, nil
 }
 
-func (s *ImportBatchService) ListImportBatchesWithContent(ctx context.Context, q db.Querier) ([]models.ImportBatchWithContent, error) {
+func (s *ImportBatchService) ListImportBatchesWithContent(ctx context.Context, q db.Querier) ([]models.ImportBatchListItem, error) {
 	ibs, err := q.Queries().ListImportBatchesWithContent(ctx)
 	if err != nil {
 		return nil, err
 	}
-	result := make([]models.ImportBatchWithContent, len(ibs))
+	result := make([]models.ImportBatchListItem, len(ibs))
 	for i, ib := range ibs {
 		result[i] = models.ImportBatchFromDB(ib.ImportBatch).
 			WithContent(ib.OccurrenceCount, ib.SamplingCount, models.UserFromDB(ib.User), models.UserFromDB(ib.User_2))
@@ -97,4 +114,12 @@ func (s *ImportBatchService) DeleteImportBatchWithOccurrences(ctx context.Contex
 		return err
 	}
 	return nil
+}
+
+func (s *ImportBatchService) AddToDataset(ctx context.Context, q db.Querier, importBatchID uuid.UUID, datasetID types.ULID) error {
+	return q.Queries().AddImportBatchToDataset(ctx, datasetID, importBatchID)
+}
+
+func (s *ImportBatchService) RemoveFromDataset(ctx context.Context, q db.Querier, importBatchID uuid.UUID, datasetID types.ULID) error {
+	return q.Queries().RemoveImportBatchFromDataset(ctx, datasetID, importBatchID)
 }

@@ -16,6 +16,7 @@ func UseSchema(schema string) {
 	Countries = Countries.FromSchema(schema)
 	Datasets = Datasets.FromSchema(schema)
 	DatasetsCurators = DatasetsCurators.FromSchema(schema)
+	DatasetsImportBatches = DatasetsImportBatches.FromSchema(schema)
 	DatasetsPublications = DatasetsPublications.FromSchema(schema)
 	EventsSamplingMethods = EventsSamplingMethods.FromSchema(schema)
 	Fixatives = Fixatives.FromSchema(schema)

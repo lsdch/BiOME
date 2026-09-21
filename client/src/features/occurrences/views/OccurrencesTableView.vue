@@ -328,7 +328,7 @@
       </span>
     </template>
     <template #item.sampling.site="{ value: { code, name, country } }: { value: Site }">
-      <div class="d-flex justify-space-between">
+      <div class="d-flex align-center justify-space-between">
         <span class="font-size-small">{{ name }}</span>
         <CountryChip v-if="country" :country size="small" class="flex-shrink-0" />
       </div>

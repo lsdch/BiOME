@@ -34,7 +34,7 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
     },
     {
       label: 'Datasets',
-      icon: 'mdi-folder-table',
+      icon: 'mdi-folder-multiple',
       routes: [
         // {
         //   label: "Sites",
@@ -45,10 +45,10 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
         //   meta: { title: "Site datasets" }
         // },
         {
-          label: 'Occurrences',
+          label: 'Curated datasets',
           path: '/datasets/occurrences',
           name: 'occurrence-datasets',
-          icon: 'mdi-crosshairs-gps',
+          icon: 'mdi-folder-table',
           component: () => import('@/features/datasets/views/OccurrenceDatasetsView.vue'),
           meta: { title: 'Occurrence datasets' }
         },
@@ -82,7 +82,7 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
       label: 'Occurrences',
       path: '/occurrences',
       name: 'occurrences',
-      icon: 'mdi-package-variant',
+      icon: 'mdi-list-box',
       component: () => import('@/features/occurrences/views/OccurrencesTableView.vue'),
       meta: { title: 'Occurrences' }
     },
@@ -223,14 +223,14 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
       icon: 'mdi-cog',
       granted: 'admin',
       routes: [
-        guardRole('admin', {
-          label: 'Account requests',
-          path: '/admin/account-requests',
-          name: 'account-requests',
-          icon: 'mdi-account-plus',
-          component: () => import('@/views/accounts/AccountsPendingView.vue'),
-          meta: { title: 'Account requests' }
-        }),
+        // guardRole('admin', {
+        //   label: 'Account requests',
+        //   path: '/admin/account-requests',
+        //   name: 'account-requests',
+        //   icon: 'mdi-account-plus',
+        //   component: () => import('@/views/accounts/AccountsPendingView.vue'),
+        //   meta: { title: 'Account requests' }
+        // }),
         routes.settings
       ]
     }

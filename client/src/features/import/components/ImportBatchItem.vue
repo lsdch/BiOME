@@ -9,12 +9,35 @@
       <v-chip label prepend-icon="mdi-file-arrow-up-down"></v-chip>
     </template>
     <template #append>
-      <v-btn
-        prepend-icon="mdi-file-download"
-        text="Download raw data"
-        variant="tonal"
-        @click="downloadRawFile()"
-      ></v-btn>
+      <div class="d-flex align-center ga-2">
+        <DatasetBinder
+          :model="batch?.datasets?.map(({ id }) => id)"
+          @add="(dataset_id) => addToDataset(dataset_id)"
+          @remove="(dataset_id) => removeFromDataset(dataset_id)"
+        />
+        <v-menu>
+          <template #activator="{ props: activatorProps }">
+            <v-btn
+              prepend-icon="mdi-file-download"
+              text="Downloads"
+              variant="outlined"
+              rounded="md"
+              color=""
+              append-icon="mdi-chevron-down"
+              v-bind="activatorProps"
+            ></v-btn>
+          </template>
+          <v-list>
+            <v-list-item
+              title="Source data"
+              subtitle="Download the original source file"
+              @click="downloadRawFile()"
+            >
+            </v-list-item>
+            <v-list-item title="Export data" subtitle="Download structured data"> </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
     </template>
     <div class="d-flex flex-column flex-grow-1 min-h-0 overflow-y-auto">
       <!-- <v-container v-if="batch" class="bg-main flex-shrink-0" fluid>
@@ -64,9 +87,9 @@
         </v-row>
       </v-container> -->
       <v-tabs v-model="tab" class="flex-shrink-0">
-        <v-tab value="map">Map</v-tab>
-        <v-tab value="samplings">Samplings</v-tab>
-        <v-tab value="occurrences">Occurrences</v-tab>
+        <v-tab value="map" prepend-icon="mdi-map">Map</v-tab>
+        <v-tab value="samplings" prepend-icon="mdi-map-marker">Samplings</v-tab>
+        <v-tab value="occurrences" prepend-icon="mdi-crosshairs">Occurrences</v-tab>
       </v-tabs>
       <v-tabs-window v-model="tab" class="flex-grow-1 flex-shrink-0 tabs-window-fill" crossfade>
         <v-tabs-window-item
@@ -113,10 +136,12 @@
 <script setup lang="ts">
 import { DownloadRawFileData } from '@/api'
 import {
+  addImportBatchToDatasetMutation,
   getImportBatchWithContentOptions,
   listOccurrencesH3Options,
   listOccurrencesOptions,
-  listSamplingsWithOccurrencesOptions
+  listSamplingsWithOccurrencesOptions,
+  removeImportBatchFromDatasetMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { client } from '@/api/gen/client.gen'
 import DeckGlMap from '@/features/cartography/components/DeckGlMap.vue'
@@ -126,9 +151,10 @@ import {
 } from '@/features/cartography/components/layers-manager/map-layers'
 import MultiSamplingsPopup from '@/features/cartography/components/popups/MultiSamplingsPopup.vue'
 import { hexgridLayerFromSpec } from '@/features/cartography/composables/hexgrid-layer'
+import DatasetBinder from '@/features/datasets/components/DatasetBinder.vue'
 import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 
 const { uuid } = defineProps<{
@@ -137,7 +163,7 @@ const { uuid } = defineProps<{
 
 const tab = ref<'map' | 'samplings' | 'occurrences'>('map')
 
-const { data: batch } = useQuery(
+const { data: batch, refetch: reloadBatch } = useQuery(
   computed(() => ({
     ...getImportBatchWithContentOptions({ path: { id: uuid } })
   }))
@@ -148,6 +174,7 @@ const hexgridLayerSpec = ref(makeHexLayer())
 watch(zoom, (newZoom) => {
   hexgridLayerSpec.value.resolution = automaticResolution(hexgridLayerSpec.value, newZoom)
 })
+
 const { data: hexData } = useQuery(
   computed(() =>
     listOccurrencesH3Options({
@@ -158,6 +185,7 @@ const { data: hexData } = useQuery(
     })
   )
 )
+
 const hexLayer = computed(() => hexgridLayerFromSpec(hexgridLayerSpec.value, hexData.value ?? []))
 
 const { data: batchSamplings } = useQuery(
@@ -167,6 +195,7 @@ const { data: batchSamplings } = useQuery(
     })
   }))
 )
+
 const { data: batchOccurrences } = useQuery(
   computed(() => ({
     ...listOccurrencesOptions({
@@ -174,6 +203,35 @@ const { data: batchOccurrences } = useQuery(
     })
   }))
 )
+
+const { mutateAsync: addToDatasetMutation } = useMutation(addImportBatchToDatasetMutation())
+const { mutateAsync: removeFromDatasetMutation } = useMutation(
+  removeImportBatchFromDatasetMutation()
+)
+
+async function addToDataset(dataset_id: string) {
+  if (!batch.value?.id) {
+    throw new Error('Batch ID is not available')
+  }
+  await addToDatasetMutation(
+    {
+      path: { id: batch.value.id, dataset_id }
+    },
+    { onSuccess: () => reloadBatch() }
+  )
+}
+
+async function removeFromDataset(dataset_id: string) {
+  if (!batch.value?.id) {
+    throw new Error('Batch ID is not available')
+  }
+  await removeFromDatasetMutation(
+    {
+      path: { id: batch.value.id, dataset_id }
+    },
+    { onSuccess: () => reloadBatch() }
+  )
+}
 
 function downloadRawFile() {
   const url = client.buildUrl<DownloadRawFileData>({

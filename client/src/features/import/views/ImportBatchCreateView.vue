@@ -44,6 +44,17 @@
                   class="flex-grow-0"
                   v-bind="schema('taxonomic_scope')"
                 ></GBIFKingdomPicker>
+                <DatasetPicker
+                  v-model="model.datasets"
+                  label="Add to dataset(s)"
+                  multiple
+                  chips
+                  closable-chips
+                  clearable
+                  item-value="id"
+                  with-form
+                  v-bind="schema('datasets')"
+                />
                 <v-checkbox
                   v-model="mergeUndatedSamplings"
                   label="Merge undated samplings"
@@ -92,7 +103,7 @@
         </v-form>
       </v-tabs-window-item>
       <v-tabs-window-item value="existing">
-        <ImportBatchesTable />
+        <BatchWorkflowsTable />
       </v-tabs-window-item>
     </v-tabs-window>
   </v-card>
@@ -104,18 +115,17 @@ import { importOccurrencesCsvMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import { $ImportBatchInput } from '@/api/index.ts'
 import CSVQuotePicker from '@/components/toolkit/ui/exports/CSVQuotePicker.vue'
 import { useSchemaBinding } from '@/composables/schema.ts'
+import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import { useMutation } from '@tanstack/vue-query'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vuetify/lib/composables/router.mjs'
 import { ImportDataCSV } from '../components/FileInputCSV.vue'
 import GBIFKingdomPicker from '../components/GBIFKingdomPicker.vue'
-import ImportBatchesTable from '../components/ImportBatchesTable.vue'
+import BatchWorkflowsTable from '../components/BatchWorkflowsTable.vue'
 import InconsistentTaxaImportError, {
   InconsistentTaxaError,
   InconsistentTaxon
 } from '../components/InconsistentTaxaImportError.vue'
-import { watch } from 'vue'
-import { formDataBodySerializer } from '@/api/gen/core/bodySerializer.gen.ts'
 
 const tab = ref<'new' | 'existing'>('new')
 
@@ -123,7 +133,8 @@ const model = ref<ImportBatchInput>({
   label: '',
   description: undefined,
   assembled_by: [],
-  taxonomic_scope: 1
+  taxonomic_scope: 1,
+  datasets: []
 })
 const taxonDefinitions = ref<TaxonDefinition[]>([])
 
@@ -149,32 +160,6 @@ async function submit() {
   if (!model.value.label || !csv.value.file) {
     throw new Error('Label and CSV file are required')
   }
-
-  const body = {
-    batch: model.value,
-    file: csv.value.file,
-    separator: csv.value.separator,
-    quotes: csv.value.quotes,
-    taxon_definitions: taxonDefinitions.value,
-    merge_undated_samplings: mergeUndatedSamplings.value
-  }
-
-  const fd = formDataBodySerializer.bodySerializer(body)
-
-  for (const [key, value] of fd.entries()) {
-    console.log(key, value)
-  }
-
-  console.log('taxonDefinitions', taxonDefinitions.value)
-
-  console.log({
-    batch: model.value,
-    file: csv.value.file,
-    separator: csv.value.separator,
-    quotes: csv.value.quotes,
-    taxon_definitions: taxonDefinitions.value,
-    merge_undated_samplings: mergeUndatedSamplings.value
-  })
 
   await mutateAsync(
     {

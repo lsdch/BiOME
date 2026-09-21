@@ -30,12 +30,24 @@ import type {
   AddBibliographyCsvData,
   AddBibliographyCsvError,
   AddBibliographyCsvResponse,
+  AddCuratorToDatasetData,
+  AddCuratorToDatasetError,
+  AddCuratorToDatasetResponse,
+  AddImportBatchToDatasetData,
+  AddImportBatchToDatasetError,
+  AddImportBatchToDatasetResponse,
+  AddOccurrenceToDatasetData,
+  AddOccurrenceToDatasetError,
+  AddOccurrenceToDatasetResponse,
   BatchReverseGeocodeData,
   BatchReverseGeocodeError,
   BatchReverseGeocodeResponse,
   CoordinatesToCountryData,
   CoordinatesToCountryError,
   CoordinatesToCountryResponse,
+  CreateDatasetData,
+  CreateDatasetError,
+  CreateDatasetResponse,
   CreateFixativeData,
   CreateFixativeError,
   CreateFixativeResponse,
@@ -168,6 +180,9 @@ import type {
   ListGeoapifyUsageResponse,
   ListImportBatchesData,
   ListImportBatchesError,
+  ListImportBatchesInDatasetData,
+  ListImportBatchesInDatasetError,
+  ListImportBatchesInDatasetResponse,
   ListImportBatchesResponse,
   ListImportBatchesWithContentData,
   ListImportBatchesWithContentError,
@@ -238,6 +253,15 @@ import type {
   RefreshSessionData,
   RefreshSessionError,
   RefreshSessionResponse,
+  RemoveCuratorFromDatasetData,
+  RemoveCuratorFromDatasetError,
+  RemoveCuratorFromDatasetResponse,
+  RemoveImportBatchFromDatasetData,
+  RemoveImportBatchFromDatasetError,
+  RemoveImportBatchFromDatasetResponse,
+  RemoveOccurrenceFromDatasetData,
+  RemoveOccurrenceFromDatasetError,
+  RemoveOccurrenceFromDatasetResponse,
   ResolveFixativeData,
   ResolveFixativeError,
   ResolveFixativeResponse,
@@ -512,6 +536,29 @@ export const listDatasetsOptions = (options?: Options<ListDatasetsData>) =>
     queryKey: listDatasetsQueryKey(options)
   })
 
+/**
+ * Create a new dataset
+ */
+export const createDatasetMutation = (
+  options?: Partial<Options<CreateDatasetData>>
+): UseMutationOptions<CreateDatasetResponse, CreateDatasetError, Options<CreateDatasetData>> => {
+  const mutationOptions: UseMutationOptions<
+    CreateDatasetResponse,
+    CreateDatasetError,
+    Options<CreateDatasetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await DatasetsService.createDataset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
 export const getDatasetByIdQueryKey = (options: Options<GetDatasetByIdData>) =>
   createQueryKey('getDatasetById', options)
 
@@ -536,6 +583,88 @@ export const getDatasetByIdOptions = (options: Options<GetDatasetByIdData>) =>
     },
     queryKey: getDatasetByIdQueryKey(options)
   })
+
+export const listImportBatchesInDatasetQueryKey = (
+  options: Options<ListImportBatchesInDatasetData>
+) => createQueryKey('listImportBatchesInDataset', options)
+
+/**
+ * List import batches in a dataset
+ */
+export const listImportBatchesInDatasetOptions = (
+  options: Options<ListImportBatchesInDatasetData>
+) =>
+  queryOptions<
+    ListImportBatchesInDatasetResponse,
+    ListImportBatchesInDatasetError,
+    ListImportBatchesInDatasetResponse,
+    ReturnType<typeof listImportBatchesInDatasetQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await DatasetsService.listImportBatchesInDataset({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listImportBatchesInDatasetQueryKey(options)
+  })
+
+/**
+ * Remove a curator from a dataset
+ */
+export const removeCuratorFromDatasetMutation = (
+  options?: Partial<Options<RemoveCuratorFromDatasetData>>
+): UseMutationOptions<
+  RemoveCuratorFromDatasetResponse,
+  RemoveCuratorFromDatasetError,
+  Options<RemoveCuratorFromDatasetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RemoveCuratorFromDatasetResponse,
+    RemoveCuratorFromDatasetError,
+    Options<RemoveCuratorFromDatasetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await DatasetsService.removeCuratorFromDataset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Add a curator to a dataset
+ */
+export const addCuratorToDatasetMutation = (
+  options?: Partial<Options<AddCuratorToDatasetData>>
+): UseMutationOptions<
+  AddCuratorToDatasetResponse,
+  AddCuratorToDatasetError,
+  Options<AddCuratorToDatasetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AddCuratorToDatasetResponse,
+    AddCuratorToDatasetError,
+    Options<AddCuratorToDatasetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await DatasetsService.addCuratorToDataset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
 
 export const loadOccurrencesForDatasetQueryKey = (
   options: Options<LoadOccurrencesForDatasetData>
@@ -562,6 +691,60 @@ export const loadOccurrencesForDatasetOptions = (options: Options<LoadOccurrence
     },
     queryKey: loadOccurrencesForDatasetQueryKey(options)
   })
+
+/**
+ * Remove an occurrence from a dataset
+ */
+export const removeOccurrenceFromDatasetMutation = (
+  options?: Partial<Options<RemoveOccurrenceFromDatasetData>>
+): UseMutationOptions<
+  RemoveOccurrenceFromDatasetResponse,
+  RemoveOccurrenceFromDatasetError,
+  Options<RemoveOccurrenceFromDatasetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RemoveOccurrenceFromDatasetResponse,
+    RemoveOccurrenceFromDatasetError,
+    Options<RemoveOccurrenceFromDatasetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await DatasetsService.removeOccurrenceFromDataset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Add an occurrence to a dataset
+ */
+export const addOccurrenceToDatasetMutation = (
+  options?: Partial<Options<AddOccurrenceToDatasetData>>
+): UseMutationOptions<
+  AddOccurrenceToDatasetResponse,
+  AddOccurrenceToDatasetError,
+  Options<AddOccurrenceToDatasetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AddOccurrenceToDatasetResponse,
+    AddOccurrenceToDatasetError,
+    Options<AddOccurrenceToDatasetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await DatasetsService.addOccurrenceToDataset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
 
 export const listFixativesQueryKey = (options?: Options<ListFixativesData>) =>
   createQueryKey('listFixatives', options)
@@ -969,6 +1152,60 @@ export const getImportBatchOptions = (options: Options<GetImportBatchData>) =>
     },
     queryKey: getImportBatchQueryKey(options)
   })
+
+/**
+ * Remove an import batch from a dataset
+ */
+export const removeImportBatchFromDatasetMutation = (
+  options?: Partial<Options<RemoveImportBatchFromDatasetData>>
+): UseMutationOptions<
+  RemoveImportBatchFromDatasetResponse,
+  RemoveImportBatchFromDatasetError,
+  Options<RemoveImportBatchFromDatasetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RemoveImportBatchFromDatasetResponse,
+    RemoveImportBatchFromDatasetError,
+    Options<RemoveImportBatchFromDatasetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await ImportsService.removeImportBatchFromDataset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Add an import batch to a dataset
+ */
+export const addImportBatchToDatasetMutation = (
+  options?: Partial<Options<AddImportBatchToDatasetData>>
+): UseMutationOptions<
+  AddImportBatchToDatasetResponse,
+  AddImportBatchToDatasetError,
+  Options<AddImportBatchToDatasetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AddImportBatchToDatasetResponse,
+    AddImportBatchToDatasetError,
+    Options<AddImportBatchToDatasetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await ImportsService.addImportBatchToDataset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
 
 export const downloadRawFileQueryKey = (options: Options<DownloadRawFileData>) =>
   createQueryKey('downloadRawFile', options)

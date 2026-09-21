@@ -14,7 +14,7 @@
     </template>
     <template #append>
       <v-progress-circular
-        v-if="remote.isPending.value"
+        v-if="remote.isFetching.value"
         indeterminate
         size="small"
         color="warning"

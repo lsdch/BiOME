@@ -2,6 +2,8 @@
 
 import type {
   AddBibliographyCsvResponse,
+  AddCuratorToDatasetResponse,
+  CreateDatasetResponse,
   CreateOccurrenceAtSamplingResponse,
   CreateOccurrenceResponse,
   CreateSamplingResponse,
@@ -13,6 +15,7 @@ import type {
   ImportOccurrencesCsvResponse,
   ListDatasetsResponse,
   ListGeoapifyUsageResponse,
+  ListImportBatchesInDatasetResponse,
   ListImportBatchesResponse,
   ListImportBatchesWithContentResponse,
   ListImportsForCurrentUserResponse,
@@ -27,6 +30,7 @@ import type {
   LoginResponse,
   MaterializeBatchResponse,
   RefreshSessionResponse,
+  RemoveCuratorFromDatasetResponse,
   TrackImportStatusResponse
 } from './types.gen'
 
@@ -52,20 +56,61 @@ export const refreshSessionResponseTransformer = async (
   return data
 }
 
-const datasetSchemaResponseTransformer = (data: any) => {
+const datasetWithSummarySchemaResponseTransformer = (data: any) => {
   data.created_at = new Date(data.created_at)
   return data
 }
 
 export const listDatasetsResponseTransformer = async (data: any): Promise<ListDatasetsResponse> => {
-  data = data.map((item: any) => datasetSchemaResponseTransformer(item))
+  data = data.map((item: any) => datasetWithSummarySchemaResponseTransformer(item))
+  return data
+}
+
+const datasetWithMaintainersSchemaResponseTransformer = (data: any) => {
+  data.created_at = new Date(data.created_at)
+  return data
+}
+
+export const createDatasetResponseTransformer = async (
+  data: any
+): Promise<CreateDatasetResponse> => {
+  data = datasetWithMaintainersSchemaResponseTransformer(data)
   return data
 }
 
 export const getDatasetByIdResponseTransformer = async (
   data: any
 ): Promise<GetDatasetByIdResponse> => {
-  data = datasetSchemaResponseTransformer(data)
+  data = datasetWithMaintainersSchemaResponseTransformer(data)
+  return data
+}
+
+const importBatchListItemSchemaResponseTransformer = (data: any) => {
+  if (data.completed_at) {
+    data.completed_at = new Date(data.completed_at)
+  }
+  data.created_at = new Date(data.created_at)
+  return data
+}
+
+export const listImportBatchesInDatasetResponseTransformer = async (
+  data: any
+): Promise<ListImportBatchesInDatasetResponse> => {
+  data = data.map((item: any) => importBatchListItemSchemaResponseTransformer(item))
+  return data
+}
+
+export const removeCuratorFromDatasetResponseTransformer = async (
+  data: any
+): Promise<RemoveCuratorFromDatasetResponse> => {
+  data = datasetWithMaintainersSchemaResponseTransformer(data)
+  return data
+}
+
+export const addCuratorToDatasetResponseTransformer = async (
+  data: any
+): Promise<AddCuratorToDatasetResponse> => {
+  data = datasetWithMaintainersSchemaResponseTransformer(data)
   return data
 }
 
@@ -128,18 +173,10 @@ export const listImportBatchesResponseTransformer = async (
   return data
 }
 
-const importBatchWithContentSchemaResponseTransformer = (data: any) => {
-  if (data.completed_at) {
-    data.completed_at = new Date(data.completed_at)
-  }
-  data.created_at = new Date(data.created_at)
-  return data
-}
-
 export const listImportBatchesWithContentResponseTransformer = async (
   data: any
 ): Promise<ListImportBatchesWithContentResponse> => {
-  data = data.map((item: any) => importBatchWithContentSchemaResponseTransformer(item))
+  data = data.map((item: any) => importBatchListItemSchemaResponseTransformer(item))
   return data
 }
 
@@ -150,10 +187,26 @@ export const getImportBatchResponseTransformer = async (
   return data
 }
 
+const datasetSchemaResponseTransformer = (data: any) => {
+  data.created_at = new Date(data.created_at)
+  return data
+}
+
+const importBatchWithDetailsSchemaResponseTransformer = (data: any) => {
+  if (data.completed_at) {
+    data.completed_at = new Date(data.completed_at)
+  }
+  data.created_at = new Date(data.created_at)
+  if (data.datasets) {
+    data.datasets = data.datasets.map((item: any) => datasetSchemaResponseTransformer(item))
+  }
+  return data
+}
+
 export const getImportBatchWithContentResponseTransformer = async (
   data: any
 ): Promise<GetImportBatchWithContentResponse> => {
-  data = importBatchWithContentSchemaResponseTransformer(data)
+  data = importBatchWithDetailsSchemaResponseTransformer(data)
   return data
 }
 

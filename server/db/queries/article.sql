@@ -1,8 +1,8 @@
 -- name: ListPublications :many
 SELECT *
 FROM publications
-ORDER BY authors [1] ASC,
-    year DESC;
+ORDER BY year DESC,
+    authors [1] ASC;
 -- name: GetPublicationByID :one
 SELECT *
 FROM publications

@@ -3,6 +3,7 @@ import * as Schemas from '@/api/gen/schemas.gen'
 import { IndexedValidationErrors } from '@/lib/mutations'
 import { useCountries } from '@/stores/countries'
 import { OpenApiSchemaObject } from '@hey-api/openapi-ts'
+import { Override } from '@tanstack/vue-query'
 import { List, Union } from 'ts-toolbelt'
 import { computed, Ref } from 'vue'
 
@@ -31,7 +32,16 @@ type WithReadonlyRequired<T> = T extends unknown
     }
   : never
 
-export type Schema = WithReadonlyRequired<OpenApiSchemaObject.V3_1_X>
+type DeepReadonlyArrays<T> = T extends readonly unknown[]
+  ? readonly DeepReadonlyArrays<T[number]>[]
+  : T extends object
+    ? {
+        [K in keyof T]: DeepReadonlyArrays<T[K]>
+      }
+    : T
+
+export type Schema = DeepReadonlyArrays<WithReadonlyRequired<OpenApiSchemaObject.V3_1_X>>
+
 // export type Schema = Override<OpenApiSchemaObject.V3_1_X, { required?: readonly string[] }>
 export type SchemaProperties = Readonly<Record<string, Schema>>
 export type SchemaWithProperties<P> = Schema & Readonly<{ type: 'object'; properties: P }>
@@ -275,7 +285,9 @@ function joinPathPrefix<T extends Schema, Prefix extends PathPrefix<T> = PathPre
 function makeRules({ schema: s, required }: FieldSpecification) {
   const rules: Rule[] = []
   if (required)
-    rules.push((value: any) => (!!value || value === 0 ? true : 'This field is required'))
+    rules.push((value: any) =>
+      !!value || value === 0 || value === false ? true : 'This field is required'
+    )
 
   // Length validation
   if (s?.minLength !== undefined) {

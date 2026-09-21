@@ -9,16 +9,9 @@ package model
 
 import (
 	"github.com/google/uuid"
-	"time"
 )
 
-type Datasets struct {
-	ID          string `sql:"primary_key"`
-	Label       string
-	Slug        string
-	Description *string
-	Pinned      bool
-	OwnerID     uuid.UUID
-	IsPublic    bool
-	CreatedAt   time.Time
+type DatasetsImportBatches struct {
+	DatasetID     string    `sql:"primary_key"`
+	ImportBatchID uuid.UUID `sql:"primary_key"`
 }

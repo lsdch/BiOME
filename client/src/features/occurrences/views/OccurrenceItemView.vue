@@ -34,6 +34,13 @@
           <v-icon icon="mdi-package-variant"></v-icon>
         </v-avatar> -->
       </template>
+      <template #append>
+        <DatasetBinder
+          :model="item?.datasets?.map(({ id }) => id)"
+          @add="(dataset_id) => addToDataset(dataset_id)"
+          @remove="(dataset_id) => removeFromDataset(dataset_id)"
+        />
+      </template>
       <!-- <template #append>
         <v-btn-group size="small" divided variant="outlined">
           <v-btn icon="mdi-dna"></v-btn>
@@ -284,7 +291,7 @@
               :items="item.datasets"
             >
               <template #item.label="{ value, item }">
-                <RouterLink :to="{ name: 'occurrence-dataset-item', params: { slug: item.slug } }">
+                <RouterLink :to="{ name: 'occurrence-dataset-item', params: { ulid: item.id } }">
                   {{ value }}
                 </RouterLink>
               </template>
@@ -311,7 +318,11 @@
 
 <script setup lang="ts">
 import { Dataset, DateWithPrecision } from '@/api/adapters'
-import { getOccurrenceOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import {
+  addOccurrenceToDatasetMutation,
+  getOccurrenceOptions,
+  removeOccurrenceFromDatasetMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import ClickableAvatarIcon from '@/components/toolkit/ui/ClickableAvatarIcon.vue'
@@ -320,13 +331,14 @@ import OccurrenceSamplingCard from '@/features/occurrences/components/Occurrence
 // import PersonChip from '@/features/people/components/PersonChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import { useFeedback } from '@/stores/feedback'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { nextTick, ref, watch } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
 import QuantityChip from '../components/QuantityChip'
 import PublicationChip from '@/features/registries/components/PublicationChip.tsx'
 import { StatusCodes } from 'http-status-codes'
+import DatasetBinder from '@/features/datasets/components/DatasetBinder.vue'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
@@ -392,6 +404,39 @@ const datasetTable: { headers: CRUDTableHeader<Dataset>[] } = {
     { key: 'label', title: 'Label' },
     { key: 'maintainers', title: 'Maintainers' }
   ]
+}
+
+const { mutateAsync: addOccurrenceToDataset } = useMutation(addOccurrenceToDatasetMutation())
+const { mutateAsync: removeOccurrenceFromDataset } = useMutation(
+  removeOccurrenceFromDatasetMutation()
+)
+
+async function addToDataset(dataset_id: string) {
+  if (!item.value?.id) {
+    throw new Error('Occurrence ID is not available')
+  }
+  return addOccurrenceToDataset(
+    { path: { ulid: dataset_id, occurrence_id: item.value.id } },
+    {
+      onSuccess() {
+        refetch()
+      }
+    }
+  )
+}
+
+async function removeFromDataset(dataset_id: string) {
+  if (!item.value?.id) {
+    throw new Error('Occurrence ID is not available')
+  }
+  return removeOccurrenceFromDataset(
+    { path: { ulid: dataset_id, occurrence_id: item.value.id } },
+    {
+      onSuccess() {
+        refetch()
+      }
+    }
+  )
 }
 </script>
 

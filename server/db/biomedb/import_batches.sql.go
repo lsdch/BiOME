@@ -12,6 +12,19 @@ import (
 	"github.com/lsdch/biome/types"
 )
 
+const addImportBatchToDataset = `-- name: AddImportBatchToDataset :exec
+INSERT INTO datasets_import_batches (dataset_id, import_batch_id)
+VALUES (
+        $1,
+        $2
+    ) ON CONFLICT DO NOTHING
+`
+
+func (q *Queries) AddImportBatchToDataset(ctx context.Context, datasetID types.ULID, importBatchID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, addImportBatchToDataset, datasetID, importBatchID)
+	return err
+}
+
 const deleteImportBatch = `-- name: DeleteImportBatch :one
 DELETE FROM import_batches
 WHERE id = $1
@@ -243,6 +256,99 @@ func (q *Queries) ListImportBatches(ctx context.Context) ([]ImportBatch, error) 
 	return items, nil
 }
 
+const listImportBatchesInDataset = `-- name: ListImportBatchesInDataset :many
+SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope, ib.imported_file_name, ib.imported_file_size, ib.imported_file_hash, ib.imported_file_content_type,
+    -- created by user
+    u.id, u.login, u.email, u.password_hash, u.role, u.first_name, u.last_name, u.organisation, u.contact, u.bio, u.full_name, u.active, u.email_verified_at,
+    -- completed by user
+    u2.id, u2.login, u2.email, u2.password_hash, u2.role, u2.first_name, u2.last_name, u2.organisation, u2.contact, u2.bio, u2.full_name, u2.active, u2.email_verified_at,
+    COUNT(DISTINCT o.id) AS occurrence_count,
+    COUNT(DISTINCT se.id) AS sampling_count
+FROM import_batches ib
+    LEFT JOIN occurrences o ON o.import_batch_id = ib.id
+    LEFT JOIN samplings se ON se.id = o.sampling_id
+    JOIN datasets_import_batches dib ON dib.import_batch_id = ib.id
+    JOIN users u ON u.id = ib.created_by
+    JOIN users u2 ON u2.id = ib.completed_by
+WHERE ib.status = 'completed'
+    AND dib.dataset_id = $1
+GROUP BY ib.id,
+    u.id,
+    u2.id
+ORDER BY ib.created_at DESC
+`
+
+type ListImportBatchesInDatasetRow struct {
+	ImportBatch     ImportBatch `json:"import_batch"`
+	User            User        `json:"user"`
+	User_2          User        `json:"user_2"`
+	OccurrenceCount int64       `json:"occurrence_count"`
+	SamplingCount   int64       `json:"sampling_count"`
+}
+
+func (q *Queries) ListImportBatchesInDataset(ctx context.Context, datasetID types.ULID) ([]ListImportBatchesInDatasetRow, error) {
+	rows, err := q.db.Query(ctx, listImportBatchesInDataset, datasetID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListImportBatchesInDatasetRow{}
+	for rows.Next() {
+		var i ListImportBatchesInDatasetRow
+		if err := rows.Scan(
+			&i.ImportBatch.ID,
+			&i.ImportBatch.Label,
+			&i.ImportBatch.Description,
+			&i.ImportBatch.Status,
+			&i.ImportBatch.AssembledBy,
+			&i.ImportBatch.CreatedBy,
+			&i.ImportBatch.CreatedAt,
+			&i.ImportBatch.CompletedAt,
+			&i.ImportBatch.CompletedBy,
+			&i.ImportBatch.TaxonomicScope,
+			&i.ImportBatch.ImportedFileName,
+			&i.ImportBatch.ImportedFileSize,
+			&i.ImportBatch.ImportedFileHash,
+			&i.ImportBatch.ImportedFileContentType,
+			&i.User.ID,
+			&i.User.Login,
+			&i.User.Email,
+			&i.User.PasswordHash,
+			&i.User.Role,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.Organisation,
+			&i.User.Contact,
+			&i.User.Bio,
+			&i.User.FullName,
+			&i.User.Active,
+			&i.User.EmailVerifiedAt,
+			&i.User_2.ID,
+			&i.User_2.Login,
+			&i.User_2.Email,
+			&i.User_2.PasswordHash,
+			&i.User_2.Role,
+			&i.User_2.FirstName,
+			&i.User_2.LastName,
+			&i.User_2.Organisation,
+			&i.User_2.Contact,
+			&i.User_2.Bio,
+			&i.User_2.FullName,
+			&i.User_2.Active,
+			&i.User_2.EmailVerifiedAt,
+			&i.OccurrenceCount,
+			&i.SamplingCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listImportBatchesWithContent = `-- name: ListImportBatchesWithContent :many
 SELECT ib.id, ib.label, ib.description, ib.status, ib.assembled_by, ib.created_by, ib.created_at, ib.completed_at, ib.completed_by, ib.taxonomic_scope, ib.imported_file_name, ib.imported_file_size, ib.imported_file_hash, ib.imported_file_content_type,
     -- created by user
@@ -332,4 +438,51 @@ func (q *Queries) ListImportBatchesWithContent(ctx context.Context) ([]ListImpor
 		return nil, err
 	}
 	return items, nil
+}
+
+const loadDatasetsForImportBatch = `-- name: LoadDatasetsForImportBatch :many
+SELECT d.id, d.label, d.slug, d.description, d.pinned, d.owner_id, d.is_public, d.created_at
+FROM datasets d
+    JOIN datasets_import_batches dib ON dib.dataset_id = d.id
+WHERE dib.import_batch_id = $1
+`
+
+func (q *Queries) LoadDatasetsForImportBatch(ctx context.Context, importBatchID uuid.UUID) ([]Dataset, error) {
+	rows, err := q.db.Query(ctx, loadDatasetsForImportBatch, importBatchID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Dataset{}
+	for rows.Next() {
+		var i Dataset
+		if err := rows.Scan(
+			&i.ID,
+			&i.Label,
+			&i.Slug,
+			&i.Description,
+			&i.Pinned,
+			&i.OwnerID,
+			&i.IsPublic,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const removeImportBatchFromDataset = `-- name: RemoveImportBatchFromDataset :exec
+DELETE FROM datasets_import_batches
+WHERE dataset_id = $1
+    AND import_batch_id = $2
+`
+
+func (q *Queries) RemoveImportBatchFromDataset(ctx context.Context, datasetID types.ULID, importBatchID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeImportBatchFromDataset, datasetID, importBatchID)
+	return err
 }

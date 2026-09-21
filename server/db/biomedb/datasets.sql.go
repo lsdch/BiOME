@@ -8,6 +8,8 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/lsdch/biome/types"
 )
 
@@ -24,14 +26,48 @@ func (q *Queries) AddOccurrenceToDataset(ctx context.Context, occurrenceID types
 	return err
 }
 
-const getDatasetByID = `-- name: GetDatasetByID :one
-SELECT id, label, slug, description, pinned, created_at
-FROM datasets d
-WHERE d.id = $1
+const createDataset = `-- name: CreateDataset :one
+INSERT INTO datasets (
+        id,
+        label,
+        slug,
+        description,
+        pinned,
+        owner_id,
+        is_public
+    )
+VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7
+    )
+RETURNING id, label, slug, description, pinned, owner_id, is_public, created_at
 `
 
-func (q *Queries) GetDatasetByID(ctx context.Context, datasetID types.ULID) (Dataset, error) {
-	row := q.db.QueryRow(ctx, getDatasetByID, datasetID)
+type CreateDatasetParams struct {
+	ULID        types.ULID `json:"ulid"`
+	Label       string     `json:"label"`
+	Slug        string     `json:"slug"`
+	Description *string    `json:"description"`
+	Pinned      bool       `json:"pinned"`
+	OwnerID     uuid.UUID  `json:"owner_id"`
+	IsPublic    bool       `json:"is_public"`
+}
+
+func (q *Queries) CreateDataset(ctx context.Context, arg CreateDatasetParams) (Dataset, error) {
+	row := q.db.QueryRow(ctx, createDataset,
+		arg.ULID,
+		arg.Label,
+		arg.Slug,
+		arg.Description,
+		arg.Pinned,
+		arg.OwnerID,
+		arg.IsPublic,
+	)
 	var i Dataset
 	err := row.Scan(
 		&i.ID,
@@ -39,13 +75,78 @@ func (q *Queries) GetDatasetByID(ctx context.Context, datasetID types.ULID) (Dat
 		&i.Slug,
 		&i.Description,
 		&i.Pinned,
+		&i.OwnerID,
+		&i.IsPublic,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
+const datasetAddCurator = `-- name: DatasetAddCurator :exec
+INSERT INTO datasets_curators (dataset_id, user_id)
+VALUES ($1, $2)
+`
+
+func (q *Queries) DatasetAddCurator(ctx context.Context, datasetID types.ULID, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, datasetAddCurator, datasetID, userID)
+	return err
+}
+
+const datasetRemoveCurator = `-- name: DatasetRemoveCurator :exec
+DELETE FROM datasets_curators
+WHERE dataset_id = $1
+    AND user_id = $2
+`
+
+func (q *Queries) DatasetRemoveCurator(ctx context.Context, datasetID types.ULID, userID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, datasetRemoveCurator, datasetID, userID)
+	return err
+}
+
+const getDatasetByID = `-- name: GetDatasetByID :one
+SELECT d.id, d.label, d.slug, d.description, d.pinned, d.owner_id, d.is_public, d.created_at,
+    u.id, u.login, u.email, u.password_hash, u.role, u.first_name, u.last_name, u.organisation, u.contact, u.bio, u.full_name, u.active, u.email_verified_at
+FROM datasets d
+    JOIN users u ON u.id = d.owner_id
+WHERE d.id = $1
+`
+
+type GetDatasetByIDRow struct {
+	Dataset Dataset `json:"dataset"`
+	User    User    `json:"user"`
+}
+
+func (q *Queries) GetDatasetByID(ctx context.Context, datasetID types.ULID) (GetDatasetByIDRow, error) {
+	row := q.db.QueryRow(ctx, getDatasetByID, datasetID)
+	var i GetDatasetByIDRow
+	err := row.Scan(
+		&i.Dataset.ID,
+		&i.Dataset.Label,
+		&i.Dataset.Slug,
+		&i.Dataset.Description,
+		&i.Dataset.Pinned,
+		&i.Dataset.OwnerID,
+		&i.Dataset.IsPublic,
+		&i.Dataset.CreatedAt,
+		&i.User.ID,
+		&i.User.Login,
+		&i.User.Email,
+		&i.User.PasswordHash,
+		&i.User.Role,
+		&i.User.FirstName,
+		&i.User.LastName,
+		&i.User.Organisation,
+		&i.User.Contact,
+		&i.User.Bio,
+		&i.User.FullName,
+		&i.User.Active,
+		&i.User.EmailVerifiedAt,
+	)
+	return i, err
+}
+
 const getDatasetsForOccurrence = `-- name: GetDatasetsForOccurrence :many
-SELECT d.id, d.label, d.slug, d.description, d.pinned, d.created_at
+SELECT d.id, d.label, d.slug, d.description, d.pinned, d.owner_id, d.is_public, d.created_at
 FROM datasets d
     JOIN occurrences_datasets od ON od.dataset_id = d.id
 WHERE od.occurrence_id = $1
@@ -66,6 +167,8 @@ func (q *Queries) GetDatasetsForOccurrence(ctx context.Context, occurrenceID typ
 			&i.Slug,
 			&i.Description,
 			&i.Pinned,
+			&i.OwnerID,
+			&i.IsPublic,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
@@ -79,27 +182,69 @@ func (q *Queries) GetDatasetsForOccurrence(ctx context.Context, occurrenceID typ
 }
 
 const listDatasets = `-- name: ListDatasets :many
-SELECT id, label, slug, description, pinned, created_at
+SELECT d.id, d.label, d.slug, d.description, d.pinned, d.owner_id, d.is_public, d.created_at,
+    u.id, u.login, u.email, u.password_hash, u.role, u.first_name, u.last_name, u.organisation, u.contact, u.bio, u.full_name, u.active, u.email_verified_at,
+    COUNT(DISTINCT o.id) AS occurrence_count,
+    COUNT(DISTINCT se.id) AS sampling_count,
+    COUNT(DISTINCT dib.import_batch_id) AS import_batch_count
 FROM datasets d
+    JOIN users u ON u.id = d.owner_id
+    LEFT JOIN occurrences_datasets od ON od.dataset_id = d.id
+    LEFT JOIN datasets_import_batches dib ON dib.dataset_id = d.id
+    LEFT JOIN occurrences o ON (
+        o.id = od.occurrence_id
+        OR o.import_batch_id = dib.import_batch_id
+    )
+    LEFT JOIN samplings se ON se.id = o.sampling_id
+WHERE d.is_public = true
+    OR d.owner_id = $1
+GROUP BY d.id,
+    u.id
 ORDER BY d.created_at DESC
 `
 
-func (q *Queries) ListDatasets(ctx context.Context) ([]Dataset, error) {
-	rows, err := q.db.Query(ctx, listDatasets)
+type ListDatasetsRow struct {
+	Dataset          Dataset `json:"dataset"`
+	User             User    `json:"user"`
+	OccurrenceCount  int64   `json:"occurrence_count"`
+	SamplingCount    int64   `json:"sampling_count"`
+	ImportBatchCount int64   `json:"import_batch_count"`
+}
+
+func (q *Queries) ListDatasets(ctx context.Context, userID pgtype.UUID) ([]ListDatasetsRow, error) {
+	rows, err := q.db.Query(ctx, listDatasets, userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Dataset{}
+	items := []ListDatasetsRow{}
 	for rows.Next() {
-		var i Dataset
+		var i ListDatasetsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.Label,
-			&i.Slug,
-			&i.Description,
-			&i.Pinned,
-			&i.CreatedAt,
+			&i.Dataset.ID,
+			&i.Dataset.Label,
+			&i.Dataset.Slug,
+			&i.Dataset.Description,
+			&i.Dataset.Pinned,
+			&i.Dataset.OwnerID,
+			&i.Dataset.IsPublic,
+			&i.Dataset.CreatedAt,
+			&i.User.ID,
+			&i.User.Login,
+			&i.User.Email,
+			&i.User.PasswordHash,
+			&i.User.Role,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.Organisation,
+			&i.User.Contact,
+			&i.User.Bio,
+			&i.User.FullName,
+			&i.User.Active,
+			&i.User.EmailVerifiedAt,
+			&i.OccurrenceCount,
+			&i.SamplingCount,
+			&i.ImportBatchCount,
 		); err != nil {
 			return nil, err
 		}
@@ -194,6 +339,53 @@ func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID types
 			&i.Taxon.ParentID,
 			&i.Taxon.SearchVector,
 			&i.Taxon.Comments,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const loadDatasetCurators = `-- name: LoadDatasetCurators :many
+SELECT u.id, u.login, u.email, u.password_hash, u.role, u.first_name, u.last_name, u.organisation, u.contact, u.bio, u.full_name, u.active, u.email_verified_at,
+    dc.dataset_id
+FROM users u
+    JOIN datasets_curators dc ON dc.user_id = u.id
+`
+
+type LoadDatasetCuratorsRow struct {
+	User      User       `json:"user"`
+	DatasetID types.ULID `json:"dataset_id"`
+}
+
+func (q *Queries) LoadDatasetCurators(ctx context.Context) ([]LoadDatasetCuratorsRow, error) {
+	rows, err := q.db.Query(ctx, loadDatasetCurators)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LoadDatasetCuratorsRow{}
+	for rows.Next() {
+		var i LoadDatasetCuratorsRow
+		if err := rows.Scan(
+			&i.User.ID,
+			&i.User.Login,
+			&i.User.Email,
+			&i.User.PasswordHash,
+			&i.User.Role,
+			&i.User.FirstName,
+			&i.User.LastName,
+			&i.User.Organisation,
+			&i.User.Contact,
+			&i.User.Bio,
+			&i.User.FullName,
+			&i.User.Active,
+			&i.User.EmailVerifiedAt,
+			&i.DatasetID,
 		); err != nil {
 			return nil, err
 		}

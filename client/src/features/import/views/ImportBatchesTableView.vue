@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ImportBatchWithContent } from '@/api'
+import { ImportBatchWithDetails } from '@/api'
 import {
   deleteImportBatchMutation,
   listImportBatchesWithContentOptions
@@ -69,7 +69,7 @@ const { data, isPending, error, refetch } = useQuery(listImportBatchesWithConten
 
 const { mutateAsync: deleteBatch } = useMutation(deleteImportBatchMutation())
 
-const headers: CRUDTableHeader<ImportBatchWithContent>[] = [
+const headers: CRUDTableHeader<ImportBatchWithDetails>[] = [
   {
     key: 'label',
     title: 'Label'

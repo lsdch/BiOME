@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db/biomedb"
+	"github.com/lsdch/biome/types"
 )
 
 const IMPORT_BATCH_FILE_NAME = "occurrences_batch_raw.tsv"
@@ -57,8 +58,11 @@ func ImportBatchFromDB(b biomedb.ImportBatch) ImportBatch {
 	}
 }
 
-func (b ImportBatch) WithContent(occurrenceCount, samplingCount int64, createdBy, completedBy User) ImportBatchWithContent {
-	return ImportBatchWithContent{
+func (b ImportBatch) WithContent(
+	occurrenceCount, samplingCount int64,
+	createdBy, completedBy User,
+) ImportBatchListItem {
+	return ImportBatchListItem{
 		ImportBatch:     b,
 		OccurrenceCount: occurrenceCount,
 		SamplingCount:   samplingCount,
@@ -67,12 +71,24 @@ func (b ImportBatch) WithContent(occurrenceCount, samplingCount int64, createdBy
 	}
 }
 
-type ImportBatchWithContent struct {
+type ImportBatchListItem struct {
 	ImportBatch
 	OccurrenceCount int64 `json:"occurrence_count"`
 	SamplingCount   int64 `json:"sampling_count"`
 	CreatedByUser   User  `json:"created_by_user"`
 	CompletedByUser User  `json:"completed_by_user"`
+}
+
+func (b ImportBatchListItem) WithDatasets(datasets []Dataset) ImportBatchWithDetails {
+	return ImportBatchWithDetails{
+		ImportBatchListItem: b,
+		Datasets:            datasets,
+	}
+}
+
+type ImportBatchWithDetails struct {
+	ImportBatchListItem
+	Datasets []Dataset `json:"datasets,omitempty"`
 }
 
 type ImportBatchInput struct {
@@ -81,6 +97,7 @@ type ImportBatchInput struct {
 	Description    Optional[string]    `json:"description,omitzero" form:"description"`
 	AssembledBy    []string            `json:"assembled_by,omitempty" form:"assembled_by"`
 	TaxonomicScope int32               `json:"taxonomic_scope" form:"taxonomic_scope" required:"true"`
+	Datasets       []types.ULID        `json:"datasets,omitempty" form:"datasets"`
 }
 
 func (i *ImportBatchInput) ID() uuid.UUID {

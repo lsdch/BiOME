@@ -7,7 +7,7 @@ info:
     email: ls.duchemin@gmail.com
   version: 0.0.0
 servers:
-- url: //localhost:5173/api/v1
+- url: /api/v1
 paths:
   /abiotics/parameters:
     get:
@@ -208,7 +208,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Dataset"
+                  $ref: "#/components/schemas/DatasetWithSummary"
         "500":
           description: Internal Server Error
           content:
@@ -216,6 +216,38 @@ paths:
               schema:
                 $ref: "#/components/schemas/AppError"
       x-policy: {}
+    post:
+      tags:
+      - Datasets
+      summary: Create a new dataset
+      operationId: CreateDataset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DatasetInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetWithMaintainers"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
   /datasets/{ulid}:
     get:
       tags:
@@ -235,7 +267,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Dataset"
+                $ref: "#/components/schemas/DatasetWithMaintainers"
         "422":
           description: Unprocessable Entity
           content:
@@ -249,6 +281,120 @@ paths:
               schema:
                 $ref: "#/components/schemas/AppError"
       x-policy: {}
+  /datasets/{ulid}/batches:
+    get:
+      tags:
+      - Datasets
+      summary: List import batches in a dataset
+      operationId: ListImportBatchesInDataset
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ImportBatchListItem"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /datasets/{ulid}/curators/{user_id}:
+    post:
+      tags:
+      - Datasets
+      summary: Add a curator to a dataset
+      operationId: AddCuratorToDataset
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetWithMaintainers"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+    delete:
+      tags:
+      - Datasets
+      summary: Remove a curator from a dataset
+      operationId: RemoveCuratorFromDataset
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetWithMaintainers"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
   /datasets/{ulid}/occurrences:
     get:
       tags:
@@ -284,6 +430,75 @@ paths:
               schema:
                 $ref: "#/components/schemas/AppError"
       x-policy: {}
+  /datasets/{ulid}/occurrences/{occurrence_id}:
+    post:
+      tags:
+      - Datasets
+      summary: Add an occurrence to a dataset
+      operationId: AddOccurrenceToDataset
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      - name: occurrence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+    delete:
+      tags:
+      - Datasets
+      summary: Remove an occurrence from a dataset
+      operationId: RemoveOccurrenceFromDataset
+      parameters:
+      - name: ulid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: ulid
+      - name: occurrence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
   /fixatives:
     get:
       tags:
@@ -673,7 +888,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ImportBatchWithContent"
+                  $ref: "#/components/schemas/ImportBatchListItem"
         "500":
           description: Internal Server Error
           content:
@@ -743,6 +958,75 @@ paths:
                 $ref: "#/components/schemas/AppError"
       x-policy:
         role: maintainer
+  /import-batches/{id}/datasets/{dataset_id}:
+    post:
+      tags:
+      - Imports
+      summary: Add an import batch to a dataset
+      operationId: AddImportBatchToDataset
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
+    delete:
+      tags:
+      - Imports
+      summary: Remove an import batch from a dataset
+      operationId: RemoveImportBatchFromDataset
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: dataset_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: maintainer
   /import-batches/{id}/raw:
     get:
       tags:
@@ -791,7 +1075,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ImportBatchWithContent"
+                $ref: "#/components/schemas/ImportBatchWithDetails"
         "422":
           description: Unprocessable Entity
           content:
@@ -3522,7 +3806,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/AppError.json
+          - /api/v1/schemas/AppError.json
           readOnly: true
         category:
           $ref: "#/components/schemas/ErrorCategory"
@@ -3597,7 +3881,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/BatchSnapshot.json
+          - /api/v1/schemas/BatchSnapshot.json
           readOnly: true
         GBIF:
           $ref: "#/components/schemas/ProgressSnapshot"
@@ -3719,7 +4003,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/Country.json
+          - /api/v1/schemas/Country.json
           readOnly: true
         code:
           type: string
@@ -3768,7 +4052,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/CreatePublicationParams.json
+          - /api/v1/schemas/CreatePublicationParams.json
           readOnly: true
         authors:
           type: array
@@ -3794,7 +4078,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/CreateTaxonInput.json
+          - /api/v1/schemas/CreateTaxonInput.json
           readOnly: true
         accepted_id:
           type: string
@@ -3819,13 +4103,6 @@ components:
       type: object
       additionalProperties: false
       properties:
-        $schema:
-          type: string
-          description: A URL to the JSON Schema for this object.
-          format: uri
-          examples:
-          - //localhost:5173/api/v1/schemas/Dataset.json
-          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -3834,6 +4111,8 @@ components:
         id:
           type: string
         label:
+          type: string
+        owner_id:
           type: string
         pinned:
           type: boolean
@@ -3844,6 +4123,115 @@ components:
       - label
       - slug
       - pinned
+      - owner_id
+      - created_at
+    DatasetInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/DatasetInput.json
+          readOnly: true
+        description:
+          type: string
+        label:
+          type: string
+        maintainers:
+          type: array
+          items:
+            type: string
+        pinned:
+          type: boolean
+        public:
+          type: boolean
+      required:
+      - label
+      - pinned
+      - public
+    DatasetWithMaintainers:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/DatasetWithMaintainers.json
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+        description:
+          type: string
+        id:
+          type: string
+        label:
+          type: string
+        maintainers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        owner_id:
+          type: string
+        pinned:
+          type: boolean
+        slug:
+          type: string
+      required:
+      - maintainers
+      - id
+      - label
+      - slug
+      - pinned
+      - owner_id
+      - created_at
+    DatasetWithSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        description:
+          type: string
+        id:
+          type: string
+        import_batch_count:
+          type: integer
+          format: int64
+        label:
+          type: string
+        maintainers:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        occurrence_count:
+          type: integer
+          format: int64
+        owner_id:
+          type: string
+        pinned:
+          type: boolean
+        sampling_count:
+          type: integer
+          format: int64
+        slug:
+          type: string
+      required:
+      - occurrence_count
+      - sampling_count
+      - import_batch_count
+      - maintainers
+      - id
+      - label
+      - slug
+      - pinned
+      - owner_id
       - created_at
     DateFilterParams:
       type: object
@@ -3929,7 +4317,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/Fixative.json
+          - /api/v1/schemas/Fixative.json
           readOnly: true
         code:
           type: string
@@ -3952,7 +4340,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/FixativeInput.json
+          - /api/v1/schemas/FixativeInput.json
           readOnly: true
         code:
           type: string
@@ -3972,7 +4360,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/FixativeUpdateParams.json
+          - /api/v1/schemas/FixativeUpdateParams.json
           readOnly: true
         code:
           type: string
@@ -4007,7 +4395,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/FullOccurrenceInput.json
+          - /api/v1/schemas/FullOccurrenceInput.json
           readOnly: true
         occurrence:
           $ref: "#/components/schemas/OccurrenceInput"
@@ -4038,7 +4426,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/GeoapifyResult.json
+          - /api/v1/schemas/GeoapifyResult.json
           readOnly: true
         city:
           type: string
@@ -4091,7 +4479,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/GeoapifyStatus.json
+          - /api/v1/schemas/GeoapifyStatus.json
           readOnly: true
         available:
           type: boolean
@@ -4215,7 +4603,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/HabitatGroupInput.json
+          - /api/v1/schemas/HabitatGroupInput.json
           readOnly: true
         depends:
           type: string
@@ -4248,7 +4636,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/HabitatGroupUpdate.json
+          - /api/v1/schemas/HabitatGroupUpdate.json
           readOnly: true
         create_elements:
           type: array
@@ -4380,7 +4768,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/ImportBatch.json
+          - /api/v1/schemas/ImportBatch.json
           readOnly: true
         assembled_by:
           type: array
@@ -4435,6 +4823,10 @@ components:
           type: array
           items:
             type: string
+        datasets:
+          type: array
+          items:
+            type: string
         description:
           type: string
         label:
@@ -4445,26 +4837,10 @@ components:
       required:
       - label
       - taxonomic_scope
-    ImportBatchStatus:
-      type: string
-      title: ImportBatchStatus
-      enum:
-      - created
-      - staged
-      - completed
-      - failed
-      - canceled
-    ImportBatchWithContent:
+    ImportBatchListItem:
       type: object
       additionalProperties: false
       properties:
-        $schema:
-          type: string
-          description: A URL to the JSON Schema for this object.
-          format: uri
-          examples:
-          - //localhost:5173/api/v1/schemas/ImportBatchWithContent.json
-          readOnly: true
         assembled_by:
           type: array
           items:
@@ -4524,6 +4900,89 @@ components:
       - imported_file_size
       - imported_file_hash
       - imported_file_content_type
+    ImportBatchStatus:
+      type: string
+      title: ImportBatchStatus
+      enum:
+      - created
+      - staged
+      - completed
+      - failed
+      - canceled
+    ImportBatchWithDetails:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/ImportBatchWithDetails.json
+          readOnly: true
+        assembled_by:
+          type: array
+          items:
+            type: string
+        completed_at:
+          type: string
+          format: date-time
+        completed_by:
+          type: string
+        completed_by_user:
+          $ref: "#/components/schemas/User"
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+        created_by_user:
+          $ref: "#/components/schemas/User"
+        datasets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Dataset"
+        description:
+          type: string
+        id:
+          type: string
+        imported_file_content_type:
+          type: string
+        imported_file_hash:
+          type: string
+        imported_file_name:
+          type: string
+        imported_file_size:
+          type: integer
+          format: int64
+        label:
+          type: string
+        occurrence_count:
+          type: integer
+          format: int64
+        sampling_count:
+          type: integer
+          format: int64
+        status:
+          $ref: "#/components/schemas/ImportBatchStatus"
+        taxonomic_scope:
+          type: integer
+          format: int32
+      required:
+      - occurrence_count
+      - sampling_count
+      - created_by_user
+      - completed_by_user
+      - id
+      - label
+      - status
+      - created_by
+      - created_at
+      - taxonomic_scope
+      - imported_file_name
+      - imported_file_size
+      - imported_file_hash
+      - imported_file_content_type
     InstanceSettings:
       type: object
       additionalProperties: false
@@ -4533,7 +4992,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/InstanceSettings.json
+          - /api/v1/schemas/InstanceSettings.json
           readOnly: true
         account_requests_enabled:
           type: boolean
@@ -4570,7 +5029,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/InstanceSettingsUpdate.json
+          - /api/v1/schemas/InstanceSettingsUpdate.json
           readOnly: true
         admin_email:
           type: string
@@ -4642,7 +5101,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/LoginResult.json
+          - /api/v1/schemas/LoginResult.json
           readOnly: true
         session:
           $ref: "#/components/schemas/SessionTokens"
@@ -4732,7 +5191,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/OccurrenceInput.json
+          - /api/v1/schemas/OccurrenceInput.json
           readOnly: true
         collections:
           type: array
@@ -4827,7 +5286,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/OccurrenceWithDetails.json
+          - /api/v1/schemas/OccurrenceWithDetails.json
           readOnly: true
         code:
           type: string
@@ -4881,7 +5340,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/OccurrenceWithMetadata.json
+          - /api/v1/schemas/OccurrenceWithMetadata.json
           readOnly: true
         code:
           type: string
@@ -4932,7 +5391,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/PaginatedListOccurrence.json
+          - /api/v1/schemas/PaginatedListOccurrence.json
           readOnly: true
         items:
           type: array
@@ -4986,7 +5445,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/Publication.json
+          - /api/v1/schemas/Publication.json
           readOnly: true
         authors:
           type: array
@@ -5115,7 +5574,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/ResolveInput.json
+          - /api/v1/schemas/ResolveInput.json
           readOnly: true
         candidate_id:
           type: string
@@ -5182,7 +5641,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingFixativeResolution.json
+          - /api/v1/schemas/SamplingFixativeResolution.json
           readOnly: true
         import_id:
           type: string
@@ -5205,7 +5664,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingFixativeResolutionInput.json
+          - /api/v1/schemas/SamplingFixativeResolutionInput.json
           readOnly: true
         input_text:
           type: string
@@ -5225,7 +5684,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingInput.json
+          - /api/v1/schemas/SamplingInput.json
           readOnly: true
         access_points:
           type: array
@@ -5266,7 +5725,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingMethod.json
+          - /api/v1/schemas/SamplingMethod.json
           readOnly: true
         code:
           type: string
@@ -5289,7 +5748,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingMethodInput.json
+          - /api/v1/schemas/SamplingMethodInput.json
           readOnly: true
         code:
           type: string
@@ -5309,7 +5768,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingMethodResolution.json
+          - /api/v1/schemas/SamplingMethodResolution.json
           readOnly: true
         import_id:
           type: string
@@ -5332,7 +5791,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingMethodResolutionInput.json
+          - /api/v1/schemas/SamplingMethodResolutionInput.json
           readOnly: true
         input_text:
           type: string
@@ -5352,7 +5811,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingMethodUpdateParams.json
+          - /api/v1/schemas/SamplingMethodUpdateParams.json
           readOnly: true
         code:
           type: string
@@ -5369,7 +5828,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SamplingWithDetails.json
+          - /api/v1/schemas/SamplingWithDetails.json
           readOnly: true
         access_points:
           type: array
@@ -5548,7 +6007,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/SessionTokens.json
+          - /api/v1/schemas/SessionTokens.json
           readOnly: true
         auth_token:
           type: string
@@ -5610,7 +6069,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/Taxon.json
+          - /api/v1/schemas/Taxon.json
           readOnly: true
         accepted_id:
           type: string
@@ -5838,7 +6297,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/TaxonStagingParams.json
+          - /api/v1/schemas/TaxonStagingParams.json
           readOnly: true
         authorship:
           type: string
@@ -5876,7 +6335,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/TaxonWithFullLineage.json
+          - /api/v1/schemas/TaxonWithFullLineage.json
           readOnly: true
         accepted_id:
           type: string
@@ -5926,7 +6385,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/User.json
+          - /api/v1/schemas/User.json
           readOnly: true
         active:
           type: boolean
@@ -5968,7 +6427,7 @@ components:
           description: A URL to the JSON Schema for this object.
           format: uri
           examples:
-          - //localhost:5173/api/v1/schemas/UserCredentials.json
+          - /api/v1/schemas/UserCredentials.json
           readOnly: true
         identifier:
           type: string

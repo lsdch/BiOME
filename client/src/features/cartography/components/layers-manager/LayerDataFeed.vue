@@ -23,7 +23,7 @@
       <DatasetPicker
         v-model="filters.datasets"
         density="compact"
-        item-value="slug"
+        item-value="id"
         label="Datasets"
         multiple
         chips
@@ -240,19 +240,19 @@
 
 <script setup lang="ts">
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
-import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
-import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
-import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
-import { reactive, ref } from 'vue'
-import { MappingFilters } from './map-layers'
-import ImportBatchPicker from '@/features/import/components/ImportBatchPicker.vue'
-import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
-import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
-import DateFilter from '@/components/toolkit/ui/DateFilter.vue'
-import { CompositeDate } from '@/api'
 import DateFiltersListItem from '@/components/toolkit/ui/DateFiltersListItem.vue'
+import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
+import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
+import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
+import ImportBatchPicker from '@/features/import/components/ImportBatchPicker.vue'
+import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
+import { reactive } from 'vue'
+import { MappingFilters } from './map-layers'
 
-const filters = defineModel<MappingFilters>({ default: () => reactive({}) })
+const filters = defineModel<MappingFilters>({
+  default: () =>
+    reactive<MappingFilters>({ date: { enabled: false, is_range: false, precision: 'year' } })
+})
 
 type QueryMode = 'occurrences' | 'samplings'
 const queryMode = defineModel<QueryMode>('mode', { default: 'occurrences' })

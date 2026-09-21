@@ -326,7 +326,7 @@ func (q *Queries) GetOccurrenceCodeHistory(ctx context.Context, occurrenceID typ
 }
 
 const getOccurrenceDatasets = `-- name: GetOccurrenceDatasets :many
-SELECT d.id, d.label, d.slug, d.description, d.pinned, d.created_at
+SELECT d.id, d.label, d.slug, d.description, d.pinned, d.owner_id, d.is_public, d.created_at
 FROM datasets d
     JOIN occurrences_datasets od ON od.dataset_id = d.id
     JOIN occurrences o ON o.id = od.occurrence_id
@@ -348,6 +348,8 @@ func (q *Queries) GetOccurrenceDatasets(ctx context.Context, occurrenceID types.
 			&i.Slug,
 			&i.Description,
 			&i.Pinned,
+			&i.OwnerID,
+			&i.IsPublic,
 			&i.CreatedAt,
 		); err != nil {
 			return nil, err
