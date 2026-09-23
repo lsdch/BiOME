@@ -465,3 +465,26 @@ func TestOptionalOmitZero(t *testing.T) {
 
 	t.Log(string(b))
 }
+
+func TestOptionalNullToDBParams(t *testing.T) {
+	for _, tt := range []struct {
+		input string
+		set   bool
+		value *string
+	}{
+		{`{}`, false, nil},
+		{`{"description":null}`, true, nil},
+		{`{"description":""}`, true, new(string)},
+		{`{"description":"habitat"}`, true, NewOptional("habitat").ToPtr()},
+	} {
+		t.Run(tt.input, func(t *testing.T) {
+			var input InstanceSettingsUpdate
+			if err := json.Unmarshal([]byte(tt.input), &input); err != nil {
+				t.Fatal(err)
+			}
+			params := input.ToParams()
+			assert.Equal(t, tt.set, params.SetAppDescription)
+			assert.Equal(t, tt.value, params.AppDescription)
+		})
+	}
+}

@@ -135,6 +135,9 @@ type SamplingFixativeResolutionInput struct {
 }
 
 func (i SamplingFixativeResolutionInput) Validate() error {
+	if id, ok := i.ResolvedFixativeID.Get(); ok && id == uuid.Nil {
+		return WrapErrorPath(fmt.Errorf("resolved_fixative_id cannot be nil uuid when status is 'selected'"), "resolved_fixative_id")
+	}
 	if i.Status == biomedb.VocabResolutionStatusSelected && !i.ResolvedFixativeID.IsSet {
 		return WrapErrorPath(fmt.Errorf("resolution status is 'selected' but no fixative was provided"), "resolved_fixative_id")
 	}

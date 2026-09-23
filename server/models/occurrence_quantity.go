@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -21,6 +22,16 @@ func NewOptionalOccurrenceQuantity(exact, lower, upper *int32) Optional[Occurren
 	}
 }
 
+func (q OccurrenceQuantity) String() string {
+	if q.Exact > 0 {
+		return fmt.Sprintf("%d", q.Exact)
+	} else if q.Lower > 0 && q.Upper > 0 {
+		return fmt.Sprintf("%d-%d", q.Lower, q.Upper)
+	} else {
+		return ""
+	}
+}
+
 type QuantityInput struct {
 	Exact Optional[int32] `json:"exact,omitzero"`
 	Lower Optional[int32] `json:"lower,omitzero"`
@@ -34,24 +45,22 @@ func (q *QuantityInput) UnmarshalCSV(data []byte) error {
 	}
 	parts := strings.Split(str, "-")
 	if len(parts) == 1 {
-		var exact int32
-		_, err := fmt.Sscanf(strings.TrimSpace(parts[0]), "%d", &exact)
+		exact, err := strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 32)
 		if err != nil {
 			return fmt.Errorf("invalid quantity format: %s", str)
 		}
-		q.Exact = NewOptional(exact)
+		q.Exact = NewOptional(int32(exact))
 	} else if len(parts) == 2 {
-		var lower, upper int32
-		_, err := fmt.Sscanf(strings.TrimSpace(parts[0]), "%d", &lower)
+		lower, err := strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 32)
 		if err != nil {
 			return fmt.Errorf("invalid quantity format: %s", str)
 		}
-		_, err = fmt.Sscanf(strings.TrimSpace(parts[1]), "%d", &upper)
+		upper, err := strconv.ParseInt(strings.TrimSpace(parts[1]), 10, 32)
 		if err != nil {
 			return fmt.Errorf("invalid quantity format: %s", str)
 		}
-		q.Lower = NewOptional(lower)
-		q.Upper = NewOptional(upper)
+		q.Lower = NewOptional(int32(lower))
+		q.Upper = NewOptional(int32(upper))
 	} else {
 		return fmt.Errorf("invalid quantity format: %s", str)
 	}

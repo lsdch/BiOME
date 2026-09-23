@@ -2,8 +2,6 @@ package models
 
 import (
 	_ "embed"
-	"maps"
-	"slices"
 	"strings"
 
 	"github.com/google/uuid"
@@ -131,6 +129,14 @@ func (taxon TaxonGBIF) GetStatus() TaxonStatus {
 }
 
 func (taxon TaxonGBIF) ToStaging() biomedb.InsertGBIFBatchParams {
+	var (
+		higherTaxonKeys  []int32
+		higherTaxonNames []string
+	)
+	for key, name := range taxon.HigherClassificationMap {
+		higherTaxonKeys = append(higherTaxonKeys, key)
+		higherTaxonNames = append(higherTaxonNames, name)
+	}
 	return biomedb.InsertGBIFBatchParams{
 		Key:              taxon.Key,
 		Parent:           taxon.Parent.ToPtr(),
@@ -147,8 +153,8 @@ func (taxon TaxonGBIF) ToStaging() biomedb.InsertGBIFBatchParams {
 		FamilyKey:        taxon.FamilyKey.ToPtr(),
 		GenusKey:         taxon.GenusKey.ToPtr(),
 		SpeciesKey:       taxon.SpeciesKey.ToPtr(),
-		HigherTaxonKeys:  slices.Collect(maps.Keys(taxon.HigherClassificationMap)),
-		HigherTaxonNames: slices.Collect(maps.Values(taxon.HigherClassificationMap)),
+		HigherTaxonKeys:  higherTaxonKeys,
+		HigherTaxonNames: higherTaxonNames,
 		Authorship:       taxon.Authorship.ToPtr(),
 		NumDescendants:   taxon.NumDescendants.ToPtr(),
 		AcceptedKey:      taxon.AcceptedKey.ToPtr(),
@@ -196,7 +202,6 @@ func (t TaxonGBIF) WithPriority(res TaxonResolution) TaxonGBIFWithPriority {
 
 func (taxon TaxonGBIFWithPriority) ToCandidate(importID uuid.UUID, resolutionID uuid.UUID) biomedb.InsertTaxonCandidatesBatchParams {
 	return biomedb.InsertTaxonCandidatesBatchParams{
-		ImportID:     importID,
 		ResolutionID: resolutionID,
 		Name:         taxon.Name,
 		Authorship:   taxon.Authorship.ToPtr(),

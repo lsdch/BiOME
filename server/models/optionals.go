@@ -130,6 +130,13 @@ func NewOptionalFromTimestamp(t pgtype.Timestamptz) Optional[time.Time] {
 	}
 }
 
+func (o Optional[T]) MapString(f func(T) string) string {
+	if !o.IsSet {
+		return ""
+	}
+	return f(o.Value)
+}
+
 func (o Optional[T]) Get() (T, bool) {
 	return o.Value, o.IsSet
 }
@@ -249,6 +256,13 @@ func NewOptionalNull[T any](value T) OptionalNull[T] {
 
 func (o OptionalNull[T]) IsNull() bool {
 	return o.IsSet && o.Null.IsNull()
+}
+
+func (o OptionalNull[T]) ToPtr() *T {
+	if o.IsSet && !o.Null.IsNull() {
+		return &o.Value
+	}
+	return nil
 }
 
 func (o OptionalNull[T]) Get() (T, bool) {

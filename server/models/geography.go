@@ -7,8 +7,8 @@ import (
 )
 
 type Coordinates struct {
-	Latitude  float64 `json:"latitude" csv:"latitude" query:"latitude" validate:"required,latitude"`
-	Longitude float64 `json:"longitude" csv:"longitude" query:"longitude" validate:"required,longitude"`
+	Latitude  float64 `json:"latitude" csv:"latitude" query:"latitude" validate:"latitude"`
+	Longitude float64 `json:"longitude" csv:"longitude" query:"longitude" validate:"longitude"`
 }
 
 func (c Coordinates) ToCode() string {

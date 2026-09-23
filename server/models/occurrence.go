@@ -1,6 +1,8 @@
 package models
 
 import (
+	"slices"
+	"strings"
 	"time"
 
 	. "github.com/go-jet/jet/v2/postgres"
@@ -61,6 +63,19 @@ type Identification struct {
 	Addendum     Optional[string]            `json:"addendum,omitzero"`
 	Taxon        Taxon                       `json:"taxon"`
 	Verbatim     Optional[string]            `json:"verbatim,omitzero"`
+}
+
+func (i Identification) String() string {
+	nameParts := strings.Fields(i.Taxon.Name)
+	if i.Confer && len(nameParts) > 0 {
+		pos := len(nameParts) - 1
+		nameParts = slices.Insert(nameParts, pos, "cf.")
+	}
+
+	if addendum, ok := i.Addendum.Get(); ok {
+		nameParts = append(nameParts, addendum)
+	}
+	return strings.Join(nameParts, " ")
 }
 
 type IdentificationInput struct {

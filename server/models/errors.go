@@ -45,8 +45,9 @@ func (e ErrorWithPath) AsErrorDetail() huma.ErrorDetail {
 }
 
 func WrapErrorPath(err error, path string) ErrorWithPath {
-	if errors.As(err, &ErrorWithPath{}) {
-		return err.(ErrorWithPath).PrependPath(path)
+	var e ErrorWithPath
+	if errors.As(err, &e) {
+		return e.PrependPath(path)
 	}
 
 	return ErrorWithPath{

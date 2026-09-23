@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
@@ -73,37 +75,35 @@ type CollectionInput struct {
 	Vouchers []string `json:"vouchers,omitempty"`
 }
 
+// pattern to match collection input in the format: "collection_name" or "collection_name[voucher1;voucher2]".
+var collectionInputPattern = regexp.MustCompile(
+	`^([^\[\]]+)(?:\[([^\[\]]+(?:;[^\[\]]+)*)\])?$`,
+)
+
 // UnmarshalCSV implements the csvutil.Unmarshaler interface for CollectionInput.
-// It expects the input to be in the format "collection_name[voucher1;voucher2;voucher3]".
-// If there are no vouchers, the input can be just "collection_name".
 func (i *CollectionInput) UnmarshalCSV(v []byte) error {
 	if len(v) == 0 {
 		return nil
 	}
-	// we need to split it into collection name and vouchers
-	// first, find the index of the first '['
-	openBracketIndex := -1
-	for i, c := range v {
-		if c == '[' {
-			openBracketIndex = i
-			break
-		}
+
+	matches := collectionInputPattern.FindStringSubmatch(string(v))
+	if matches == nil {
+		return fmt.Errorf(
+			"invalid collection format %q: expected collection_name or collection_name[voucher1;voucher2]",
+			string(v),
+		)
 	}
-	if openBracketIndex == -1 {
-		// no vouchers, just collection name
-		*i = CollectionInput{
-			Name:     string(v),
-			Vouchers: []string{},
-		}
-		return nil
+
+	vouchers := []string{}
+	if matches[2] != "" {
+		vouchers = strings.Split(strings.ReplaceAll(matches[2], " ", ""), ";")
 	}
-	name := string(v[:openBracketIndex])
-	vouchersStr := strings.ReplaceAll(string(v[openBracketIndex+1:len(v)-1]), " ", "") // remove the closing ']' and remove spaces
-	vouchers := strings.Split(vouchersStr, ";")
+
 	*i = CollectionInput{
-		Name:     name,
+		Name:     matches[1],
 		Vouchers: vouchers,
 	}
+
 	return nil
 }
 

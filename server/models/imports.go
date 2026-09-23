@@ -125,8 +125,8 @@ func TaxonResolutionFromDB(res biomedb.TaxonResolution) TaxonResolution {
 		InputRank:        NewOptionalFromPtr(res.InputRank),
 		ScientificName:   res.ScientificName,
 		ResolvedTo:       NewOptionalFromUUID(res.ResolvedCandidateID),
-		Status:           NewOptionalFromPtr(res.Status),
-		GBIFStatus:       NewOptionalFromPtr(res.GBIFStatus),
+		Status:           NewOptional(res.Status),
+		GBIFStatus:       NewOptional(res.GBIFStatus),
 		FromResolutionID: NewOptionalFromUUID(res.FromResolutionID),
 		SamplingTarget:   res.SamplingTarget,
 	}
