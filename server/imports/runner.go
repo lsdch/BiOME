@@ -418,9 +418,8 @@ func (r *ImportRunner) MarkStaged(db db.Querier) error {
 
 func (r *ImportRunner) Fail(err error) {
 
-	logrus.Errorf("Import runner failed for import ID %s: %v", r.batch.ID, err)
-
 	if errors.Is(err, context.Canceled) {
+		logrus.Infof("canceled import ID %s", r.batch.ID)
 		if err := r.store.SetBatchStatus(context.WithoutCancel(r.ctx), r.db, r.batch.ID, biomedb.ImportBatchStatusCanceled); err != nil {
 			logrus.Errorf("error setting batch status to canceled for import ID %s: %v", r.batch.ID, err)
 		}
@@ -431,6 +430,7 @@ func (r *ImportRunner) Fail(err error) {
 		return
 	}
 
+	logrus.Errorf("Import runner failed for import ID %s: %v", r.batch.ID, err)
 	if err := r.store.SetBatchStatus(r.ctx, r.db, r.batch.ID, biomedb.ImportBatchStatusFailed); err != nil {
 		logrus.Errorf("error setting batch status to failed for import ID %s: %v", r.batch.ID, err)
 	}
@@ -574,6 +574,7 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 	r.materializationSteps.FillGBIF = true
 	r.notify()
 
+	const stepDelay = 500 * time.Millisecond
 	if err := r.db.WithTx(r.ctx, func(tx *db.Tx) error {
 		logrus.Infof("Materializing import batch: %s", r.batch.Label)
 
@@ -585,6 +586,7 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 			}
 			return fmt.Errorf("materialize taxa: %w", err)
 		}
+		time.Sleep(stepDelay)
 		r.materializationSteps.MaterializeTaxa = true
 		r.notify()
 
@@ -592,6 +594,7 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 		if err := r.samplings.MaterializeSamplings(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("materialize samplings: %w", err)
 		}
+		time.Sleep(stepDelay)
 		r.materializationSteps.MaterializeSamplings = true
 		r.notify()
 
@@ -599,6 +602,7 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 		if err := r.occurrences.MaterializeOccurrences(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("materialize occurrences: %w", err)
 		}
+		time.Sleep(stepDelay)
 		r.materializationSteps.MaterializeOccurrences = true
 		r.notify()
 
@@ -606,6 +610,7 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 		if err := r.bibliography.MaterializeBibliography(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("materialize bibliography: %w", err)
 		}
+		time.Sleep(stepDelay)
 		r.materializationSteps.MaterializeBibliography = true
 		r.notify()
 
@@ -613,6 +618,7 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 		if err := r.occurrences.RefreshOccurrenceCodes(r.ctx, tx); err != nil {
 			return fmt.Errorf("refresh occurrence codes: %w", err)
 		}
+		time.Sleep(stepDelay)
 		r.materializationSteps.RefreshOccurrenceCodes = true
 		r.notify()
 
@@ -620,6 +626,7 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 		if err := r.Complete(tx, userID); err != nil {
 			return fmt.Errorf("complete import: %w", err)
 		}
+		time.Sleep(stepDelay)
 		r.materializationSteps.MaterializationComplete = true
 		r.notify()
 		return nil
