@@ -263,11 +263,11 @@ SELECT DISTINCT iso.import_id,
     iso.sampling_hash,
     r.id
 FROM import_samplings_occurrences iso
-    CROSS JOIN LATERAL unnest(iso.sampling_targets) AS sampling_target
+    CROSS JOIN LATERAL unnest(iso.sampling_targets) AS sampling_target_elt
     JOIN taxon_resolution r ON r.import_id = iso.import_id
-    AND r.input_name = sampling_target
+    AND r.input_name = sampling_target_elt
 WHERE iso.import_id = $1
-    AND sampling_target <> '' ON CONFLICT (import_id, sampling_hash, resolution_id) DO NOTHING
+    AND sampling_target_elt <> '' ON CONFLICT (import_id, sampling_hash, resolution_id) DO NOTHING
 `
 
 func (q *Queries) InitSamplingTargetResolution(ctx context.Context, importID uuid.UUID) error {
@@ -282,12 +282,12 @@ INSERT INTO taxon_resolution (
         sampling_target
     )
 SELECT DISTINCT iso.import_id,
-    sampling_target,
+    sampling_target_elt,
     true
 FROM import_samplings_occurrences iso
-    CROSS JOIN LATERAL unnest(iso.sampling_targets) AS sampling_target
+    CROSS JOIN LATERAL unnest(iso.sampling_targets) AS sampling_target_elt
 WHERE iso.import_id = $1
-    AND sampling_target <> '' ON CONFLICT (import_id, input_name) DO NOTHING
+    AND sampling_target_elt <> '' ON CONFLICT (import_id, input_name) DO NOTHING
 `
 
 func (q *Queries) InitSamplingTargetTaxonResolutions(ctx context.Context, importID uuid.UUID) error {

@@ -25,14 +25,14 @@ methods AS (
     FROM sampling_methods_resolution r
     WHERE r.import_id = $1
         AND r.resolved_method_id IS NULL
-        AND r.vocab_resolution_status <> 'discard'
+        AND r.status <> 'discard'
 ),
 fixatives AS (
     SELECT COUNT(*) = 0 AS ready
     FROM sampling_fixatives_resolution r
     WHERE r.import_id = $1
         AND r.resolved_fixative_id IS NULL
-        AND r.vocab_resolution_status <> 'discard'
+        AND r.status <> 'discard'
 ),
 bibliography AS (
     SELECT COUNT(*) = 0 AS ready
