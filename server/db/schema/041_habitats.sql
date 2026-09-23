@@ -8,7 +8,6 @@ CREATE TABLE habitat_groups (
 	CONSTRAINT habitat_group_label_not_empty CHECK (btrim(label) <> '')
 );
 
-CREATE UNIQUE INDEX idx_habitat_group_label_uq ON habitat_groups (label);
 
 -- Habitats belong to a group and may form a hierarchy (parent)
 CREATE TABLE habitats (
@@ -50,29 +49,47 @@ CREATE INDEX samplings_habitats_habitat_idx ON samplings_habitats (habitat_id);
 --
 CREATE OR REPLACE FUNCTION validate_group_parent_not_in_subtree()
 RETURNS trigger AS $$
-DECLARE is_invalid BOOLEAN;
-BEGIN IF NEW.parent_habitat_id IS NULL THEN RETURN NEW;
-END IF;
+DECLARE
+    group_to_check UUID;
+    is_invalid BOOLEAN;
+BEGIN
+    -- AFTER triggers see the new parent/group, including multi-row updates.
+    IF TG_TABLE_NAME = 'habitat_groups' THEN
+        group_to_check := NEW.id;
+    ELSE
+        group_to_check := NEW.habitat_group_id;
+    END IF;
 
-    WITH RECURSIVE descendants AS (
-	-- tous les habitats du groupe
-	SELECT h.id
-	FROM habitats h
-	WHERE h.habitat_group_id = NEW.id
-	UNION ALL
-	-- descendance récursive
-	SELECT child.id
-	FROM habitats child
-		JOIN descendants d ON child.parent_id = d.id
-)
-SELECT TRUE INTO is_invalid
-FROM descendants
-WHERE id = NEW.parent_habitat_id
-LIMIT 1;
+    -- A group's parent is a habitat, whose group is the next ancestor.
+    -- UNION also terminates traversal if an existing cycle is encountered.
+    WITH RECURSIVE ancestors AS (
+        SELECT h.habitat_group_id AS id
+        FROM habitat_groups g
+            JOIN habitats h ON h.id = g.parent_habitat_id
+        WHERE g.id = group_to_check
+        UNION
+        SELECT h.habitat_group_id
+        FROM ancestors a
+            JOIN habitat_groups g ON g.id = a.id
+            JOIN habitats h ON h.id = g.parent_habitat_id
+    )
+    SELECT EXISTS (
+        SELECT 1 FROM ancestors WHERE id = group_to_check
+    ) INTO is_invalid;
 
-    IF is_invalid THEN RAISE EXCEPTION 'Invalid parent_habitat_id: cannot reference a descendant habitat of the same group' USING ERRCODE = 'HB001';
-END IF;
+    IF is_invalid THEN
+        RAISE EXCEPTION 'Invalid habitat hierarchy: a group cannot depend on one of its own descendant habitats'
+            USING ERRCODE = 'HB001';
+    END IF;
 
-    RETURN NEW;
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER habitat_groups_validate_parent
+AFTER INSERT OR UPDATE OF parent_habitat_id ON habitat_groups
+FOR EACH ROW EXECUTE FUNCTION validate_group_parent_not_in_subtree();
+
+CREATE TRIGGER habitats_validate_group
+AFTER INSERT OR UPDATE OF habitat_group_id ON habitats
+FOR EACH ROW EXECUTE FUNCTION validate_group_parent_not_in_subtree();

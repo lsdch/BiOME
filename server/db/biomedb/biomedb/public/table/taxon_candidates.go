@@ -18,7 +18,6 @@ type taxonCandidatesTable struct {
 
 	// Columns
 	ID           postgres.ColumnString
-	ImportID     postgres.ColumnString
 	ResolutionID postgres.ColumnString
 	Source       postgres.ColumnString
 	MatchType    postgres.ColumnString
@@ -73,7 +72,6 @@ func newTaxonCandidatesTable(schemaName, tableName, alias string) *TaxonCandidat
 func newTaxonCandidatesTableImpl(schemaName, tableName, alias string) taxonCandidatesTable {
 	var (
 		IDColumn           = postgres.StringColumn("id")
-		ImportIDColumn     = postgres.StringColumn("import_id")
 		ResolutionIDColumn = postgres.StringColumn("resolution_id")
 		SourceColumn       = postgres.StringColumn("source")
 		MatchTypeColumn    = postgres.StringColumn("match_type")
@@ -86,8 +84,8 @@ func newTaxonCandidatesTableImpl(schemaName, tableName, alias string) taxonCandi
 		AuthorshipColumn   = postgres.StringColumn("authorship")
 		RankColumn         = postgres.StringColumn("rank")
 		StatusColumn       = postgres.StringColumn("status")
-		allColumns         = postgres.ColumnList{IDColumn, ImportIDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, StagingIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
-		mutableColumns     = postgres.ColumnList{ImportIDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, StagingIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
+		allColumns         = postgres.ColumnList{IDColumn, ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, StagingIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
+		mutableColumns     = postgres.ColumnList{ResolutionIDColumn, SourceColumn, MatchTypeColumn, TaxonIDColumn, GbifIDColumn, StagingIDColumn, ScoreColumn, PriorityColumn, NameColumn, AuthorshipColumn, RankColumn, StatusColumn}
 		defaultColumns     = postgres.ColumnList{IDColumn}
 	)
 
@@ -96,7 +94,6 @@ func newTaxonCandidatesTableImpl(schemaName, tableName, alias string) taxonCandi
 
 		//Columns
 		ID:           IDColumn,
-		ImportID:     ImportIDColumn,
 		ResolutionID: ResolutionIDColumn,
 		Source:       SourceColumn,
 		MatchType:    MatchTypeColumn,

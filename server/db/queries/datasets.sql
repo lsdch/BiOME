@@ -33,15 +33,28 @@ SELECT sqlc.embed(o),
 FROM occurrences o
     JOIN occurrences_datasets od ON od.occurrence_id = o.id
     JOIN samplings_with_country s ON s.id = o.sampling_id
-    JOIN countries c ON c.code = s.site_country_code
     JOIN taxa t ON t.id = o.taxon_id
-WHERE od.dataset_id = @dataset_id;
+WHERE od.dataset_id = @dataset_id
+UNION
+SELECT sqlc.embed(o),
+    sqlc.embed(s),
+    sqlc.embed(t)
+FROM occurrences o
+    JOIN datasets_import_batches dib ON dib.import_batch_id = o.import_batch_id
+    JOIN samplings_with_country s ON s.id = o.sampling_id
+    JOIN taxa t ON t.id = o.taxon_id
+WHERE dib.dataset_id = @dataset_id;
 
 -- name: GetDatasetsForOccurrence :many
 SELECT d.*
 FROM datasets d
-    JOIN occurrences_datasets od ON od.dataset_id = d.id
-WHERE od.occurrence_id = @occurrence_id;
+    LEFT JOIN occurrences_datasets od ON od.dataset_id = d.id
+    LEFT JOIN datasets_import_batches dib ON dib.dataset_id = d.id
+    LEFT JOIN occurrences o ON (
+        o.id = od.occurrence_id
+        OR o.import_batch_id = dib.import_batch_id
+    )
+WHERE o.id = @occurrence_id;
 
 -- name: AddOccurrenceToDataset :exec
 INSERT INTO occurrences_datasets (occurrence_id, dataset_id)

@@ -322,39 +322,45 @@ func (r *ImportRunner) enrichGBIF() error {
 		return err
 	}
 
-	err = r.taxonResolver.InsertGBIFCandidates(r.ctx, r.db, r.batch.ID, taxa)
-	if err != nil {
+	if err := r.db.WithTx(r.ctx, func(tx *db.Tx) error {
+		err = r.taxonResolver.InsertGBIFCandidates(r.ctx, tx, r.batch.ID, taxa)
+		if err != nil {
+			return err
+		}
+
+		err = r.taxonResolver.MarkTaxaGBIFImportCompleted(r.ctx, tx, r.batch.ID)
+		if err != nil {
+			return err
+		}
+
+		logrus.Infof("Running automatic taxon resolution for unambiguous candidates for import ID %s", r.batch.ID)
+		if err := r.taxonResolver.AutoResolveUnambiguousCandidates(r.ctx, tx, r.batch.ID); err != nil {
+			logrus.Errorf("autoresolve failed for import ID %s: %v", r.batch.ID, err)
+			return fmt.Errorf("autoresolve failed: %w", err)
+		}
+
+		logrus.Infof("Running automatic creation of manual candidates for import ID %s", r.batch.ID)
+		if err := r.taxonResolver.AutoCreateManualCandidates(r.ctx, tx, r.batch.ID); err != nil {
+			logrus.Errorf("auto-create manual candidates failed for import ID %s: %v", r.batch.ID, err)
+			return fmt.Errorf("auto-create manual candidates failed: %w", err)
+		}
+
+		logrus.Infof("Resolving sampling targets for import ID %s", r.batch.ID)
+		if err := r.taxonResolver.InitSamplingTargetsResolution(r.ctx, tx, r.batch.ID); err != nil {
+			logrus.Errorf("init sampling targets resolution failed for import ID %s: %v", r.batch.ID, err)
+			return fmt.Errorf("init sampling targets resolution failed: %w", err)
+		}
+
+		logrus.Infof("Running automatic taxon resolution for unambiguous candidates after manual candidate creation for import ID %s", r.batch.ID)
+		if err := r.taxonResolver.AutoResolveUnambiguousCandidates(r.ctx, tx, r.batch.ID); err != nil {
+			logrus.Errorf("autoresolve failed for import ID %s: %v", r.batch.ID, err)
+			return fmt.Errorf("autoresolve failed: %w", err)
+		}
+		return nil
+	}); err != nil {
 		return err
 	}
 
-	err = r.taxonResolver.MarkTaxaGBIFImportCompleted(r.ctx, r.db, r.batch.ID)
-	if err != nil {
-		return err
-	}
-
-	logrus.Infof("Running automatic taxon resolution for unambiguous candidates for import ID %s", r.batch.ID)
-	if err := r.taxonResolver.AutoResolveUnambiguousCandidates(r.ctx, r.db, r.batch.ID); err != nil {
-		logrus.Errorf("autoresolve failed for import ID %s: %v", r.batch.ID, err)
-		return fmt.Errorf("autoresolve failed: %w", err)
-	}
-
-	logrus.Infof("Running automatic creation of manual candidates for import ID %s", r.batch.ID)
-	if err := r.taxonResolver.AutoCreateManualCandidates(r.ctx, r.db, r.batch.ID); err != nil {
-		logrus.Errorf("auto-create manual candidates failed for import ID %s: %v", r.batch.ID, err)
-		return fmt.Errorf("auto-create manual candidates failed: %w", err)
-	}
-
-	logrus.Infof("Resolving sampling targets for import ID %s", r.batch.ID)
-	if err := r.taxonResolver.InitSamplingTargetsResolution(r.ctx, r.db, r.batch.ID); err != nil {
-		logrus.Errorf("init sampling targets resolution failed for import ID %s: %v", r.batch.ID, err)
-		return fmt.Errorf("init sampling targets resolution failed: %w", err)
-	}
-
-	logrus.Infof("Running automatic taxon resolution for unambiguous candidates after manual candidate creation for import ID %s", r.batch.ID)
-	if err := r.taxonResolver.AutoResolveUnambiguousCandidates(r.ctx, r.db, r.batch.ID); err != nil {
-		logrus.Errorf("autoresolve failed for import ID %s: %v", r.batch.ID, err)
-		return fmt.Errorf("autoresolve failed: %w", err)
-	}
 	// Restart the GBIF enrichment process to fetch new candidates for any new resolutions *
 	// created by the auto-create manual candidates step
 	return r.enrichGBIF()

@@ -14,13 +14,14 @@ import (
 
 const autoResolveUnambiguousCandidates = `-- name: AutoResolveUnambiguousCandidates :exec
 WITH winners AS (
-    SELECT c.import_id,
+    SELECT r.import_id,
         c.resolution_id,
         (array_agg(c.id)) [1] AS id
     FROM taxon_candidates c
-    WHERE c.import_id = $1
+        JOIN taxon_resolution r ON r.id = c.resolution_id
+    WHERE r.import_id = $1
         AND c.priority >= $2
-    GROUP BY c.import_id,
+    GROUP BY r.import_id,
         c.resolution_id
     HAVING COUNT(*) = 1
 )
@@ -105,8 +106,9 @@ func (q *Queries) CleanUpTaxonResolution(ctx context.Context, importID uuid.UUID
 }
 
 const cleanupTaxonCandidates = `-- name: CleanupTaxonCandidates :exec
-DELETE FROM taxon_candidates
-WHERE import_id = $1
+DELETE FROM taxon_candidates c USING taxon_resolution r
+WHERE r.import_id = $1
+    AND r.id = c.resolution_id
 `
 
 func (q *Queries) CleanupTaxonCandidates(ctx context.Context, importID uuid.UUID) error {
@@ -130,7 +132,6 @@ WITH candidates AS (
     WHERE r.import_id = $2
 )
 INSERT INTO taxon_candidates (
-        import_id,
         resolution_id,
         source,
         match_type,
@@ -143,8 +144,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT c.import_id,
-    c.resolution_id,
+SELECT c.resolution_id,
     'internal'::taxon_match_source,
     'fuzzy'::taxon_match_type,
     c.taxon_id,
@@ -166,7 +166,6 @@ func (q *Queries) CreateCandidateTaxaFuzzy(ctx context.Context, threshold float6
 
 const createCandidateTaxaNameExact = `-- name: CreateCandidateTaxaNameExact :exec
 INSERT INTO taxon_candidates (
-        import_id,
         resolution_id,
         source,
         match_type,
@@ -179,8 +178,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT DISTINCT i.import_id,
-    i.id,
+SELECT DISTINCT i.id,
     'internal'::taxon_match_source,
     'exact'::taxon_match_type,
     t.id,
@@ -256,38 +254,44 @@ func (q *Queries) GetTaxonResolution(ctx context.Context, importID uuid.UUID) ([
 }
 
 const initSamplingTargetResolution = `-- name: InitSamplingTargetResolution :exec
-WITH all_sampling_targets AS (
-    SELECT DISTINCT import_id,
-        sampling_hash,
-        sampling_target
-    FROM import_samplings_occurrences iso
-        CROSS JOIN LATERAL unnest(sampling_targets) AS sampling_target
-    WHERE iso.import_id = $1
-        AND sampling_target <> ''
-),
-new_resolutions AS (
-    INSERT INTO taxon_resolution (import_id, input_name, sampling_target)
-    SELECT import_id,
-        sampling_target,
-        true
-    FROM all_sampling_targets ON CONFLICT (import_id, input_name) DO NOTHING
-    RETURNING id, import_id, input_name, input_authorship, input_rank, scientific_name, status, gbif_status, from_resolution_id, sampling_target, resolved_candidate_id
-)
 INSERT INTO sampling_target_resolution (
         import_id,
         sampling_hash,
         resolution_id
     )
-SELECT st.import_id,
-    st.sampling_hash,
+SELECT DISTINCT iso.import_id,
+    iso.sampling_hash,
     r.id
-FROM all_sampling_targets st
-    JOIN taxon_resolution r ON r.import_id = st.import_id
-    AND r.input_name = st.sampling_target ON CONFLICT (import_id, sampling_hash, resolution_id) DO NOTHING
+FROM import_samplings_occurrences iso
+    CROSS JOIN LATERAL unnest(iso.sampling_targets) AS sampling_target
+    JOIN taxon_resolution r ON r.import_id = iso.import_id
+    AND r.input_name = sampling_target
+WHERE iso.import_id = $1
+    AND sampling_target <> '' ON CONFLICT (import_id, sampling_hash, resolution_id) DO NOTHING
 `
 
 func (q *Queries) InitSamplingTargetResolution(ctx context.Context, importID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, initSamplingTargetResolution, importID)
+	return err
+}
+
+const initSamplingTargetTaxonResolutions = `-- name: InitSamplingTargetTaxonResolutions :exec
+INSERT INTO taxon_resolution (
+        import_id,
+        input_name,
+        sampling_target
+    )
+SELECT DISTINCT iso.import_id,
+    sampling_target,
+    true
+FROM import_samplings_occurrences iso
+    CROSS JOIN LATERAL unnest(iso.sampling_targets) AS sampling_target
+WHERE iso.import_id = $1
+    AND sampling_target <> '' ON CONFLICT (import_id, input_name) DO NOTHING
+`
+
+func (q *Queries) InitSamplingTargetTaxonResolutions(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, initSamplingTargetTaxonResolutions, importID)
 	return err
 }
 
@@ -387,7 +391,8 @@ WITH candidates AS (
             c.source = 'manual'
             AND s.id = c.staging_id
         )
-    WHERE c.import_id = $1
+        JOIN taxon_resolution r ON r.id = c.resolution_id
+    WHERE r.import_id = $1
 )
 SELECT id, resolution_id, source, match_type, score, priority, resolved_taxon_id, resolved_gbif_id, resolved_name, resolved_authorship, resolved_rank, resolved_status,
     ROW_NUMBER() OVER (
@@ -496,8 +501,7 @@ WHERE r.import_id = $1
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
-        WHERE c.import_id = r.import_id
-            AND c.resolution_id = r.id
+        WHERE c.resolution_id = r.id
     )
 `
 
@@ -539,8 +543,7 @@ SET gbif_status = CASE
         WHEN EXISTS (
             SELECT 1
             FROM taxon_candidates c
-            WHERE c.import_id = r.import_id
-                AND c.resolution_id = r.id
+            WHERE c.resolution_id = r.id
         ) THEN 'completed'::taxon_gbif_status
         ELSE 'no_candidates'::taxon_gbif_status
     END
@@ -561,8 +564,7 @@ WHERE r.import_id = $1
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
-        WHERE c.import_id = r.import_id
-            AND c.resolution_id = r.id
+        WHERE c.resolution_id = r.id
             AND (
                 (
                     c.source = 'internal'
@@ -584,19 +586,22 @@ WITH resolved_candidates AS (
         parent_candidate.taxon_id AS parent_id
     FROM taxon_candidates c
         JOIN taxon_resolution r ON (
-            r.import_id = c.import_id
+            r.id = c.resolution_id
             AND r.resolved_candidate_id = c.id
         )
-        JOIN taxa_staging s ON (c.staging_id = s.id)
+        JOIN taxa_staging s ON (
+            c.staging_id = s.id
+            AND s.import_id = r.import_id
+        )
         JOIN taxon_resolution parent_resolution ON (
             parent_resolution.id = s.parent_resolution_id
             AND parent_resolution.import_id = s.import_id
         )
         JOIN taxon_candidates parent_candidate ON (
             parent_candidate.id = parent_resolution.resolved_candidate_id
-            AND parent_candidate.import_id = s.import_id
+            AND parent_candidate.resolution_id = parent_resolution.id
         )
-    WHERE c.import_id = $1
+    WHERE r.import_id = $1
         AND c.source = 'manual'
         AND c.rank = $2
 )
@@ -628,23 +633,29 @@ func (q *Queries) MaterializeTaxaStaging(ctx context.Context, importID uuid.UUID
 	return err
 }
 
-const resolveTaxon = `-- name: ResolveTaxon :exec
-UPDATE taxon_resolution
-SET resolved_candidate_id = $1::uuid,
+const resolveTaxon = `-- name: ResolveTaxon :execrows
+UPDATE taxon_resolution r
+SET resolved_candidate_id = c.id,
     status = 'user_resolved'
-WHERE import_id = $2
-    AND id = $3
+FROM taxon_candidates c
+WHERE r.import_id = $1
+    AND r.id = $2
+    AND c.id = $3
+    AND c.resolution_id = r.id
 `
 
 type ResolveTaxonParams struct {
-	CandidateID  uuid.UUID `json:"candidate_id"`
 	ImportID     uuid.UUID `json:"import_id"`
 	ResolutionID uuid.UUID `json:"resolution_id"`
+	CandidateID  uuid.UUID `json:"candidate_id"`
 }
 
-func (q *Queries) ResolveTaxon(ctx context.Context, arg ResolveTaxonParams) error {
-	_, err := q.db.Exec(ctx, resolveTaxon, arg.CandidateID, arg.ImportID, arg.ResolutionID)
-	return err
+func (q *Queries) ResolveTaxon(ctx context.Context, arg ResolveTaxonParams) (int64, error) {
+	result, err := q.db.Exec(ctx, resolveTaxon, arg.ImportID, arg.ResolutionID, arg.CandidateID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const setNeedsResolutionForUnresolvedCandidates = `-- name: SetNeedsResolutionForUnresolvedCandidates :exec
@@ -664,18 +675,22 @@ const syncMaterializedTaxa = `-- name: SyncMaterializedTaxa :exec
 UPDATE taxon_candidates c
 SET taxon_id = t.id
 FROM taxa_staging s
+    JOIN taxon_resolution r ON r.import_id = s.import_id
     JOIN taxa t ON (
         t.name = s.name
         AND t.authorship IS NOT DISTINCT
         FROM s.authorship
             AND t.rank = s.rank
     )
-WHERE c.import_id = $1
+WHERE r.import_id = $1
+    AND c.resolution_id = r.id
     AND c.staging_id = s.id
     AND c.rank = $2
     AND c.source = 'manual'
 `
 
+// Update the taxon_candidates table to link the newly materialized taxa in the taxa table
+// to their corresponding candidates in the taxon_candidates table.
 func (q *Queries) SyncMaterializedTaxa(ctx context.Context, importID uuid.UUID, rank TaxonRank) error {
 	_, err := q.db.Exec(ctx, syncMaterializedTaxa, importID, rank)
 	return err
@@ -684,9 +699,11 @@ func (q *Queries) SyncMaterializedTaxa(ctx context.Context, importID uuid.UUID, 
 const updateMaterializedGBIFCandidates = `-- name: UpdateMaterializedGBIFCandidates :exec
 UPDATE taxon_candidates c
 SET taxon_id = t.id
-FROM taxa t
+FROM taxa t,
+    taxon_resolution r
 WHERE c.gbif_id = t.gbif_id
-    AND c.import_id = $1
+    AND c.resolution_id = r.id
+    AND r.import_id = $1
     AND c.taxon_id IS NULL
 `
 
@@ -718,12 +735,12 @@ VALUES (
 `
 
 type UpsertTaxonResolutionParams struct {
-	ImportID            uuid.UUID         `json:"import_id"`
-	InputName           string            `json:"input_name"`
-	InputAuthorship     *string           `json:"input_authorship"`
-	InputRank           *string           `json:"input_rank"`
-	ResolvedCandidateID pgtype.UUID       `json:"resolved_candidate_id"`
-	Status              *ResolutionStatus `json:"status"`
+	ImportID            uuid.UUID        `json:"import_id"`
+	InputName           string           `json:"input_name"`
+	InputAuthorship     *string          `json:"input_authorship"`
+	InputRank           *string          `json:"input_rank"`
+	ResolvedCandidateID pgtype.UUID      `json:"resolved_candidate_id"`
+	Status              ResolutionStatus `json:"status"`
 }
 
 func (q *Queries) UpsertTaxonResolution(ctx context.Context, arg UpsertTaxonResolutionParams) error {

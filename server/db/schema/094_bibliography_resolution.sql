@@ -13,6 +13,8 @@ CREATE TABLE publications_staging (
     source publication_source NOT NULL
 );
 
+CREATE INDEX publications_staging_doi_idx ON publications_staging (doi);
+
 CREATE TYPE pub_match_type AS ENUM ('doi', 'verbatim');
 
 -- A repository of candidate publications that imported publications can be resolved to. 
@@ -45,7 +47,7 @@ CREATE TABLE publication_resolution (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     import_id UUID NOT NULL REFERENCES import_batches (id) ON DELETE CASCADE,
     status resolution_status NOT NULL DEFAULT 'pending',
-    resolved_candidate_id UUID REFERENCES publication_candidates (id) ON DELETE CASCADE,
+    resolved_candidate_id UUID,
     doi DOI,
     verbatim TEXT,
     authors TEXT [],
@@ -63,14 +65,40 @@ CREATE TABLE publication_resolution (
 
 ALTER TABLE publication_candidates
 ADD COLUMN resolution_id UUID NOT NULL REFERENCES publication_resolution (id) ON DELETE CASCADE,
-    ADD CONSTRAINT candidate_unique UNIQUE (resolution_id, internal_id, staging_id);
+    ADD CONSTRAINT publication_candidates_resolution_id_unique UNIQUE (resolution_id, id);
 
-CREATE UNIQUE INDEX candidate_unique_manual ON publication_candidates (resolution_id, staging_id)
-WHERE source = 'manual';
+ALTER TABLE publication_resolution
+ADD CONSTRAINT publication_resolution_resolved_candidate_fk FOREIGN KEY (id, resolved_candidate_id) REFERENCES publication_candidates (resolution_id, id) ON DELETE
+SET NULL (resolved_candidate_id),
+    ADD CONSTRAINT publication_resolution_resolved_status_check CHECK (
+        status NOT IN ('auto_resolved', 'user_resolved')
+        OR resolved_candidate_id IS NOT NULL
+    );
+
+-- A deleted or cleared selection must become eligible for resolution again.
+CREATE FUNCTION publication_resolution_reset_status() RETURNS trigger AS $$ BEGIN IF NEW.resolved_candidate_id IS NULL
+AND NEW.status IN ('auto_resolved', 'user_resolved') THEN NEW.status := 'pending';
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER publication_resolution_reset_status_trigger BEFORE
+UPDATE OF resolved_candidate_id ON publication_resolution FOR EACH ROW EXECUTE FUNCTION publication_resolution_reset_status();
+
+
+CREATE UNIQUE INDEX publication_candidates_internal_uq ON publication_candidates (resolution_id, internal_id)
+WHERE internal_id IS NOT NULL;
+
+CREATE UNIQUE INDEX publication_candidates_staging_uq ON publication_candidates (resolution_id, staging_id)
+WHERE staging_id IS NOT NULL;
 
 ALTER TABLE publications_staging
 ADD COLUMN origin_resolution_id UUID REFERENCES publication_resolution (id) ON DELETE CASCADE;
 
+-- Prevent multiple manual candidates from being created for the same publication resolution.
+CREATE UNIQUE INDEX publications_staging_manual_origin_uq ON publications_staging (origin_resolution_id)
+WHERE source = 'manual';
 
 -- A many-to-many association table linking occurrences to the publications resolution table
 CREATE TABLE occurrences_staging_publications (

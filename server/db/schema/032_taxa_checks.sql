@@ -1,21 +1,22 @@
 -- Prevent taxon <-> parent cycles
-CREATE OR REPLACE FUNCTION check_taxa_no_cycle () RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN -- no parent => ok
-    IF NEW.parent_id IS NULL THEN RETURN NEW;
+CREATE OR REPLACE FUNCTION check_taxa_no_cycle () RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN --
+-- synonym self-check 
+    IF NEW.accepted_taxon_id IS NOT NULL
+    AND NEW.accepted_taxon_id = NEW.id THEN RAISE EXCEPTION 'Taxon cannot be synonym of itself' USING ERRCODE = 'TAX02',
+    DETAIL = format(
+        'Taxon %s cannot be synonym of itself',
+        NEW.scientific_name
+    );
+END IF;
+
+-- no parent => ok
+IF NEW.parent_id IS NULL THEN RETURN NEW;
 END IF;
 
 -- self-parenting
 IF NEW.parent_id = NEW.id THEN RAISE EXCEPTION 'Taxon cannot be parent of itself' USING ERRCODE = 'TAX01',
 DETAIL = format(
     'Taxon %s cannot be parent of itself',
-    NEW.scientific_name
-);
-END IF;
-
--- synonym self-check 
-IF NEW.accepted_taxon_id IS NOT NULL
-AND NEW.accepted_taxon_id = NEW.id THEN RAISE EXCEPTION 'Taxon cannot be synonym of itself' USING ERRCODE = 'TAX02',
-DETAIL = format(
-    'Taxon %s cannot be synonym of itself',
     NEW.scientific_name
 );
 END IF;

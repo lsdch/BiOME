@@ -13,7 +13,6 @@ CREATE TABLE users (
 	full_name TEXT NOT NULL GENERATED ALWAYS AS (first_name || ' ' || last_name) STORED,
 	active BOOLEAN NOT NULL DEFAULT true,
 	email_verified_at TIMESTAMPTZ,
-	CONSTRAINT users_login_unique UNIQUE (login),
 	CONSTRAINT users_email_unique UNIQUE (email),
 	CONSTRAINT users_login_length CHECK (char_length(btrim(login)) >= 2),
 	CONSTRAINT users_first_name_length CHECK (char_length(btrim(first_name)) >= 2),

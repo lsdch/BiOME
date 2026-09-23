@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS samplings_fixatives (
     fixative_id UUID NOT NULL REFERENCES fixatives (id) ON DELETE CASCADE,
     PRIMARY KEY (sampling_id, fixative_id)
 );
+
+CREATE INDEX samplings_fixatives_fixative_id_idx ON samplings_fixatives (fixative_id);

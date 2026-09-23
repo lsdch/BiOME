@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS events_sampling_methods (
     method_id UUID NOT NULL REFERENCES sampling_methods (id) ON DELETE CASCADE,
     PRIMARY KEY (sampling_id, method_id)
 );
+
+CREATE INDEX events_sampling_methods_method_id_idx ON events_sampling_methods (method_id);

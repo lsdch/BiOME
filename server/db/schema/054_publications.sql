@@ -19,3 +19,5 @@ CREATE TABLE occurrences_publications (
 	publication_id UUID NOT NULL REFERENCES publications (id) ON DELETE CASCADE,
 	PRIMARY KEY (occurrence_id, publication_id)
 );
+
+CREATE INDEX occurrences_publications_publication_idx ON occurrences_publications (publication_id);

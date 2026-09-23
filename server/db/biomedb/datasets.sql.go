@@ -148,8 +148,13 @@ func (q *Queries) GetDatasetByID(ctx context.Context, datasetID types.ULID) (Get
 const getDatasetsForOccurrence = `-- name: GetDatasetsForOccurrence :many
 SELECT d.id, d.label, d.slug, d.description, d.pinned, d.owner_id, d.is_public, d.created_at
 FROM datasets d
-    JOIN occurrences_datasets od ON od.dataset_id = d.id
-WHERE od.occurrence_id = $1
+    LEFT JOIN occurrences_datasets od ON od.dataset_id = d.id
+    LEFT JOIN datasets_import_batches dib ON dib.dataset_id = d.id
+    LEFT JOIN occurrences o ON (
+        o.id = od.occurrence_id
+        OR o.import_batch_id = dib.import_batch_id
+    )
+WHERE o.id = $1
 `
 
 func (q *Queries) GetDatasetsForOccurrence(ctx context.Context, occurrenceID types.ULID) ([]Dataset, error) {
@@ -263,9 +268,17 @@ SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.ver
 FROM occurrences o
     JOIN occurrences_datasets od ON od.occurrence_id = o.id
     JOIN samplings_with_country s ON s.id = o.sampling_id
-    JOIN countries c ON c.code = s.site_country_code
     JOIN taxa t ON t.id = o.taxon_id
 WHERE od.dataset_id = $1
+UNION
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    s.id, s.source_sampling_hash, s.comments, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.import_batch_id, s.h3_index, s.search_vector, s.country_code, s.country_name, s.country_continent, s.country_subcontinent,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
+FROM occurrences o
+    JOIN datasets_import_batches dib ON dib.import_batch_id = o.import_batch_id
+    JOIN samplings_with_country s ON s.id = o.sampling_id
+    JOIN taxa t ON t.id = o.taxon_id
+WHERE dib.dataset_id = $1
 `
 
 type ListOccurrencesForDatasetRow struct {

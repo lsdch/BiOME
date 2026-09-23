@@ -7,27 +7,26 @@ CREATE TABLE taxa (
     status taxon_status NOT NULL,
     authorship CITEXT,
     -- RELATIONSHIPS
-    accepted_taxon_id UUID REFERENCES taxa (id) ON DELETE
-    SET NULL,
-        parent_id UUID REFERENCES taxa (id) ON DELETE CASCADE,
-        -- UTILITY FIELDS
-        search_vector tsvector,
-        -- CONSTRAINTS
-        CONSTRAINT taxon_parent_required_for_non_kingdom CHECK (
-            rank = 'kingdom'::taxon_rank
-            OR parent_id IS NOT NULL
-        ),
-        CONSTRAINT taxon_synonym_requires_accepted_taxon CHECK (
-            (
-                status = 'synonym'::taxon_status
-                AND accepted_taxon_id IS NOT NULL
-            )
-            OR (
-                status <> 'synonym'::taxon_status
-                AND accepted_taxon_id IS NULL
-            )
-        ),
-        comments TEXT
+    accepted_taxon_id UUID REFERENCES taxa (id) ON DELETE RESTRICT,
+    parent_id UUID REFERENCES taxa (id) ON DELETE CASCADE,
+    -- UTILITY FIELDS
+    search_vector tsvector,
+    -- CONSTRAINTS
+    CONSTRAINT taxon_parent_required_for_non_kingdom CHECK (
+        rank = 'kingdom'::taxon_rank
+        OR parent_id IS NOT NULL
+    ),
+    CONSTRAINT taxon_synonym_requires_accepted_taxon CHECK (
+        (
+            status = 'synonym'::taxon_status
+            AND accepted_taxon_id IS NOT NULL
+        )
+        OR (
+            status <> 'synonym'::taxon_status
+            AND accepted_taxon_id IS NULL
+        )
+    ),
+    comments TEXT
 );
 CREATE INDEX taxa_name_rank_status_idx ON taxa (name, rank, status);
 CREATE UNIQUE INDEX taxa_name_authorship_uidx ON taxa (name, COALESCE(authorship, ''));
@@ -40,9 +39,13 @@ CREATE INDEX taxa_name_idx ON taxa (name text_pattern_ops);
 CREATE INDEX taxa_search_vector_idx ON taxa USING gin (search_vector);
 
 -- TRIGGERS
-CREATE FUNCTION taxa_search_vector_update() RETURNS trigger AS $$ BEGIN NEW.search_vector := setweight(
-    to_tsvector('simple', coalesce(NEW.scientific_name, '')),
-    'A'
+CREATE FUNCTION taxa_search_vector_update() RETURNS trigger AS $$ BEGIN --
+NEW.search_vector := setweight(
+to_tsvector(
+    'simple',
+    trim(NEW.name || coalesce(' ' || NEW.authorship, ''))
+),
+'A'
 );
 RETURN NEW;
 END $$ LANGUAGE plpgsql;

@@ -54,12 +54,15 @@ WHERE d.import_id = @import_id;
 -- This query expands the list of GBIF keys that need to be resolved for a given import batch. 
 -- It includes direct GBIF IDs, accepted keys, and higher taxonomy keys.
 WITH candidates AS (
-    SELECT DISTINCT c.import_id,
+    SELECT DISTINCT r.import_id,
         c.gbif_id
     FROM taxon_candidates c
+        JOIN taxon_resolution r ON (
+            r.id = c.resolution_id
+            AND r.import_id = @import_id
+        )
         JOIN gbif_staging g ON g.key = c.gbif_id
-    WHERE c.import_id = @import_id
-        AND c.gbif_id IS NOT NULL
+    WHERE c.gbif_id IS NOT NULL
 ),
 expanded AS (
     -- 1. direct gbif_id
@@ -140,10 +143,7 @@ SELECT g.key,
     parent.id as parent_id,
     accepted.id as accepted_taxon_id
 FROM taxon_resolution r
-    JOIN taxon_candidates c ON (
-        r.resolved_candidate_id = c.id
-        AND r.import_id = c.import_id
-    )
+    JOIN taxon_candidates c ON (r.resolved_candidate_id = c.id)
     JOIN gbif_dependencies d ON (
         d.import_id = r.import_id
         AND d.from_key = c.gbif_id

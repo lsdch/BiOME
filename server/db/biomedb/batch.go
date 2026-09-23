@@ -276,12 +276,12 @@ WITH inserted_parent_resolution AS (
             from_resolution_id
         )
     VALUES (
-            $1,
+            $2,
             $3,
             NULL,
             $4,
             'pending',
-            $2
+            $1
         ) ON CONFLICT (import_id, input_name) DO NOTHING
     RETURNING id
 ),
@@ -295,7 +295,7 @@ staged_taxon AS (
             parent_resolution_id
         )
     VALUES (
-            $1,
+            $2,
             $5,
             $6,
             $7,
@@ -308,7 +308,7 @@ staged_taxon AS (
                 (
                     SELECT parent_res.id
                     FROM taxon_resolution parent_res
-                    WHERE import_id = $1
+                    WHERE import_id = $2
                         AND input_name = $3
                     LIMIT 1
                 )
@@ -317,7 +317,6 @@ staged_taxon AS (
     RETURNING id, import_id, name, authorship, rank, status, parent_resolution_id
 )
 INSERT INTO taxon_candidates (
-        import_id,
         resolution_id,
         source,
         match_type,
@@ -329,7 +328,6 @@ INSERT INTO taxon_candidates (
         status
     )
 SELECT $1,
-    $2,
     'manual',
     'exact',
     s.id,
@@ -348,8 +346,8 @@ type InsertTaxaStagingBatchResults struct {
 }
 
 type InsertTaxaStagingParams struct {
-	ImportID     uuid.UUID   `json:"import_id"`
 	ResolutionID uuid.UUID   `json:"resolution_id"`
+	ImportID     uuid.UUID   `json:"import_id"`
 	ParentName   string      `json:"parent_name"`
 	ParentRank   *string     `json:"parent_rank"`
 	Name         string      `json:"name"`
@@ -368,8 +366,8 @@ func (q *Queries) InsertTaxaStaging(ctx context.Context, arg []InsertTaxaStaging
 	batch := &pgx.Batch{}
 	for _, a := range arg {
 		vals := []interface{}{
-			a.ImportID,
 			a.ResolutionID,
+			a.ImportID,
 			a.ParentName,
 			a.ParentRank,
 			a.Name,
@@ -406,7 +404,6 @@ func (b *InsertTaxaStagingBatchResults) Close() error {
 
 const insertTaxonCandidatesBatch = `-- name: InsertTaxonCandidatesBatch :batchexec
 INSERT INTO taxon_candidates (
-        import_id,
         resolution_id,
         source,
         match_type,
@@ -430,8 +427,7 @@ VALUES (
         $8,
         $9,
         $10,
-        $11,
-        $12
+        $11
     ) ON CONFLICT DO NOTHING
 `
 
@@ -442,7 +438,6 @@ type InsertTaxonCandidatesBatchBatchResults struct {
 }
 
 type InsertTaxonCandidatesBatchParams struct {
-	ImportID     uuid.UUID        `json:"import_id"`
 	ResolutionID uuid.UUID        `json:"resolution_id"`
 	Source       TaxonMatchSource `json:"source"`
 	MatchType    TaxonMatchType   `json:"match_type"`
@@ -460,7 +455,6 @@ func (q *Queries) InsertTaxonCandidatesBatch(ctx context.Context, arg []InsertTa
 	batch := &pgx.Batch{}
 	for _, a := range arg {
 		vals := []interface{}{
-			a.ImportID,
 			a.ResolutionID,
 			a.Source,
 			a.MatchType,

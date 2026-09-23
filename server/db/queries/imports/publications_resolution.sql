@@ -51,18 +51,21 @@ SELECT COALESCE(array_agg(rn), '{}'::int [])::int [] AS missing_rows
 FROM missing_rows;
 
 
--- name: ResolvePublication :exec 
-UPDATE publication_resolution
-SET resolved_candidate_id = @resolved_candidate_id::uuid,
+-- name: ResolvePublication :execrows
+UPDATE publication_resolution r
+SET resolved_candidate_id = c.id,
     status = 'user_resolved'
-WHERE import_id = @import_id
-    AND id = @resolution_id;
-
+FROM publication_candidates c
+WHERE r.import_id = @import_id
+    AND r.id = @resolution_id
+    AND c.id = @resolved_candidate_id::uuid
+    AND c.resolution_id = r.id
+    AND c.import_id = r.import_id;
 
 
 -- name: GenerateBibliographyManualCandidates :exec
 WITH resolution AS (
-    SELECT *
+    SELECT r.*
     FROM publication_resolution r
     WHERE r.import_id = @import_id
         AND r.doi IS NULL
@@ -70,7 +73,8 @@ WITH resolution AS (
             SELECT 1
             FROM publication_candidates c
                 JOIN publications p ON p.id = c.internal_id
-            WHERE p.verbatim = r.verbatim
+            WHERE c.resolution_id = r.id
+                AND p.verbatim = r.verbatim
         )
 ),
 staging AS (
@@ -92,8 +96,12 @@ staging AS (
         r.title,
         r.journal,
         'manual'::publication_source
-    FROM resolution r
-    RETURNING *
+    FROM resolution r ON CONFLICT (origin_resolution_id)
+    WHERE source = 'manual' DO
+    UPDATE
+    SET origin_resolution_id = EXCLUDED.origin_resolution_id
+    RETURNING id,
+        origin_resolution_id
 )
 INSERT INTO publication_candidates (
         import_id,
@@ -110,8 +118,8 @@ SELECT r.import_id,
     'verbatim'::pub_match_type,
     'manual'::publication_candidate_source
 FROM resolution r
-    JOIN staging s ON (s.origin_resolution_id = r.id) ON CONFLICT DO NOTHING;
-
+    JOIN staging s ON s.origin_resolution_id = r.id ON CONFLICT (resolution_id, staging_id)
+WHERE staging_id IS NOT NULL DO NOTHING;
 
 -- name: GenerateBibliographyInternalCandidates :exec
 WITH resolution AS (
@@ -164,13 +172,7 @@ SELECT @import_id,
 FROM internal_candidates ic ON CONFLICT DO NOTHING;
 
 -- name: ResolvePendingToManualCandidates :exec
-WITH resolution AS (
-    SELECT *
-    FROM publication_resolution r
-    WHERE r.import_id = @import_id
-        AND r.status = 'pending'
-),
-manual_candidates AS (
+WITH manual_candidates AS (
     SELECT *
     FROM publication_candidates pc
     WHERE pc.import_id = @import_id
@@ -180,7 +182,9 @@ UPDATE publication_resolution r
 SET status = 'user_resolved',
     resolved_candidate_id = mc.id
 FROM manual_candidates mc
-WHERE r.id = mc.resolution_id;
+WHERE r.id = mc.resolution_id
+    AND r.import_id = @import_id
+    AND r.status = 'pending';
 
 -- name: AutoResolveBibliography :exec
 WITH resolution AS (
@@ -402,34 +406,53 @@ FROM publication_candidates pc
     )
 WHERE r.import_id = @import_id;
 
--- name: MaterializeBibliography :exec
-WITH materialized AS (
-    INSERT INTO publications (
-            id,
-            authors,
-            year,
-            title,
-            journal,
-            verbatim,
-            doi
-        )
-    SELECT s.id,
-        s.authors,
-        s.year,
-        s.title,
-        s.journal,
-        s.verbatim,
-        s.doi
-    FROM publications_staging s
-        JOIN publication_candidates pc ON pc.staging_id = s.id
-    WHERE pc.import_id = @import_id ON CONFLICT DO NOTHING
-    RETURNING *
-)
+-- name: MaterializePublicationsForImport :exec
+INSERT INTO publications (
+        id,
+        authors,
+        year,
+        title,
+        journal,
+        verbatim,
+        doi
+    )
+SELECT s.id,
+    s.authors,
+    s.year,
+    s.title,
+    s.journal,
+    s.verbatim,
+    s.doi
+FROM publications_staging s
+WHERE EXISTS (
+        SELECT 1
+        FROM publication_resolution r
+            JOIN publication_candidates pc ON pc.id = r.resolved_candidate_id
+            AND pc.resolution_id = r.id
+            AND pc.import_id = r.import_id
+        WHERE r.import_id = @import_id
+            AND pc.source IN ('crossref', 'manual')
+            AND pc.staging_id = s.id
+    )
+ORDER BY s.id ON CONFLICT DO NOTHING;
+
+-- name: LinkMaterializedBibliography :exec
 INSERT INTO occurrences_publications (occurrence_id, publication_id)
-SELECT osp.occurrence_id,
-    COALESCE(pc.internal_id, m.id)
+SELECT DISTINCT osp.occurrence_id,
+    CASE
+        WHEN pc.source = 'internal' THEN pc.internal_id
+        ELSE COALESCE(p_doi.id, p_id.id)
+    END
 FROM occurrences_staging_publications osp
     JOIN publication_resolution r ON r.id = osp.resolution_id
+    AND r.import_id = osp.import_id
     JOIN publication_candidates pc ON pc.id = r.resolved_candidate_id
-    LEFT JOIN materialized m ON m.id = pc.staging_id
-WHERE osp.import_id = @import_id;
+    AND pc.resolution_id = r.id
+    AND pc.import_id = r.import_id
+    LEFT JOIN publications_staging s ON s.id = pc.staging_id
+    AND pc.source IN ('crossref', 'manual')
+    LEFT JOIN publications p_doi ON s.doi IS NOT NULL
+    AND p_doi.doi = s.doi
+    LEFT JOIN publications p_id ON s.doi IS NULL
+    AND p_id.id = s.id
+WHERE osp.import_id = @import_id ON CONFLICT (occurrence_id, publication_id) DO NOTHING;

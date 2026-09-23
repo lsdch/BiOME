@@ -14,4 +14,6 @@ CREATE TABLE IF NOT EXISTS abiotic_measurements (
     param_id UUID NOT NULL REFERENCES abiotic_params (id) ON DELETE RESTRICT,
     value NUMERIC NOT NULL,
     CONSTRAINT abiotic_measurements_pkey PRIMARY KEY (sampling_id, param_id)
-)
+);
+
+CREATE INDEX abiotic_measurements_param_id_idx ON abiotic_measurements (param_id);

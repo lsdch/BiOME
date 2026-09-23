@@ -45,8 +45,9 @@ WITH invitation_row AS (
     WHERE t.token_hash = @token_hash
         AND t.consumed = false
         AND i.status = 'pending'
-        AND i.expires_at > now() FOR
-    UPDATE OF t
+        AND i.expires_at > now()
+    -- Lock the invitation too: different tokens must not redeem it concurrently.
+    FOR UPDATE OF i, t
 ),
 inserted_user AS (
     INSERT INTO users (
@@ -72,7 +73,7 @@ inserted_user AS (
         @bio,
         now()
     FROM invitation_row
-    RETURNING id
+    RETURNING *
 ),
 updated_invitation AS (
     UPDATE invitations i
@@ -95,6 +96,19 @@ updated_token AS (
         AND t.consumed = false
     RETURNING t.id
 )
-SELECT users.*
-FROM users
-    JOIN inserted_user ON users.id = inserted_user.id;
+-- The table scan uses the pre-insert snapshot; return the INSERT output itself.
+SELECT * FROM inserted_user;
+
+-- name: ExpireInvitationsForEmail :exec
+UPDATE invitations
+SET status = 'expired'
+WHERE email = @email AND status = 'pending' AND expires_at <= now();
+
+-- name: CancelInvitation :one
+UPDATE invitations
+SET status = 'cancelled', revoked_at = now(), revoked_by = @revoked_by
+WHERE id = @invitation_id AND status = 'pending' AND expires_at > now()
+RETURNING *;
+
+-- name: UserExistsByEmail :one
+SELECT EXISTS(SELECT 1 FROM users WHERE email = @email);

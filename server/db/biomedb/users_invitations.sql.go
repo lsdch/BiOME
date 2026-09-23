@@ -13,6 +13,33 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const cancelInvitation = `-- name: CancelInvitation :one
+UPDATE invitations
+SET status = 'cancelled', revoked_at = now(), revoked_by = $1
+WHERE id = $2 AND status = 'pending' AND expires_at > now()
+RETURNING id, email, invitee_name, role, message, inviter_id, status, created_at, expires_at, redeemed_at, revoked_at, revoked_by
+`
+
+func (q *Queries) CancelInvitation(ctx context.Context, revokedBy pgtype.UUID, invitationID uuid.UUID) (Invitation, error) {
+	row := q.db.QueryRow(ctx, cancelInvitation, revokedBy, invitationID)
+	var i Invitation
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.InviteeName,
+		&i.Role,
+		&i.Message,
+		&i.InviterID,
+		&i.Status,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+		&i.RedeemedAt,
+		&i.RevokedAt,
+		&i.RevokedBy,
+	)
+	return i, err
+}
+
 const createInvitation = `-- name: CreateInvitation :one
 INSERT INTO invitations (
         email,
@@ -103,8 +130,9 @@ WITH invitation_row AS (
     WHERE t.token_hash = $1
         AND t.consumed = false
         AND i.status = 'pending'
-        AND i.expires_at > now() FOR
-    UPDATE OF t
+        AND i.expires_at > now()
+    -- Lock the invitation too: different tokens must not redeem it concurrently.
+    FOR UPDATE OF i, t
 ),
 inserted_user AS (
     INSERT INTO users (
@@ -130,7 +158,7 @@ inserted_user AS (
         $8,
         now()
     FROM invitation_row
-    RETURNING id
+    RETURNING id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at
 ),
 updated_invitation AS (
     UPDATE invitations i
@@ -153,9 +181,7 @@ updated_token AS (
         AND t.consumed = false
     RETURNING t.id
 )
-SELECT users.id, users.login, users.email, users.password_hash, users.role, users.first_name, users.last_name, users.organisation, users.contact, users.bio, users.full_name, users.active, users.email_verified_at
-FROM users
-    JOIN inserted_user ON users.id = inserted_user.id
+SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at FROM inserted_user
 `
 
 type CreateUserFromInvitationTokenParams struct {
@@ -169,7 +195,24 @@ type CreateUserFromInvitationTokenParams struct {
 	Bio          *string `json:"bio"`
 }
 
-func (q *Queries) CreateUserFromInvitationToken(ctx context.Context, arg CreateUserFromInvitationTokenParams) (User, error) {
+type CreateUserFromInvitationTokenRow struct {
+	ID              uuid.UUID          `json:"id"`
+	Login           string             `json:"login"`
+	Email           string             `json:"email"`
+	PasswordHash    string             `json:"password_hash"`
+	Role            UserRole           `json:"role"`
+	FirstName       string             `json:"first_name"`
+	LastName        string             `json:"last_name"`
+	Organisation    *string            `json:"organisation"`
+	Contact         *string            `json:"contact"`
+	Bio             *string            `json:"bio"`
+	FullName        string             `json:"full_name"`
+	Active          bool               `json:"active"`
+	EmailVerifiedAt pgtype.Timestamptz `json:"email_verified_at"`
+}
+
+// The table scan uses the pre-insert snapshot; return the INSERT output itself.
+func (q *Queries) CreateUserFromInvitationToken(ctx context.Context, arg CreateUserFromInvitationTokenParams) (CreateUserFromInvitationTokenRow, error) {
 	row := q.db.QueryRow(ctx, createUserFromInvitationToken,
 		arg.TokenHash,
 		arg.Login,
@@ -180,7 +223,7 @@ func (q *Queries) CreateUserFromInvitationToken(ctx context.Context, arg CreateU
 		arg.Contact,
 		arg.Bio,
 	)
-	var i User
+	var i CreateUserFromInvitationTokenRow
 	err := row.Scan(
 		&i.ID,
 		&i.Login,
@@ -197,6 +240,17 @@ func (q *Queries) CreateUserFromInvitationToken(ctx context.Context, arg CreateU
 		&i.EmailVerifiedAt,
 	)
 	return i, err
+}
+
+const expireInvitationsForEmail = `-- name: ExpireInvitationsForEmail :exec
+UPDATE invitations
+SET status = 'expired'
+WHERE email = $1 AND status = 'pending' AND expires_at <= now()
+`
+
+func (q *Queries) ExpireInvitationsForEmail(ctx context.Context, email string) error {
+	_, err := q.db.Exec(ctx, expireInvitationsForEmail, email)
+	return err
 }
 
 const getInvitationByTokenHash = `-- name: GetInvitationByTokenHash :one
@@ -228,4 +282,15 @@ func (q *Queries) GetInvitationByTokenHash(ctx context.Context, tokenHash string
 		&i.RevokedBy,
 	)
 	return i, err
+}
+
+const userExistsByEmail = `-- name: UserExistsByEmail :one
+SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)
+`
+
+func (q *Queries) UserExistsByEmail(ctx context.Context, email string) (bool, error) {
+	row := q.db.QueryRow(ctx, userExistsByEmail, email)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
 }

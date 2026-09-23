@@ -1835,7 +1835,6 @@ type Taxon struct {
 
 type TaxonCandidate struct {
 	ID           uuid.UUID        `json:"id"`
-	ImportID     uuid.UUID        `json:"import_id"`
 	ResolutionID uuid.UUID        `json:"resolution_id"`
 	Source       TaxonMatchSource `json:"source"`
 	MatchType    TaxonMatchType   `json:"match_type"`
@@ -1870,17 +1869,17 @@ type TaxonHierarchy struct {
 }
 
 type TaxonResolution struct {
-	ID                  uuid.UUID         `json:"id"`
-	ImportID            uuid.UUID         `json:"import_id"`
-	InputName           string            `json:"input_name"`
-	InputAuthorship     *string           `json:"input_authorship"`
-	InputRank           *string           `json:"input_rank"`
-	ScientificName      string            `json:"scientific_name"`
-	Status              *ResolutionStatus `json:"status"`
-	GBIFStatus          *TaxonGBIFStatus  `json:"gbif_status"`
-	FromResolutionID    pgtype.UUID       `json:"from_resolution_id"`
-	SamplingTarget      bool              `json:"sampling_target"`
-	ResolvedCandidateID pgtype.UUID       `json:"resolved_candidate_id"`
+	ID                  uuid.UUID        `json:"id"`
+	ImportID            uuid.UUID        `json:"import_id"`
+	InputName           string           `json:"input_name"`
+	InputAuthorship     *string          `json:"input_authorship"`
+	InputRank           *string          `json:"input_rank"`
+	ScientificName      string           `json:"scientific_name"`
+	Status              ResolutionStatus `json:"status"`
+	GBIFStatus          TaxonGBIFStatus  `json:"gbif_status"`
+	FromResolutionID    pgtype.UUID      `json:"from_resolution_id"`
+	SamplingTarget      bool             `json:"sampling_target"`
+	ResolvedCandidateID pgtype.UUID      `json:"resolved_candidate_id"`
 }
 
 type TaxonSynonym struct {

@@ -93,8 +93,11 @@ func (r *TaxonResolutionStore) InitTaxonResolution(ctx context.Context, q db.Que
 	}
 	return models.TaxonResolutionFromDBSlice(resolution), nil
 }
-func (r *TaxonResolutionStore) InitSamplingTargetResolution(ctx context.Context, q db.Querier, importID uuid.UUID) error {
-	return q.Queries().InitSamplingTargetResolution(ctx, importID)
+func (r *TaxonResolutionStore) InitSamplingTargetResolution(ctx context.Context, tx *db.Tx, importID uuid.UUID) error {
+	if err := tx.Queries().InitSamplingTargetTaxonResolutions(ctx, importID); err != nil {
+		return err
+	}
+	return tx.Queries().InitSamplingTargetResolution(ctx, importID)
 }
 
 func (r *TaxonResolutionStore) LinkTaxonResolutions(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
@@ -291,13 +294,16 @@ func (r *TaxonResolutionStore) SetNeedsResolution(ctx context.Context, q db.Quer
 }
 
 func (r *TaxonResolutionStore) ResolveTaxon(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveInput) (err error) {
-	err = q.Queries().ResolveTaxon(ctx, biomedb.ResolveTaxonParams{
+	rows, err := q.Queries().ResolveTaxon(ctx, biomedb.ResolveTaxonParams{
 		ImportID:     importID,
 		ResolutionID: input.ResolutionID,
 		CandidateID:  input.CandidateID,
 	})
 	if err != nil {
 		return err
+	}
+	if rows == 0 {
+		return fmt.Errorf("no taxon resolution found for import ID %s and resolution ID %s", importID, input.ResolutionID)
 	}
 	return nil
 }

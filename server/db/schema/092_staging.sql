@@ -5,7 +5,7 @@ CREATE TABLE import_samplings_occurrences (
     id ULID PRIMARY KEY,
     import_id UUID NOT NULL REFERENCES import_batches (id) ON DELETE CASCADE,
     imported_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    row_number INTEGER NOT NULL,
+    row_number INTEGER NOT NULL CHECK (row_number > 0),
     -- =========================
     -- SAMPLING
     -- =========================
@@ -16,8 +16,14 @@ CREATE TABLE import_samplings_occurrences (
     site_locality TEXT,
     site_country_code CHAR(3) REFERENCES countries (code),
     coordinates_precision INTEGER,
-    longitude DOUBLE PRECISION NOT NULL,
-    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL CHECK (
+        longitude >= -180
+        AND longitude <= 180
+    ),
+    latitude DOUBLE PRECISION NOT NULL CHECK (
+        latitude >= -90
+        AND latitude <= 90
+    ),
     coordinates geometry (Point, 4326) GENERATED ALWAYS AS (
         ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)
     ) STORED,
@@ -25,7 +31,7 @@ CREATE TABLE import_samplings_occurrences (
     event_date DATE,
     event_date_precision event_date_precision,
     performed_by TEXT [],
-    duration INTEGER,
+    duration INTEGER CHECK (duration >= 0),
     access_points CITEXT [],
     sampling_targets CITEXT [],
     sampling_fixatives CITEXT [],
@@ -56,9 +62,12 @@ CREATE TABLE import_samplings_occurrences (
     -- OCCURRENCE METADATA
     -- =========================
     content_description TEXT,
-    quantity_exact INTEGER,
-    quantity_lower INTEGER,
-    quantity_upper INTEGER,
+    quantity_exact INTEGER CHECK (quantity_exact >= 0),
+    quantity_lower INTEGER CHECK (quantity_lower >= 0),
+    quantity_upper INTEGER CHECK (
+        quantity_upper >= 0
+        AND quantity_upper >= quantity_lower
+    ),
     sources TEXT [],
     occurrence_comments TEXT,
     -- =========================
@@ -113,9 +122,8 @@ CREATE TABLE import_samplings_occurrences (
         -- )
 );
 
-CREATE INDEX idx_staging_import ON import_samplings_occurrences(import_id);
-
-CREATE INDEX idx_staging_hash ON import_samplings_occurrences(import_id, sampling_hash);
+CREATE INDEX idx_staging_hash ON import_samplings_occurrences(import_id, sampling_hash, row_number);
+CREATE UNIQUE INDEX idx_staging_occurrence ON import_samplings_occurrences(import_id, row_number);
 
 CREATE OR REPLACE VIEW samplings_staging AS
 SELECT DISTINCT ON (import_id, sampling_hash) -- keep only the first row for each sampling hash within each import

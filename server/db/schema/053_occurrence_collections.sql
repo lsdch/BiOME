@@ -6,3 +6,4 @@ CREATE TABLE occurrence_collections (
 	CONSTRAINT occurrence_collections_name_not_empty CHECK (char_length(btrim(name)) >= 2)
 );
 CREATE INDEX occurrence_collections_name_idx ON occurrence_collections (name);
+CREATE INDEX occurrence_collections_occurrence_id_idx ON occurrence_collections (occurrence_id);

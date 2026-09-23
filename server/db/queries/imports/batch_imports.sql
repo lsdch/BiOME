@@ -10,18 +10,20 @@ methods AS (
     FROM sampling_methods_resolution r
     WHERE r.import_id = @import_id
         AND r.resolved_method_id IS NULL
+        AND r.vocab_resolution_status <> 'discard'
 ),
 fixatives AS (
     SELECT COUNT(*) = 0 AS ready
     FROM sampling_fixatives_resolution r
     WHERE r.import_id = @import_id
         AND r.resolved_fixative_id IS NULL
+        AND r.vocab_resolution_status <> 'discard'
 ),
 bibliography AS (
     SELECT COUNT(*) = 0 AS ready
     FROM publication_resolution r
     WHERE r.import_id = @import_id
-        AND r.status = 'pending'
+        AND r.status IN ('pending', 'needs_decision')
 )
 SELECT taxonomy.ready::bool as taxonomy,
     methods.ready::bool as methods,
@@ -304,7 +306,7 @@ WHERE import_id = @import_id;
 
 -- name: MaterializeSamplingMethods :exec
 INSERT INTO events_sampling_methods (sampling_id, method_id)
-SELECT ss.materialized_sampling_id,
+SELECT DISTINCT ss.materialized_sampling_id,
     smr.resolved_method_id
 FROM samplings_staging ss
     JOIN import_batches b ON b.id = ss.import_id
@@ -316,11 +318,11 @@ FROM samplings_staging ss
 WHERE b.id = @import_batch_id
     AND smr.status = ANY(
         '{"selected", "auto_resolved"}'::vocab_resolution_status []
-    );
+    ) ON CONFLICT DO NOTHING;
 
 -- name: MaterializeSamplingFixatives :exec
 INSERT INTO samplings_fixatives (sampling_id, fixative_id)
-SELECT ss.materialized_sampling_id,
+SELECT DISTINCT ss.materialized_sampling_id,
     sfr.resolved_fixative_id
 FROM samplings_staging ss
     JOIN import_batches b ON b.id = ss.import_id
@@ -332,11 +334,11 @@ FROM samplings_staging ss
 WHERE b.id = @import_batch_id
     AND sfr.status = ANY(
         '{"selected", "auto_resolved"}'::vocab_resolution_status []
-    );
+    ) ON CONFLICT DO NOTHING;
 
 -- name: MaterializeSamplingTargets :exec
 INSERT INTO sampling_target_taxa (sampling_id, taxon_id)
-SELECT ss.materialized_sampling_id,
+SELECT DISTINCT ss.materialized_sampling_id,
     c.taxon_id
 FROM samplings_staging ss
     JOIN sampling_target_resolution r ON (
@@ -345,4 +347,4 @@ FROM samplings_staging ss
     )
     JOIN taxon_resolution tr ON tr.id = r.resolution_id
     JOIN taxon_candidates c ON c.id = tr.resolved_candidate_id
-WHERE ss.import_id = @import_batch_id;
+WHERE ss.import_id = @import_batch_id ON CONFLICT DO NOTHING;

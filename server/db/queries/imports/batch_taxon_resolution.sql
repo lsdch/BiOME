@@ -29,35 +29,35 @@ FROM import_samplings_occurrences i
 WHERE i.import_id = @import_id
 RETURNING *;
 
--- name: InitSamplingTargetResolution :exec
-WITH all_sampling_targets AS (
-    SELECT DISTINCT import_id,
-        sampling_hash,
+-- name: InitSamplingTargetTaxonResolutions :exec
+INSERT INTO taxon_resolution (
+        import_id,
+        input_name,
         sampling_target
-    FROM import_samplings_occurrences iso
-        CROSS JOIN LATERAL unnest(sampling_targets) AS sampling_target
-    WHERE iso.import_id = @import_id
-        AND sampling_target <> ''
-),
-new_resolutions AS (
-    INSERT INTO taxon_resolution (import_id, input_name, sampling_target)
-    SELECT import_id,
-        sampling_target,
-        true
-    FROM all_sampling_targets ON CONFLICT (import_id, input_name) DO NOTHING
-    RETURNING *
-)
+    )
+SELECT DISTINCT iso.import_id,
+    sampling_target,
+    true
+FROM import_samplings_occurrences iso
+    CROSS JOIN LATERAL unnest(iso.sampling_targets) AS sampling_target
+WHERE iso.import_id = @import_id
+    AND sampling_target <> '' ON CONFLICT (import_id, input_name) DO NOTHING;
+
+-- name: InitSamplingTargetResolution :exec
 INSERT INTO sampling_target_resolution (
         import_id,
         sampling_hash,
         resolution_id
     )
-SELECT st.import_id,
-    st.sampling_hash,
+SELECT DISTINCT iso.import_id,
+    iso.sampling_hash,
     r.id
-FROM all_sampling_targets st
-    JOIN taxon_resolution r ON r.import_id = st.import_id
-    AND r.input_name = st.sampling_target ON CONFLICT (import_id, sampling_hash, resolution_id) DO NOTHING;
+FROM import_samplings_occurrences iso
+    CROSS JOIN LATERAL unnest(iso.sampling_targets) AS sampling_target
+    JOIN taxon_resolution r ON r.import_id = iso.import_id
+    AND r.input_name = sampling_target
+WHERE iso.import_id = @import_id
+    AND sampling_target <> '' ON CONFLICT (import_id, sampling_hash, resolution_id) DO NOTHING;
 
 -- name: LinkTaxonResolutions :exec
 UPDATE import_samplings_occurrences i
@@ -103,18 +103,20 @@ VALUES (
         @status
     ) ON CONFLICT (import_id, input_name) DO NOTHING;
 
--- name: ResolveTaxon :exec
-UPDATE taxon_resolution
-SET resolved_candidate_id = @candidate_id::uuid,
+-- name: ResolveTaxon :execrows
+UPDATE taxon_resolution r
+SET resolved_candidate_id = c.id,
     status = 'user_resolved'
-WHERE import_id = @import_id
-    AND id = @resolution_id;
+FROM taxon_candidates c
+WHERE r.import_id = @import_id
+    AND r.id = @resolution_id
+    AND c.id = @candidate_id
+    AND c.resolution_id = r.id;
 
 -- name: CreateCandidateTaxaNameExact :exec
 -- Create candidate matches based on exact name matches, 
 -- using either the scientific name or the canonical name.
 INSERT INTO taxon_candidates (
-        import_id,
         resolution_id,
         source,
         match_type,
@@ -127,8 +129,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT DISTINCT i.import_id,
-    i.id,
+SELECT DISTINCT i.id,
     'internal'::taxon_match_source,
     'exact'::taxon_match_type,
     t.id,
@@ -165,7 +166,6 @@ WITH candidates AS (
     WHERE r.import_id = @import_id
 )
 INSERT INTO taxon_candidates (
-        import_id,
         resolution_id,
         source,
         match_type,
@@ -178,8 +178,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT c.import_id,
-    c.resolution_id,
+SELECT c.resolution_id,
     'internal'::taxon_match_source,
     'fuzzy'::taxon_match_type,
     c.taxon_id,
@@ -201,8 +200,7 @@ WHERE r.import_id = @import_id
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
-        WHERE c.import_id = r.import_id
-            AND c.resolution_id = r.id
+        WHERE c.resolution_id = r.id
             AND (
                 (
                     c.source = 'internal'
@@ -219,8 +217,7 @@ SET gbif_status = CASE
         WHEN EXISTS (
             SELECT 1
             FROM taxon_candidates c
-            WHERE c.import_id = r.import_id
-                AND c.resolution_id = r.id
+            WHERE c.resolution_id = r.id
         ) THEN 'completed'::taxon_gbif_status
         ELSE 'no_candidates'::taxon_gbif_status
     END
@@ -235,8 +232,9 @@ WHERE r.import_id = @import_id
 ORDER BY r.scientific_name;
 
 -- name: CleanupTaxonCandidates :exec
-DELETE FROM taxon_candidates
-WHERE import_id = @import_id;
+DELETE FROM taxon_candidates c USING taxon_resolution r
+WHERE r.import_id = @import_id
+    AND r.id = c.resolution_id;
 
 -- name: ListAllTaxonCandidates :many
 WITH candidates AS (
@@ -265,7 +263,8 @@ WITH candidates AS (
             c.source = 'manual'
             AND s.id = c.staging_id
         )
-    WHERE c.import_id = @import_id
+        JOIN taxon_resolution r ON r.id = c.resolution_id
+    WHERE r.import_id = @import_id
 )
 SELECT *,
     ROW_NUMBER() OVER (
@@ -277,7 +276,6 @@ FROM candidates;
 
 -- name: InsertTaxonCandidatesBatch :batchexec
 INSERT INTO taxon_candidates (
-        import_id,
         resolution_id,
         source,
         match_type,
@@ -291,7 +289,6 @@ INSERT INTO taxon_candidates (
         status
     )
 VALUES (
-        @import_id,
         @resolution_id,
         @source,
         @match_type,
@@ -308,13 +305,14 @@ VALUES (
 -- name: AutoResolveUnambiguousCandidates :exec
 -- Automatically resolve candidates where there is a single best match above the priority threshold.
 WITH winners AS (
-    SELECT c.import_id,
+    SELECT r.import_id,
         c.resolution_id,
         (array_agg(c.id)) [1] AS id
     FROM taxon_candidates c
-    WHERE c.import_id = @import_id
+        JOIN taxon_resolution r ON r.id = c.resolution_id
+    WHERE r.import_id = @import_id
         AND c.priority >= @threshold
-    GROUP BY c.import_id,
+    GROUP BY r.import_id,
         c.resolution_id
     HAVING COUNT(*) = 1
 )
@@ -345,9 +343,11 @@ WHERE r.import_id = @import_id
 -- and we need to link the candidates to the actual taxa records.
 UPDATE taxon_candidates c
 SET taxon_id = t.id
-FROM taxa t
+FROM taxa t,
+    taxon_resolution r
 WHERE c.gbif_id = t.gbif_id
-    AND c.import_id = @import_id
+    AND c.resolution_id = r.id
+    AND r.import_id = @import_id
     AND c.taxon_id IS NULL;
 
 
@@ -360,8 +360,7 @@ WHERE r.import_id = @import_id
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
-        WHERE c.import_id = r.import_id
-            AND c.resolution_id = r.id
+        WHERE c.resolution_id = r.id
     );
 
 -- name: InsertTaxaStaging :batchexec
@@ -422,7 +421,6 @@ staged_taxon AS (
     RETURNING *
 )
 INSERT INTO taxon_candidates (
-        import_id,
         resolution_id,
         source,
         match_type,
@@ -433,8 +431,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT @import_id,
-    @resolution_id,
+SELECT @resolution_id,
     'manual',
     'exact',
     s.id,
@@ -459,19 +456,22 @@ WITH resolved_candidates AS (
         parent_candidate.taxon_id AS parent_id
     FROM taxon_candidates c
         JOIN taxon_resolution r ON (
-            r.import_id = c.import_id
+            r.id = c.resolution_id
             AND r.resolved_candidate_id = c.id
         )
-        JOIN taxa_staging s ON (c.staging_id = s.id)
+        JOIN taxa_staging s ON (
+            c.staging_id = s.id
+            AND s.import_id = r.import_id
+        )
         JOIN taxon_resolution parent_resolution ON (
             parent_resolution.id = s.parent_resolution_id
             AND parent_resolution.import_id = s.import_id
         )
         JOIN taxon_candidates parent_candidate ON (
             parent_candidate.id = parent_resolution.resolved_candidate_id
-            AND parent_candidate.import_id = s.import_id
+            AND parent_candidate.resolution_id = parent_resolution.id
         )
-    WHERE c.import_id = @import_id
+    WHERE r.import_id = @import_id
         AND c.source = 'manual'
         AND c.rank = @rank
 )
@@ -491,16 +491,20 @@ FROM resolved_candidates ON CONFLICT (name, COALESCE(authorship, '')) DO NOTHING
 
 
 -- name: SyncMaterializedTaxa :exec
+-- Update the taxon_candidates table to link the newly materialized taxa in the taxa table
+-- to their corresponding candidates in the taxon_candidates table.
 UPDATE taxon_candidates c
 SET taxon_id = t.id
 FROM taxa_staging s
+    JOIN taxon_resolution r ON r.import_id = s.import_id
     JOIN taxa t ON (
         t.name = s.name
         AND t.authorship IS NOT DISTINCT
         FROM s.authorship
             AND t.rank = s.rank
     )
-WHERE c.import_id = @import_id
+WHERE r.import_id = @import_id
+    AND c.resolution_id = r.id
     AND c.staging_id = s.id
     AND c.rank = @rank
     AND c.source = 'manual';

@@ -37,14 +37,10 @@ CREATE TABLE invitation_tokens (
 	consumed BOOLEAN NOT NULL DEFAULT false,
 	consumed_by UUID REFERENCES users (id) ON DELETE
 	SET NULL,
-		consumed_at TIMESTAMPTZ,
+		consumed_at TIMESTAMPTZ CHECK (consumed_at >= created_at),
 		CONSTRAINT invitation_tokens_hash_unique UNIQUE (token_hash),
-		CONSTRAINT invitation_tokens_consumed_time CHECK (
-			(consumed = false)
-			OR (consumed_at IS NOT NULL)
-		)
+			CONSTRAINT invitation_tokens_consumed_time CHECK ((consumed = (consumed_at IS NOT NULL)))
 );
-CREATE INDEX invitation_tokens_hash_idx ON invitation_tokens (token_hash);
 CREATE INDEX invitation_tokens_invitation_idx ON invitation_tokens (invitation_id);
 -- Utility hashing function (uses pgcrypto.digest). Applications should pass only the raw token to the hashing function
 CREATE OR REPLACE FUNCTION token_sha256 (txt TEXT) RETURNS TEXT LANGUAGE SQL IMMUTABLE AS $$

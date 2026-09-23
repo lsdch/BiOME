@@ -13,7 +13,6 @@ import (
 
 type TaxonCandidates struct {
 	ID           uuid.UUID `sql:"primary_key"`
-	ImportID     uuid.UUID
 	ResolutionID uuid.UUID
 	Source       TaxonMatchSource
 	MatchType    TaxonMatchType

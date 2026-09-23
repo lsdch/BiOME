@@ -26,7 +26,7 @@ type taxonResolver struct {
 
 type TaxonResolver interface {
 	InitResolution(ctx context.Context, tx *db.Tx, importID uuid.UUID) (state []models.TaxonResolutionWithCandidates, err error)
-	InitSamplingTargetsResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (err error)
+	InitSamplingTargetsResolution(ctx context.Context, tx *db.Tx, importID uuid.UUID) (err error)
 	GetTaxonResolutions(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.TaxonResolutionWithCandidates, err error)
 	// Materializes taxa from GBIF and local candidates into the main taxon table,
 	// ensuring that all necessary GBIF dependencies are fetched and inserted first.
@@ -89,8 +89,8 @@ func (r *taxonResolver) InitResolution(ctx context.Context, tx *db.Tx, importID 
 	return resolutionState, nil
 }
 
-func (r *taxonResolver) InitSamplingTargetsResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
-	if err = r.store.InitSamplingTargetResolution(ctx, q, importID); err != nil {
+func (r *taxonResolver) InitSamplingTargetsResolution(ctx context.Context, tx *db.Tx, importID uuid.UUID) (err error) {
+	if err = r.store.InitSamplingTargetResolution(ctx, tx, importID); err != nil {
 		return fmt.Errorf("error initializing sampling targets resolution: %w", err)
 	}
 	return nil

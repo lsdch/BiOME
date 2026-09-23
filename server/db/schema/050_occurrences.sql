@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS occurrences (
 	type_status occurrence_type_status,
 	comments TEXT,
 	-- Identification fields
+	-- Using restricted delete for taxon_id to prevent accidental deletion of taxa that are still referenced by occurrences.
 	taxon_id UUID NOT NULL REFERENCES taxa (id) ON DELETE RESTRICT,
 	verbatim_identification TEXT,
 	identified_by TEXT [],
@@ -16,9 +17,12 @@ CREATE TABLE IF NOT EXISTS occurrences (
 	identification_addendum TEXT,
 	-- Content fields
 	content_description TEXT,
-	quantity_exact INTEGER,
-	quantity_lower INTEGER,
-	quantity_upper INTEGER,
+	quantity_exact INTEGER CHECK (quantity_exact >= 0),
+	quantity_lower INTEGER CHECK (quantity_lower >= 0),
+	quantity_upper INTEGER CHECK (
+		quantity_upper >= 0
+		AND quantity_upper >= quantity_lower
+	),
 	sources TEXT [],
 	-- Metadata fields
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -52,7 +56,9 @@ CREATE TABLE IF NOT EXISTS occurrences (
 		)
 );
 
+CREATE INDEX occurrences_taxon_id_idx ON occurrences (taxon_id);
 CREATE INDEX occurrences_sampling_id_idx ON occurrences (sampling_id);
+CREATE INDEX occurrences_import_batch_id_idx ON occurrences (import_batch_id);
 
 CREATE INDEX occurrences_type_status_idx ON occurrences (type_status);
 
@@ -67,6 +73,8 @@ CREATE TABLE IF NOT EXISTS occurrence_code_history (
 	code TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX occurrence_code_history_occurrence_id_idx ON occurrence_code_history (occurrence_id);
 
 -- Generates an occurrence code based on the taxon name, site code, coordinates, and event date.
 -- The format of the occurrence code is: taxon_name[site_code|event_date]

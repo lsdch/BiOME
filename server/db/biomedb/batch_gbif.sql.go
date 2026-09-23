@@ -23,12 +23,15 @@ func (q *Queries) CleanUpGBIFDependencies(ctx context.Context, importID uuid.UUI
 
 const expandGBIFDependencies = `-- name: ExpandGBIFDependencies :exec
 WITH candidates AS (
-    SELECT DISTINCT c.import_id,
+    SELECT DISTINCT r.import_id,
         c.gbif_id
     FROM taxon_candidates c
+        JOIN taxon_resolution r ON (
+            r.id = c.resolution_id
+            AND r.import_id = $1
+        )
         JOIN gbif_staging g ON g.key = c.gbif_id
-    WHERE c.import_id = $1
-        AND c.gbif_id IS NOT NULL
+    WHERE c.gbif_id IS NOT NULL
 ),
 expanded AS (
     -- 1. direct gbif_id
@@ -126,10 +129,7 @@ SELECT g.key,
     parent.id as parent_id,
     accepted.id as accepted_taxon_id
 FROM taxon_resolution r
-    JOIN taxon_candidates c ON (
-        r.resolved_candidate_id = c.id
-        AND r.import_id = c.import_id
-    )
+    JOIN taxon_candidates c ON (r.resolved_candidate_id = c.id)
     JOIN gbif_dependencies d ON (
         d.import_id = r.import_id
         AND d.from_key = c.gbif_id

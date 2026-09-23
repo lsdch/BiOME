@@ -76,7 +76,7 @@ func newDatasetsTableImpl(schemaName, tableName, alias string) datasetsTable {
 		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
 		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, SlugColumn, DescriptionColumn, PinnedColumn, OwnerIDColumn, IsPublicColumn, CreatedAtColumn}
 		mutableColumns    = postgres.ColumnList{LabelColumn, SlugColumn, DescriptionColumn, PinnedColumn, OwnerIDColumn, IsPublicColumn, CreatedAtColumn}
-		defaultColumns    = postgres.ColumnList{IDColumn, PinnedColumn, IsPublicColumn, CreatedAtColumn}
+		defaultColumns    = postgres.ColumnList{PinnedColumn, IsPublicColumn, CreatedAtColumn}
 	)
 
 	return datasetsTable{

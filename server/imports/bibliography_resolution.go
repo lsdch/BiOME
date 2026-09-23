@@ -86,7 +86,7 @@ func (r *BibliographyResolver) InitBibliographyResolution(ctx context.Context, t
 		return fmt.Errorf("error generating manual candidates: %w", err)
 	}
 
-	return r.AutoResolveBibliography(ctx, tx, importID, 0.8, 0.1)
+	return r.AutoResolveBibliography(ctx, tx, importID, 80, 10)
 }
 
 func (r *BibliographyResolver) AutoResolveBibliography(ctx context.Context, q db.Querier, importID uuid.UUID, scoreThreshold float32, scoreMargin float32) error {
@@ -210,13 +210,16 @@ func (r *BibliographyResolver) ListCandidates(ctx context.Context, q db.Querier,
 }
 
 func (r *BibliographyResolver) ResolvePublication(ctx context.Context, q db.Querier, importID uuid.UUID, input models.ResolveInput) (err error) {
-	err = q.Queries().ResolvePublication(ctx, biomedb.ResolvePublicationParams{
+	rowsAffected, err := q.Queries().ResolvePublication(ctx, biomedb.ResolvePublicationParams{
 		ImportID:            importID,
 		ResolutionID:        input.ResolutionID,
 		ResolvedCandidateID: input.CandidateID,
 	})
 	if err != nil {
 		return fmt.Errorf("error resolving publication for import %s: %w", importID, err)
+	}
+	if rowsAffected != 1 {
+		return fmt.Errorf("publication resolution or candidate not found in import %s, or candidate does not belong to resolution %s", importID, input.ResolutionID)
 	}
 	return nil
 }
@@ -244,10 +247,13 @@ func (r *BibliographyResolver) GetBibliographyResolution(
 	return resolutionState, nil
 }
 
-func (r *BibliographyResolver) MaterializeBibliography(ctx context.Context, q db.Querier, importID uuid.UUID) error {
-	err := q.Queries().MaterializeBibliography(ctx, importID)
+func (r *BibliographyResolver) MaterializeBibliography(ctx context.Context, tx *db.Tx, importID uuid.UUID) error {
+	err := tx.Queries().MaterializePublicationsForImport(ctx, importID)
 	if err != nil {
 		return fmt.Errorf("error materializing bibliography: %w", err)
+	}
+	if err := tx.Queries().LinkMaterializedBibliography(ctx, importID); err != nil {
+		return fmt.Errorf("error marking bibliography import as resolved: %w", err)
 	}
 	return nil
 }

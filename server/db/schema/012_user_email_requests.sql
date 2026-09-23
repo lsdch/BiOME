@@ -42,15 +42,11 @@ CREATE TABLE user_account_request_tokens (
 	token_hash TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	consumed BOOLEAN NOT NULL DEFAULT false,
-	consumed_at TIMESTAMPTZ,
+	consumed_at TIMESTAMPTZ CHECK (consumed_at >= created_at),
 	CONSTRAINT user_account_request_tokens_hash_unique UNIQUE (token_hash),
-	CONSTRAINT user_account_request_tokens_consumed_time CHECK (
-		(consumed = false)
-		OR (consumed_at IS NOT NULL)
-	)
+	CONSTRAINT user_account_request_tokens_consumed_time CHECK ((consumed = (consumed_at IS NOT NULL)))
 );
 
-CREATE INDEX user_account_request_tokens_hash_idx ON user_account_request_tokens (token_hash);
 CREATE INDEX user_account_request_tokens_request_idx ON user_account_request_tokens (user_account_request_id);
 
 
@@ -101,13 +97,9 @@ CREATE TABLE user_email_change_request_tokens (
 	consumed BOOLEAN NOT NULL DEFAULT false,
 	consumed_by UUID REFERENCES users (id) ON DELETE
 	SET NULL,
-		consumed_at TIMESTAMPTZ,
+		consumed_at TIMESTAMPTZ CHECK (consumed_at >= created_at),
 		CONSTRAINT user_email_change_request_tokens_hash_unique UNIQUE (token_hash),
-		CONSTRAINT user_email_change_request_tokens_consumed_time CHECK (
-			(consumed = false)
-			OR (consumed_at IS NOT NULL)
-		)
+		CONSTRAINT user_email_change_request_tokens_consumed_time CHECK ((consumed = (consumed_at IS NOT NULL)))
 );
 
-CREATE INDEX user_email_change_request_tokens_hash_idx ON user_email_change_request_tokens (token_hash);
 CREATE INDEX user_email_change_request_tokens_request_idx ON user_email_change_request_tokens (user_email_change_request_id);

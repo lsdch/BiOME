@@ -3,16 +3,15 @@ CREATE TABLE taxa_closure (
     descendant_id UUID NOT NULL REFERENCES taxa(id) ON DELETE CASCADE,
     depth INTEGER NOT NULL,
     -- 0 = self, 1 = parent, etc.
-    PRIMARY KEY (ancestor_id, descendant_id)
+    PRIMARY KEY (ancestor_id, descendant_id),
+    CHECK (depth >= 0),
+    CHECK ((ancestor_id = descendant_id) = (depth = 0))
 );
-
-CREATE INDEX taxa_closure_ancestor_idx ON taxa_closure (ancestor_id);
 
 CREATE INDEX taxa_closure_descendant_idx ON taxa_closure (descendant_id);
 
 CREATE INDEX taxa_closure_depth_idx ON taxa_closure (depth);
 
-CREATE INDEX taxa_closure_cycle_check ON taxa_closure (ancestor_id, descendant_id);
 
 ---------------------------------------------------------------------
 -- Insert trigger to maintain the closure table
@@ -60,32 +59,36 @@ AFTER DELETE ON taxa FOR EACH ROW EXECUTE FUNCTION taxa_closure_delete_fn();
 ---------------------------------------------------------------------
 -- Update trigger to maintain the closure table
 ---------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION taxa_closure_update_fn() RETURNS TRIGGER AS $$ BEGIN -- si parent inchangé, rien à faire
-    IF NEW.parent_id IS NOT DISTINCT
+CREATE OR REPLACE FUNCTION taxa_closure_update_fn() RETURNS TRIGGER AS $$ BEGIN IF NEW.parent_id IS NOT DISTINCT
 FROM OLD.parent_id THEN RETURN NEW;
 END IF;
 
--- delete old paths
+    -- Remove only paths from the old external ancestors into the subtree.
+-- Preserve every internal path, including all self relations.
 DELETE FROM taxa_closure
-WHERE descendant_id IN (
+WHERE ancestor_id IN (
+        SELECT ancestor_id
+        FROM taxa_closure
+        WHERE descendant_id = OLD.id
+            AND ancestor_id <> OLD.id
+    )
+    AND descendant_id IN (
         SELECT descendant_id
         FROM taxa_closure
         WHERE ancestor_id = OLD.id
     );
 
--- rebuild self link
-INSERT INTO taxa_closure (ancestor_id, descendant_id, depth)
-VALUES (NEW.id, NEW.id, 0);
-
--- rebuild paths from new parent
+    -- Connect every new ancestor to every descendant of the moved taxon.
+-- If it becomes a root, the preserved internal paths are sufficient.
 IF NEW.parent_id IS NOT NULL THEN
 INSERT INTO taxa_closure (ancestor_id, descendant_id, depth)
-SELECT ancestor_id,
+SELECT parent.ancestor_id,
     child.descendant_id,
     parent.depth + child.depth + 1
 FROM taxa_closure parent
-    JOIN taxa_closure child ON child.ancestor_id = OLD.id
-WHERE parent.descendant_id = NEW.parent_id;
+    CROSS JOIN taxa_closure child
+WHERE parent.descendant_id = NEW.parent_id
+    AND child.ancestor_id = NEW.id;
 END IF;
 
     RETURN NEW;

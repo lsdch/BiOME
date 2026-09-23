@@ -7,8 +7,15 @@ CREATE TABLE samplings (
 	site_name CITEXT,
 	site_locality CITEXT,
 	site_country_code CHAR(3) REFERENCES countries (code),
-	coordinates_precision INTEGER,
-	coordinates geometry (Point, 4326) NOT NULL,
+	coordinates_precision INTEGER CHECK (coordinates_precision >= 0),
+	coordinates geometry (Point, 4326) NOT NULL CHECK (
+		ST_IsValid (coordinates)
+		AND ST_SRID (coordinates) = 4326
+		AND ST_X (coordinates) >= -180
+		AND ST_X (coordinates) <= 180
+		AND ST_Y (coordinates) >= -90
+		AND ST_Y (coordinates) <= 90
+	),
 	latitude DOUBLE PRECISION NOT NULL GENERATED ALWAYS AS (ST_Y (coordinates)) STORED,
 	longitude DOUBLE PRECISION NOT NULL GENERATED ALWAYS AS (ST_X (coordinates)) STORED,
 	altitude INTEGER,
@@ -17,16 +24,13 @@ CREATE TABLE samplings (
 	event_date_precision event_date_precision,
 	-- METADATA FIELDS
 	performed_by CITEXT [],
-	duration INTEGER,
+	duration INTEGER CHECK (duration >= 0),
 	access_points CITEXT [],
 	import_batch_id UUID REFERENCES import_batches (id) ON DELETE
 	SET NULL,
-		-- R ~ 500m
+		-- R ~ 10m
 		h3_index BIGINT NOT NULL GENERATED ALWAYS AS (
-			h3_lat_lng_to_cell (
-				point(ST_X (coordinates), ST_Y (coordinates)),
-				12
-			)::BIGINT
+			h3_lat_lng_to_cell (coordinates::geometry, 12)::BIGINT
 		) STORED,
 		-- UTILITY FIELDS
 		search_vector tsvector,
@@ -45,6 +49,7 @@ CREATE TABLE samplings (
 CREATE INDEX samplings_coordinates_gist_idx ON samplings USING GIST (coordinates);
 
 CREATE INDEX samplings_h3_idx ON samplings (h3_index);
+CREATE INDEX samplings_import_batch_id_idx ON samplings (import_batch_id);
 
 CREATE INDEX samplings_site_name_idx ON samplings (site_name text_pattern_ops);
 

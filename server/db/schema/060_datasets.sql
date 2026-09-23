@@ -1,6 +1,6 @@
 -- DATASETS
 CREATE TABLE datasets (
-	id ULID PRIMARY KEY DEFAULT gen_random_uuid (),
+	id ULID PRIMARY KEY,
 	label TEXT NOT NULL,
 	slug TEXT NOT NULL,
 	description TEXT,
@@ -8,13 +8,12 @@ CREATE TABLE datasets (
 	owner_id UUID NOT NULL REFERENCES users (id) ON DELETE RESTRICT,
 	is_public BOOLEAN NOT NULL DEFAULT TRUE,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	CONSTRAINT dataset_label_unique UNIQUE (label),
 	CONSTRAINT dataset_slug_unique UNIQUE (slug),
 	CONSTRAINT dataset_label_length CHECK (
 		CHAR_LENGTH(BTRIM(label)) BETWEEN 4 AND 40
 	)
 );
-
-CREATE INDEX dataset_slug_idx ON datasets (slug);
 
 -- DATASETS <-> OCCURRENCES
 CREATE TABLE occurrences_datasets (

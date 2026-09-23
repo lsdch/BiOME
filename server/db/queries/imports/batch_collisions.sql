@@ -7,7 +7,7 @@ WITH i AS (
 s AS (
     -- existing samplings
     SELECT 'existing'::duplicate_source AS source,
-        NULL::text AS import_id,
+        NULL::uuid AS import_id,
         NULL::int AS row_number,
         s.latitude,
         s.longitude,
@@ -57,6 +57,10 @@ FROM i
         @radius_meters::int
     )
     AND (
+        i.row_number <> s.row_number
+        OR s.source = 'existing'
+    )
+    AND (
         i.event_date_precision = 'day'
         AND i.event_date IS NOT NULL
         AND s.event_date_precision = 'day'
@@ -92,14 +96,15 @@ WITH resolved_staging AS (
     c.taxon_id,
     -- c.staging_id,
     CASE
-        WHEN r.source = 'internal' THEN 't:' || r.taxon_id::text
-        WHEN r.source = 'gbif' THEN 'g:' || r.gbif_id::text
-        WHEN r.source = 'manual' THEN 'm:' || r.staging_id::text
+        WHEN c.source = 'internal' THEN 't:' || c.taxon_id::text
+        WHEN c.source = 'gbif' THEN 'g:' || c.gbif_id::text
+        WHEN c.source = 'manual' THEN 'm:' || c.staging_id::text
     END AS resolved_taxon_key
     FROM import_samplings_occurrences i
-        JOIN taxon_resolution r ON r.import_id = i.import_id
+        JOIN taxon_resolution r ON r.id = i.taxon_resolution_id
+        AND r.import_id = i.import_id
         LEFT JOIN taxon_candidates c ON c.id = r.resolved_candidate_id
-        AND r.input_name = i.taxon_scientific_name
+        AND c.resolution_id = r.id
     WHERE i.import_id = @import_id
 ),
 existing_occurrences AS (
@@ -232,7 +237,7 @@ SELECT 'staging'::duplicate_source AS duplicate_source,
     i.event_date_precision,
     i.coordinates_precision,
     i.resolved_taxon_key,
-    NULL::uuid AS occurrence_id,
+    NULL::ulid AS occurrence_id,
     NULL::uuid AS existing_taxon_id,
     b.taxon_name AS match_taxon_name,
     b.taxon_authorship AS match_taxon_authorship,
@@ -245,7 +250,7 @@ SELECT 'staging'::duplicate_source AS duplicate_source,
     b.event_date_precision AS match_event_date_precision,
     b.coordinates_precision AS match_coordinates_precision,
     ST_Distance(
-        a.coordinates::geography,
+        i.coordinates::geography,
         b.coordinates::geography
     )::int AS distance_meters
 FROM staging_staging_collisions a

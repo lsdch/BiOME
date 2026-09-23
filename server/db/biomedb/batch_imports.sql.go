@@ -25,18 +25,20 @@ methods AS (
     FROM sampling_methods_resolution r
     WHERE r.import_id = $1
         AND r.resolved_method_id IS NULL
+        AND r.vocab_resolution_status <> 'discard'
 ),
 fixatives AS (
     SELECT COUNT(*) = 0 AS ready
     FROM sampling_fixatives_resolution r
     WHERE r.import_id = $1
         AND r.resolved_fixative_id IS NULL
+        AND r.vocab_resolution_status <> 'discard'
 ),
 bibliography AS (
     SELECT COUNT(*) = 0 AS ready
     FROM publication_resolution r
     WHERE r.import_id = $1
-        AND r.status = 'pending'
+        AND r.status IN ('pending', 'needs_decision')
 )
 SELECT taxonomy.ready::bool as taxonomy,
     methods.ready::bool as methods,
@@ -340,7 +342,7 @@ func (q *Queries) MaterializeOccurrences(ctx context.Context, batchID uuid.UUID)
 
 const materializeSamplingFixatives = `-- name: MaterializeSamplingFixatives :exec
 INSERT INTO samplings_fixatives (sampling_id, fixative_id)
-SELECT ss.materialized_sampling_id,
+SELECT DISTINCT ss.materialized_sampling_id,
     sfr.resolved_fixative_id
 FROM samplings_staging ss
     JOIN import_batches b ON b.id = ss.import_id
@@ -352,7 +354,7 @@ FROM samplings_staging ss
 WHERE b.id = $1
     AND sfr.status = ANY(
         '{"selected", "auto_resolved"}'::vocab_resolution_status []
-    )
+    ) ON CONFLICT DO NOTHING
 `
 
 func (q *Queries) MaterializeSamplingFixatives(ctx context.Context, importBatchID uuid.UUID) error {
@@ -362,7 +364,7 @@ func (q *Queries) MaterializeSamplingFixatives(ctx context.Context, importBatchI
 
 const materializeSamplingMethods = `-- name: MaterializeSamplingMethods :exec
 INSERT INTO events_sampling_methods (sampling_id, method_id)
-SELECT ss.materialized_sampling_id,
+SELECT DISTINCT ss.materialized_sampling_id,
     smr.resolved_method_id
 FROM samplings_staging ss
     JOIN import_batches b ON b.id = ss.import_id
@@ -374,7 +376,7 @@ FROM samplings_staging ss
 WHERE b.id = $1
     AND smr.status = ANY(
         '{"selected", "auto_resolved"}'::vocab_resolution_status []
-    )
+    ) ON CONFLICT DO NOTHING
 `
 
 func (q *Queries) MaterializeSamplingMethods(ctx context.Context, importBatchID uuid.UUID) error {
@@ -384,7 +386,7 @@ func (q *Queries) MaterializeSamplingMethods(ctx context.Context, importBatchID 
 
 const materializeSamplingTargets = `-- name: MaterializeSamplingTargets :exec
 INSERT INTO sampling_target_taxa (sampling_id, taxon_id)
-SELECT ss.materialized_sampling_id,
+SELECT DISTINCT ss.materialized_sampling_id,
     c.taxon_id
 FROM samplings_staging ss
     JOIN sampling_target_resolution r ON (
@@ -393,7 +395,7 @@ FROM samplings_staging ss
     )
     JOIN taxon_resolution tr ON tr.id = r.resolution_id
     JOIN taxon_candidates c ON c.id = tr.resolved_candidate_id
-WHERE ss.import_id = $1
+WHERE ss.import_id = $1 ON CONFLICT DO NOTHING
 `
 
 func (q *Queries) MaterializeSamplingTargets(ctx context.Context, importBatchID uuid.UUID) error {

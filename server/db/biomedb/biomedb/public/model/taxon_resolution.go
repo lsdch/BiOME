@@ -18,8 +18,8 @@ type TaxonResolution struct {
 	InputAuthorship     *string
 	InputRank           *string
 	ScientificName      string
-	Status              *ResolutionStatus
-	GbifStatus          *TaxonGbifStatus
+	Status              ResolutionStatus
+	GbifStatus          TaxonGbifStatus
 	FromResolutionID    *uuid.UUID
 	SamplingTarget      bool
 	ResolvedCandidateID *uuid.UUID

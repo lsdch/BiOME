@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS import_batches (
     completed_by UUID REFERENCES users (id) ON DELETE RESTRICT,
     taxonomic_scope INT NOT NULL REFERENCES gbif_staging (key) ON DELETE RESTRICT,
     imported_file_name TEXT NOT NULL,
-    imported_file_size BIGINT NOT NULL,
+    imported_file_size BIGINT NOT NULL CHECK (imported_file_size > 0),
     imported_file_hash TEXT NOT NULL,
     imported_file_content_type TEXT NOT NULL,
     CONSTRAINT import_batches_label_length CHECK (
