@@ -20,7 +20,7 @@ func ExtractAuthorString(verbatim string) string {
 		return ""
 	}
 
-	return strings.Trim(strings.TrimSpace(m[1]), ".")
+	return strings.ToTitle(strings.Trim(strings.TrimSpace(m[1]), "."))
 }
 
 func ExtractYear(verbatim string) *int32 {
