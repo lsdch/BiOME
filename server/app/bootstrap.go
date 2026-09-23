@@ -15,6 +15,7 @@ import (
 	"github.com/lsdch/biome/data"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
 	"github.com/twpayne/go-geom"
@@ -47,15 +48,7 @@ func (s *AppBootstrap) Bootstrap(ctx context.Context) error {
 		return fmt.Errorf("bootstrap settings: %w", err)
 	}
 
-	ok, err := s.services.SettingsService.TestSMTPConnection(ctx)
-	if err != nil {
-		return fmt.Errorf("test SMTP connection: %w", err)
-	}
-	if !ok {
-		return fmt.Errorf("SMTP connection failed")
-	} else {
-		logrus.Infof("SMTP connection successful")
-	}
+	s.bootstrapMailer(ctx, s.services.SettingsService.TestSMTPConnection)
 
 	if err := s.services.AccountsService.BootstrapUsers(ctx, s.db); err != nil {
 		return fmt.Errorf("bootstrap users: %w", err)
@@ -76,6 +69,22 @@ func (s *AppBootstrap) Bootstrap(ctx context.Context) error {
 	logrus.Infof("Bootstrap completed successfully")
 
 	return nil
+}
+
+// Configuration is validated by config.LoadConfig before the application is built.
+// Connection failures here only disable email, not the rest of the application.
+func (s *AppBootstrap) bootstrapMailer(ctx context.Context, testConnection func(context.Context) (bool, error)) {
+	ok, err := testConnection(ctx)
+	if err == nil && !ok {
+		err = fmt.Errorf("SMTP connection failed")
+	}
+	if err != nil {
+		s.services.Mailer = services.NewUnavailableMailer(err)
+		logrus.WithError(err).Error("SMTP unavailable; BiOME continues in degraded mode with email features unavailable")
+		return
+	}
+	s.services.Mailer = services.NewEmailService(s.services.SettingsService.Config.SMTP)
+	logrus.Info("SMTP connection successful")
 }
 
 func (s *AppBootstrap) BootstrapGBIFKingdoms(ctx context.Context) error {

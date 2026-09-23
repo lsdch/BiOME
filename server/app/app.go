@@ -56,6 +56,7 @@ func NewPgxPool(ctx context.Context, cfg config.DBConfig) (*pgxpool.Pool, error)
 }
 
 type AppServices struct {
+	Mailer             services.Mailer
 	AbioticService     *services.AbioticService
 	ImportBatchService *services.ImportBatchService
 	AuthService        *services.AuthService
@@ -93,6 +94,7 @@ func NewApp(config config.Config) *App {
 	router := makeRouter(config.API)
 
 	appServices := &AppServices{
+		Mailer:             services.NewEmailService(config.SMTP),
 		AbioticService:     services.NewAbioticService(),
 		AuthService:        services.NewAuthService(config.AuthTokens),
 		SettingsService:    services.NewSettingsService(config),
