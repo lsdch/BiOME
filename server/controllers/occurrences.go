@@ -2,11 +2,8 @@ package controllers
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
+	"mime"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/lsdch/biome/db"
@@ -161,64 +158,24 @@ type ExportSamplingsWithOccurrencesInput struct {
 }
 
 func (c *OccurrenceController) ExportSamplingsWithOccurrences(ctx context.Context, input *ExportSamplingsWithOccurrencesInput) (*huma.StreamResponse, error) {
+	exporter := services.NewExportService()
+	contentType, err := exporter.ContentType(input.Format, input.ExportCSVOptions)
+	if err != nil {
+		return nil, huma.Error400BadRequest(err.Error())
+	}
 	data, err := c.service.ListSamplingsWithOccurrences(ctx, c.db, input.ListOccurrencesParams)
 	if err != nil {
 		return nil, err
 	}
-	contentDisposition := fmt.Sprintf("attachment; filename=\"%s\"", input.Filename)
-	switch input.Format {
-	case "json":
-		return &huma.StreamResponse{
-			Body: func(ctx huma.Context) {
-				writer := ctx.BodyWriter()
-				ctx.SetHeader("Content-Type", "application/json")
-				ctx.SetHeader("Content-Disposition", contentDisposition)
-				json.NewEncoder(writer).Encode(data)
-			},
-		}, nil
-	case "csv", "tsv":
-		return &huma.StreamResponse{
-			Body: func(ctx huma.Context) {
-				writer := ctx.BodyWriter()
-				ctx.SetHeader("Content-Type", "text/tab-separated-values")
-				ctx.SetHeader("Content-Disposition", contentDisposition)
-				header := []string{"sampling_id", "site_name", "site_code", "latitude", "longitude", "coordinates_precision_m", "sampling_date", "occurrence_id", "taxon_id", "taxon_name", "taxon_rank"}
-				_, err := writer.Write(
-					[]byte(strings.Join(header, ",") + "\n"),
-				)
-				if err != nil {
-					logrus.Error("Error writing CSV header:", err)
-				}
-				for _, row := range data {
-					line := []string{
-						row.Sampling.ID.String(),
-						row.Sampling.Site.Name.GetWithDefault(""),
-						row.Sampling.Site.Code.GetWithDefault(""),
-						strconv.FormatFloat(row.Sampling.Coordinates.Latitude, 'f', -1, 64),
-						strconv.FormatFloat(row.Sampling.Coordinates.Longitude, 'f', -1, 64),
-						models.MapOptional(row.Sampling.Coordinates.Precision, func(v int32) string { return strconv.Itoa(int(v)) }).GetWithDefault(""),
-						models.MapOptional(row.Sampling.PerformedOn, func(v models.DateWithPrecision) string { return v.String() }).GetWithDefault(""),
-					}
-					for _, occ := range row.Occurrences {
-						occLine := append(line,
-							occ.ID.String(),
-							occ.Identification.Taxon.ID.String(),
-							occ.Identification.Taxon.Name,
-							string(occ.Identification.Taxon.Rank),
-						)
-						_, err := writer.Write(
-							[]byte(strings.Join(occLine, ",") + "\n"),
-						)
-						if err != nil {
-							logrus.Error("Error writing CSV line:", err)
-						}
-					}
-				}
-			},
-		}, nil
-	default:
-		return nil, fmt.Errorf("unsupported format: %s", input.Format)
-	}
+	return &huma.StreamResponse{
+		Body: func(ctx huma.Context) {
+			ctx.SetHeader("Content-Type", contentType)
+			ctx.SetHeader("Content-Disposition", mime.FormatMediaType("attachment", map[string]string{"filename": input.Filename}))
+			if err := exporter.Write(ctx.BodyWriter(), data, input.Format, input.ExportCSVOptions); err != nil {
+				logrus.WithError(err).Error("Error writing export")
+			}
+		},
+	}, nil
 }
 
 func (c *OccurrenceController) ListSamplingsWithOccurrencesAtCell(ctx context.Context, input *struct {

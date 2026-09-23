@@ -3,6 +3,7 @@ package csvmodels
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -132,7 +133,7 @@ func (r *OccurrenceImportRow) SamplingHash(mergeUndated bool) string {
 	datePart := r.EventDate.String()
 	// If the date is not set, use the row number as a fallback to ensure uniqueness
 	if !mergeUndated && datePart == "" {
-		datePart = string(r.rowNumber)
+		datePart = strconv.FormatInt(int64(r.rowNumber), 10)
 	}
 
 	return strings.Join([]string{

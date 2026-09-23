@@ -57,6 +57,11 @@ func ValidateRows[T RowValidator](rows []T, v *validator.Validate) error {
 					RowNumber: int32(rowNum + 2),
 					Errors:    validationErrs,
 				})
+			} else {
+				validationErrors.Errors = append(validationErrors.Errors, &RowValidationErrors{
+					RowNumber: int32(rowNum + 2),
+					Errors:    err,
+				})
 			}
 		}
 	}
@@ -68,7 +73,7 @@ func ValidateRows[T RowValidator](rows []T, v *validator.Validate) error {
 
 type RowValidationErrors struct {
 	RowNumber int32
-	Errors    validator.ValidationErrors
+	Errors    error
 }
 
 func (e *RowValidationErrors) Error() string {
