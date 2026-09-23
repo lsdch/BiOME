@@ -37,6 +37,10 @@ func (u OccurrenceSortKey) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/OccurrenceSortKey"}
 }
 
+func (u OccurrenceSortKey) String() string {
+  return string(u)
+}
+
 func (m *OccurrenceSortKey) Fake(f *gofakeit.Faker) (any, error) {
 	return string(OccurrenceSortKeyValues[f.IntN(len(OccurrenceSortKeyValues) - 1)]), nil
 }

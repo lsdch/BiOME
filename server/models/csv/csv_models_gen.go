@@ -32,6 +32,10 @@ func (u CSVDelimiter) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/CSVDelimiter"}
 }
 
+func (u CSVDelimiter) String() string {
+  return string(u)
+}
+
 func (m *CSVDelimiter) Fake(f *gofakeit.Faker) (any, error) {
 	return string(CSVDelimiterValues[f.IntN(len(CSVDelimiterValues) - 1)]), nil
 }
@@ -55,6 +59,10 @@ func (u CSVQuoteChar) Schema(r huma.Registry) *huma.Schema {
   }
 
 	return &huma.Schema{Ref: "#/components/schemas/CSVQuoteChar"}
+}
+
+func (u CSVQuoteChar) String() string {
+  return string(u)
 }
 
 func (m *CSVQuoteChar) Fake(f *gofakeit.Faker) (any, error) {

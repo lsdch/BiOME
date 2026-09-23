@@ -31,6 +31,10 @@ func (u ErrorCode) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/ErrorCode"}
 }
 
+func (u ErrorCode) String() string {
+  return string(u)
+}
+
 func (m *ErrorCode) Fake(f *gofakeit.Faker) (any, error) {
 	return string(ErrorCodeValues[f.IntN(len(ErrorCodeValues) - 1)]), nil
 }
@@ -53,6 +57,10 @@ func (u ErrorCategory) Schema(r huma.Registry) *huma.Schema {
   }
 
 	return &huma.Schema{Ref: "#/components/schemas/ErrorCategory"}
+}
+
+func (u ErrorCategory) String() string {
+  return string(u)
 }
 
 func (m *ErrorCategory) Fake(f *gofakeit.Faker) (any, error) {

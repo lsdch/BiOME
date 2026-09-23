@@ -31,6 +31,10 @@ func (u SortOrder) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/SortOrder"}
 }
 
+func (u SortOrder) String() string {
+  return string(u)
+}
+
 func (m *SortOrder) Fake(f *gofakeit.Faker) (any, error) {
 	return string(SortOrderValues[f.IntN(len(SortOrderValues) - 1)]), nil
 }

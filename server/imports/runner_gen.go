@@ -39,6 +39,10 @@ func (u RunnerStatus) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/RunnerStatus"}
 }
 
+func (u RunnerStatus) String() string {
+  return string(u)
+}
+
 func (m *RunnerStatus) Fake(f *gofakeit.Faker) (any, error) {
 	return string(RunnerStatusValues[f.IntN(len(RunnerStatusValues) - 1)]), nil
 }

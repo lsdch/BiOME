@@ -14,6 +14,7 @@ import (
 
 var ExportFormatValues = []ExportFormat{
 	ExportFormatCSV,
+	ExportFormatTSV,
 	ExportFormatJSON,
 	ExportFormatDWC,
 }
@@ -30,6 +31,10 @@ func (u ExportFormat) Schema(r huma.Registry) *huma.Schema {
   }
 
 	return &huma.Schema{Ref: "#/components/schemas/ExportFormat"}
+}
+
+func (u ExportFormat) String() string {
+  return string(u)
 }
 
 func (m *ExportFormat) Fake(f *gofakeit.Faker) (any, error) {

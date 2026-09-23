@@ -32,6 +32,10 @@ func (u TaxonGBIFPriority) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/TaxonGBIFPriority"}
 }
 
+func (u TaxonGBIFPriority) String() string {
+  return string(u)
+}
+
 func (m *TaxonGBIFPriority) Fake(f *gofakeit.Faker) (any, error) {
 	return string(TaxonGBIFPriorityValues[f.IntN(len(TaxonGBIFPriorityValues) - 1)]), nil
 }
