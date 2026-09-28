@@ -1567,6 +1567,18 @@ type InvitationToken struct {
 	ConsumedAt   pgtype.Timestamptz `json:"consumed_at"`
 }
 
+type Mailing struct {
+	ID              int32     `json:"id"`
+	Enabled         bool      `json:"enabled"`
+	MailFromAddress string    `json:"mail_from_address"`
+	MailFromName    string    `json:"mail_from_name"`
+	SmtpHost        *string   `json:"smtp_host"`
+	SmtpPort        *int32    `json:"smtp_port"`
+	SmtpUser        *string   `json:"smtp_user"`
+	SmtpPassword    *string   `json:"smtp_password"`
+	LastUpdated     time.Time `json:"last_updated"`
+}
+
 type Occurrence struct {
 	ID                          types.ULID            `json:"id"`
 	Code                        string                `json:"code"`
@@ -1802,11 +1814,9 @@ type Setting struct {
 	AppDescription         *string `json:"app_description"`
 	IsPublic               bool    `json:"is_public"`
 	AccountRequestsEnabled bool    `json:"account_requests_enabled"`
-	AdminEmail             string  `json:"admin_email"`
-	MailFromAddress        string  `json:"mail_from_address"`
-	MailFromName           string  `json:"mail_from_name"`
 	MolecularDataEnabled   bool    `json:"molecular_data_enabled"`
 	FrontpageMessageMD     *string `json:"frontpage_message_md"`
+	AdminEmail             string  `json:"admin_email"`
 }
 
 type TaxaStaging struct {

@@ -649,7 +649,7 @@ export const $EventDatePrecision = {
 } as const
 
 export const $ExportFormat = {
-  enum: ['csv', 'json', 'dwc'],
+  enum: ['csv', 'tsv', 'json', 'dwc'],
   title: 'ExportFormat',
   type: 'string'
 } as const
@@ -1524,12 +1524,6 @@ export const $InstanceSettings = {
     is_public: {
       type: 'boolean'
     },
-    mail_from_address: {
-      type: 'string'
-    },
-    mail_from_name: {
-      type: 'string'
-    },
     molecular_data_enabled: {
       type: 'boolean'
     },
@@ -1545,8 +1539,6 @@ export const $InstanceSettings = {
     'admin_email',
     'is_public',
     'account_requests_enabled',
-    'mail_from_address',
-    'mail_from_name',
     'molecular_data_enabled'
   ],
   type: 'object'
@@ -1567,12 +1559,6 @@ export const $InstanceSettingsUpdate = {
     },
     description: {
       type: ['string', 'null']
-    },
-    mail_from_address: {
-      type: 'string'
-    },
-    mail_from_name: {
-      type: 'string'
     },
     subtitle: {
       type: ['string', 'null']
@@ -1602,6 +1588,56 @@ export const $LoginResult = {
     }
   },
   required: ['user', 'session'],
+  type: 'object'
+} as const
+
+export const $Mailing = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Mailing.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    enabled: {
+      type: 'boolean'
+    },
+    last_updated: {
+      format: 'date-time',
+      type: 'string'
+    },
+    mail_from_address: {
+      type: 'string'
+    },
+    mail_from_name: {
+      type: 'string'
+    },
+    smtp_host: {
+      type: ['string', 'null']
+    },
+    smtp_password: {
+      type: ['string', 'null']
+    },
+    smtp_port: {
+      format: 'int32',
+      type: ['integer', 'null']
+    },
+    smtp_user: {
+      type: ['string', 'null']
+    }
+  },
+  required: [
+    'enabled',
+    'mail_from_address',
+    'mail_from_name',
+    'smtp_host',
+    'smtp_port',
+    'smtp_user',
+    'smtp_password',
+    'last_updated'
+  ],
   type: 'object'
 } as const
 
@@ -3195,6 +3231,47 @@ export const $TaxonWithFullLineage = {
     }
   },
   required: ['descendants', 'lineage', 'id', 'gbif_id', 'name', 'rank', 'status'],
+  type: 'object'
+} as const
+
+export const $UpsertMailingParams = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/UpsertMailingParams.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    mail_from_address: {
+      type: 'string'
+    },
+    mail_from_name: {
+      type: 'string'
+    },
+    smtp_host: {
+      type: ['string', 'null']
+    },
+    smtp_password: {
+      type: ['string', 'null']
+    },
+    smtp_port: {
+      format: 'int32',
+      type: ['integer', 'null']
+    },
+    smtp_user: {
+      type: ['string', 'null']
+    }
+  },
+  required: [
+    'mail_from_address',
+    'mail_from_name',
+    'smtp_host',
+    'smtp_port',
+    'smtp_user',
+    'smtp_password'
+  ],
   type: 'object'
 } as const
 

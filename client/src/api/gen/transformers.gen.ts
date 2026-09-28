@@ -8,6 +8,7 @@ import type {
   CreateOccurrenceResponse,
   CreateSamplingResponse,
   GetDatasetByIdResponse,
+  GetEmailSettingsResponse,
   GetImportBatchResponse,
   GetImportBatchWithContentResponse,
   GetImportStatusResponse,
@@ -422,5 +423,17 @@ export const createSamplingResponseTransformer = async (
   data: any
 ): Promise<CreateSamplingResponse> => {
   data = samplingWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
+const mailingSchemaResponseTransformer = (data: any) => {
+  data.last_updated = new Date(data.last_updated)
+  return data
+}
+
+export const getEmailSettingsResponseTransformer = async (
+  data: any
+): Promise<GetEmailSettingsResponse> => {
+  data = mailingSchemaResponseTransformer(data)
   return data
 }

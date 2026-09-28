@@ -23,11 +23,9 @@ type settingsTable struct {
 	AppDescription         postgres.ColumnString
 	IsPublic               postgres.ColumnBool
 	AccountRequestsEnabled postgres.ColumnBool
-	AdminEmail             postgres.ColumnString
-	MailFromAddress        postgres.ColumnString
-	MailFromName           postgres.ColumnString
 	MolecularDataEnabled   postgres.ColumnBool
 	FrontpageMessageMd     postgres.ColumnString
+	AdminEmail             postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -75,13 +73,11 @@ func newSettingsTableImpl(schemaName, tableName, alias string) settingsTable {
 		AppDescriptionColumn         = postgres.StringColumn("app_description")
 		IsPublicColumn               = postgres.BoolColumn("is_public")
 		AccountRequestsEnabledColumn = postgres.BoolColumn("account_requests_enabled")
-		AdminEmailColumn             = postgres.StringColumn("admin_email")
-		MailFromAddressColumn        = postgres.StringColumn("mail_from_address")
-		MailFromNameColumn           = postgres.StringColumn("mail_from_name")
 		MolecularDataEnabledColumn   = postgres.BoolColumn("molecular_data_enabled")
 		FrontpageMessageMdColumn     = postgres.StringColumn("frontpage_message_md")
-		allColumns                   = postgres.ColumnList{IDColumn, AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, MailFromAddressColumn, MailFromNameColumn, MolecularDataEnabledColumn, FrontpageMessageMdColumn}
-		mutableColumns               = postgres.ColumnList{AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, MailFromAddressColumn, MailFromNameColumn, MolecularDataEnabledColumn, FrontpageMessageMdColumn}
+		AdminEmailColumn             = postgres.StringColumn("admin_email")
+		allColumns                   = postgres.ColumnList{IDColumn, AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, MolecularDataEnabledColumn, FrontpageMessageMdColumn, AdminEmailColumn}
+		mutableColumns               = postgres.ColumnList{AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, MolecularDataEnabledColumn, FrontpageMessageMdColumn, AdminEmailColumn}
 		defaultColumns               = postgres.ColumnList{IDColumn, AppNameColumn, IsPublicColumn, AccountRequestsEnabledColumn, MolecularDataEnabledColumn}
 	)
 
@@ -95,11 +91,9 @@ func newSettingsTableImpl(schemaName, tableName, alias string) settingsTable {
 		AppDescription:         AppDescriptionColumn,
 		IsPublic:               IsPublicColumn,
 		AccountRequestsEnabled: AccountRequestsEnabledColumn,
-		AdminEmail:             AdminEmailColumn,
-		MailFromAddress:        MailFromAddressColumn,
-		MailFromName:           MailFromNameColumn,
 		MolecularDataEnabled:   MolecularDataEnabledColumn,
 		FrontpageMessageMd:     FrontpageMessageMdColumn,
+		AdminEmail:             AdminEmailColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

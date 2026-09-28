@@ -14,9 +14,7 @@ type Settings struct {
 	AppDescription         *string
 	IsPublic               bool
 	AccountRequestsEnabled bool
-	AdminEmail             string
-	MailFromAddress        string
-	MailFromName           string
 	MolecularDataEnabled   bool
 	FrontpageMessageMd     *string
+	AdminEmail             string
 }

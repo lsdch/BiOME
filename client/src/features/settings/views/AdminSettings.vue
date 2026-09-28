@@ -25,15 +25,15 @@
   </v-navigation-drawer>
   <div class="bg-surface d-flex fill-height flex-column">
     <v-container :max-width="1200">
-      <InstanceSettings />
-      <!-- <Suspense>
+      <!-- <InstanceSettings /> -->
+      <Suspense>
         <template #default>
           <component :is="component" />
         </template>
         <template #fallback>
           <v-skeleton-loader type="article, article, article" />
         </template>
-      </Suspense> -->
+      </Suspense>
     </v-container>
   </div>
 </template>
@@ -48,6 +48,8 @@ import { useDisplay } from 'vuetify'
 // import ServiceSettings from '@/features/settings/components/ServiceSettings.vue'
 import routes from '@/router/routes'
 import { useRouter } from 'vue-router'
+import NotFound from '@/components/navigation/NotFound.vue'
+import EmailSettings from '../components/EmailSettings.vue'
 
 const { mobile } = useDisplay()
 
@@ -61,22 +63,22 @@ function resolveSubroute(category: string) {
 }
 const subroutes = [
   { title: 'Instance', category: 'instance', icon: 'mdi-application-settings-outline' },
-  { title: 'E-mailing', category: 'email', icon: 'mdi-email' },
-  { title: 'Services', category: 'services', icon: 'mdi-network-pos' }
+  { title: 'E-mailing', category: 'email', icon: 'mdi-email' }
+  // { title: 'Services', category: 'services', icon: 'mdi-network-pos' }
 ]
 
-// const component = computed(() => {
-//   switch (props.category) {
-//     case 'instance':
-//       return InstanceSettings
-//     case 'email':
-//       return EmailSettings
-//     case 'services':
-//       return ServiceSettings
-//     default:
-//       return NotFound
-//   }
-// })
+const component = computed(() => {
+  switch (props.category) {
+    case 'instance':
+      return InstanceSettings
+    case 'email':
+      return EmailSettings
+    // case 'services':
+    //   return ServiceSettings
+    default:
+      return NotFound
+  }
+})
 </script>
 
 <style scoped></style>

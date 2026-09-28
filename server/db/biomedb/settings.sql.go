@@ -10,7 +10,7 @@ import (
 )
 
 const getSettings = `-- name: GetSettings :one
-SELECT id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name, molecular_data_enabled, frontpage_message_md
+SELECT id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, molecular_data_enabled, frontpage_message_md, admin_email
 FROM settings
 `
 
@@ -24,11 +24,9 @@ func (q *Queries) GetSettings(ctx context.Context) (Setting, error) {
 		&i.AppDescription,
 		&i.IsPublic,
 		&i.AccountRequestsEnabled,
-		&i.AdminEmail,
-		&i.MailFromAddress,
-		&i.MailFromName,
 		&i.MolecularDataEnabled,
 		&i.FrontpageMessageMD,
+		&i.AdminEmail,
 	)
 	return i, err
 }
@@ -42,8 +40,6 @@ INSERT INTO settings (
         is_public,
         account_requests_enabled,
         admin_email,
-        mail_from_address,
-        mail_from_name,
         molecular_data_enabled
     )
 VALUES (
@@ -54,9 +50,7 @@ VALUES (
         $4,
         $5,
         $6,
-        $7,
-        $8,
-        $9
+        $7
     ) ON CONFLICT (id) DO NOTHING
 `
 
@@ -67,8 +61,6 @@ type InitSettingsParams struct {
 	IsPublic               bool    `json:"is_public"`
 	AccountRequestsEnabled bool    `json:"account_requests_enabled"`
 	AdminEmail             string  `json:"admin_email"`
-	MailFromAddress        string  `json:"mail_from_address"`
-	MailFromName           string  `json:"mail_from_name"`
 	MolecularDataEnabled   bool    `json:"molecular_data_enabled"`
 }
 
@@ -80,8 +72,6 @@ func (q *Queries) InitSettings(ctx context.Context, arg InitSettingsParams) erro
 		arg.IsPublic,
 		arg.AccountRequestsEnabled,
 		arg.AdminEmail,
-		arg.MailFromAddress,
-		arg.MailFromName,
 		arg.MolecularDataEnabled,
 	)
 	return err
@@ -118,20 +108,12 @@ SET app_name = COALESCE($1, app_name),
         $8,
         account_requests_enabled
     ),
-    mail_from_address = COALESCE(
-        $9,
-        mail_from_address
-    ),
-    mail_from_name = COALESCE(
-        $10,
-        mail_from_name
-    ),
     frontpage_message_md = CASE
-        WHEN $11::boolean THEN $12
+        WHEN $9::boolean THEN $10
         ELSE frontpage_message_md
     END
 WHERE id = 1
-RETURNING id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name, molecular_data_enabled, frontpage_message_md
+RETURNING id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, molecular_data_enabled, frontpage_message_md, admin_email
 `
 
 type UpdateInstanceSettingsParams struct {
@@ -143,8 +125,6 @@ type UpdateInstanceSettingsParams struct {
 	IsPublic               *bool   `json:"is_public"`
 	AdminEmail             *string `json:"admin_email"`
 	AccountRequestsEnabled *bool   `json:"account_requests_enabled"`
-	MailFromAddress        *string `json:"mail_from_address"`
-	MailFromName           *string `json:"mail_from_name"`
 	SetFrontpageMessageMD  bool    `json:"set_frontpage_message_md"`
 	FrontpageMessageMD     *string `json:"frontpage_message_md"`
 }
@@ -159,8 +139,6 @@ func (q *Queries) UpdateInstanceSettings(ctx context.Context, arg UpdateInstance
 		arg.IsPublic,
 		arg.AdminEmail,
 		arg.AccountRequestsEnabled,
-		arg.MailFromAddress,
-		arg.MailFromName,
 		arg.SetFrontpageMessageMD,
 		arg.FrontpageMessageMD,
 	)
@@ -172,11 +150,9 @@ func (q *Queries) UpdateInstanceSettings(ctx context.Context, arg UpdateInstance
 		&i.AppDescription,
 		&i.IsPublic,
 		&i.AccountRequestsEnabled,
-		&i.AdminEmail,
-		&i.MailFromAddress,
-		&i.MailFromName,
 		&i.MolecularDataEnabled,
 		&i.FrontpageMessageMD,
+		&i.AdminEmail,
 	)
 	return i, err
 }

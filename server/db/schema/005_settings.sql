@@ -6,12 +6,10 @@ CREATE TABLE IF NOT EXISTS settings (
     app_description TEXT,
     is_public BOOLEAN NOT NULL DEFAULT FALSE,
     account_requests_enabled BOOLEAN NOT NULL DEFAULT TRUE,
-    admin_email TEXT NOT NULL,
-    -- email settings
-    mail_from_address TEXT NOT NULL,
-    mail_from_name TEXT NOT NULL,
     -- feature flags
     molecular_data_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     -- dashboard
-    frontpage_message_md TEXT
-)
+    frontpage_message_md TEXT,
+    -- contact
+    admin_email TEXT NOT NULL
+);

@@ -21,12 +21,13 @@ import (
 )
 
 type SettingsController struct {
-	db      *db.DB
-	service *services.SettingsService
+	db           *db.DB
+	service      *services.SettingsService
+	emailService *services.EmailService
 }
 
-func NewSettingsController(db *db.DB, service *services.SettingsService) *SettingsController {
-	return &SettingsController{db: db, service: service}
+func NewSettingsController(db *db.DB, service *services.SettingsService, emailService *services.EmailService) *SettingsController {
+	return &SettingsController{db: db, service: service, emailService: emailService}
 }
 
 func (c *SettingsController) GetInstanceSettings(
@@ -69,11 +70,29 @@ func (c *SettingsController) UpdateInstanceSettings(
 	return nil, nil
 }
 
+func (c *SettingsController) GetEmailSettings(ctx context.Context, input *struct{}) (*BodyTransporter[models.Mailing], error) {
+	return &BodyTransporter[models.Mailing]{Body: c.emailService.GetSettings()}, nil
+}
+
+func (c *SettingsController) UpdateEmailSettings(ctx context.Context, input *BodyTransporter[models.UpsertMailingParams]) (*struct{}, error) {
+	if err := c.emailService.SaveSettings(ctx, c.db, input.Body); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (c *SettingsController) ToggleMailing(ctx context.Context, input *BodyTransporter[bool]) (*struct{}, error) {
+	if err := c.emailService.Toggle(ctx, c.db, input.Body); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 func (c *SettingsController) TestSMTP(
 	ctx context.Context,
 	input *struct{},
 ) (*BodyTransporter[bool], error) {
-	status, err := c.service.TestSMTPConnection(ctx)
+	status, err := c.emailService.TestConnection(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -175,17 +194,45 @@ func (c *SettingsController) RegisterRoutes(r *router.Router) {
 		WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).
 		Register(r)
 
+	router.NewSpec(settingsAPI,
+		"GetEmailSettings",
+		huma.Operation{
+			Path:    "/email",
+			Method:  http.MethodGet,
+			Summary: "Get email settings",
+		},
+		c.GetEmailSettings,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
+
+	router.NewSpec(settingsAPI,
+		"UpdateEmailSettings",
+		huma.Operation{
+			Path:    "/email",
+			Method:  http.MethodPut,
+			Summary: "Update email settings",
+		}, c.UpdateEmailSettings,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
+
+	router.NewSpec(settingsAPI,
+		"ToggleMailing",
+		huma.Operation{
+			Path:    "/email/toggle",
+			Method:  http.MethodPut,
+			Summary: "Toggle email sending on/off",
+		}, c.ToggleMailing,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
+
 	router.NewSpec(
 		settingsAPI,
 		"TestSMTPConnection",
 		huma.Operation{
-			Path:    "/smtp/test",
+			Path:    "/email/smtp/test",
 			Method:  http.MethodGet,
 			Summary: "Test SMTP connection",
 		},
 		c.TestSMTP,
 	).
-		WithAccessPolicy(auth.Authenticated()).
+		WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).
 		Register(r)
 
 	router.NewSpec(

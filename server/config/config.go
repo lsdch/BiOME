@@ -133,11 +133,18 @@ type AuthTokensConfig struct {
 	RefreshTokenPepper     string        `mapstructure:"REFRESH_TOKEN_PEPPER" validate:"required,min=8"`
 }
 
-type SMTPConfig struct {
-	SMTPHost     string `mapstructure:"SMTP_HOST" validate:"required,hostname"`
-	SMTPPort     uint   `mapstructure:"SMTP_PORT" validate:"required,port"`
-	SMTPUser     string `mapstructure:"SMTP_USER" validate:"required,min=3"`
-	SMTPPassword string `mapstructure:"SMTP_PASSWORD" validate:"required,min=3"`
+type MailTransportConfig struct {
+	MailFromAddress string `mapstructure:"MAIL_FROM_ADDRESS" validate:"required,email"`
+	MailFromName    string `mapstructure:"MAIL_FROM_NAME" validate:"required,min=3"`
+	SMTPHost        string `mapstructure:"SMTP_HOST" validate:"required,hostname"`
+	SMTPPort        uint   `mapstructure:"SMTP_PORT" validate:"required,port"`
+	SMTPUser        string `mapstructure:"SMTP_USER" validate:"required,min=3"`
+	SMTPPassword    string `mapstructure:"SMTP_PASSWORD" validate:"required,min=3"`
+}
+
+// Validate checks the environment seed only when mailing is first initialized.
+func (c MailTransportConfig) Validate() error {
+	return validate.Struct(c)
 }
 
 type InstanceConfig struct {
@@ -147,8 +154,6 @@ type InstanceConfig struct {
 	AdminEmail             string  `mapstructure:"ADMIN_EMAIL" validate:"required,email"`
 	IsPublic               bool    `mapstructure:"IS_PUBLIC"`
 	AccountRequestsEnabled bool    `mapstructure:"ACCOUNT_REQUESTS_ENABLED"`
-	MailFromAddress        string  `mapstructure:"MAIL_FROM_ADDRESS" validate:"required,email"`
-	MailFromName           string  `mapstructure:"MAIL_FROM_NAME" validate:"required,min=3"`
 	MolecularDataEnabled   bool    `mapstructure:"MOLECULAR_DATA_ENABLED"`
 }
 
@@ -164,20 +169,20 @@ type GBIFConfig struct {
 }
 
 type Config struct {
-	Instance             InstanceConfig   `mapstructure:"instance" validate:"required"`
-	appPublicBaseURL     string           `mapstructure:"APP_PUBLIC_BASE_URL" validate:"required,url"`
-	AppPublicBaseURL     url.URL          `json:"-"`
-	DB                   DBConfig         `mapstructure:"DB" validate:"required"`
-	RawFileStorageRoot   string           `mapstructure:"RAW_FILE_STORAGE_ROOT" validate:"required"`
-	SMTP                 SMTPConfig       `mapstructure:"SMTP" validate:"required"`
-	Env                  AppEnv           `mapstructure:"ENV" validate:"required,enum"`
-	API                  APIConfig        `mapstructure:"API" validate:"required"`
-	AuthTokens           AuthTokensConfig `mapstructure:"auth_tokens" validate:"required"`
-	GeneratedTokenLength uint             `mapstructure:"TOKEN_LENGTH" validate:"min=16"`
-	Geoapify             GeoapifyConfig   `mapstructure:"geoapify" validate:"required"`
-	GBIF                 GBIFConfig       `mapstructure:"gbif" validate:"required"`
-	Bootstrap            BootstrapConfig  `mapstructure:"bootstrap" validate:"required"`
-	CrossRef             crossref.Config  `mapstructure:"crossref" validate:"required"`
+	Instance             InstanceConfig      `mapstructure:"instance" validate:"required"`
+	appPublicBaseURL     string              `mapstructure:"APP_PUBLIC_BASE_URL" validate:"required,url"`
+	AppPublicBaseURL     url.URL             `json:"-"`
+	DB                   DBConfig            `mapstructure:"DB" validate:"required"`
+	RawFileStorageRoot   string              `mapstructure:"RAW_FILE_STORAGE_ROOT" validate:"required"`
+	SMTP                 MailTransportConfig `mapstructure:"SMTP" validate:"-"`
+	Env                  AppEnv              `mapstructure:"ENV" validate:"required,enum"`
+	API                  APIConfig           `mapstructure:"API" validate:"required"`
+	AuthTokens           AuthTokensConfig    `mapstructure:"auth_tokens" validate:"required"`
+	GeneratedTokenLength uint                `mapstructure:"TOKEN_LENGTH" validate:"min=16"`
+	Geoapify             GeoapifyConfig      `mapstructure:"geoapify" validate:"required"`
+	GBIF                 GBIFConfig          `mapstructure:"gbif" validate:"required"`
+	Bootstrap            BootstrapConfig     `mapstructure:"bootstrap" validate:"required"`
+	CrossRef             crossref.Config     `mapstructure:"crossref" validate:"required"`
 }
 
 func (c *Config) Validate() error {
@@ -224,6 +229,26 @@ func LoadConfig(dir string, name string) (Config, error) {
 	if err := v.Unmarshal(&cfg); err != nil {
 		return Config{}, err
 	}
+
+	// Accept the previous sender keys for existing installations during bootstrap.
+	if !v.IsSet("SMTP.MAIL_FROM_ADDRESS") {
+		cfg.SMTP.MailFromAddress = v.GetString("instance.MAIL_FROM_ADDRESS")
+	}
+	if !v.IsSet("SMTP.MAIL_FROM_NAME") {
+		cfg.SMTP.MailFromName = v.GetString("instance.MAIL_FROM_NAME")
+	}
+
+	// Unmarshal cannot populate an unexported field. Parse the configured base URL
+	// explicitly so invitation links contain the public application origin.
+	cfg.appPublicBaseURL = v.GetString("APP_PUBLIC_BASE_URL")
+	publicURL, err := url.Parse(cfg.appPublicBaseURL)
+	if err != nil {
+		return Config{}, fmt.Errorf("invalid APP_PUBLIC_BASE_URL: %w", err)
+	}
+	if (publicURL.Scheme != "http" && publicURL.Scheme != "https") || publicURL.Host == "" {
+		return Config{}, fmt.Errorf("APP_PUBLIC_BASE_URL must be an absolute HTTP(S) URL")
+	}
+	cfg.AppPublicBaseURL = *publicURL
 
 	if cfg.Env == EnvDev {
 		cfgJSON, _ := json.MarshalIndent(cfg, "", "\t")

@@ -14,7 +14,6 @@ import (
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/gomail.v2"
 )
 
 type SettingsService struct {
@@ -35,11 +34,9 @@ func (s *SettingsService) Bootstrap(ctx context.Context, q db.Querier) error {
 		IsPublic:               s.Config.Instance.IsPublic,
 		AccountRequestsEnabled: s.Config.Instance.AccountRequestsEnabled,
 		AdminEmail:             s.Config.Instance.AdminEmail,
-		MailFromAddress:        s.Config.Instance.MailFromAddress,
-		MailFromName:           s.Config.Instance.MailFromName,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to bootstrap settings: %v", err)
+		return fmt.Errorf("failed to bootstrap settings: %w", err)
 	}
 	return s.Reload(ctx, q)
 }
@@ -58,22 +55,18 @@ func (s *SettingsService) Reload(ctx context.Context, q db.Querier) error {
 	return nil
 }
 
-func (s *SettingsService) UpdateInstanceSettings(ctx context.Context, q db.Querier, input models.InstanceSettingsUpdate) error {
+// SaveSettings leaves cache publication to the caller after transaction commit.
+func (s *SettingsService) SaveSettings(ctx context.Context, q db.Querier, input models.InstanceSettingsUpdate) error {
 	_, err := q.Queries().UpdateInstanceSettings(ctx, input.ToParams())
+	return err
+}
+
+func (s *SettingsService) UpdateInstanceSettings(ctx context.Context, q db.Querier, input models.InstanceSettingsUpdate) error {
+	err := s.SaveSettings(ctx, q, input)
 	if err == nil {
 		err = s.Reload(ctx, q)
 	}
 	return err
-}
-
-func (s *SettingsService) TestSMTPConnection(ctx context.Context) (bool, error) {
-	dialer := gomail.NewDialer(s.Config.SMTP.SMTPHost, int(s.Config.SMTP.SMTPPort), s.Config.SMTP.SMTPUser, s.Config.SMTP.SMTPPassword)
-	closer, err := dialer.Dial()
-	if err != nil {
-		return false, err
-	}
-	closer.Close()
-	return true, nil
 }
 
 func (s *SettingsService) TogglePublicAccess(ctx context.Context, q db.Querier, isPublic bool) error {

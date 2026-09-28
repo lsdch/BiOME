@@ -18,6 +18,7 @@ import {
   createOccurrenceResponseTransformer,
   createSamplingResponseTransformer,
   getDatasetByIdResponseTransformer,
+  getEmailSettingsResponseTransformer,
   getImportBatchResponseTransformer,
   getImportBatchWithContentResponseTransformer,
   getImportStatusResponseTransformer,
@@ -131,6 +132,9 @@ import type {
   GetDatasetByIdData,
   GetDatasetByIdErrors,
   GetDatasetByIdResponses,
+  GetEmailSettingsData,
+  GetEmailSettingsErrors,
+  GetEmailSettingsResponses,
   GetFixativesResolutionData,
   GetFixativesResolutionErrors,
   GetFixativesResolutionResponses,
@@ -308,6 +312,9 @@ import type {
   TestSmtpConnectionData,
   TestSmtpConnectionErrors,
   TestSmtpConnectionResponses,
+  ToggleMailingData,
+  ToggleMailingErrors,
+  ToggleMailingResponses,
   TogglePublicAccessData,
   TogglePublicAccessErrors,
   TogglePublicAccessResponses,
@@ -318,6 +325,9 @@ import type {
   TrackImportStatusErrors,
   TrackImportStatusResponse,
   TrackImportStatusResponses,
+  UpdateEmailSettingsData,
+  UpdateEmailSettingsErrors,
+  UpdateEmailSettingsResponses,
   UpdateFixativeData,
   UpdateFixativeErrors,
   UpdateFixativeResponses,
@@ -2569,6 +2579,111 @@ export class BibliographyService {
 
 export class SettingsService {
   /**
+   * Get email settings
+   */
+  public static getEmailSettings<ThrowOnError extends boolean = false>(
+    options?: Options<GetEmailSettingsData, ThrowOnError>
+  ): RequestResult<GetEmailSettingsResponses, GetEmailSettingsErrors, ThrowOnError> {
+    return (options?.client ?? client).get<
+      GetEmailSettingsResponses,
+      GetEmailSettingsErrors,
+      ThrowOnError
+    >({
+      responseTransformer: getEmailSettingsResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/email',
+      ...options
+    })
+  }
+
+  /**
+   * Update email settings
+   */
+  public static updateEmailSettings<ThrowOnError extends boolean = false>(
+    options: Options<UpdateEmailSettingsData, ThrowOnError>
+  ): RequestResult<UpdateEmailSettingsResponses, UpdateEmailSettingsErrors, ThrowOnError> {
+    return (options.client ?? client).put<
+      UpdateEmailSettingsResponses,
+      UpdateEmailSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/email',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Test SMTP connection
+   */
+  public static testSmtpConnection<ThrowOnError extends boolean = false>(
+    options?: Options<TestSmtpConnectionData, ThrowOnError>
+  ): RequestResult<TestSmtpConnectionResponses, TestSmtpConnectionErrors, ThrowOnError> {
+    return (options?.client ?? client).get<
+      TestSmtpConnectionResponses,
+      TestSmtpConnectionErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/email/smtp/test',
+      ...options
+    })
+  }
+
+  /**
+   * Toggle email sending on/off
+   */
+  public static toggleMailing<ThrowOnError extends boolean = false>(
+    options: Options<ToggleMailingData, ThrowOnError>
+  ): RequestResult<ToggleMailingResponses, ToggleMailingErrors, ThrowOnError> {
+    return (options.client ?? client).put<
+      ToggleMailingResponses,
+      ToggleMailingErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/email/toggle',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
    * Get instance settings
    */
   public static getInstanceSettings<ThrowOnError extends boolean = false>(
@@ -2754,30 +2869,6 @@ export class SettingsService {
         'Content-Type': 'application/json',
         ...options.headers
       }
-    })
-  }
-
-  /**
-   * Test SMTP connection
-   */
-  public static testSmtpConnection<ThrowOnError extends boolean = false>(
-    options?: Options<TestSmtpConnectionData, ThrowOnError>
-  ): RequestResult<TestSmtpConnectionResponses, TestSmtpConnectionErrors, ThrowOnError> {
-    return (options?.client ?? client).get<
-      TestSmtpConnectionResponses,
-      TestSmtpConnectionErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/smtp/test',
-      ...options
     })
   }
 }

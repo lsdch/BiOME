@@ -6,31 +6,17 @@
     :readonly="connectionOK !== undefined"
     :color="btnProps.color"
     :prepend-icon="btnProps.prependIcon"
-    @click="testConnection(settings)"
+    @click="testConnection()"
   />
   <v-progress-circular v-if="testing" indeterminate />
 </template>
 
 <script setup lang="ts">
-import { EmailSettingsInput, SettingsService } from '@/api'
-import { computed, ref, watch } from 'vue'
-
-const props = defineProps<{ settings: EmailSettingsInput }>()
+import { SettingsService } from '@/api'
+import { computed } from 'vue'
 
 const testing = defineModel<boolean>('testing', { default: false })
 const connectionOK = defineModel<boolean | undefined>('connectionOK', { default: undefined })
-
-const abortController = ref(new AbortController())
-
-watch(
-  () => props.settings,
-  () => {
-    if (testing.value) abortController.value.abort()
-    testing.value = false
-    connectionOK.value = undefined
-  },
-  { deep: true }
-)
 
 const btnProps = computed(() => {
   switch (connectionOK.value) {
@@ -55,12 +41,11 @@ const btnProps = computed(() => {
   }
 })
 
-async function testConnection(settings: EmailSettingsInput) {
+async function testConnection() {
   testing.value = true
-  const { data: ok, error } = await SettingsService.testSmtp({
-    body: settings,
-    signal: abortController.value.signal
-  }).finally(() => (testing.value = false))
+  const { data: ok, error } = await SettingsService.testSmtpConnection().finally(
+    () => (testing.value = false)
+  )
   if (error) {
     console.error('Error testing SMTP connection', error)
   }

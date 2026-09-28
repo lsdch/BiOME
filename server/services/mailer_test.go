@@ -1,28 +1,36 @@
 package services
 
 import (
-	"context"
-	"errors"
-	"fmt"
 	"testing"
 
-	"github.com/lsdch/biome/lib/app_errors"
+	"github.com/lsdch/biome/config"
+	"github.com/lsdch/biome/models"
 	"github.com/stretchr/testify/require"
 )
 
-func TestUnavailableMailer(t *testing.T) {
-	cause := errors.New("SMTP connection refused")
-	for _, cause := range []error{nil, cause} {
-		mailer := NewUnavailableMailer(cause)
-		// An unavailable transport must fail before trying to render a template.
-		err := mailer.Send(context.Background(), "to@example.org", "from@example.org", "Test", nil)
-		require.ErrorIs(t, err, ErrMailerUnavailable)
-		if cause != nil {
-			require.ErrorIs(t, err, cause)
-			require.Contains(t, err.Error(), cause.Error())
-		}
-		appErr := app_errors.AsAppError(fmt.Errorf("send invitation: %w", err))
-		require.Equal(t, 503, appErr.GetStatus())
-		require.Equal(t, "Email service is unavailable", appErr.Detail)
-	}
+func TestEmailServiceCachedSettings(t *testing.T) {
+	service := NewEmailService(config.MailTransportConfig{})
+	_, err := service.Dialer()
+	require.ErrorIs(t, err, ErrMailerUnavailable)
+	host, password := "db.example.org", "secret"
+	port := int32(2525)
+	settings := models.Mailing{SmtpHost: &host, SmtpPort: &port, SmtpPassword: &password}
+	service.settings.Store(&settings)
+	snapshot := service.GetSettings()
+	*snapshot.SmtpHost = "mutated.example.org"
+	*snapshot.SmtpPassword = "mutated"
+	dialer, err := service.Dialer()
+	require.NoError(t, err)
+	require.Equal(t, host, dialer.Host)
+	require.Equal(t, int(port), dialer.Port)
+	require.Equal(t, password, dialer.Password)
+	next := service.GetSettings()
+	nextHost := "updated.example.org"
+	next.SmtpHost = &nextHost
+	next.SmtpPassword = nil
+	service.settings.Store(&next)
+	dialer, err = service.Dialer()
+	require.NoError(t, err)
+	require.Equal(t, nextHost, dialer.Host)
+	require.Empty(t, dialer.Password)
 }

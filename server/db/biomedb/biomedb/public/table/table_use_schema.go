@@ -29,6 +29,7 @@ func UseSchema(schema string) {
 	ImportSamplingsOccurrences = ImportSamplingsOccurrences.FromSchema(schema)
 	InvitationTokens = InvitationTokens.FromSchema(schema)
 	Invitations = Invitations.FromSchema(schema)
+	Mailing = Mailing.FromSchema(schema)
 	OccurrenceCodeHistory = OccurrenceCodeHistory.FromSchema(schema)
 	OccurrenceCollections = OccurrenceCollections.FromSchema(schema)
 	Occurrences = Occurrences.FromSchema(schema)

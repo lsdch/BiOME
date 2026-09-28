@@ -56,7 +56,7 @@ func NewPgxPool(ctx context.Context, cfg config.DBConfig) (*pgxpool.Pool, error)
 }
 
 type AppServices struct {
-	Mailer             services.Mailer
+	EmailService       *services.EmailService
 	AbioticService     *services.AbioticService
 	ImportBatchService *services.ImportBatchService
 	AuthService        *services.AuthService
@@ -93,8 +93,9 @@ func NewApp(config config.Config) *App {
 	database := db.NewDB(dbPool)
 	router := makeRouter(config.API)
 
+	emailService := services.NewEmailService(config.SMTP)
 	appServices := &AppServices{
-		Mailer:             services.NewEmailService(config.SMTP),
+		EmailService:       emailService,
 		AbioticService:     services.NewAbioticService(),
 		AuthService:        services.NewAuthService(config.AuthTokens),
 		SettingsService:    services.NewSettingsService(config),
@@ -174,7 +175,7 @@ func (a *App) RegisterRoutes() {
 		controllers.NewOccurrenceController(a.DB, a.Services.OccurrencesService),
 		controllers.NewAccountsController(a.DB, a.Services.AccountsService),
 		controllers.NewAuthController(a.DB, a.Services.AuthService),
-		controllers.NewSettingsController(a.DB, a.Services.SettingsService),
+		controllers.NewSettingsController(a.DB, a.Services.SettingsService, a.Services.EmailService),
 		controllers.NewLocationController(a.DB, a.Services.LocationService),
 		controllers.NewSamplingController(a.DB, a.Services.SamplingsService),
 		controllers.NewTaxonomyController(a.DB, a.Services.TaxonomyService),

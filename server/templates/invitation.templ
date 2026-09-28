@@ -7,7 +7,8 @@ import (
 
 type InvitationData struct {
 	Name       string
-	IssuerName string
+ Message    *string
+ IssuerName string
 	App        string
 	Role       string
 	URL        url.URL
@@ -18,7 +19,10 @@ func (d InvitationData) Subject() string {
 }
 
 templ invitationContent(d InvitationData) {
-	<p>Hi { d.Name },</p>
+	<p>Hello { d.Name },</p>
+ if d.Message != nil {
+ <p>{ *d.Message }</p>
+ }
 	<p>
 		You have been invited by { d.IssuerName } to create an account on { d.App } with
 		role '{ string(d.Role) }'.

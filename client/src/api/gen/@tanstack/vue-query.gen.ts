@@ -112,6 +112,9 @@ import type {
   GetDatasetByIdData,
   GetDatasetByIdError,
   GetDatasetByIdResponse,
+  GetEmailSettingsData,
+  GetEmailSettingsError,
+  GetEmailSettingsResponse,
   GetFixativesResolutionData,
   GetFixativesResolutionError,
   GetFixativesResolutionResponse,
@@ -289,12 +292,18 @@ import type {
   TestSmtpConnectionData,
   TestSmtpConnectionError,
   TestSmtpConnectionResponse,
+  ToggleMailingData,
+  ToggleMailingError,
+  ToggleMailingResponse,
   TogglePublicAccessData,
   TogglePublicAccessError,
   TogglePublicAccessResponse,
   TogglePublicRegistrationData,
   TogglePublicRegistrationError,
   TogglePublicRegistrationResponse,
+  UpdateEmailSettingsData,
+  UpdateEmailSettingsError,
+  UpdateEmailSettingsResponse,
   UpdateFixativeData,
   UpdateFixativeError,
   UpdateFixativeResponse,
@@ -2759,6 +2768,106 @@ export const createSamplingMutation = (
   return mutationOptions
 }
 
+export const getEmailSettingsQueryKey = (options?: Options<GetEmailSettingsData>) =>
+  createQueryKey('getEmailSettings', options)
+
+/**
+ * Get email settings
+ */
+export const getEmailSettingsOptions = (options?: Options<GetEmailSettingsData>) =>
+  queryOptions<
+    GetEmailSettingsResponse,
+    GetEmailSettingsError,
+    GetEmailSettingsResponse,
+    ReturnType<typeof getEmailSettingsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.getEmailSettings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getEmailSettingsQueryKey(options)
+  })
+
+/**
+ * Update email settings
+ */
+export const updateEmailSettingsMutation = (
+  options?: Partial<Options<UpdateEmailSettingsData>>
+): UseMutationOptions<
+  UpdateEmailSettingsResponse,
+  UpdateEmailSettingsError,
+  Options<UpdateEmailSettingsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateEmailSettingsResponse,
+    UpdateEmailSettingsError,
+    Options<UpdateEmailSettingsData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.updateEmailSettings({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const testSmtpConnectionQueryKey = (options?: Options<TestSmtpConnectionData>) =>
+  createQueryKey('testSmtpConnection', options)
+
+/**
+ * Test SMTP connection
+ */
+export const testSmtpConnectionOptions = (options?: Options<TestSmtpConnectionData>) =>
+  queryOptions<
+    TestSmtpConnectionResponse,
+    TestSmtpConnectionError,
+    TestSmtpConnectionResponse,
+    ReturnType<typeof testSmtpConnectionQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.testSmtpConnection({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: testSmtpConnectionQueryKey(options)
+  })
+
+/**
+ * Toggle email sending on/off
+ */
+export const toggleMailingMutation = (
+  options?: Partial<Options<ToggleMailingData>>
+): UseMutationOptions<ToggleMailingResponse, ToggleMailingError, Options<ToggleMailingData>> => {
+  const mutationOptions: UseMutationOptions<
+    ToggleMailingResponse,
+    ToggleMailingError,
+    Options<ToggleMailingData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.toggleMailing({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
 export const getInstanceSettingsQueryKey = (options?: Options<GetInstanceSettingsData>) =>
   createQueryKey('getInstanceSettings', options)
 
@@ -2939,31 +3048,6 @@ export const togglePublicRegistrationMutation = (
   }
   return mutationOptions
 }
-
-export const testSmtpConnectionQueryKey = (options?: Options<TestSmtpConnectionData>) =>
-  createQueryKey('testSmtpConnection', options)
-
-/**
- * Test SMTP connection
- */
-export const testSmtpConnectionOptions = (options?: Options<TestSmtpConnectionData>) =>
-  queryOptions<
-    TestSmtpConnectionResponse,
-    TestSmtpConnectionError,
-    TestSmtpConnectionResponse,
-    ReturnType<typeof testSmtpConnectionQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.testSmtpConnection({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: testSmtpConnectionQueryKey(options)
-  })
 
 export const getGbifKingdomsQueryKey = (options?: Options<GetGbifKingdomsData>) =>
   createQueryKey('getGbifKingdoms', options)

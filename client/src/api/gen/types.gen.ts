@@ -256,7 +256,7 @@ export type EventDatePrecision = 'day' | 'month' | 'year'
 /**
  * ExportFormat
  */
-export type ExportFormat = 'csv' | 'json' | 'dwc'
+export type ExportFormat = 'csv' | 'tsv' | 'json' | 'dwc'
 
 export type Fixative = {
   /**
@@ -538,8 +538,6 @@ export type InstanceSettings = {
   admin_email: string
   description?: string
   is_public: boolean
-  mail_from_address: string
-  mail_from_name: string
   molecular_data_enabled: boolean
   subtitle?: string
   title: string
@@ -552,8 +550,6 @@ export type InstanceSettingsUpdate = {
   readonly $schema?: string
   admin_email?: string
   description?: string | null
-  mail_from_address?: string
-  mail_from_name?: string
   subtitle?: string | null
   title?: string
 }
@@ -565,6 +561,21 @@ export type LoginResult = {
   readonly $schema?: string
   session: SessionTokens
   user: User
+}
+
+export type Mailing = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  enabled: boolean
+  last_updated: Date
+  mail_from_address: string
+  mail_from_name: string
+  smtp_host: string | null
+  smtp_password: string | null
+  smtp_port: number | null
+  smtp_user: string | null
 }
 
 export type MaterializationReadyCheck = {
@@ -1132,6 +1143,19 @@ export type TaxonWithFullLineage = {
   parent_taxon?: Taxon
   rank: TaxonRank
   status: TaxonStatus
+}
+
+export type UpsertMailingParams = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  mail_from_address: string
+  mail_from_name: string
+  smtp_host: string | null
+  smtp_password: string | null
+  smtp_port: number | null
+  smtp_user: string | null
 }
 
 export type User = {
@@ -3727,6 +3751,116 @@ export type CreateSamplingResponses = {
 
 export type CreateSamplingResponse = CreateSamplingResponses[keyof CreateSamplingResponses]
 
+export type GetEmailSettingsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/settings/email'
+}
+
+export type GetEmailSettingsErrors = {
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type GetEmailSettingsError = GetEmailSettingsErrors[keyof GetEmailSettingsErrors]
+
+export type GetEmailSettingsResponses = {
+  /**
+   * OK
+   */
+  200: Mailing
+}
+
+export type GetEmailSettingsResponse = GetEmailSettingsResponses[keyof GetEmailSettingsResponses]
+
+export type UpdateEmailSettingsData = {
+  body: UpsertMailingParams
+  path?: never
+  query?: never
+  url: '/settings/email'
+}
+
+export type UpdateEmailSettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type UpdateEmailSettingsError = UpdateEmailSettingsErrors[keyof UpdateEmailSettingsErrors]
+
+export type UpdateEmailSettingsResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type UpdateEmailSettingsResponse =
+  UpdateEmailSettingsResponses[keyof UpdateEmailSettingsResponses]
+
+export type TestSmtpConnectionData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/settings/email/smtp/test'
+}
+
+export type TestSmtpConnectionErrors = {
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type TestSmtpConnectionError = TestSmtpConnectionErrors[keyof TestSmtpConnectionErrors]
+
+export type TestSmtpConnectionResponses = {
+  /**
+   * OK
+   */
+  200: boolean
+}
+
+export type TestSmtpConnectionResponse =
+  TestSmtpConnectionResponses[keyof TestSmtpConnectionResponses]
+
+export type ToggleMailingData = {
+  body: boolean
+  path?: never
+  query?: never
+  url: '/settings/email/toggle'
+}
+
+export type ToggleMailingErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type ToggleMailingError = ToggleMailingErrors[keyof ToggleMailingErrors]
+
+export type ToggleMailingResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ToggleMailingResponse = ToggleMailingResponses[keyof ToggleMailingResponses]
+
 export type GetInstanceSettingsData = {
   body?: never
   path?: never
@@ -3931,32 +4065,6 @@ export type TogglePublicRegistrationResponses = {
 
 export type TogglePublicRegistrationResponse =
   TogglePublicRegistrationResponses[keyof TogglePublicRegistrationResponses]
-
-export type TestSmtpConnectionData = {
-  body?: never
-  path?: never
-  query?: never
-  url: '/settings/smtp/test'
-}
-
-export type TestSmtpConnectionErrors = {
-  /**
-   * Internal Server Error
-   */
-  500: AppError
-}
-
-export type TestSmtpConnectionError = TestSmtpConnectionErrors[keyof TestSmtpConnectionErrors]
-
-export type TestSmtpConnectionResponses = {
-  /**
-   * OK
-   */
-  200: boolean
-}
-
-export type TestSmtpConnectionResponse =
-  TestSmtpConnectionResponses[keyof TestSmtpConnectionResponses]
 
 export type GetGbifKingdomsData = {
   body?: never

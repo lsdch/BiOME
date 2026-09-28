@@ -11,8 +11,6 @@ INSERT INTO settings (
         is_public,
         account_requests_enabled,
         admin_email,
-        mail_from_address,
-        mail_from_name,
         molecular_data_enabled
     )
 VALUES (
@@ -23,8 +21,6 @@ VALUES (
         @is_public,
         @account_requests_enabled,
         @admin_email,
-        @mail_from_address,
-        @mail_from_name,
         @molecular_data_enabled
     ) ON CONFLICT (id) DO NOTHING;
 
@@ -44,14 +40,6 @@ SET app_name = COALESCE(sqlc.narg('app_name'), app_name),
     account_requests_enabled = COALESCE(
         sqlc.narg('account_requests_enabled'),
         account_requests_enabled
-    ),
-    mail_from_address = COALESCE(
-        sqlc.narg('mail_from_address'),
-        mail_from_address
-    ),
-    mail_from_name = COALESCE(
-        sqlc.narg('mail_from_name'),
-        mail_from_name
     ),
     frontpage_message_md = CASE
         WHEN @set_frontpage_message_md::boolean THEN sqlc.narg('frontpage_message_md')

@@ -2230,7 +2230,6 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/CSVDelimiter"
-          default: 	
       - name: quoteChar
         in: query
         explode: false
@@ -3324,6 +3323,105 @@ paths:
                 $ref: "#/components/schemas/AppError"
       x-policy:
         role: contributor
+  /settings/email:
+    get:
+      tags:
+      - Settings
+      summary: Get email settings
+      operationId: GetEmailSettings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mailing"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+    put:
+      tags:
+      - Settings
+      summary: Update email settings
+      operationId: UpdateEmailSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertMailingParams"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /settings/email/smtp/test:
+    get:
+      tags:
+      - Settings
+      summary: Test SMTP connection
+      operationId: TestSMTPConnection
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+  /settings/email/toggle:
+    put:
+      tags:
+      - Settings
+      summary: Toggle email sending on/off
+      operationId: ToggleMailing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: boolean
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
   /settings/instance:
     get:
       tags:
@@ -3521,26 +3619,6 @@ paths:
                 $ref: "#/components/schemas/AppError"
       x-policy:
         role: admin
-  /settings/smtp/test:
-    get:
-      tags:
-      - Settings
-      summary: Test SMTP connection
-      operationId: TestSMTPConnection
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: boolean
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/AppError"
-      x-policy: {}
   /taxonomy/gbif/kingdoms:
     get:
       tags:
@@ -4306,6 +4384,7 @@ components:
       title: ExportFormat
       enum:
       - csv
+      - tsv
       - json
       - dwc
     Fixative:
@@ -5002,10 +5081,6 @@ components:
           type: string
         is_public:
           type: boolean
-        mail_from_address:
-          type: string
-        mail_from_name:
-          type: string
         molecular_data_enabled:
           type: boolean
         subtitle:
@@ -5017,8 +5092,6 @@ components:
       - admin_email
       - is_public
       - account_requests_enabled
-      - mail_from_address
-      - mail_from_name
       - molecular_data_enabled
     InstanceSettingsUpdate:
       type: object
@@ -5034,10 +5107,6 @@ components:
         admin_email:
           type: string
         description:
-          type: string
-        mail_from_address:
-          type: string
-        mail_from_name:
           type: string
         subtitle:
           type: string
@@ -5110,6 +5179,44 @@ components:
       required:
       - user
       - session
+    Mailing:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/Mailing.json
+          readOnly: true
+        enabled:
+          type: boolean
+        last_updated:
+          type: string
+          format: date-time
+        mail_from_address:
+          type: string
+        mail_from_name:
+          type: string
+        smtp_host:
+          type: string
+        smtp_password:
+          type: string
+        smtp_port:
+          type: integer
+          format: int32
+        smtp_user:
+          type: string
+      required:
+      - enabled
+      - mail_from_address
+      - mail_from_name
+      - smtp_host
+      - smtp_port
+      - smtp_user
+      - smtp_password
+      - last_updated
     MaterializationReadyCheck:
       type: object
       additionalProperties: false
@@ -6376,6 +6483,37 @@ components:
       - name
       - rank
       - status
+    UpsertMailingParams:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/UpsertMailingParams.json
+          readOnly: true
+        mail_from_address:
+          type: string
+        mail_from_name:
+          type: string
+        smtp_host:
+          type: string
+        smtp_password:
+          type: string
+        smtp_port:
+          type: integer
+          format: int32
+        smtp_user:
+          type: string
+      required:
+      - mail_from_address
+      - mail_from_name
+      - smtp_host
+      - smtp_port
+      - smtp_user
+      - smtp_password
     User:
       type: object
       additionalProperties: false

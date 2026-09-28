@@ -728,6 +728,7 @@
 			"ExportFormat": {
 				"enum": [
 					"csv",
+					"tsv",
 					"json",
 					"dwc"
 				],
@@ -1671,12 +1672,6 @@
 					"is_public": {
 						"type": "boolean"
 					},
-					"mail_from_address": {
-						"type": "string"
-					},
-					"mail_from_name": {
-						"type": "string"
-					},
 					"molecular_data_enabled": {
 						"type": "boolean"
 					},
@@ -1692,8 +1687,6 @@
 					"admin_email",
 					"is_public",
 					"account_requests_enabled",
-					"mail_from_address",
-					"mail_from_name",
 					"molecular_data_enabled"
 				],
 				"type": "object"
@@ -1718,12 +1711,6 @@
 							"string",
 							"null"
 						]
-					},
-					"mail_from_address": {
-						"type": "string"
-					},
-					"mail_from_name": {
-						"type": "string"
 					},
 					"subtitle": {
 						"type": [
@@ -1759,6 +1746,69 @@
 				"required": [
 					"user",
 					"session"
+				],
+				"type": "object"
+			},
+			"Mailing": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Mailing.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"enabled": {
+						"type": "boolean"
+					},
+					"last_updated": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"mail_from_address": {
+						"type": "string"
+					},
+					"mail_from_name": {
+						"type": "string"
+					},
+					"smtp_host": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"smtp_password": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"smtp_port": {
+						"format": "int32",
+						"type": [
+							"integer",
+							"null"
+						]
+					},
+					"smtp_user": {
+						"type": [
+							"string",
+							"null"
+						]
+					}
+				},
+				"required": [
+					"enabled",
+					"mail_from_address",
+					"mail_from_name",
+					"smtp_host",
+					"smtp_port",
+					"smtp_user",
+					"smtp_password",
+					"last_updated"
 				],
 				"type": "object"
 			},
@@ -3532,6 +3582,60 @@
 					"name",
 					"rank",
 					"status"
+				],
+				"type": "object"
+			},
+			"UpsertMailingParams": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/UpsertMailingParams.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"mail_from_address": {
+						"type": "string"
+					},
+					"mail_from_name": {
+						"type": "string"
+					},
+					"smtp_host": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"smtp_password": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"smtp_port": {
+						"format": "int32",
+						"type": [
+							"integer",
+							"null"
+						]
+					},
+					"smtp_user": {
+						"type": [
+							"string",
+							"null"
+						]
+					}
+				},
+				"required": [
+					"mail_from_address",
+					"mail_from_name",
+					"smtp_host",
+					"smtp_port",
+					"smtp_user",
+					"smtp_password"
 				],
 				"type": "object"
 			},
@@ -7201,8 +7305,7 @@
 						"in": "query",
 						"name": "delimiter",
 						"schema": {
-							"$ref": "#/components/schemas/CSVDelimiter",
-							"default": "\t"
+							"$ref": "#/components/schemas/CSVDelimiter"
 						}
 					},
 					{
@@ -8937,6 +9040,166 @@
 				}
 			}
 		},
+		"/settings/email": {
+			"get": {
+				"operationId": "GetEmailSettings",
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Mailing"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get email settings",
+				"tags": [
+					"Settings"
+				],
+				"x-policy": {
+					"role": "admin"
+				}
+			},
+			"put": {
+				"operationId": "UpdateEmailSettings",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpsertMailingParams"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update email settings",
+				"tags": [
+					"Settings"
+				],
+				"x-policy": {
+					"role": "admin"
+				}
+			}
+		},
+		"/settings/email/smtp/test": {
+			"get": {
+				"operationId": "TestSMTPConnection",
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "boolean"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Test SMTP connection",
+				"tags": [
+					"Settings"
+				],
+				"x-policy": {
+					"role": "admin"
+				}
+			}
+		},
+		"/settings/email/toggle": {
+			"put": {
+				"operationId": "ToggleMailing",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "boolean"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/AppError"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Toggle email sending on/off",
+				"tags": [
+					"Settings"
+				],
+				"x-policy": {
+					"role": "admin"
+				}
+			}
+		},
 		"/settings/instance": {
 			"get": {
 				"operationId": "GetInstanceSettings",
@@ -9260,38 +9523,6 @@
 				"x-policy": {
 					"role": "admin"
 				}
-			}
-		},
-		"/settings/smtp/test": {
-			"get": {
-				"operationId": "TestSMTPConnection",
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "boolean"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/AppError"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Test SMTP connection",
-				"tags": [
-					"Settings"
-				],
-				"x-policy": {}
 			}
 		},
 		"/taxonomy/gbif/kingdoms": {
