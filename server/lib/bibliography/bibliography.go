@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"github.com/lsdch/biome/types"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var (
@@ -20,7 +22,7 @@ func ExtractAuthorString(verbatim string) string {
 		return ""
 	}
 
-	return strings.ToTitle(strings.Trim(strings.TrimSpace(m[1]), "."))
+	return cases.Title(language.Und).String(strings.Trim(strings.TrimSpace(m[1]), "."))
 }
 
 func ExtractYear(verbatim string) *int32 {
@@ -53,7 +55,7 @@ var (
 )
 
 // ParseAuthors transforms a raw author string into a slice of individual author names.
-// It handles various formats and separators, including commas, semicolons, and conjunctions like "and" or "&".
+// It handles various formats and separators, including commas, pipes, semicolons, and conjunctions like "and" or "&".
 //
 // The function also normalizes spaces and trims unnecessary punctuation from each author's name.
 //
@@ -62,6 +64,7 @@ var (
 //	"Smith J., Doe A."              -> ["Smith J.", "Doe A."]
 //	"Smith, J., Doe, A."            -> ["Smith, J.", "Doe, A."]
 //	"Smith J.; Doe A."              -> ["Smith J.", "Doe A."]
+//	"Smith, J.|Doe, A."             -> ["Smith, J.", "Doe, A."]
 //	"Smith J. and Doe A."           -> ["Smith J.", "Doe A."]
 func ParseAuthors(raw string) []string {
 	raw = normalizeSpaces(raw)
@@ -70,8 +73,8 @@ func ParseAuthors(raw string) []string {
 		return nil
 	}
 
-	// Non ambiguous separators: semicolon, "and", "&"
-	for _, sep := range []string{";", " and ", " & "} {
+	// Non ambiguous separators: pipe, semicolon, "and", "&"
+	for _, sep := range []string{"|", ";", " and ", " & "} {
 		if strings.Contains(strings.ToLower(raw), sep) {
 			return cleanAuthors(strings.Split(raw, sep))
 		}

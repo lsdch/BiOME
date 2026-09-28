@@ -29,6 +29,11 @@ func TestExtractAuthorString(t *testing.T) {
 			expected: "Smith J.,   Doe A",
 		},
 		{
+			name:     "title case with accented names",
+			verbatim: "WÄCHTLER W., élodie DUPONT 2020. Great paper.",
+			expected: "Wächtler W., Élodie Dupont",
+		},
+		{
 			name:     "no year",
 			verbatim: "Smith J., Doe A. Great paper.",
 			expected: "",
@@ -132,6 +137,21 @@ func TestParseAuthors(t *testing.T) {
 				"Smith J.",
 				"Doe A.",
 			},
+		},
+		{
+			name:     "pipe separated",
+			raw:      "Smith J.|Doe A.",
+			expected: []string{"Smith J.", "Doe A."},
+		},
+		{
+			name:     "pipe separated preserves commas within names",
+			raw:      "Smith, John | Doe, Alice",
+			expected: []string{"Smith, John", "Doe, Alice"},
+		},
+		{
+			name:     "pipe separated ignores empty entries and extra spaces",
+			raw:      " | Smith  J. || Doe A. | ",
+			expected: []string{"Smith J.", "Doe A."},
 		},
 		{
 			name: "semicolon separated",
