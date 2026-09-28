@@ -24,7 +24,7 @@ export const CoordPrecisionChip: FunctionalComponent<CoordPrecisionChipProps> = 
             class="font-monospace"
           />
         ),
-        default: () => precision ? `Precision within ${displayPrecision} ${unit} of provided coordinates` : 'Unknown coordinates precision'
+        default: () => precision ? `Position within ${displayPrecision} ${unit} of provided coordinates` : 'Unknown coordinates precision'
       }}
     </v-tooltip>
   )

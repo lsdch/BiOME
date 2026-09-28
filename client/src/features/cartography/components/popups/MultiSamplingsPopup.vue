@@ -39,6 +39,9 @@
             {{ cellContent[0].coordinates.latitude }}°N,
             {{ cellContent[0].coordinates.longitude }}°E
           </span>
+          <template #append>
+            <CoordPrecisionChip :precision="cellContent[0].coordinates.precision" size="small" />
+          </template>
         </v-list-item>
         <v-list-item
           v-if="cellContent[0].performed_on"
@@ -136,6 +139,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed, useTemplateRef } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { MappingFilters, mappingFiltersToQuery } from '../layers-manager/map-layers'
+import CoordPrecisionChip from '@/components/toolkit/ui/CoordPrecisionChip'
 
 type ListOccurrencesParams = ListSamplingsWithOccurrencesAtCellData['query']
 
