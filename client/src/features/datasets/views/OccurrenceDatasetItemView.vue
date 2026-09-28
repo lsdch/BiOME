@@ -6,6 +6,30 @@
     class="fill-height d-flex flex-column"
     flat
   >
+    <template #append>
+      <ExportDialogServer
+        :filename="dataset?.label"
+        @submit="
+          (options) => {
+            console.log(options)
+            exportOccurrences(options, {
+              datasets: [ulid]
+            })
+          }
+        "
+      >
+        <template #activator="{ props: activatorProps }">
+          <v-btn
+            prepend-icon="mdi-file-download"
+            text="Download"
+            variant="outlined"
+            rounded="md"
+            color=""
+            v-bind="activatorProps"
+          ></v-btn>
+        </template>
+      </ExportDialogServer>
+    </template>
     <!-- <template #subtitle>
     </template> -->
     <div class="d-flex flex-column flex-grow-1 min-h-0 overflow-y-auto">
@@ -80,7 +104,7 @@
           <OccurrencesTable :occurrences="datasetOccurrences?.items" />
         </v-tabs-window-item>
         <v-tabs-window-item value="import-batches" key="import-batches" class="fill-height">
-          <ImportBatchTable :data="importBatches" class="fill-height" />
+          <ImportBatchTable :batches="importBatches ?? []" class="fill-height" />
         </v-tabs-window-item>
       </v-tabs-window>
     </div>
@@ -95,6 +119,7 @@ import {
   listOccurrencesOptions,
   listSamplingsWithOccurrencesOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
+import ExportDialogServer from '@/components/toolkit/ui/exports/ExportDialogServer.vue'
 import DeckGlMap from '@/features/cartography/components/DeckGlMap.vue'
 import {
   automaticResolution,
@@ -105,6 +130,7 @@ import { hexgridLayerFromSpec } from '@/features/cartography/composables/hexgrid
 import ImportBatchTable from '@/features/import/components/ImportBatchTable.vue'
 import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
+import { exportOccurrences } from '@/lib/exports'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 import { v } from 'vue-router/dist/index-BN0B0y8a.js'

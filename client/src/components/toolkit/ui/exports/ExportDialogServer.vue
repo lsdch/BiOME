@@ -1,18 +1,12 @@
 <template>
-  <FormDialog v-model="dialog" :title btn-text="Download" @submit="emit('submit', model, suffix)">
+  <FormDialog v-model="dialog" :title btn-text="Download" @submit="emit('submit', options, suffix)">
     <template #activator="props">
       <slot name="activator" v-bind="props" />
     </template>
     <v-card-text class="py-3">
-      <v-select :items="items" v-model="model.format" item-value="value" label="Format" />
-      <v-text-field
-        :model-value="!!model.filename.length ? model.filename : filename"
-        @update:model-value="(f) => (model.filename = f)"
-        label="Filename"
-        :suffix="suffix"
-        required
-      />
-      <ExportFormCSV v-if="model.format === 'csv'" v-model="model.csvOptions" />
+      <v-select :items="items" v-model="format" item-value="value" label="Format" />
+      <v-text-field v-model="filename" label="Filename" :suffix="suffix" required />
+      <ExportFormCSV v-if="format === 'csv'" v-model="csvOptions" />
     </v-card-text>
   </FormDialog>
 </template>
@@ -22,10 +16,10 @@ import { ExportOptions } from '@/lib/exports.ts'
 import { computed, reactive } from 'vue'
 import FormDialog from '../../forms/FormDialog.vue'
 import ExportFormCSV from './ExportFormCSV.vue'
+import { ExportFormat } from '@/api/adapters.ts'
 
-const { title = 'Data export', filename = '' } = defineProps<{
+const { title = 'Data export' } = defineProps<{
   title?: string
-  filename?: string
 }>()
 
 const dialog = defineModel<boolean>('dialog')
@@ -35,35 +29,39 @@ const items = [
   { title: 'CSV / TSV', value: 'csv' }
 ]
 
-const model = defineModel<ExportOptions>({
+const format = defineModel<ExportFormat>('format', { default: 'json' })
+const filename = defineModel<string>('filename')
+const csvOptions = defineModel<ExportOptions['csvOptions']>('csvOptions', {
   default: () =>
     reactive({
-      format: 'json',
-      filename: '',
-      csvOptions: {
-        delimiter: '\t',
-        quoteChar: '"'
-      }
+      delimiter: '\t',
+      quoteChar: '"'
     })
 })
+
+const options = computed<ExportOptions>(() => ({
+  format: format.value,
+  filename: filename.value ?? '',
+  csvOptions: csvOptions.value
+}))
 
 const emit = defineEmits<{
   submit: [options: ExportOptions, suffix: string]
 }>()
 
 const suffix = computed<string>(() => {
-  switch (model.value.format) {
+  switch (format.value) {
     case 'json':
       return '.json'
     case 'csv':
-      switch (model.value.csvOptions.delimiter) {
+      switch (csvOptions.value.delimiter) {
         case '\t':
           return '.tsv'
         default:
           return '.csv'
       }
     default:
-      throw new Error(`Unknown format: ${model.value.format}`)
+      throw new Error(`Unknown format: ${format.value}`)
   }
 })
 </script>
