@@ -49,7 +49,9 @@ func (s *ExportService) Write(w io.Writer, data []models.SamplingWithOccurrences
 		if data == nil {
 			data = []models.SamplingWithOccurrences{}
 		}
-		return json.NewEncoder(w).Encode(data)
+		encoder := json.NewEncoder(w)
+		encoder.SetIndent("", "\t")
+		return encoder.Encode(data)
 	}
 	delimiter := ','
 	if options.Delimiter != "" {
