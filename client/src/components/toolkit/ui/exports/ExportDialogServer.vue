@@ -5,7 +5,13 @@
     </template>
     <v-card-text class="py-3">
       <v-select :items="items" v-model="model.format" item-value="value" label="Format" />
-      <v-text-field v-model="model.filename" label="Filename" :suffix="suffix" required />
+      <v-text-field
+        :model-value="!!model.filename.length ? model.filename : filename"
+        @update:model-value="(f) => (model.filename = f)"
+        label="Filename"
+        :suffix="suffix"
+        required
+      />
       <ExportFormCSV v-if="model.format === 'csv'" v-model="model.csvOptions" />
     </v-card-text>
   </FormDialog>
@@ -17,7 +23,10 @@ import { computed, reactive } from 'vue'
 import FormDialog from '../../forms/FormDialog.vue'
 import ExportFormCSV from './ExportFormCSV.vue'
 
-const { title = 'Data export' } = defineProps<{ title?: string }>()
+const { title = 'Data export', filename = '' } = defineProps<{
+  title?: string
+  filename?: string
+}>()
 
 const dialog = defineModel<boolean>('dialog')
 

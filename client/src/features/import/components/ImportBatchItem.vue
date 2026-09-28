@@ -5,8 +5,8 @@
     class="fill-height d-flex flex-column"
     flat
   >
-    <template #subtitle>
-      <v-chip label prepend-icon="mdi-file-arrow-up-down"></v-chip>
+    <template #subtitle v-if="batch">
+      <ImportBatchCreationChip :batch />
     </template>
     <template #append>
       <div class="d-flex align-center ga-2">
@@ -34,58 +34,29 @@
               @click="downloadRawFile()"
             >
             </v-list-item>
-            <v-list-item title="Export data" subtitle="Download structured data"> </v-list-item>
+            <ExportDialogServer
+              :filename="batch?.label"
+              @submit="
+                (options) =>
+                  exportOccurrences(options, {
+                    batches: [uuid]
+                  })
+              "
+            >
+              <template #activator="{ props: activatorProps }">
+                <v-list-item
+                  v-bind="activatorProps"
+                  title="Export data"
+                  subtitle="Download structured data"
+                >
+                </v-list-item>
+              </template>
+            </ExportDialogServer>
           </v-list>
         </v-menu>
       </div>
     </template>
     <div class="d-flex flex-column flex-grow-1 min-h-0 overflow-y-auto">
-      <!-- <v-container v-if="batch" class="bg-main flex-shrink-0" fluid>
-        <v-row>
-          <v-col cols="12">
-            <v-card>
-              <v-card-text>
-                {{ batch.description ?? 'No description provided.' }}
-              </v-card-text>
-              <v-divider></v-divider>
-              <v-list>
-                <v-list-item>
-                  <div class="d-flex ga-1">
-                    <v-chip v-for="person in batch.assembled_by" :text="person"></v-chip>
-                  </div>
-                  <template #append>
-                    <span class="text-muted">Assembled by</span>
-                  </template>
-                </v-list-item>
-                <v-list-item
-                  :subtitle="
-                    DateTime.fromJSDate(batch.created_at!).toLocaleString(DateTime.DATETIME_SHORT)
-                  "
-                >
-                  <template #title>
-                    <UserChip :user="batch?.created_by_user!" size="small" />
-                  </template>
-                  <template #append>
-                    <span class="text-muted">Submitted</span>
-                  </template>
-                </v-list-item>
-                <v-list-item
-                  :subtitle="
-                    DateTime.fromJSDate(batch.completed_at!).toLocaleString(DateTime.DATETIME_SHORT)
-                  "
-                >
-                  <template #title>
-                    <UserChip :user="batch?.completed_by_user!" size="small" />
-                  </template>
-                  <template #append>
-                    <span class="text-muted">Completed</span>
-                  </template>
-                </v-list-item>
-              </v-list>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container> -->
       <v-tabs v-model="tab" class="flex-shrink-0">
         <v-tab value="map" prepend-icon="mdi-map">Map</v-tab>
         <v-tab value="samplings" prepend-icon="mdi-map-marker">Samplings</v-tab>
@@ -137,6 +108,7 @@
 import { DownloadRawFileData } from '@/api'
 import {
   addImportBatchToDatasetMutation,
+  exportSamplingsWithOccurrencesOptions,
   getImportBatchWithContentOptions,
   listOccurrencesH3Options,
   listOccurrencesOptions,
@@ -156,6 +128,9 @@ import OccurrencesTable from '@/features/occurrences/components/tables/Occurrenc
 import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
+import ImportBatchCreationChip from './ImportBatchCreationChip.vue'
+import ExportDialogServer from '@/components/toolkit/ui/exports/ExportDialogServer.vue'
+import { exportOccurrences } from '@/lib/exports.ts'
 
 const { uuid } = defineProps<{
   uuid: UUID

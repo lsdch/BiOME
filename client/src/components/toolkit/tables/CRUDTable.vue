@@ -164,6 +164,7 @@
         <div class="d-flex align-center flex-grow-1">
           <slot name="footer.prepend-actions"></slot>
           <v-btn
+            v-if="exportable"
             variant="plain"
             size="small"
             prepend-icon="mdi-download"
@@ -236,6 +237,7 @@
 
     <!-- CSV export dialog -->
     <ExportDialog
+      v-if="exportable"
       v-model="exportDialog.open"
       v-bind="exportDialog.props"
       @ready="exportDialog.loading = false"
@@ -255,14 +257,13 @@
 >
 import { AppError, User, UserRole } from '@/api'
 import CRUDFeedback from '@/components/toolkit/CRUDFeedback.vue'
-import MetaChip from '@/components/toolkit/MetaChip'
 import ExportDialog from '@/components/toolkit/ui/ExportDialog.vue'
 import SortLastUpdatedBtn from '@/components/toolkit/ui/SortLastUpdatedBtn.vue'
 import { hasSlotContent } from '@/components/toolkit/vue-utils'
 import { useUserStore } from '@/stores/user'
 import { useArrayFilter, useClipboard, useToggle } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { Ref, UnwrapRef, reactive, ref, triggerRef, useSlots } from 'vue'
+import { Ref, UnwrapRef, ref, triggerRef, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { useDisplay } from 'vuetify'
 import { VDataTable } from 'vuetify/components'
@@ -278,6 +279,7 @@ type Props = TableProps<ItemType, ItemsQueryData, ItemsDeleteData> & {
   showExpand?: boolean
   loading?: boolean
   error?: AppError | null
+  exportable?: boolean
 }
 
 const { xs, smAndUp } = useDisplay()
@@ -286,9 +288,9 @@ const tableSlots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots
 const slotNames = Object.keys(tableSlots) as 'default'[]
 
-const items = defineModel<ItemType[]>('items', { default: reactive([]) })
-const selected = defineModel<string[]>('selected', { default: [] })
-const search = defineModel<Partial<Filters>>('search', { default: {} })
+const items = defineModel<ItemType[]>('items', { default: () => [] })
+const selected = defineModel<string[]>('selected', { default: () => [] })
+const search = defineModel<Partial<Filters>>('search', { default: () => ({}) })
 const { showExpand = true, ...props } = defineProps<Props>()
 const emit = defineEmits<{
   itemCreated: [item: ItemType, index: number]

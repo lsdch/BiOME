@@ -14,7 +14,7 @@
         {{ value }}
       </router-link>
     </template>
-    <template #item.created_at="{ value }">
+    <template #item.completed_at="{ value }">
       <span class="text-muted">{{
         DateTime.fromJSDate(value).toLocaleString(DateTime.DATETIME_SHORT)
       }}</span>
@@ -27,6 +27,7 @@
     </template>
 
     <template #expanded-row-footer-append="{ item }">
+      <ImportBatchCreationChip :batch="item" />
       <DeleteBtn
         title="Confirm deletion"
         @confirm="deleteBatch({ path: { id: item.id } }).then(() => refetch())"
@@ -64,6 +65,7 @@ import DeleteBtn from '@/components/toolkit/ui/DeleteBtn.vue'
 import UserChip from '@/features/users/components/UserChip'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { DateTime } from 'luxon'
+import ImportBatchCreationChip from '../components/ImportBatchCreationChip.vue'
 
 const { data, isPending, error, refetch } = useQuery(listImportBatchesWithContentOptions())
 
@@ -89,16 +91,8 @@ const headers: CRUDTableHeader<ImportBatchWithDetails>[] = [
     cellProps: { class: 'text-overline' }
   },
   {
-    key: 'created_by_user',
-    title: 'Submitted by'
-  },
-  {
     key: 'completed_at',
     title: 'Imported At'
-  },
-  {
-    key: 'completed_by_user',
-    title: 'Created by'
   }
 ]
 </script>
