@@ -353,6 +353,26 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
+    <template #footer.prepend>
+      <ExportDialogServer
+        @submit="
+          (options) => exportOccurrences(options, mappingFiltersToQuery(filters, 'occurrences'))
+        "
+        :disabled="isFetching"
+      >
+        <template #activator="{ props }">
+          <v-btn
+            prepend-icon="mdi-download"
+            text="Export occurrences"
+            variant="plain"
+            color="primary"
+            v-bind="props"
+          ></v-btn>
+        </template>
+        <!-- <v-btn icon="mdi-download" variant="text" color="primary" @click="exportData()" /> -->
+      </ExportDialogServer>
+      <v-spacer></v-spacer>
+    </template>
   </v-data-table-server>
 </template>
 
@@ -394,6 +414,8 @@ import { storeToRefs } from 'pinia'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { computed, onMounted, ref, toRef, watch } from 'vue'
 import { DataTableSortItem, FilterMatch } from 'vuetify'
+import ExportDialogServer from '@/components/toolkit/ui/exports/ExportDialogServer.vue'
+import { exportOccurrences } from '@/lib/exports'
 
 const { feedback } = useFeedback()
 const { user: currentUser } = storeToRefs(useUserStore())

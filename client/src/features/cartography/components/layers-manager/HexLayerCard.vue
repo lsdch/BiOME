@@ -122,7 +122,22 @@
             <v-card-text>
               <div class="d-flex justify-end">
                 <ExportDialogServer
-                  @submit="(options, suffix) => exportData(options)"
+                  @submit="
+                    (options) => {
+                      switch (layer.mode) {
+                        case 'occurrences':
+                          exportOccurrences(
+                            options,
+                            mappingFiltersToQuery(layer.filters, layer.mode)
+                          )
+                          break
+                        case 'samplings':
+                          throw new Error('Exporting samplings is not yet implemented')
+                        default:
+                          throw new Error(`Unknown mode: ${layer.mode}`)
+                      }
+                    }
+                  "
                   :disabled="remote.isFetching.value"
                 >
                   <template #activator="{ props }">
@@ -132,6 +147,7 @@
                       variant="tonal"
                       color="primary"
                       v-bind="props"
+                      :disabled="layer.mode !== 'occurrences'"
                     ></v-btn>
                   </template>
                   <!-- <v-btn icon="mdi-download" variant="text" color="primary" @click="exportData()" /> -->
@@ -163,9 +179,8 @@ import LayerDataFeed from './LayerDataFeed.vue'
 import { automaticResolution, HexLayerSpec, mappingFiltersToQuery } from './map-layers'
 import MarkerLayerStylePanel from './MarkerLayerStylePanel.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
-import ExportDialogServer, {
-  ExportOptions
-} from '@/components/toolkit/ui/exports/ExportDialogServer.vue'
+import { exportOccurrences, ExportOptions } from '@/lib/exports.ts'
+import ExportDialogServer from '@/components/toolkit/ui/exports/ExportDialogServer.vue'
 
 const layer = defineModel<HexLayerSpec>('layer', { required: true })
 const { zoom } = defineProps<{ zoom: number }>()
@@ -196,24 +211,6 @@ watch(
   },
   { immediate: true }
 )
-
-async function exportData(options: ExportOptions) {
-  const queryClient = client
-  const requestUrl = queryClient.buildUrl<ExportSamplingsWithOccurrencesData>({
-    url: '/occurrences/export',
-    query: {
-      filename: options.filename,
-      format: options.format,
-      delimiter: options.csvOptions.delimiter,
-      quoteChar: options.csvOptions.quoteChar,
-      taxa: layer.value.filters.taxa,
-      whole_clade: layer.value.filters.whole_clade,
-      countries: layer.value.filters.countries,
-      batches: layer.value.filters.batches
-    }
-  })
-  window.location.assign(requestUrl)
-}
 
 const remote = useQuery(
   computed(() => {
