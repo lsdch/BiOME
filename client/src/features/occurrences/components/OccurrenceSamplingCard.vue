@@ -85,12 +85,12 @@
 import { DateWithPrecision, Identification, SamplingWithDetails } from '@/api/adapters'
 import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.vue'
 import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
-import CountryChip from '@/features/site/components/CountryChip'
+import CountryChip from '@/components/toolkit/ui/CountryChip'
 import { useUserStore } from '@/stores/user'
 import { useSorted } from '@vueuse/core'
 import { computed } from 'vue'
 import CoordinatesChip from './CoordinatesChip'
-import CoordPrecisionChip from '@/features/site/components/CoordPrecisionChip'
+import CoordPrecisionChip from '@/components/toolkit/ui/CoordPrecisionChip'
 
 const { item } = defineProps<{
   item: { id: string } & SamplingWithDetails

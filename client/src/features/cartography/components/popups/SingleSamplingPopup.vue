@@ -56,8 +56,8 @@
 </template>
 
 <script setup lang="ts">
-import CoordPrecisionChip from '@/features/site/components/CoordPrecisionChip'
-import CountryChip from '@/features/site/components/CountryChip'
+import CoordPrecisionChip from '@/components/toolkit/ui/CoordPrecisionChip'
+import CountryChip from '@/components/toolkit/ui/CountryChip'
 import { useClipboard, useTimeoutFn, useToggle } from '@vueuse/core'
 
 const { item } = defineProps<{ item: Item }>()

@@ -96,7 +96,7 @@ import { computed, unref, watch } from 'vue'
 import { Coordinates } from '@/features/cartography/coordinates'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import GeoapifyStatusButton from '@/components/toolkit/services/geoapify/GeoapifyStatusButton.vue'
-import CountryChip from '@/features/site/components/CountryChip'
+import CountryChip from '@/components/toolkit/ui/CountryChip'
 import { SchemaBinding, useSchemaBinding } from '@/composables/schema'
 
 const locality = defineModel<string | null | undefined>('locality', { required: true })

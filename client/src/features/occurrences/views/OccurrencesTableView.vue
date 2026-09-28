@@ -383,7 +383,7 @@ import {
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import ImportBatchPicker from '@/features/import/components/ImportBatchPicker.vue'
 import TypeStatusPicker from '@/features/occurrences/components/TypeStatusPicker'
-import CountryChip from '@/features/site/components/CountryChip'
+import CountryChip from '@/components/toolkit/ui/CountryChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
 import { useFeedback } from '@/stores/feedback'

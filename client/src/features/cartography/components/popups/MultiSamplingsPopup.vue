@@ -128,7 +128,7 @@ import {
   listSamplingsWithOccurrencesAtCellOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
 import OccurrencesOverviewDialog from '@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue'
-import CountryChip from '@/features/site/components/CountryChip'
+import CountryChip from '@/components/toolkit/ui/CountryChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import { pluralize } from '@/lib/text'
