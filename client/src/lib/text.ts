@@ -14,6 +14,11 @@ export function pluralizeWithCount(
   return `${count || (zero ?? 0)} ${pluralize(count, singular, plural)}`
 }
 
-export function titleCase(str: string): string {
-  return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase())
+export function titleCase(value: string): string {
+  return value
+    .toLocaleLowerCase()
+    .replace(
+      /\p{L}[\p{L}\p{M}'’-]*/gu,
+      (word) => word.charAt(0).toLocaleUpperCase() + word.slice(1)
+    )
 }
