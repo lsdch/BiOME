@@ -1,6 +1,7 @@
 import { Taxon } from '@/api'
 import { FTaxonStatusIndicator } from '@/features/taxonomy/components/functionals'
 import LinkIconGBIF from '@/features/taxonomy/components/LinkIconGBIF'
+import { titleCase } from '@/lib/text'
 import { withModifiers } from 'vue'
 import { VChip } from 'vuetify/components'
 
@@ -38,9 +39,9 @@ export function TaxonChip({ taxon, short, ...chipProps }: TaxonChipProps) {
           >
             {{
               prepend: () =>
-                taxon.GBIF_ID ? (
+                taxon.gbif_id ? (
                   <LinkIconGBIF
-                    GBIF_ID={taxon.GBIF_ID}
+                    GBIF_ID={taxon.gbif_id}
                     variant="tonal"
                     size="x-small"
                     onClick={withModifiers(() => {}, ['stop'])}
@@ -51,8 +52,8 @@ export function TaxonChip({ taxon, short, ...chipProps }: TaxonChipProps) {
               default: () => (
                 <v-card-text>
                   <div class="d-flex justify-space-between">
-                    <v-chip text={taxon.status} class="ma-1" size="small" />
-                    <v-chip text={taxon.rank} class="ma-1" size="small" />
+                    <v-chip text={titleCase(taxon.status)} class="ma-1" size="small" />
+                    <v-chip text={titleCase(taxon.rank)} class="ma-1" size="small" />
                   </div>
                 </v-card-text>
               )

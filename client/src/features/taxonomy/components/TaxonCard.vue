@@ -18,9 +18,9 @@
       </template>
 
       <template #text>
-        <v-chip :text="taxon.rank" variant="outlined" class="mr-3" />
+        <v-chip :text="titleCase(taxon.rank)" variant="outlined" class="mr-3" />
         <v-chip
-          :text="taxon.status"
+          :text="titleCase(taxon.status)"
           variant="outlined"
           :color="taxonStatusIndicatorProps(taxon.status).color"
         />
@@ -199,6 +199,7 @@ import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import { FTaxonStatusIndicator, taxonStatusIndicatorProps } from './functionals'
 import LinkIconGBIF from './LinkIconGBIF'
+import { titleCase } from '@/lib/text'
 
 const { mdAndUp } = useDisplay()
 const { isGranted } = useUserStore()
