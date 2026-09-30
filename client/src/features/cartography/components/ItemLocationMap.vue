@@ -76,7 +76,7 @@
                 }
               ]"
             >
-              <template #item.sampling.distance_meters="{ value }">
+              <template #[`item.sampling.distance_meters`]="{ value }">
                 <DistanceDisplay :distance="value" />
               </template>
             </OccurrencesTable>
@@ -122,17 +122,17 @@
   </v-sheet>
 </template>
 
-<script setup lang="tsx" generic="Item extends DeepPartial<ItemWithCoordinates>">
+<script setup lang="ts" generic="Item extends DeepPartial<ItemWithCoordinates>">
 import { H3CellWithRichnessAndDistance } from '@/api/adapters.ts'
 import {
   listOccurrencesAtProximityOptions,
   listSamplingsH3AtProximityOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
+import { DistanceDisplay } from '@/components/toolkit/ui/DistanceDisplay.tsx'
 import OccurrencesOverviewDialog from '@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue'
 import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SampledTaxaTable from '@/features/occurrences/components/tables/SampledTaxaTable.vue'
 import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
-import { formatDistance } from '@/lib/distances'
 import { useQuery } from '@tanstack/vue-query'
 import { circle } from '@turf/turf'
 import { cellToLatLng } from 'h3-js'
@@ -144,10 +144,6 @@ import DeckGlMap from './DeckGlMap.vue'
 import { makeMarkerLayer, markerLayerFromSpec, PinMarker } from './layers-manager/map-layers'
 import SiteClusterPopup from './popups/MultiSamplingsPopup.vue'
 import ProximityRadiusSlider from './ProximityRadiusSlider.vue'
-
-const DistanceDisplay = (props: { distance: number }) => {
-  return <span class="font-monospace">{formatDistance(props.distance)}</span>
-}
 
 const item = defineModel<Item>('item')
 
@@ -189,7 +185,7 @@ function displayProximityRadius(radius: number) {
     data: c
   })
   map.value?.instance?.addLayer({
-    id: `proximity-radius-outline`,
+    id: 'proximity-radius-outline',
     type: 'line',
     source: `proximity-radius`,
     paint: {
