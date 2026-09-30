@@ -4069,7 +4069,6 @@ components:
           type: integer
           format: int32
       required:
-      - precision
       - latitude
       - longitude
     Country:

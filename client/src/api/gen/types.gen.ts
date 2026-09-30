@@ -105,7 +105,7 @@ export type CompositeDate = {
 export type CoordinatesWithPrecision = {
   latitude: number
   longitude: number
-  precision: number
+  precision?: number
 }
 
 export type Country = {

@@ -265,7 +265,7 @@ export const $CoordinatesWithPrecision = {
       type: 'integer'
     }
   },
-  required: ['precision', 'latitude', 'longitude'],
+  required: ['latitude', 'longitude'],
   type: 'object'
 } as const
 

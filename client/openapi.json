@@ -294,7 +294,6 @@
 					}
 				},
 				"required": [
-					"precision",
 					"latitude",
 					"longitude"
 				],
