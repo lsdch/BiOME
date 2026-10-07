@@ -1,64 +1,82 @@
-import { HabitatRecord, Sampling, SamplingInput, SamplingUpdate } from "@/api";
-import { DateWithPrecisionModel, toInput as DateWithPrecisionToInput, fromDateWithPrecision } from "@/models/date_with_precision";
-import { reactive, Reactive } from "vue";
+import {
+  CoordinatesWithPrecision,
+  DateWithPrecisionInput,
+  Sampling,
+  SamplingInput,
+  SiteInput
+} from '@/api'
+import {
+  DateWithPrecisionModel,
+  toInput as DateWithPrecisionToInput,
+  fromDateWithPrecision
+} from '@/models/date_with_precision'
 
-export type SamplingFormModel = Omit<{
-  [K in keyof SamplingInput]: K extends keyof Sampling ? Sampling[K] : never
-}, 'habitats' | 'performed_on'> & {
-  habitats?: HabitatRecord[],
-  performed_on: DateWithPrecisionModel
+export type SamplingCoreModel = {
+  coordinates: Partial<CoordinatesWithPrecision>
+  altitude?: number
+  performed_on?: DateWithPrecisionModel
 }
 
-export function initialModel(): Reactive<SamplingFormModel> {
-  return reactive({
-    performed_on: { precision: 'Day', date: {} }
-  })
+export type SamplingMetadataModel = {
+  access_points?: string[] | undefined
+  comments?: string | undefined
+  duration?: number
+  fixatives?: Array<string>
+  methods?: Array<string>
+  performed_by?: Array<string>
+  site: SiteInput
+  target_taxa?: Array<string>
+}
+
+export type SamplingModel = SamplingCoreModel & SamplingMetadataModel
+
+export function initialModel(): SamplingModel {
+  return {
+    site: {},
+    coordinates: {},
+    performed_on: { precision: 'day', date: {} }
+  }
 }
 
 export function fromSampling({
   duration,
   access_points,
-  fixatives,
-  habitats,
-  target_taxa,
   comments,
-  methods,
   performed_on,
   performed_by,
-}: Sampling): SamplingFormModel {
+  coordinates,
+  site
+}: Sampling): SamplingModel {
   return {
+    site: site,
     duration,
     access_points,
-    comments,
-    target_taxa,
-    habitats,
-    fixatives,
-    methods,
     performed_on: fromDateWithPrecision(performed_on),
-    performed_by: performed_by ?? [],
+    coordinates,
+    performed_by: performed_by ?? []
   }
 }
 
-export function toRequestBody({
-  duration,
-  access_points,
-  comments,
-  target_taxa,
-  habitats,
-  fixatives,
-  methods,
-  performed_on,
-  performed_by
-}: SamplingFormModel): SamplingInput {
-  return {
-    duration,
-    access_points,
-    comments,
-    target_taxa: target_taxa?.map(({ name }) => name),
-    habitats: habitats?.map(({ label }) => label),
-    fixatives: fixatives?.map(({ code }) => code),
-    methods: methods?.map(({ code }) => code),
-    performed_on: DateWithPrecisionToInput(performed_on),
-    performed_by: performed_by,
-  } satisfies SamplingUpdate
-}
+// export function toRequestBody({
+//   coordinates,
+//   site,
+//   duration,
+//   access_points,
+//   comments,
+//   target_taxa,
+//   fixatives,
+//   methods,
+//   performed_on,
+//   performed_by
+// }: SamplingModel): SamplingInput {
+//   if ()
+//   return {
+//     coordinates,
+//     site,
+//     duration,
+//     access_points,
+//     comments,
+//     performed_on: DateWithPrecisionToInput(performed_on),
+//     performed_by: performed_by
+//   } // satisfies SamplingUpdate
+// }

@@ -1,4 +1,4 @@
-import { H3CellWithRichness, ErrorModel } from '@/api'
+import { H3CellWithRichness, AppError } from '@/api'
 import { UseQueryReturnType } from '@tanstack/vue-query'
 import { computed, MaybeRef, shallowReactive, unref } from 'vue'
 import { BaseLayerSpec } from './map-layers'
@@ -11,7 +11,7 @@ export type CellMarkerData = ItemWithCoordinates & {
   samplings_count: number
 }
 
-const data = shallowReactive(new Map<UUID, UseQueryReturnType<H3CellWithRichness[], ErrorModel>>())
+const data = shallowReactive(new Map<UUID, UseQueryReturnType<H3CellWithRichness[], AppError>>())
 
 const anyLoading = computed(
   () => data.size > 0 && data.values().some((remote) => remote.isPending.value)
@@ -23,7 +23,7 @@ const allPending = computed(
 
 function registerLayer(
   dataFeed: MaybeRef<BaseLayerSpec>,
-  remote: UseQueryReturnType<H3CellWithRichness[], ErrorModel>
+  remote: UseQueryReturnType<H3CellWithRichness[], AppError>
 ) {
   data.set(unref(dataFeed).id, remote)
 }
@@ -32,7 +32,7 @@ function deleteLayer(id: UUID) {
   data.delete(id)
 }
 
-function layerData(id: UUID): UseQueryReturnType<H3CellWithRichness[], ErrorModel> | undefined {
+function layerData(id: UUID): UseQueryReturnType<H3CellWithRichness[], AppError> | undefined {
   return data.get(id)
 }
 

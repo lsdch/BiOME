@@ -4,11 +4,13 @@ import type {
   AddBibliographyCsvResponse,
   AddCuratorToDatasetResponse,
   CreateDatasetResponse,
+  CreateHabitatResponse,
   CreateOccurrenceAtSamplingResponse,
   CreateOccurrenceResponse,
   CreateSamplingResponse,
   GetDatasetByIdResponse,
   GetEmailSettingsResponse,
+  GetHabitatsResponse,
   GetImportBatchResponse,
   GetImportBatchWithContentResponse,
   GetImportStatusResponse,
@@ -159,6 +161,23 @@ export const listGeoapifyUsageResponseTransformer = async (
   return data
 }
 
+const habitatSchemaResponseTransformer = (data: any) => {
+  data.created_at = new Date(data.created_at)
+  return data
+}
+
+export const getHabitatsResponseTransformer = async (data: any): Promise<GetHabitatsResponse> => {
+  data = data.map((item: any) => habitatSchemaResponseTransformer(item))
+  return data
+}
+
+export const createHabitatResponseTransformer = async (
+  data: any
+): Promise<CreateHabitatResponse> => {
+  data = habitatSchemaResponseTransformer(data)
+  return data
+}
+
 const importBatchSchemaResponseTransformer = (data: any) => {
   if (data.completed_at) {
     data.completed_at = new Date(data.completed_at)
@@ -288,6 +307,9 @@ const codeHistoryEntrySchemaResponseTransformer = (data: any) => {
 }
 
 const samplingWithDetailsSchemaResponseTransformer = (data: any) => {
+  if (data.habitats) {
+    data.habitats = data.habitats.map((item: any) => habitatSchemaResponseTransformer(item))
+  }
   if (data.performed_on) {
     data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
   }

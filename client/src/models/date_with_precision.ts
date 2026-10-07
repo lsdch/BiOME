@@ -1,18 +1,16 @@
 import {
   $CompositeDate,
-  $EventDatePrecision,
   $DateWithPrecisionInput,
+  $EventDatePrecision,
   CompositeDate,
-  EventDatePrecision,
   DateWithPrecision,
-  DateWithPrecisionInput
+  DateWithPrecisionInput,
+  EventDatePrecision
 } from '@/api'
-import { reactive, Reactive } from 'vue'
 
-export type DatePrecisionModel = EventDatePrecision | 'Unknown'
 export type DateWithPrecisionModel = {
   date: CompositeDate
-  precision: DatePrecisionModel
+  precision: EventDatePrecision
 }
 
 export const $schema = {
@@ -26,11 +24,11 @@ export const $schema = {
   }
 }
 
-export function initialModel(): Reactive<DateWithPrecisionModel> {
-  return reactive({
+export function initialModel(): DateWithPrecisionModel {
+  return {
     date: {},
-    precision: 'Unknown'
-  })
+    precision: 'day'
+  }
 }
 
 export function fromDateWithPrecision(d?: DateWithPrecision): DateWithPrecisionModel {
@@ -42,12 +40,6 @@ export function fromDateWithPrecision(d?: DateWithPrecision): DateWithPrecisionM
     : initialModel()
 }
 
-export function toInput({
-  date,
-  precision
-}: DateWithPrecisionModel): DateWithPrecisionInput | undefined {
-  if (precision === 'Unknown') {
-    return undefined
-  }
+export function toInput({ date, precision }: DateWithPrecisionModel): DateWithPrecisionInput {
   return { date, precision }
 }

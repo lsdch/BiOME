@@ -1462,18 +1462,11 @@ type GeoapifyUsage struct {
 }
 
 type Habitat struct {
-	ID             uuid.UUID `json:"id"`
-	Label          string    `json:"label"`
-	Description    *string   `json:"description"`
-	HabitatGroupID uuid.UUID `json:"habitat_group_id"`
-}
-
-type HabitatGroup struct {
-	ID                uuid.UUID   `json:"id"`
-	Label             string      `json:"label"`
-	Description       *string     `json:"description"`
-	ExclusiveElements bool        `json:"exclusive_elements"`
-	ParentHabitatID   pgtype.UUID `json:"parent_habitat_id"`
+	ID          uuid.UUID `json:"id"`
+	Label       string    `json:"label"`
+	Facet       *string   `json:"facet"`
+	Description *string   `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type ImportBatch struct {
@@ -1638,6 +1631,14 @@ type OccurrencesStagingPublication struct {
 	ImportID     uuid.UUID   `json:"import_id"`
 	OccurrenceID types.ULID  `json:"occurrence_id"`
 	ResolutionID pgtype.UUID `json:"resolution_id"`
+}
+
+type PasswordResetToken struct {
+	TokenHash  string             `json:"token_hash"`
+	UserID     uuid.UUID          `json:"user_id"`
+	CreatedAt  time.Time          `json:"created_at"`
+	ExpiresAt  time.Time          `json:"expires_at"`
+	ConsumedAt pgtype.Timestamptz `json:"consumed_at"`
 }
 
 type Publication struct {
@@ -1805,6 +1806,11 @@ type SamplingsWithCountry struct {
 	CountryName          *string             `json:"country_name"`
 	CountryContinent     *string             `json:"country_continent"`
 	CountrySubcontinent  *string             `json:"country_subcontinent"`
+}
+
+type ServiceSetting struct {
+	ID             int32   `json:"id"`
+	GeoapifyAPIKey *string `json:"geoapify_api_key"`
 }
 
 type Setting struct {

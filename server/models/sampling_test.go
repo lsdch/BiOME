@@ -31,18 +31,22 @@ func TestProximityParamsPreserveExplicitZero(t *testing.T) {
 	require.Equal(t, input.ExcludeIds, input.ToParamsH3().ExcludeSamplingIds)
 }
 
-func TestHabitatGroupUpdateDistinguishesOmittedNullAndFalse(t *testing.T) {
-	input := HabitatGroupUpdate{}
-	require.False(t, input.HasUpdateInfos())
+func TestHabitatUpdateDistinguishesOmittedNullAndValue(t *testing.T) {
+	input := HabitatUpdate{}
 	omitted := input.ToDBParams(uuid.New())
-	require.False(t, omitted.SetParentHabitatID)
-	require.Nil(t, omitted.ExclusiveElements)
-	input.Depends.SetNull()
-	input.Exclusive = NewOptional(false)
-	params := input.ToDBParams(omitted.GroupID)
-	require.True(t, input.HasUpdateInfos())
-	require.True(t, params.SetParentHabitatID)
-	require.False(t, params.ParentHabitatID.Valid)
-	require.NotNil(t, params.ExclusiveElements)
-	require.False(t, *params.ExclusiveElements)
+	require.False(t, omitted.SetFacet)
+	require.False(t, omitted.SetDescription)
+	require.Nil(t, omitted.Label)
+	input.Facet.SetNull()
+	input.Description.SetNull()
+	cleared := input.ToDBParams(omitted.HabitatID)
+	require.True(t, cleared.SetFacet)
+	require.True(t, cleared.SetDescription)
+	require.Nil(t, cleared.Facet)
+	require.Nil(t, cleared.Description)
+	input.Facet = NewOptionalNull("Flow")
+	input.Description = NewOptionalNull("Running water")
+	updated := input.ToDBParams(omitted.HabitatID)
+	require.Equal(t, "Flow", *updated.Facet)
+	require.Equal(t, "Running water", *updated.Description)
 }

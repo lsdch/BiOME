@@ -66,6 +66,7 @@
                     label="Occurrences TSV file"
                     v-model="csv.file"
                     class="required"
+                    color=""
                     :rules="[(v) => !!v || 'File is required']"
                     filter-by-type="text/tab-separated-values, text/csv"
                   ></v-file-input>

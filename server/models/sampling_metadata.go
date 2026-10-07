@@ -65,10 +65,10 @@ func (i FixativeInput) ToDBParams() biomedb.CreateFixativeParams {
 }
 
 type SamplingMetadata struct {
-	SamplingMethods []SamplingMethod       `json:"methods,omitempty"`
-	Fixatives       []Fixative             `json:"fixatives,omitempty"`
-	TargetTaxa      []Taxon                `json:"target_taxa,omitempty"`
-	Habitats        []HabitatWithGroupName `json:"habitats,omitempty"`
+	SamplingMethods []SamplingMethod `json:"methods,omitempty"`
+	Fixatives       []Fixative       `json:"fixatives,omitempty"`
+	TargetTaxa      []Taxon          `json:"target_taxa,omitempty"`
+	Habitats        []Habitat        `json:"habitats,omitempty"`
 }
 
 type SamplingVocabUpdateParams struct {

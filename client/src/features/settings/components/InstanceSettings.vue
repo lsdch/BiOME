@@ -28,6 +28,14 @@
                 persistent-hint
                 v-bind="schema('title')"
               />
+              <v-text-field
+                v-model="proxy.value.subtitle"
+                label="Instance subtitle"
+                class="pb-4"
+                hint="The subtitle that is displayed in the navbar and front page"
+                persistent-hint
+                v-bind="schema('subtitle')"
+              />
               <v-textarea
                 v-model="proxy.value.description"
                 :rows="2"
@@ -47,7 +55,13 @@
               text="OK"
               @click="
                 mutateAsync(
-                  { body: { title: proxy.value.title, description: proxy.value.description } },
+                  {
+                    body: {
+                      title: proxy.value.title,
+                      subtitle: proxy.value.subtitle,
+                      description: proxy.value.description
+                    }
+                  },
                   { onSuccess: save }
                 )
               "
@@ -115,7 +129,7 @@ const {
 } = useMutation({
   ...updateInstanceSettingsMutation(),
   onSuccess: () => {
-    // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
+    queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
     reload()
     feedback({ message: 'Updated settings', type: 'success' })
   }
@@ -128,7 +142,7 @@ const {
 } = useMutation({
   ...togglePublicAccessMutation(),
   onSuccess: () => {
-    // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
+    queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
     reload()
     feedback({ message: 'Updated settings', type: 'success' })
   }
@@ -141,20 +155,11 @@ const {
 } = useMutation({
   ...togglePublicRegistrationMutation(),
   onSuccess: () => {
-    // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
+    queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
     reload()
     feedback({ message: 'Updated settings', type: 'success' })
   }
 })
-
-// async function setPublic(value: boolean | null) {
-//   if (value === null) return
-//   await mutateAsync({ body: { public: value } })
-// }
-
-async function submit(model: InstanceSettings) {
-  await mutateAsync({ body: model })
-}
 </script>
 
 <style scoped></style>

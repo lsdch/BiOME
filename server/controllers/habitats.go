@@ -22,34 +22,36 @@ func NewHabitatsController(db *db.DB, service *services.HabitatService) *Habitat
 	return &HabitatsController{db: db, service: service}
 }
 
-func (c *HabitatsController) GetHabitatGroups(ctx context.Context, _ *struct{}) (*BodyTransporter[[]models.HabitatGroupWithElements], error) {
-	groups, err := c.service.GetHabitatGroups(ctx, c.db)
+func (c *HabitatsController) GetHabitats(ctx context.Context, _ *struct{}) (*BodyTransporter[[]models.Habitat], error) {
+	habitats, err := c.service.GetHabitats(ctx, c.db)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[[]models.HabitatGroupWithElements]{Body: groups}, nil
+	return &BodyTransporter[[]models.Habitat]{Body: habitats}, nil
 }
 
-func (c *HabitatsController) AddHabitatGroup(ctx context.Context, group *BodyTransporter[models.HabitatGroupInput]) (*struct{}, error) {
+func (c *HabitatsController) AddHabitat(ctx context.Context, input *BodyTransporter[models.HabitatInput]) (*BodyTransporter[models.Habitat], error) {
+	habitat, err := c.service.CreateHabitat(ctx, c.db, input.Body)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[models.Habitat]{Body: habitat}, nil
+}
+
+func (c *HabitatsController) DeleteHabitat(ctx context.Context, input *UUIDInput) (*struct{}, error) {
 	return &struct{}{}, c.db.WithTx(ctx, func(tx *db.Tx) error {
-		return c.service.CreateHabitatGroup(ctx, tx, group.Body)
+		return c.service.DeleteHabitat(ctx, tx, input.ID)
 	})
 }
 
-func (c *HabitatsController) DeleteHabitatGroup(ctx context.Context, input *UUIDInput) (*struct{}, error) {
-	return &struct{}{}, c.db.WithTx(ctx, func(tx *db.Tx) error {
-		return c.service.DeleteHabitatGroup(ctx, tx, input.ID)
-	})
-}
-
-type UpdateHabitatGroupInput struct {
+type UpdateHabitatInput struct {
 	UUIDInput
-	Body models.HabitatGroupUpdate
+	Body models.HabitatUpdate
 }
 
-func (c *HabitatsController) UpdateHabitatGroup(ctx context.Context, input *UpdateHabitatGroupInput) (*struct{}, error) {
+func (c *HabitatsController) UpdateHabitat(ctx context.Context, input *UpdateHabitatInput) (*struct{}, error) {
 	return &struct{}{}, c.db.WithTx(ctx, func(tx *db.Tx) error {
-		return c.service.UpdateHabitatGroup(ctx, tx, input.ID, input.Body)
+		return c.service.UpdateHabitat(ctx, tx, input.ID, input.Body)
 	})
 }
 
@@ -58,45 +60,45 @@ func (c *HabitatsController) RegisterRoutes(r *router.Router) {
 
 	router.NewSpec(
 		habitatsAPI,
-		"GetHabitatGroups",
+		"GetHabitats",
 		huma.Operation{
 			Method:  http.MethodGet,
 			Path:    "/",
-			Summary: "Get all habitat groups with their elements",
+			Summary: "Get all habitats",
 		},
-		c.GetHabitatGroups,
+		c.GetHabitats,
 	).WithAccessPolicy(auth.Public()).Register(r)
 
 	router.NewSpec(
 		habitatsAPI,
-		"CreateHabitatGroup",
+		"CreateHabitat",
 		huma.Operation{
 			Method:  http.MethodPost,
 			Path:    "/",
-			Summary: "Create a new habitat group with its elements",
+			Summary: "Create a new habitat",
 		},
-		c.AddHabitatGroup,
+		c.AddHabitat,
 	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
 
 	router.NewSpec(
 		habitatsAPI,
-		"DeleteHabitatGroup",
+		"DeleteHabitat",
 		huma.Operation{
 			Method:  http.MethodDelete,
 			Path:    "/{id}",
-			Summary: "Delete a habitat group by its ID",
+			Summary: "Delete a habitat by its ID",
 		},
-		c.DeleteHabitatGroup,
+		c.DeleteHabitat,
 	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
 
 	router.NewSpec(
 		habitatsAPI,
-		"UpdateHabitatGroup",
+		"UpdateHabitat",
 		huma.Operation{
 			Method:  http.MethodPatch,
 			Path:    "/{id}",
-			Summary: "Update a habitat group by its ID",
+			Summary: "Update a habitat by its ID",
 		},
-		c.UpdateHabitatGroup,
+		c.UpdateHabitat,
 	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
 }

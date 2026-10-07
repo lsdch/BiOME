@@ -1,4 +1,4 @@
-import { ErrorModel, GeoapifyResult } from '@/api'
+import { AppError, GeoapifyResult } from '@/api'
 import { getGeoapifyStatusOptions, reverseGeocodeOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { Coordinates, MaybeCoordinates } from '@/features/cartography/coordinates'
 import { QueryObserverOptions, useQuery, useQueryClient } from '@tanstack/vue-query'
@@ -18,7 +18,7 @@ export const useGeoapify = defineStore('geoapify', () => {
   function reverseGeocodeQuery(
     coords: MaybeRef<MaybeCoordinates>,
     options?: Omit<
-      Partial<QueryObserverOptions<GeoapifyResult, ErrorModel, GeoapifyResult, any, any>>,
+      Partial<QueryObserverOptions<GeoapifyResult, AppError, GeoapifyResult, any, any>>,
       'enabled' | 'queryKey' | 'queryFn'
     > & {
       enabled?: MaybeRef<boolean>

@@ -5,9 +5,9 @@
 </template>
 
 <script setup lang="ts" generic="T">
-import { ErrorModel } from '@/api'
+import { AppError } from '@/api'
 
-defineProps<{ error: ErrorModel }>()
+defineProps<{ error: AppError }>()
 
 type ErrorInfos = {
   icon: string

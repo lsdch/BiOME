@@ -58,10 +58,10 @@ export type IdentificationModel = {
   identified_by?: string[]
   confer?: boolean
   addendum?: string
-  taxon?: Taxon
+  taxon_id?: UUID
 }
 
-const model = defineModel<Partial<IdentificationInput>>({ required: true })
+const model = defineModel<IdentificationModel>({ required: true })
 
 const { mode = 'Create' } = defineProps<FormProps>()
 

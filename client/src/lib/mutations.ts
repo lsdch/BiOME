@@ -1,5 +1,11 @@
-import { ErrorModel } from '@/api'
-import { joinPath, PathPrefix, Schema, useSchemaBinding } from '@/composables/schema'
+import { AppError } from '@/api'
+import {
+  joinPath,
+  PathPrefix,
+  Schema,
+  useSchemaBinding,
+  useSchemaErrors
+} from '@/composables/schema'
 import { useMutation, UseMutationOptions } from '@tanstack/vue-query'
 import { reactiveComputed } from '@vueuse/core'
 import { StatusCodes } from 'http-status-codes'
@@ -36,7 +42,7 @@ export type FormCreateMutation<
   InputSchema extends Schema = Schema,
   RData extends RequestData<ItemInput> = RequestData<ItemInput>
 > = {
-  mutation: UseMutationOptions<Item, ErrorModel, RData, any>
+  mutation: UseMutationOptions<Item, AppError, RData, any>
   schema: InputSchema
   initial: () => InputModel
   requestData: (model: InputModel) => RData
@@ -54,7 +60,7 @@ export type FormUpdateMutation<
   ItemID,
   RData extends RequestData<ItemUpdate> & { path: ItemID }
 > = {
-  mutation: UseMutationOptions<Item, ErrorModel, RData, any>
+  mutation: UseMutationOptions<Item, AppError, RData, any>
   schema: UpdateSchema
   itemToModel(item: Item): UpdateModel
   requestData: (item: Item, model: UpdateModel) => RData
@@ -71,13 +77,13 @@ export type FormUpdateMutation<
  * @returns Form mutation configuration to be used with the [CreateUpdateForm]({@link @/components/toolkit/forms/CreateUpdateForm.vue }) component
  */
 export function defineFormCreate<
-  Item extends {},
+  Item,
   ItemInput extends {},
   S extends Schema,
   RData extends RequestData<ItemInput>,
   InputModel extends {} = ItemInput
 >(
-  mutation: UseMutationOptions<Item, ErrorModel, RData, any>,
+  mutation: UseMutationOptions<Item, AppError, RData, any>,
   opts: {
     /**
      * Initial form model, which is used to populate the form with default values.
@@ -114,7 +120,7 @@ export function defineFormCreate<
  * @returns Form mutation configuration to be used with the [CreateUpdateForm]({@link @/components/toolkit/forms/CreateUpdateForm.vue }) component
  */
 export function defineFormUpdate<
-  Item extends {},
+  Item,
   ItemUpdate extends {},
   S extends Schema,
   RData extends RequestData<ItemUpdate> & { path: ItemID },
@@ -123,7 +129,7 @@ export function defineFormUpdate<
 >(
   mutation: UseMutationOptions<
     Item,
-    ErrorModel,
+    AppError,
     RData & RequestData<ItemUpdate> & { path: ItemID },
     any
   >,
@@ -206,16 +212,14 @@ export function useMutationForm<
     onSuccess(data) {
       onSuccess?.(data, 'Create')
       reset()
-    },
-    onError
+    }
   })
   const updateMutation = useMutation({
     ...update.mutation,
     onSuccess(data) {
       onSuccess?.(data, 'Edit')
       reset()
-    },
-    onError
+    }
   })
 
   const activeMutation = computed(() => (mode.value === 'Create' ? createMutation : updateMutation))
@@ -230,12 +234,6 @@ export function useMutationForm<
 
   function reset() {
     initModel(item.value)
-  }
-
-  function onError(err: ErrorModel) {
-    if (err.status && err.status !== StatusCodes.UNPROCESSABLE_ENTITY) {
-      schemaBindings.dispatchErrors(err)
-    }
   }
 
   const errors = computed(() => {

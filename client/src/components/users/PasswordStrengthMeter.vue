@@ -3,12 +3,12 @@
     :model-value="strength + 1"
     max="5"
     :color="colors[strength]"
-    height="12px"
+    height="10px"
     v-bind="$attrs"
   >
-    <template v-slot:default>
+    <!-- <template v-slot:default>
       <span class="meter-label text-black">{{ labels[strength] }}</span>
-    </template>
+    </template> -->
   </v-progress-linear>
 </template>
 
@@ -16,7 +16,7 @@
 defineProps<{ strength: number }>()
 
 const colors = ['red', 'orange', 'yellow', 'lime', 'green']
-const labels = ['Very weak', 'Weak', 'Acceptable', 'Good', 'Very good']
+// const labels = ['Very weak', 'Weak', 'Acceptable', 'Good', 'Very good']
 </script>
 
 <style scoped>

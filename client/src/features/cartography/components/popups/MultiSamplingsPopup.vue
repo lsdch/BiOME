@@ -1,6 +1,8 @@
 <template>
   <OccurrencesOverviewDialog
-    ref="dialog"
+    v-if="dialog"
+    v-model="dialog"
+    v-model:tab="dialogTab"
     :max-width="1200"
     :data="cellContent ?? []"
     :taxa="occurringTaxa"
@@ -9,20 +11,11 @@
   <v-card :min-width="250">
     <v-list density="compact">
       <slot name="prepend-item" />
-      <!-- <v-list-item
-        :title="pluralize(data?.length ?? 0, 'Site')"
-        prepend-icon="mdi-map-marker-multiple"
-        @click="() => dialog?.open?.('sites')"
-      >
-        <template #append>
-          <v-badge inline :content="data?.length ?? 0" color="primary" />
-        </template>
-      </v-list-item> -->
       <v-list-item
         v-if="data.samplings_count > 1"
         :title="pluralize(data?.samplings_count, 'Sampling event')"
         prepend-icon="mdi-package-down"
-        @click="() => !loading && dialog?.open?.('samplings')"
+        @click="() => !loading && openDialog('samplings')"
       >
         <template #append>
           <v-badge inline :content="data?.samplings_count" color="info" />
@@ -84,7 +77,7 @@
         v-else
         :title="pluralize(data?.occurrences_count ?? 0, 'Occurrence')"
         prepend-icon="mdi-crosshairs-gps"
-        @click="() => !loading && dialog?.open?.('occurrences')"
+        @click="() => !loading && openDialog('occurrences')"
       >
         <template #append>
           <v-badge inline :content="data?.occurrences_count" color="success" />
@@ -95,7 +88,7 @@
         v-if="data.occurring_taxa > 1"
         :title="pluralize(data.occurring_taxa, 'Sampled taxon', 'Sampled taxa')"
         prepend-icon="mdi-family-tree"
-        @click="() => !loading && dialog?.open?.('sampled_taxa')"
+        @click="() => !loading && openDialog('sampled_taxa')"
       >
         <template #append>
           <v-badge inline :content="data.occurring_taxa" color="" />
@@ -120,28 +113,33 @@
 </template>
 
 <script setup lang="ts">
-// import { SiteWithOccurrences } from '@/api'
-import {
-  DateWithPrecision,
-  H3CellWithRichness,
-  ListSamplingsWithOccurrencesAtCellData
-} from '@/api'
+import { DateWithPrecision, H3CellWithRichness } from '@/api'
 import {
   listOccurringTaxaAtCellOptions,
   listSamplingsWithOccurrencesAtCellOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
-import OccurrencesOverviewDialog from '@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue'
+import CoordPrecisionChip from '@/components/toolkit/ui/CoordPrecisionChip'
 import CountryChip from '@/components/toolkit/ui/CountryChip'
+// import OccurrencesOverviewDialog from '@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import { pluralize } from '@/lib/text'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, useTemplateRef } from 'vue'
+import { computed, defineAsyncComponent, ref, useTemplateRef } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { MappingFilters, mappingFiltersToQuery } from '../layers-manager/map-layers'
-import CoordPrecisionChip from '@/components/toolkit/ui/CoordPrecisionChip'
 
-type ListOccurrencesParams = ListSamplingsWithOccurrencesAtCellData['query']
+const OccurrencesOverviewDialog = defineAsyncComponent(
+  () => import('@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue')
+)
+
+const dialog = ref(false)
+const dialogTab = ref<'samplings' | 'occurrences' | 'sampled_taxa'>('samplings')
+
+function openDialog(tab: typeof dialogTab.value) {
+  dialogTab.value = tab
+  dialog.value = true
+}
 
 const { data, params, resolution } = defineProps<{
   data: H3CellWithRichness
@@ -149,8 +147,8 @@ const { data, params, resolution } = defineProps<{
   resolution: number
 }>()
 
-type DialogType = ComponentExposed<typeof OccurrencesOverviewDialog>
-const dialog = useTemplateRef<DialogType>('dialog')
+// type DialogType = ComponentExposed<typeof OccurrencesOverviewDialog>
+// const dialog = useTemplateRef<DialogType>('dialog')
 
 const { data: cellContent, isPending: loading } = useQuery(
   computed(() => ({

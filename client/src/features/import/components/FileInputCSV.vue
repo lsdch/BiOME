@@ -17,7 +17,7 @@ export type ImportDataCSV = {
 }
 
 const csv = defineModel<ImportDataCSV>({
-  default: () => ({ file: null, separator: ',', quotes: '"' })
+  default: () => ({ file: undefined, separator: ',', quotes: '"' })
 })
 
 defineProps<{

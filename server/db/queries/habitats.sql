@@ -1,67 +1,17 @@
--- name: InsertHabitatGroup :one
-INSERT INTO habitat_groups (label, exclusive_elements, parent_habitat_id)
-VALUES (
-        @label,
-        @exclusive_elements,
-        (
-            CASE
-                WHEN sqlc.narg('depends')::text IS NULL THEN NULL
-                ELSE (
-                    SELECT id
-                    FROM habitats h
-                    WHERE h.label = sqlc.narg('depends')::text
-                )
-            END
-        )
-    )
-RETURNING *;
-
--- name: InsertHabitatInGroup :one
-INSERT INTO habitats (
-        label,
-        description,
-        habitat_group_id
-    )
-VALUES (@label, @description, @habitat_group_id)
+-- name: InsertHabitat :one
+INSERT INTO habitats (label, facet, description)
+VALUES (@label, sqlc.narg('facet'), sqlc.narg('description'))
 RETURNING *;
 
 -- name: DeleteHabitatByID :exec
-DELETE FROM habitats
-WHERE id = @id;
-
--- name: DeleteHabitatGroup :exec
-DELETE FROM habitat_groups
-WHERE id = @id;
-
--- name: ListHabitatGroups :many
-SELECT g.*
-FROM habitat_groups g
-ORDER BY label;
+DELETE FROM habitats WHERE id = @id;
 
 -- name: ListHabitats :many
-SELECT *
-FROM habitats
-ORDER BY habitat_group_id,
-    label;
+SELECT * FROM habitats ORDER BY facet NULLS LAST, label;
 
 -- name: UpdateHabitat :exec
 UPDATE habitats
 SET label = COALESCE(sqlc.narg('label'), label),
-    description = CASE
-        WHEN @set_description::boolean THEN sqlc.narg('description')
-        ELSE description
-    END
+    facet = CASE WHEN @set_facet::boolean THEN sqlc.narg('facet') ELSE facet END,
+    description = CASE WHEN @set_description::boolean THEN sqlc.narg('description') ELSE description END
 WHERE id = @habitat_id;
-
--- name: UpdateHabitatGroupInfo :exec
-UPDATE habitat_groups
-SET label = COALESCE(sqlc.narg('label'), label),
-    exclusive_elements = COALESCE(
-        sqlc.narg('exclusive_elements'),
-        exclusive_elements
-    ),
-    parent_habitat_id = CASE
-        WHEN @set_parent_habitat_id::boolean THEN sqlc.narg('parent_habitat_id')
-        ELSE parent_habitat_id
-    END
-WHERE id = @group_id;

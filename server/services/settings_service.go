@@ -17,7 +17,8 @@ import (
 )
 
 type SettingsService struct {
-	settings atomic.Pointer[models.InstanceSettings]
+	instance atomic.Pointer[models.InstanceSettings]
+	services atomic.Pointer[models.ServiceSettings]
 	Config   config.Config
 }
 
@@ -38,21 +39,72 @@ func (s *SettingsService) Bootstrap(ctx context.Context, q db.Querier) error {
 	if err != nil {
 		return fmt.Errorf("failed to bootstrap settings: %w", err)
 	}
+	var apiKey *string
+	if s.Config.Geoapify.GeoApifyApiKey != "" {
+		key := s.Config.Geoapify.GeoApifyApiKey
+		apiKey = &key
+	}
+	if err := q.Queries().InitServiceSettings(ctx, apiKey); err != nil {
+		return fmt.Errorf("failed to bootstrap service settings: %w", err)
+	}
 	return s.Reload(ctx, q)
 }
 
 func (s *SettingsService) GetSettings() models.InstanceSettings {
-	return *s.settings.Load()
+	return *s.instance.Load()
 }
 
 func (s *SettingsService) Reload(ctx context.Context, q db.Querier) error {
 	settingsDB, err := q.Queries().GetSettings(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to reload settings: %v", err)
+		return fmt.Errorf("failed to reload settings: %w", err)
+	}
+	if err := s.ReloadServiceSettings(ctx, q); err != nil {
+		return err
 	}
 	settings := models.SettingsFromDB(settingsDB)
-	s.settings.Store(&settings)
+	s.instance.Store(&settings)
 	return nil
+}
+
+func (s *SettingsService) GetServiceSettings() models.ServiceSettings {
+	settings := s.services.Load()
+	if settings == nil {
+		return models.ServiceSettings{}
+	}
+	result := *settings
+	if result.GeoapifyAPIKey != nil {
+		key := *result.GeoapifyAPIKey
+		result.GeoapifyAPIKey = &key
+	}
+	return result
+}
+
+func (s *SettingsService) ReloadServiceSettings(ctx context.Context, q db.Querier) error {
+	settingsDB, err := q.Queries().GetServiceSettings(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to reload service settings: %w", err)
+	}
+	settings := models.ServiceSettingsFromDB(settingsDB)
+	s.services.Store(&settings)
+	return nil
+}
+
+// SaveServiceSettings leaves cache publication to the caller after transaction commit.
+// A nil GeoapifyAPIKey clears the stored key.
+func (s *SettingsService) SaveServiceSettings(ctx context.Context, q db.Querier, input models.ServiceSettings) error {
+	_, err := q.Queries().UpsertServiceSettings(ctx, input.GeoapifyAPIKey)
+	if err != nil {
+		return fmt.Errorf("failed to save service settings: %w", err)
+	}
+	return nil
+}
+
+func (s *SettingsService) UpdateServiceSettings(ctx context.Context, q db.Querier, input models.ServiceSettings) error {
+	if err := s.SaveServiceSettings(ctx, q, input); err != nil {
+		return err
+	}
+	return s.ReloadServiceSettings(ctx, q)
 }
 
 // SaveSettings leaves cache publication to the caller after transaction commit.

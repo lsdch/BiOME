@@ -33,38 +33,22 @@
 </template>
 
 <script setup lang="ts">
-import { PasswordInput } from '@/api'
-import { zxcvbn } from '@zxcvbn-ts/core'
-import { computed } from 'vue'
 import PasswordField from '@/components/toolkit/forms/PasswordField.vue'
+import { computed } from 'vue'
+import zxcvbn from 'zxcvbn'
 import PasswordStrengthMeter from './PasswordStrengthMeter.vue'
 
-const MIN_PWD_STRENGTH = 3
+const MIN_PWD_STRENGTH = 4
 
-const props = defineProps<{
-  email?: string
-  login?: string
-  identity?: {
-    first_name: string
-    last_name: string
-  }
-}>()
-
-const model = defineModel<PasswordInput>({
-  default: {
+const model = defineModel<{ password: string; password_confirmation: string }>({
+  default: () => ({
     password: '',
     password_confirmation: ''
-  }
-})
-
-const passwordSensitiveInputs = computed(() => {
-  return [props.email, props.login, props.identity?.first_name, props.identity?.last_name].filter(
-    (v): v is string => v !== undefined
-  )
+  })
 })
 
 const passwordStrength = computed(() => {
-  return zxcvbn(model.value.password, passwordSensitiveInputs.value).score
+  return zxcvbn(model.value.password).score
 })
 </script>
 

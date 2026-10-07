@@ -17,10 +17,11 @@ type habitatsTable struct {
 	postgres.Table
 
 	// Columns
-	ID             postgres.ColumnString
-	Label          postgres.ColumnString
-	Description    postgres.ColumnString
-	HabitatGroupID postgres.ColumnString
+	ID          postgres.ColumnString
+	Label       postgres.ColumnString
+	Facet       postgres.ColumnString
+	Description postgres.ColumnString
+	CreatedAt   postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -62,23 +63,25 @@ func newHabitatsTable(schemaName, tableName, alias string) *HabitatsTable {
 
 func newHabitatsTableImpl(schemaName, tableName, alias string) habitatsTable {
 	var (
-		IDColumn             = postgres.StringColumn("id")
-		LabelColumn          = postgres.StringColumn("label")
-		DescriptionColumn    = postgres.StringColumn("description")
-		HabitatGroupIDColumn = postgres.StringColumn("habitat_group_id")
-		allColumns           = postgres.ColumnList{IDColumn, LabelColumn, DescriptionColumn, HabitatGroupIDColumn}
-		mutableColumns       = postgres.ColumnList{LabelColumn, DescriptionColumn, HabitatGroupIDColumn}
-		defaultColumns       = postgres.ColumnList{IDColumn}
+		IDColumn          = postgres.StringColumn("id")
+		LabelColumn       = postgres.StringColumn("label")
+		FacetColumn       = postgres.StringColumn("facet")
+		DescriptionColumn = postgres.StringColumn("description")
+		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
+		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, FacetColumn, DescriptionColumn, CreatedAtColumn}
+		mutableColumns    = postgres.ColumnList{LabelColumn, FacetColumn, DescriptionColumn, CreatedAtColumn}
+		defaultColumns    = postgres.ColumnList{IDColumn, CreatedAtColumn}
 	)
 
 	return habitatsTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:             IDColumn,
-		Label:          LabelColumn,
-		Description:    DescriptionColumn,
-		HabitatGroupID: HabitatGroupIDColumn,
+		ID:          IDColumn,
+		Label:       LabelColumn,
+		Facet:       FacetColumn,
+		Description: DescriptionColumn,
+		CreatedAt:   CreatedAtColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

@@ -2,10 +2,10 @@
   <v-form @submit.prevent="submit" validate-on="blur lazy">
     <v-row>
       <v-col>
-        <PasswordField v-model="model.password" label="Your current password" />
+        <PasswordField v-model="current_password" label="Your current password" />
       </v-col>
     </v-row>
-    <PasswordFields v-model="model.new_password" />
+    <PasswordFields v-model="new_password" />
     <v-row>
       <v-col>
         <v-btn
@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { UpdatePasswordInput } from '@/api'
+import { PasswordUpdateParams } from '@/api'
 import { updatePasswordMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import PasswordFields from '@/components/users/PasswordFields.vue'
 import PasswordField from '@/components/toolkit/forms/PasswordField.vue'
@@ -35,12 +35,13 @@ import { useMutation } from '@tanstack/vue-query'
 import { StatusCodes } from 'http-status-codes'
 import { ref } from 'vue'
 
-const model = ref<UpdatePasswordInput>({
+const current_password = ref<string>('')
+const new_password = ref<{
+  password: string
+  password_confirmation: string
+}>({
   password: '',
-  new_password: {
-    password: '',
-    password_confirmation: ''
-  }
+  password_confirmation: ''
 })
 
 const { feedback } = useFeedback()
@@ -57,7 +58,12 @@ const { mutate, isPending, error } = useMutation({
 })
 
 function submit() {
-  mutate({ body: model.value })
+  mutate({
+    body: {
+      old_password: current_password.value,
+      new_password: new_password.value.password
+    }
+  })
 }
 </script>
 

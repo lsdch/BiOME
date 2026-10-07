@@ -85,41 +85,6 @@ const {
   returnObject = false
 } = defineProps<TaxonPickerProps<Multiple, ReturnObject>>()
 
-// const selectedTaxon = computed({
-//   get() {
-//     if (returnObject) {
-//       return model.value as Value<Taxon, true, Multiple>
-//     }
-//     if (multiple) {
-//       return ((_model.value as Taxon[] | undefined)?.filter((t) =>
-//         model.value?.includes(t[itemValue])
-//       ) ?? []) as Value<Taxon, true, true>
-//     }
-//     return _model.value as Value<Taxon, true, false>
-//   },
-//   set(taxon) {
-//     _model.value = taxon as Value<Taxon, ReturnObject, Multiple>
-//     console.log('selectedTaxon set', taxon)
-//     if (returnObject) {
-//       model.value = taxon as Value<Taxon, ReturnObject, Multiple>
-//       return
-//     }
-//     if (multiple) {
-//       console.log('multiple', taxon)
-//       model.value = (taxon as Taxon[]).map((t) => t[itemValue]) as Value<
-//         Taxon,
-//         ReturnObject,
-//         Multiple
-//       >
-//       console.log('model.value', model.value)
-//       return
-//     }
-//     model.value = (taxon as Taxon)?.[itemValue] as Value<Taxon, ReturnObject, Multiple>
-//   }
-// }) as WritableComputedRef<Value<Taxon, true, Multiple>>
-
-// const _model = ref<Value<Taxon, ReturnObject, Multiple>>()
-
 const search = ref<string>()
 const {
   data: items,
@@ -140,16 +105,6 @@ const {
     })
   }))
 )
-
-// TODO: Fix fix fuzzy search + highlight
-// https://github.com/vuetifyjs/vuetify/issues/4417
-
-// const keys: KeysDeclaration<TaxonWithParentRef> = ['name', 'rank', 'status']
-
-// const { highlight, filteredItems } = useFuzzyItemsFilter(keys, search, items, {
-//   threshold,
-//   limit
-// })
 </script>
 
 <style lang="scss">

@@ -114,7 +114,7 @@ func NewApp(config config.Config) *App {
 	appServices.FileStorage = fileStorage
 	appServices.ImportBatchService = services.NewImportBatchService(fileStorage)
 
-	appServices.AccountsService = services.NewAccountService(appServices.AuthService, config.Bootstrap)
+	appServices.AccountsService = services.NewAccountService(appServices.AuthService, config, emailService)
 
 	authMiddleware := middleware.NewAuthMiddleware(router.API, database, config.AuthTokens, appServices.AuthService)
 	router.API.UseMiddleware(authMiddleware.AuthN, authMiddleware.AuthZ)

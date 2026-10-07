@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { $HabitatGroupInput, $HabitatGroupUpdate, HabitatGroup } from '@/api'
+import { $HabitatGroupInput, $HabitatGroupUpdate, HabitatGroupWithElements } from '@/api'
 import {
   createHabitatGroupMutation,
   updateHabitatGroupMutation
@@ -30,7 +30,7 @@ import { computed } from 'vue'
 import HabitatGroupFormDialog from './HabitatGroupFormDialog.vue'
 
 const dialog = defineModel<boolean>('dialog')
-const item = defineModel<HabitatGroup>('item')
+const item = defineModel<HabitatGroupWithElements>('item')
 
 const { depends } = defineProps<FormDialogProps & { depends?: string }>()
 
@@ -43,15 +43,15 @@ const create = defineFormCreate(createHabitatGroupMutation(), {
 const update = defineFormUpdate(updateHabitatGroupMutation(), {
   itemToModel: HabitatModel.fromHabitatGroup,
   schema: $HabitatGroupUpdate,
-  requestData: ({ label }, model) => ({
-    path: { label },
+  requestData: ({ name }, model) => ({
+    path: { name },
     body: HabitatModel.toUpdateRequestBody(model)
   })
 })
 
 const { feedback } = useFeedback()
 const emit = defineEmits<{
-  success: [item: HabitatGroup]
+  success: [item: HabitatGroupWithElements]
 }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
@@ -68,7 +68,7 @@ const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
 
 const title = computed(() => {
   if (mode.value === 'Create') return 'Create habitat group'
-  return `Edit habitat group: ${item.value!.label}`
+  return `Edit habitat group: ${item.value!.name}`
 })
 </script>
 

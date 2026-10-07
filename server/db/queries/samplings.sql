@@ -89,11 +89,9 @@ WHERE st.sampling_id = @sampling_id::uuid;
 
 
 -- name: GetHabitatsAtEvent :many
-SELECT sqlc.embed(h),
-    sqlc.embed(hg)
+SELECT h.*
 FROM habitats h
     JOIN samplings_habitats sh ON sh.habitat_id = h.id
-    JOIN habitat_groups hg ON hg.id = h.habitat_group_id
 WHERE sh.sampling_id = @sampling_id::uuid;
 
 -- name: ListSamplingsH3AtProximity :many

@@ -26,23 +26,24 @@
 </template>
 
 <script setup lang="ts">
-import { AccountService, ErrorModel } from '@/api'
+// import { AccountService, AppError } from '@/api'
+import { AppError } from '@/api'
 import { useRouteQuery } from '@vueuse/router'
 import { computed, onMounted, Ref, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 const token = useRouteQuery<string>('token', undefined)
 
-const result = ref<true | ErrorModel>()
+const result = ref<true | AppError>()
 
-onMounted(async () => {
-  const { data, error } = await AccountService.confirmEmail({ query: { token: token.value } })
-  if (error) {
-    result.value = error
-  } else {
-    result.value = true
-  }
-})
+// onMounted(async () => {
+//   const { data, error } = await AccountService.confirmEmail({ query: { token: token.value } })
+//   if (error) {
+//     result.value = error
+//   } else {
+//     result.value = true
+//   }
+// })
 </script>
 
 <style scoped></style>

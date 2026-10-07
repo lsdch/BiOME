@@ -86,15 +86,15 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
       component: () => import('@/features/occurrences/views/OccurrencesTableView.vue'),
       meta: { title: 'Occurrences' }
     },
-    {
-      label: 'Sequences',
-      path: '/sequences',
-      name: 'sequences',
-      icon: 'mdi-dna',
-      hidden: !settings.molecular_data_enabled,
-      component: () => import('@/features/sequences/views/SequencesView.vue'),
-      meta: { title: 'Sequences' }
-    },
+    // {
+    //   label: 'Sequences',
+    //   path: '/sequences',
+    //   name: 'sequences',
+    //   icon: 'mdi-dna',
+    //   hidden: !settings.molecular_data_enabled,
+    //   component: () => import('@/features/sequences/views/SequencesView.vue'),
+    //   meta: { title: 'Sequences' }
+    // },
     {
       label: 'Data inputs',
       icon: 'mdi-file-upload',
@@ -182,16 +182,16 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
           component: () => import('@/features/registries/views/AbioticParametersView.vue'),
           meta: { title: 'Abiotic parameters' }
         },
-        { subgroup: 'Sequences', hidden: !settings.molecular_data_enabled },
-        {
-          label: 'Genes',
-          path: '/genes',
-          name: 'genes',
-          icon: 'mdi-tag',
-          hidden: !settings.molecular_data_enabled,
-          component: () => import('@/features/sequences/views/GenesView.vue'),
-          meta: { title: 'Genes' }
-        },
+        // { subgroup: 'Sequences', hidden: !settings.molecular_data_enabled },
+        // {
+        //   label: 'Genes',
+        //   path: '/genes',
+        //   name: 'genes',
+        //   icon: 'mdi-tag',
+        //   hidden: !settings.molecular_data_enabled,
+        //   component: () => import('@/features/sequences/views/GenesView.vue'),
+        //   meta: { title: 'Genes' }
+        // },
         { subgroup: 'Sources' },
         {
           label: 'Bibliography',

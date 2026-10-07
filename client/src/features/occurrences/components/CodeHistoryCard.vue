@@ -9,7 +9,7 @@
         <template #subtitle>
           <span class="text-caption text-muted">
             {{
-              DateTime.fromJSDate(item.time).toLocaleString(DateTime.DATETIME_MED, {
+              DateTime.fromJSDate(item.created_at).toLocaleString(DateTime.DATETIME_MED, {
                 locale: 'en-gb'
               })
             }}
@@ -27,17 +27,17 @@
 </template>
 
 <script setup lang="ts">
-import { CodeHistory } from '@/api'
+import { CodeHistoryEntry } from '@/api'
 import { useClipboard, useThrottleFn } from '@vueuse/core'
 import { DateTime } from 'luxon'
 import { computed, ref } from 'vue'
 
 const props = defineProps<{
-  codeHistory: CodeHistory[]
+  codeHistory: CodeHistoryEntry[]
 }>()
 
 const sortedHistory = computed(() => {
-  return props.codeHistory.toSorted((a, b) => b.time.getTime() - a.time.getTime())
+  return props.codeHistory.toSorted((a, b) => b.created_at.getTime() - a.created_at.getTime())
 })
 
 const { copy } = useClipboard()

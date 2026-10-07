@@ -1,16 +1,16 @@
 import {
-  HabitatGroup,
+  HabitatGroupWithElements,
   HabitatGroupInput,
   HabitatGroupUpdate,
   HabitatInput,
-  HabitatRecord
+  Habitat
 } from '@/api'
 import { Reactive, reactive } from 'vue'
 
 export type HabitatMutation = HabitatInput &
   (
     | {
-        initial: HabitatRecord
+        initial: Habitat
         operation: 'update' | 'delete' | 'keep'
       }
     | { operation: 'create' }
@@ -22,25 +22,24 @@ export type HabitatGroupModel = Omit<HabitatGroupInput, 'elements'> & {
 
 export function initialModel(): Reactive<HabitatGroupModel> {
   return reactive({
-    label: '',
-    elements: [{ operation: 'create', label: '', description: '' }]
+    name: '',
+    elements: [{ operation: 'create', name: '', description: '' }]
   })
 }
 
 export function fromHabitatGroup({
-  label,
-  depends,
-  exclusive_elements,
+  name,
+  parent_id,
+
   elements
-}: HabitatGroup): HabitatGroupModel {
+}: HabitatGroupWithElements): HabitatGroupModel {
   return {
-    label,
-    exclusive_elements,
+    name,
     elements: elements.map((habitat) => {
-      const { id, label, description } = habitat
+      const { id, name, description } = habitat
       return {
         id,
-        label,
+        name,
         description,
         initial: habitat,
         operation: 'keep'
@@ -52,35 +51,35 @@ export function fromHabitatGroup({
 export function toCreateRequestBody({ elements, ...model }: HabitatGroupModel): HabitatGroupInput {
   return {
     ...model,
-    elements: elements.map(({ label, description }) => ({ label, description }))
+    elements: elements.map(({ name, description }) => ({ name, description }))
   }
 }
 
 export function toUpdateRequestBody({
   elements,
-  label,
+  name,
   exclusive_elements
 }: HabitatGroupModel): HabitatGroupUpdate {
   return {
-    label,
+    name,
     exclusive_elements,
     ...elements.reduce<
-      Required<Pick<HabitatGroupUpdate, 'create_tags' | 'update_tags' | 'delete_tags'>>
+      Required<Pick<HabitatGroupUpdate, 'create_elements' | 'update_elements' | 'delete_elements'>>
     >(
-      (acc, { label, description, ...e }) => {
+      (acc, { name, description, ...e }) => {
         if (e.operation === 'create') {
-          acc.create_tags.push({ label, description })
+          acc.create_elements.push({ name, description })
         } else if (e.operation === 'update') {
-          acc.update_tags[e.initial.label] = { label, description }
+          acc.update_elements[e.initial.name] = { name, description }
         } else if (e.operation === 'delete') {
-          acc.delete_tags.push(e.initial.label)
+          acc.delete_elements.push(e.initial.name)
         }
         return acc
       },
       {
-        create_tags: [],
-        update_tags: {},
-        delete_tags: []
+        create_elements: [],
+        update_elements: {},
+        delete_elements: []
       }
     )
   }

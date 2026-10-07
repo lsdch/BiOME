@@ -55,16 +55,16 @@
 </template>
 
 <script setup lang="ts">
-import { PendingUserRequest } from '@/api'
+// import { PendingUserRequest } from '@/api'
 import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
 import { useToggle } from '@vueuse/core'
 
-defineProps<{ item: PendingUserRequest }>()
+defineProps<{ item: any }>()
 const selected = defineModel<boolean>('selected')
 
 const [active, toggleActive] = useToggle(false)
 
-const emit = defineEmits<{ invite: [item: PendingUserRequest] }>()
+const emit = defineEmits<{ invite: [item: any] }>()
 </script>
 
 <style scoped></style>

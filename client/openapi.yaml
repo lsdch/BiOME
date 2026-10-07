@@ -77,6 +77,152 @@ paths:
                 $ref: "#/components/schemas/AppError"
       x-policy:
         role: admin
+  /accounts/password:
+    put:
+      tags:
+      - Accounts
+      summary: Change the current user's password
+      description: Requires the current password. Revokes all sessions, including the current session, and invalidates reset tokens. Sign in again after success.
+      operationId: UpdatePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordUpdateParams"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "403":
+          description: Forbidden
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /accounts/password-reset:
+    post:
+      tags:
+      - Accounts
+      summary: Set a new password using a reset token
+      description: Consumes the reset token, invalidates other reset tokens and revokes existing sessions.
+      operationId: ResetPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetInputBody"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /accounts/password-reset/request:
+    post:
+      tags:
+      - Accounts
+      summary: Request a password reset email
+      description: Returns the same empty response for existing, unknown and inactive accounts.
+      operationId: RequestPasswordReset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequestInputBody"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "503":
+          description: Service Unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
+  /accounts/password-reset/verify:
+    post:
+      tags:
+      - Accounts
+      summary: Verify a password reset token
+      description: Checks token validity and account activity without consuming the token or extending its expiration. Password submission still revalidates the token.
+      operationId: VerifyPasswordResetToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetVerificationInputBody"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy: {}
   /auth/login:
     post:
       tags:
@@ -741,8 +887,8 @@ paths:
     get:
       tags:
       - Habitats
-      summary: Get all habitat groups with their elements
-      operationId: GetHabitatGroups
+      summary: Get all habitats
+      operationId: GetHabitats
       responses:
         "200":
           description: OK
@@ -751,7 +897,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/HabitatGroupWithElements"
+                  $ref: "#/components/schemas/Habitat"
         "500":
           description: Internal Server Error
           content:
@@ -762,17 +908,21 @@ paths:
     post:
       tags:
       - Habitats
-      summary: Create a new habitat group with its elements
-      operationId: CreateHabitatGroup
+      summary: Create a new habitat
+      operationId: CreateHabitat
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/HabitatGroupInput"
+              $ref: "#/components/schemas/HabitatInput"
         required: true
       responses:
-        "204":
-          description: No Content
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Habitat"
         "422":
           description: Unprocessable Entity
           content:
@@ -791,8 +941,8 @@ paths:
     delete:
       tags:
       - Habitats
-      summary: Delete a habitat group by its ID
-      operationId: DeleteHabitatGroup
+      summary: Delete a habitat by its ID
+      operationId: DeleteHabitat
       parameters:
       - name: id
         in: path
@@ -820,8 +970,8 @@ paths:
     patch:
       tags:
       - Habitats
-      summary: Update a habitat group by its ID
-      operationId: UpdateHabitatGroup
+      summary: Update a habitat by its ID
+      operationId: UpdateHabitat
       parameters:
       - name: id
         in: path
@@ -833,7 +983,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/HabitatGroupUpdate"
+              $ref: "#/components/schemas/HabitatUpdate"
         required: true
       responses:
         "204":
@@ -3619,6 +3769,55 @@ paths:
                 $ref: "#/components/schemas/AppError"
       x-policy:
         role: admin
+  /settings/services:
+    get:
+      tags:
+      - Settings
+      summary: Get external service settings
+      operationId: GetServiceSettings
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceSettings"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
+    put:
+      tags:
+      - Settings
+      summary: Update external service settings
+      operationId: UpdateServiceSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceSettings"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: admin
   /taxonomy/gbif/kingdoms:
     get:
       tags:
@@ -4663,7 +4862,19 @@ components:
       type: object
       additionalProperties: false
       properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/Habitat.json
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
         description:
+          type: string
+        facet:
           type: string
         id:
           type: string
@@ -4672,128 +4883,51 @@ components:
       required:
       - id
       - name
-    HabitatGroupInput:
-      type: object
-      additionalProperties: false
-      properties:
-        $schema:
-          type: string
-          description: A URL to the JSON Schema for this object.
-          format: uri
-          examples:
-          - /api/v1/schemas/HabitatGroupInput.json
-          readOnly: true
-        depends:
-          type: string
-          description: Habitat tag that this group is a refinement of
-          examples:
-          - Aquatic, Surface
-        elements:
-          type: array
-          items:
-            $ref: "#/components/schemas/HabitatInput"
-          minItems: 1
-        exclusive_elements:
-          type: boolean
-        label:
-          type: string
-          description: Name for the group of habitat tags
-          examples:
-          - Water flow
-          minLength: 3
-          maxLength: 32
-      required:
-      - label
-      - elements
-    HabitatGroupUpdate:
-      type: object
-      additionalProperties: false
-      properties:
-        $schema:
-          type: string
-          description: A URL to the JSON Schema for this object.
-          format: uri
-          examples:
-          - /api/v1/schemas/HabitatGroupUpdate.json
-          readOnly: true
-        create_elements:
-          type: array
-          items:
-            $ref: "#/components/schemas/HabitatInput"
-        delete_elements:
-          type: array
-          items:
-            type: string
-        depends:
-          type: string
-        exclusive_elements:
-          type: boolean
-        label:
-          type: string
-        update_elements:
-          type: object
-          additionalProperties:
-            $ref: "#/components/schemas/HabitatUpdate"
-    HabitatGroupWithElements:
-      type: object
-      additionalProperties: false
-      properties:
-        description:
-          type: string
-        elements:
-          type: array
-          items:
-            $ref: "#/components/schemas/Habitat"
-        id:
-          type: string
-        name:
-          type: string
-        parent_id:
-          type: string
-      required:
-      - elements
-      - id
-      - name
+      - created_at
     HabitatInput:
       type: object
       additionalProperties: false
       properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/HabitatInput.json
+          readOnly: true
         description:
           type: string
-          description: Optional habitat description
-        label:
+          maxLength: 4000
+        facet:
           type: string
-          description: A short label for the habitat.
-          examples:
-          - Lotic
-          minLength: 3
-          maxLength: 32
+          description: Optional facet name
+          minLength: 1
+        name:
+          type: string
+          description: Habitat name
+          minLength: 1
       required:
-      - label
+      - name
     HabitatUpdate:
       type: object
       additionalProperties: false
       properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/HabitatUpdate.json
+          readOnly: true
         description:
           type: string
-        label:
+          maxLength: 4000
+        facet:
           type: string
-    HabitatWithGroupName:
-      type: object
-      additionalProperties: false
-      properties:
-        description:
-          type: string
-        group_name:
-          type: string
-        id:
-          type: string
+          minLength: 1
         name:
           type: string
-      required:
-      - group_name
-      - id
-      - name
+          minLength: 1
     Identification:
       type: object
       additionalProperties: false
@@ -5509,6 +5643,93 @@ components:
       required:
       - items
       - total_count
+    PasswordResetInputBody:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/PasswordResetInputBody.json
+          readOnly: true
+        new_password:
+          type: string
+          description: New password (maximum 72 bytes)
+          minLength: 1
+          maxLength: 72
+          writeOnly: true
+        token:
+          type: string
+          description: Password reset token received by email
+          minLength: 1
+      required:
+      - token
+      - new_password
+    PasswordResetRequestInputBody:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/PasswordResetRequestInputBody.json
+          readOnly: true
+        client_path:
+          type: string
+          description: Client-side path to the password reset page, appended to the public base URL
+          minLength: 1
+        email:
+          type: string
+          description: Account email address
+          format: email
+          minLength: 1
+      required:
+      - email
+      - client_path
+    PasswordResetVerificationInputBody:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/PasswordResetVerificationInputBody.json
+          readOnly: true
+        token:
+          type: string
+          description: Password reset token received by email
+          minLength: 1
+      required:
+      - token
+    PasswordUpdateParams:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/PasswordUpdateParams.json
+          readOnly: true
+        new_password:
+          type: string
+          minLength: 1
+          maxLength: 72
+          writeOnly: true
+        old_password:
+          type: string
+          minLength: 1
+          writeOnly: true
+      required:
+      - old_password
+      - new_password
     ProgressSnapshot:
       type: object
       additionalProperties: false
@@ -5796,6 +6017,13 @@ components:
           type: array
           items:
             type: string
+        altitude:
+          type: integer
+          format: int32
+        comments:
+          type: string
+        coordinates:
+          $ref: "#/components/schemas/CoordinatesWithPrecision"
         duration:
           type: integer
           format: int32
@@ -5821,7 +6049,7 @@ components:
             type: string
       required:
       - site
-      - performed_on
+      - coordinates
     SamplingMethod:
       type: object
       additionalProperties: false
@@ -5959,7 +6187,7 @@ components:
         habitats:
           type: array
           items:
-            $ref: "#/components/schemas/HabitatWithGroupName"
+            $ref: "#/components/schemas/Habitat"
         id:
           type: string
         methods:
@@ -6104,6 +6332,21 @@ components:
       - site
       - coordinates
       - h3_cell
+    ServiceSettings:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/ServiceSettings.json
+          readOnly: true
+        geoapify_api_key:
+          type: string
+      required:
+      - geoapify_api_key
     SessionTokens:
       type: object
       additionalProperties: false
@@ -6145,21 +6388,14 @@ components:
       type: object
       additionalProperties: false
       properties:
-        altitude:
-          type: integer
-          format: int32
         code:
           type: string
-        coordinates:
-          $ref: "#/components/schemas/CoordinatesWithPrecision"
         country_code:
           type: string
         locality:
           type: string
         name:
           type: string
-      required:
-      - coordinates
     SortOrder:
       type: string
       title: SortOrder

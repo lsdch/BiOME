@@ -98,16 +98,6 @@ const { item } = defineProps<{
 const emit = defineEmits<{
   edit: []
 }>()
-
-const { isGranted, isOwner } = useUserStore()
-
-// const samples = useSorted(
-//   computed(() => item.occurrences ?? []),
-//   (a, b) => {
-//     if (a.id === item.id) return -1
-//     else return a.identification.taxon.name.localeCompare(b.identification.taxon.name)
-//   }
-// )
 </script>
 
 <style lang="scss"></style>

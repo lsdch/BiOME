@@ -362,72 +362,41 @@ export type H3CellWithRichnessAndDistance = {
 }
 
 export type Habitat = {
-  description?: string
-  id: string
-  name: string
-}
-
-export type HabitatGroupInput = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  /**
-   * Habitat tag that this group is a refinement of
-   */
-  depends?: string
-  elements: Array<HabitatInput>
-  exclusive_elements?: boolean
-  /**
-   * Name for the group of habitat tags
-   */
-  label: string
-}
-
-export type HabitatGroupUpdate = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  create_elements?: Array<HabitatInput>
-  delete_elements?: Array<string>
-  depends?: string | null
-  exclusive_elements?: boolean
-  label?: string
-  update_elements?: {
-    [key: string]: HabitatUpdate
-  }
-}
-
-export type HabitatGroupWithElements = {
+  created_at: Date
   description?: string
-  elements: Array<Habitat>
+  facet?: string
   id: string
   name: string
-  parent_id?: string
 }
 
 export type HabitatInput = {
   /**
-   * Optional habitat description
+   * A URL to the JSON Schema for this object.
    */
+  readonly $schema?: string
   description?: string
   /**
-   * A short label for the habitat.
+   * Optional facet name
    */
-  label: string
+  facet?: string
+  /**
+   * Habitat name
+   */
+  name: string
 }
 
 export type HabitatUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   description?: string | null
-  label?: string
-}
-
-export type HabitatWithGroupName = {
-  description?: string
-  group_name: string
-  id: string
-  name: string
+  facet?: string | null
+  name?: string
 }
 
 export type Identification = {
@@ -707,6 +676,56 @@ export type PaginatedListOccurrence = {
   total_count: number
 }
 
+export type PasswordResetInputBody = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * New password (maximum 72 bytes)
+   */
+  new_password: string
+  /**
+   * Password reset token received by email
+   */
+  token: string
+}
+
+export type PasswordResetRequestInputBody = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Client-side path to the password reset page, appended to the public base URL
+   */
+  client_path: string
+  /**
+   * Account email address
+   */
+  email: string
+}
+
+export type PasswordResetVerificationInputBody = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Password reset token received by email
+   */
+  token: string
+}
+
+export type PasswordUpdateParams = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  new_password: string
+  old_password: string
+}
+
 export type ProgressSnapshot = {
   Completed: number
   CompletedAt: Date
@@ -843,11 +862,14 @@ export type SamplingInput = {
    */
   readonly $schema?: string
   access_points?: Array<string>
+  altitude?: number
+  comments?: string
+  coordinates: CoordinatesWithPrecision
   duration?: number
   fixatives?: Array<string>
   methods?: Array<string>
   performed_by?: Array<string>
-  performed_on: DateWithPrecisionInput
+  performed_on?: DateWithPrecisionInput
   site: SiteInput
   target_taxa?: Array<string>
 }
@@ -916,7 +938,7 @@ export type SamplingWithDetails = {
   duration?: number
   fixatives?: Array<Fixative>
   h3_cell: string
-  habitats?: Array<HabitatWithGroupName>
+  habitats?: Array<Habitat>
   id: string
   methods?: Array<SamplingMethod>
   performed_by?: Array<string>
@@ -968,6 +990,14 @@ export type SamplingWithOccurrencesAndDistance = {
   site: Site
 }
 
+export type ServiceSettings = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  geoapify_api_key: string | null
+}
+
 export type SessionTokens = {
   /**
    * A URL to the JSON Schema for this object.
@@ -987,9 +1017,7 @@ export type Site = {
 }
 
 export type SiteInput = {
-  altitude?: number
   code?: string
-  coordinates: CoordinatesWithPrecision
   country_code?: string
   locality?: string
   name?: string
@@ -1272,6 +1300,145 @@ export type ListUsersResponses = {
 }
 
 export type ListUsersResponse = ListUsersResponses[keyof ListUsersResponses]
+
+export type UpdatePasswordData = {
+  body: PasswordUpdateParams
+  path?: never
+  query?: never
+  url: '/accounts/password'
+}
+
+export type UpdatePasswordErrors = {
+  /**
+   * Unauthorized
+   */
+  401: AppError
+  /**
+   * Forbidden
+   */
+  403: AppError
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type UpdatePasswordError = UpdatePasswordErrors[keyof UpdatePasswordErrors]
+
+export type UpdatePasswordResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type UpdatePasswordResponse = UpdatePasswordResponses[keyof UpdatePasswordResponses]
+
+export type ResetPasswordData = {
+  body: PasswordResetInputBody
+  path?: never
+  query?: never
+  url: '/accounts/password-reset'
+}
+
+export type ResetPasswordErrors = {
+  /**
+   * Bad Request
+   */
+  400: AppError
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type ResetPasswordError = ResetPasswordErrors[keyof ResetPasswordErrors]
+
+export type ResetPasswordResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses]
+
+export type RequestPasswordResetData = {
+  body: PasswordResetRequestInputBody
+  path?: never
+  query?: never
+  url: '/accounts/password-reset/request'
+}
+
+export type RequestPasswordResetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+  /**
+   * Service Unavailable
+   */
+  503: AppError
+}
+
+export type RequestPasswordResetError = RequestPasswordResetErrors[keyof RequestPasswordResetErrors]
+
+export type RequestPasswordResetResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type RequestPasswordResetResponse =
+  RequestPasswordResetResponses[keyof RequestPasswordResetResponses]
+
+export type VerifyPasswordResetTokenData = {
+  body: PasswordResetVerificationInputBody
+  path?: never
+  query?: never
+  url: '/accounts/password-reset/verify'
+}
+
+export type VerifyPasswordResetTokenErrors = {
+  /**
+   * Bad Request
+   */
+  400: AppError
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type VerifyPasswordResetTokenError =
+  VerifyPasswordResetTokenErrors[keyof VerifyPasswordResetTokenErrors]
+
+export type VerifyPasswordResetTokenResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type VerifyPasswordResetTokenResponse =
+  VerifyPasswordResetTokenResponses[keyof VerifyPasswordResetTokenResponses]
 
 export type LoginData = {
   body: UserCredentials
@@ -1899,39 +2066,39 @@ export type ListGeoapifyUsageResponses = {
 
 export type ListGeoapifyUsageResponse = ListGeoapifyUsageResponses[keyof ListGeoapifyUsageResponses]
 
-export type GetHabitatGroupsData = {
+export type GetHabitatsData = {
   body?: never
   path?: never
   query?: never
   url: '/habitats'
 }
 
-export type GetHabitatGroupsErrors = {
+export type GetHabitatsErrors = {
   /**
    * Internal Server Error
    */
   500: AppError
 }
 
-export type GetHabitatGroupsError = GetHabitatGroupsErrors[keyof GetHabitatGroupsErrors]
+export type GetHabitatsError = GetHabitatsErrors[keyof GetHabitatsErrors]
 
-export type GetHabitatGroupsResponses = {
+export type GetHabitatsResponses = {
   /**
    * OK
    */
-  200: Array<HabitatGroupWithElements>
+  200: Array<Habitat>
 }
 
-export type GetHabitatGroupsResponse = GetHabitatGroupsResponses[keyof GetHabitatGroupsResponses]
+export type GetHabitatsResponse = GetHabitatsResponses[keyof GetHabitatsResponses]
 
-export type CreateHabitatGroupData = {
-  body: HabitatGroupInput
+export type CreateHabitatData = {
+  body: HabitatInput
   path?: never
   query?: never
   url: '/habitats'
 }
 
-export type CreateHabitatGroupErrors = {
+export type CreateHabitatErrors = {
   /**
    * Unprocessable Entity
    */
@@ -1942,19 +2109,18 @@ export type CreateHabitatGroupErrors = {
   500: AppError
 }
 
-export type CreateHabitatGroupError = CreateHabitatGroupErrors[keyof CreateHabitatGroupErrors]
+export type CreateHabitatError = CreateHabitatErrors[keyof CreateHabitatErrors]
 
-export type CreateHabitatGroupResponses = {
+export type CreateHabitatResponses = {
   /**
-   * No Content
+   * OK
    */
-  204: void
+  200: Habitat
 }
 
-export type CreateHabitatGroupResponse =
-  CreateHabitatGroupResponses[keyof CreateHabitatGroupResponses]
+export type CreateHabitatResponse = CreateHabitatResponses[keyof CreateHabitatResponses]
 
-export type DeleteHabitatGroupData = {
+export type DeleteHabitatData = {
   body?: never
   path: {
     id: UUID
@@ -1963,7 +2129,7 @@ export type DeleteHabitatGroupData = {
   url: '/habitats/{id}'
 }
 
-export type DeleteHabitatGroupErrors = {
+export type DeleteHabitatErrors = {
   /**
    * Unprocessable Entity
    */
@@ -1974,20 +2140,19 @@ export type DeleteHabitatGroupErrors = {
   500: AppError
 }
 
-export type DeleteHabitatGroupError = DeleteHabitatGroupErrors[keyof DeleteHabitatGroupErrors]
+export type DeleteHabitatError = DeleteHabitatErrors[keyof DeleteHabitatErrors]
 
-export type DeleteHabitatGroupResponses = {
+export type DeleteHabitatResponses = {
   /**
    * No Content
    */
   204: void
 }
 
-export type DeleteHabitatGroupResponse =
-  DeleteHabitatGroupResponses[keyof DeleteHabitatGroupResponses]
+export type DeleteHabitatResponse = DeleteHabitatResponses[keyof DeleteHabitatResponses]
 
-export type UpdateHabitatGroupData = {
-  body: HabitatGroupUpdate
+export type UpdateHabitatData = {
+  body: HabitatUpdate
   path: {
     id: UUID
   }
@@ -1995,7 +2160,7 @@ export type UpdateHabitatGroupData = {
   url: '/habitats/{id}'
 }
 
-export type UpdateHabitatGroupErrors = {
+export type UpdateHabitatErrors = {
   /**
    * Unprocessable Entity
    */
@@ -2006,17 +2171,16 @@ export type UpdateHabitatGroupErrors = {
   500: AppError
 }
 
-export type UpdateHabitatGroupError = UpdateHabitatGroupErrors[keyof UpdateHabitatGroupErrors]
+export type UpdateHabitatError = UpdateHabitatErrors[keyof UpdateHabitatErrors]
 
-export type UpdateHabitatGroupResponses = {
+export type UpdateHabitatResponses = {
   /**
    * No Content
    */
   204: void
 }
 
-export type UpdateHabitatGroupResponse =
-  UpdateHabitatGroupResponses[keyof UpdateHabitatGroupResponses]
+export type UpdateHabitatResponse = UpdateHabitatResponses[keyof UpdateHabitatResponses]
 
 export type ListImportBatchesData = {
   body?: never
@@ -4065,6 +4229,63 @@ export type TogglePublicRegistrationResponses = {
 
 export type TogglePublicRegistrationResponse =
   TogglePublicRegistrationResponses[keyof TogglePublicRegistrationResponses]
+
+export type GetServiceSettingsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/settings/services'
+}
+
+export type GetServiceSettingsErrors = {
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type GetServiceSettingsError = GetServiceSettingsErrors[keyof GetServiceSettingsErrors]
+
+export type GetServiceSettingsResponses = {
+  /**
+   * OK
+   */
+  200: ServiceSettings
+}
+
+export type GetServiceSettingsResponse =
+  GetServiceSettingsResponses[keyof GetServiceSettingsResponses]
+
+export type UpdateServiceSettingsData = {
+  body: ServiceSettings
+  path?: never
+  query?: never
+  url: '/settings/services'
+}
+
+export type UpdateServiceSettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type UpdateServiceSettingsError =
+  UpdateServiceSettingsErrors[keyof UpdateServiceSettingsErrors]
+
+export type UpdateServiceSettingsResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type UpdateServiceSettingsResponse =
+  UpdateServiceSettingsResponses[keyof UpdateServiceSettingsResponses]
 
 export type GetGbifKingdomsData = {
   body?: never

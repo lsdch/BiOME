@@ -58,13 +58,13 @@
 </template>
 
 <script setup lang="ts">
-import { $CoordinatesWithPrecision, CoordinatesWithPrecision } from '@/api'
+import { $CoordinatesWithPrecision } from '@/api'
 import { useSchemaBinding } from '@/composables/schema'
 import { Coordinates } from '@/features/cartography/coordinates'
 import { useGeolocation, useToggle, watchOnce } from '@vueuse/core'
 
 const model = defineModel<Partial<Coordinates>>({
-  default: { latitude: undefined, longitude: undefined }
+  default: () => ({ latitude: undefined, longitude: undefined })
 })
 
 const emit = defineEmits<{

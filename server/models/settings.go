@@ -41,3 +41,11 @@ func (s *InstanceSettingsUpdate) ToParams() biomedb.UpdateInstanceSettingsParams
 		AppDescription:    s.Description.ToPtr(),
 	}
 }
+
+type ServiceSettings struct {
+	GeoapifyAPIKey *string `json:"geoapify_api_key"`
+}
+
+func ServiceSettingsFromDB(s biomedb.ServiceSetting) ServiceSettings {
+	return ServiceSettings{GeoapifyAPIKey: s.GeoapifyAPIKey}
+}

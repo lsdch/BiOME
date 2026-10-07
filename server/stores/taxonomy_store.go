@@ -75,11 +75,11 @@ func (s *TaxonomyStore) SearchTaxa(ctx context.Context, q db.Querier, params mod
 
 func applyRanksFilter(params models.ListTaxaParams, stmt SelectStatement) SelectStatement {
 	if len(params.Ranks) > 0 {
-		ranks := make([]string, len(params.Ranks))
+		ranks := make([]Expression, len(params.Ranks))
 		for i, r := range params.Ranks {
-			ranks[i] = string(r)
+			ranks[i] = CAST(String(string(r))).AS("taxon_rank")
 		}
-		stmt = stmt.WHERE(table.Taxa.Rank.IN(StringArray(ranks...)))
+		stmt = stmt.WHERE(table.Taxa.Rank.IN(ranks...))
 	}
 	return stmt
 }

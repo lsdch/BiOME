@@ -112,7 +112,7 @@ func (s *SamplingService) LoadSamplingFixatives(ctx context.Context, q db.Querie
 	return s.store.GetSamplingFixativesAtEvent(ctx, q, samplingID)
 }
 
-func (s *SamplingService) LoadSamplingHabitats(ctx context.Context, q db.Querier, samplingID uuid.UUID) ([]models.HabitatWithGroupName, error) {
+func (s *SamplingService) LoadSamplingHabitats(ctx context.Context, q db.Querier, samplingID uuid.UUID) ([]models.Habitat, error) {
 	return s.store.GetHabitatsAtEvent(ctx, q, samplingID)
 }
 

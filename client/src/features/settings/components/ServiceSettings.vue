@@ -50,9 +50,9 @@
 </template>
 
 <script setup lang="ts">
-import { $ServiceSettingsUpdate, ServiceSettingsUpdate } from '@/api'
+import { $ServiceSettings, ServiceSettings } from '@/api'
 import {
-  serviceSettingsOptions,
+  getServiceSettingsOptions,
   updateServiceSettingsMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFeedback } from '@/stores/feedback'
@@ -63,9 +63,9 @@ import SettingsFormActions from './SettingsFormActions.vue'
 
 const { feedback } = useFeedback()
 
-const { data: model, error, refetch, isPending } = useQuery(serviceSettingsOptions())
+const { data: model, error, refetch, isPending } = useQuery(getServiceSettingsOptions())
 
-const { schema, dispatchErrors } = useSchemaBinding($ServiceSettingsUpdate)
+const { schema } = useSchemaBinding($ServiceSettings)
 
 const {
   mutateAsync,
@@ -75,11 +75,10 @@ const {
   ...updateServiceSettingsMutation(),
   onSuccess: () => {
     feedback({ message: 'Updated settings', type: 'success' })
-  },
-  onError: dispatchErrors
+  }
 })
 
-async function submit(model: ServiceSettingsUpdate) {
+async function submit(model: ServiceSettings) {
   await mutateAsync({ body: model })
 }
 </script>

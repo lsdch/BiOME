@@ -334,6 +334,33 @@ func (q *Queries) CreateUserEmailChangeRequestToken(ctx context.Context, userEma
 	return i, err
 }
 
+const getActiveUserForPasswordUpdate = `-- name: GetActiveUserForPasswordUpdate :one
+SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at FROM users
+WHERE id = $1 AND active
+FOR UPDATE
+`
+
+func (q *Queries) GetActiveUserForPasswordUpdate(ctx context.Context, userID uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getActiveUserForPasswordUpdate, userID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Login,
+		&i.Email,
+		&i.PasswordHash,
+		&i.Role,
+		&i.FirstName,
+		&i.LastName,
+		&i.Organisation,
+		&i.Contact,
+		&i.Bio,
+		&i.FullName,
+		&i.Active,
+		&i.EmailVerifiedAt,
+	)
+	return i, err
+}
+
 const getUserAccountRequestByTokenHash = `-- name: GetUserAccountRequestByTokenHash :one
 SELECT r.id, r.email, r.name, r.motivations, r.status, r.created_at, r.expires_at, r.verified_at, r.cancelled_at
 FROM user_account_requests r

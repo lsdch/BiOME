@@ -136,7 +136,7 @@ import { DateTime } from 'luxon'
 import { reactive, ref } from 'vue'
 import { VTextField } from 'vuetify/components'
 
-const model = defineModel<CompositeDate>({ default: reactive({}) })
+const model = defineModel<CompositeDate>({ default: () => ({}) })
 
 const props = withDefaults(
   defineProps<{

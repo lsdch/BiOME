@@ -7,7 +7,7 @@ import {
   CompositeDate as CompositeDateType,
   EventDatePrecision,
   DateWithPrecision as TDateWithPrecision,
-  EventDateInput,
+  DateWithPrecisionInput,
   Publication as TPublication,
   Taxon as TTaxon,
   TaxonRank as TTaxonRank,
@@ -90,23 +90,25 @@ export namespace DateWithPrecision {
     return (DateWithPrecision.toDateTime(b) ?? 0) > (DateWithPrecision.toDateTime(a) ?? 0) ? -1 : 1
   }
 
-  export function toInput(d?: DateWithPrecision): EventDateInput | undefined {
+  export function toInput(d?: DateWithPrecision): DateWithPrecisionInput | undefined {
     if (!d) return undefined
     return { date: CompositeDate.fromDateWithPrecision(d), precision: d.precision }
   }
 
-  export function fromInput({ date, precision }: EventDateInput): DateWithPrecision {
+  export function fromInput({ date, precision }: DateWithPrecisionInput): DateWithPrecision {
     return {
       date: new Date(date.year!, (date.month ?? 1) - 1, date.day ?? 1),
       precision
     }
   }
 
-  export function maybeFromInput(input: EventDateInput | DateWithPrecision): DateWithPrecision {
+  export function maybeFromInput(
+    input: DateWithPrecisionInput | DateWithPrecision
+  ): DateWithPrecision {
     if (input.date instanceof Date) {
       return input as DateWithPrecision
     }
-    return fromInput(input as EventDateInput)
+    return fromInput(input as DateWithPrecisionInput)
   }
 
   export function toDateTime({ date, precision }: DateWithPrecision): DateTime | null {
@@ -266,11 +268,11 @@ export namespace UserRole {
 }
 
 export type User = TUser
-export namespace User {
-  export function isOwner<Item extends { meta?: Meta }>(user: User, item: Item) {
-    return item.meta?.created_by?.id === user.id
-  }
-}
+// export namespace User {
+//   export function isOwner<Item extends { meta?: Meta }>(user: User, item: Item) {
+//     return item.meta?.created_by?.id === user.id
+//   }
+// }
 
 export namespace CodeIdentifier {
   // Inserts zero-width spaces for better line breaks of long biomat/sequence codes

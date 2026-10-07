@@ -17,18 +17,10 @@
       <v-container>
         <v-row>
           <v-col cols="12" sm="6">
-            <v-text-field
-              label="First name"
-              v-model="model.first_name"
-              v-bind="schema('first_name')"
-            />
+            <v-text-field label="First name" v-model="model.first_name" />
           </v-col>
           <v-col cols="12" sm="6">
-            <v-text-field
-              label="Last name"
-              v-model="model.last_name"
-              v-bind="schema('last_name')"
-            />
+            <v-text-field label="Last name" v-model="model.last_name" />
           </v-col>
         </v-row>
         <v-row>
@@ -37,7 +29,6 @@
               label="E-mail address"
               v-model="model.email"
               prepend-inner-icon="mdi-at"
-              v-bind="schema('email')"
             />
           </v-col>
         </v-row>
@@ -55,13 +46,12 @@
             <v-textarea
               label="Motivations"
               v-model="model.motive"
-              v-bind="schema('motive')"
               placeholder="(Optional) Short explanation on how you want to contribute"
               persistent-placeholder
             />
           </v-col>
         </v-row>
-        <v-btn color="primary" block text="Submit" @click="submit" />
+        <v-btn color="primary" block text="Submit" />
       </v-container>
       <div class="d-flex justify-center mt-3">
         <v-btn
@@ -77,13 +67,13 @@
 </template>
 
 <script setup lang="ts">
-import { $PendingUserRequestInput, AccountService, PendingUserRequestInput } from '@/api'
+// import { $PendingUserRequestInput, AccountService, PendingUserRequestInput } from '@/api'
 import { useSchemaBinding } from '@/composables/schema'
 import { accountRoutes } from '@/router/routes'
 import { ref } from 'vue'
 
 const registrationDone = ref(false)
-const model = ref<PendingUserRequestInput>({
+const model = ref({
   email: '',
   motive: undefined,
   first_name: '',
@@ -91,18 +81,18 @@ const model = ref<PendingUserRequestInput>({
   organisation: undefined
 })
 
-const { schema, handleErrors: errorHandler } = useSchemaBinding($PendingUserRequestInput)
+// const { schema, handleErrors: errorHandler } = useSchemaBinding($PendingUserRequestInput)
 
-function submit() {
-  AccountService.register({
-    body: {
-      data: model.value,
-      verification_path: accountRoutes.verifyEmail.path
-    }
-  })
-    .then(errorHandler)
-    .then(() => (registrationDone.value = true))
-}
+// function submit() {
+//   AccountService.register({
+//     body: {
+//       data: model.value,
+//       verification_path: accountRoutes.verifyEmail.path
+//     }
+//   })
+//     .then(errorHandler)
+//     .then(() => (registrationDone.value = true))
+// }
 </script>
 
 <style scoped></style>

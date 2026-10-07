@@ -124,14 +124,17 @@ func (s Sampling) WithOccurrences(occurrences []BaseOccurrence) SamplingWithOccu
 }
 
 type SamplingInput struct {
-	Site         SiteInput              `json:"site"`
-	PerformedOn  DateWithPrecisionInput `json:"performed_on"`
-	PerformedBy  []string               `json:"performed_by,omitempty"`
-	Duration     Optional[int32]        `json:"duration,omitzero"`
-	AccessPoints []string               `json:"access_points,omitempty"`
-	Methods      []string               `json:"methods,omitempty"`
-	Fixatives    []string               `json:"fixatives,omitempty"`
-	TargetTaxa   []uuid.UUID            `json:"target_taxa,omitempty"`
+	Site         SiteInput                        `json:"site"`
+	Coordinates  CoordinatesWithPrecision         `json:"coordinates"`
+	Altitude     Optional[int32]                  `json:"altitude,omitzero"`
+	PerformedOn  Optional[DateWithPrecisionInput] `json:"performed_on,omitzero"`
+	PerformedBy  []string                         `json:"performed_by,omitempty"`
+	Duration     Optional[int32]                  `json:"duration,omitzero"`
+	AccessPoints []string                         `json:"access_points,omitempty"`
+	Methods      []string                         `json:"methods,omitempty"`
+	Fixatives    []string                         `json:"fixatives,omitempty"`
+	TargetTaxa   []uuid.UUID                      `json:"target_taxa,omitempty"`
+	Comments     Optional[string]                 `json:"comments,omitzero"`
 }
 
 func (i SamplingInput) ToParams() biomedb.CreateSamplingParams {
@@ -139,31 +142,32 @@ func (i SamplingInput) ToParams() biomedb.CreateSamplingParams {
 		eventDate          pgtype.Date
 		eventDatePrecision *EventDatePrecision = nil
 	)
-	eventDate = i.PerformedOn.Date.ToPgDate()
-	eventDatePrecision = &i.PerformedOn.Precision
+	if d, ok := i.PerformedOn.Get(); ok {
+		eventDate = d.Date.ToPgDate()
+		eventDatePrecision = &d.Precision
+	}
 	return biomedb.CreateSamplingParams{
 		SiteCode:             i.Site.Code.ToPtr(),
 		SiteName:             i.Site.Name.ToPtr(),
 		SiteLocality:         i.Site.Locality.ToPtr(),
 		SiteCountryCode:      i.Site.CountryCode.ToPtr(),
-		Coordinates:          i.Site.Coordinates.Coordinates,
-		CoordinatesPrecision: i.Site.Coordinates.Precision.ToPtr(),
-		Altitude:             i.Site.Altitude.ToPtr(),
+		Coordinates:          i.Coordinates.Coordinates,
+		CoordinatesPrecision: i.Coordinates.Precision.ToPtr(),
+		Altitude:             i.Altitude.ToPtr(),
 		EventDate:            eventDate,
 		EventDatePrecision:   eventDatePrecision,
 		PerformedBy:          i.PerformedBy,
 		Duration:             i.Duration.ToPtr(),
 		AccessPoints:         i.AccessPoints,
+		Comments:             i.Comments.ToPtr(),
 	}
 }
 
 type SiteInput struct {
-	Name        Optional[string]         `json:"name,omitzero"`
-	Code        Optional[string]         `json:"code,omitzero"`
-	Locality    Optional[string]         `json:"locality,omitzero"`
-	CountryCode Optional[string]         `json:"country_code,omitzero"`
-	Coordinates CoordinatesWithPrecision `json:"coordinates"`
-	Altitude    Optional[int32]          `json:"altitude,omitzero"`
+	Name        Optional[string] `json:"name,omitzero"`
+	Code        Optional[string] `json:"code,omitzero"`
+	Locality    Optional[string] `json:"locality,omitzero"`
+	CountryCode Optional[string] `json:"country_code,omitzero"`
 }
 
 type ListSamplingsAtProximityInput struct {

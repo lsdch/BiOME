@@ -73,6 +73,6 @@ func (p *UserInfoUpdateParams) ToParams(userID uuid.UUID) biomedb.UpdateUserPers
 }
 
 type PasswordUpdateParams struct {
-	OldPassword string `json:"old_password"`
-	NewPassword string `json:"new_password"`
+	OldPassword string `json:"old_password" minLength:"1" writeOnly:"true"`
+	NewPassword string `json:"new_password" minLength:"1" maxLength:"72" writeOnly:"true"`
 }

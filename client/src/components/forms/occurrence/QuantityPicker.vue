@@ -10,7 +10,7 @@
             filter
             value="Exact"
             text="Exact"
-            @click="model = undefined"
+            @click="model = {}"
           />
           <v-chip
             v-for="item in predefined"
@@ -34,7 +34,7 @@
             filter
             value="Unknown"
             text="Unknown"
-            @click="model = undefined"
+            @click="model = {}"
           />
         </v-chip-group>
       </div>
@@ -50,7 +50,7 @@
       <div v-else-if="pick === 'Custom'" class="d-flex mt-2">
         <v-number-input
           label="Lower bound"
-          v-model="(model as SpecimenQuantityRangeModel).lower"
+          v-model="model.lower"
           class="required rounded-e-0"
           :step="1"
           :min="1"
@@ -58,15 +58,11 @@
         />
         <v-number-input
           label="Upper bound"
-          v-model="(model as SpecimenQuantityRangeModel).upper"
+          v-model="model.upper"
           class="required rounded-s-0"
           :step="1"
-          :min="((model as SpecimenQuantityRangeModel).lower ?? 0) + 1"
-          :rules="[
-            (v) =>
-              v > ((model as SpecimenQuantityRangeModel).lower ?? 0) ||
-              'Upper bound must be greater than lower bound'
-          ]"
+          :min="(model.lower ?? 0) + 1"
+          :rules="[(v) => v > (model.lower ?? 0) || 'Upper bound must be greater than lower bound']"
         />
       </div>
     </div>
@@ -75,9 +71,10 @@
 
 <script setup lang="ts">
 import { QuantityInput } from '@/api'
-import { SpecimenQuantityModel, SpecimenQuantityRangeModel } from '@/models/biomat'
-import { ref } from 'vue'
-const model = defineModel<QuantityInput>()
+import { reactive, ref } from 'vue'
+const model = defineModel<QuantityInput>({
+  default: () => reactive({ lower: undefined, upper: undefined })
+})
 const pick = ref<'Exact' | 'Custom' | 'Unknown' | (typeof predefined)[number]['key']>('Unknown')
 const predefined = [
   { label: 'One', key: 'One', value: { exact: 1 } },

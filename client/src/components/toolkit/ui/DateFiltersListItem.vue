@@ -77,7 +77,9 @@ import { DateFilters } from '@/features/cartography/components/layers-manager/ma
 import ListItemInput from './ListItemInput.vue'
 import DateFilter from './DateFilter.vue'
 
-const model = defineModel<DateFilters>({ default: () => ({}) })
+const model = defineModel<DateFilters>({
+  default: () => ({ enabled: false, is_range: false, include_unknown: false, precision: 'year' })
+})
 </script>
 
 <style scoped lang="scss"></style>

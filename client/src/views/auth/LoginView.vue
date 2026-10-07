@@ -13,18 +13,18 @@
                 class="text-none text-center"
                 @click="mode = Mode.PasswordReset"
               />
-              <v-btn
+              <!-- <v-btn
                 v-if="instance?.account_requests_enabled"
                 size="large"
                 color="primary"
                 text="Register"
                 variant="plain"
                 :to="{ name: 'signup' }"
-              />
+              /> -->
             </div>
           </v-card-text>
           <v-card-text v-if="mode === Mode.PasswordReset">
-            <!-- <PasswordResetForm /> -->
+            <PasswordResetForm />
             <div class="d-flex justify-center">
               <v-btn
                 variant="plain"
@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { Ref, ref } from 'vue'
 import LoginForm from '@/components/users/LoginForm.vue'
-// import PasswordResetForm from '@/components/users/PasswordResetRequestForm.vue'
+import PasswordResetForm from '@/components/users/PasswordResetRequestForm.vue'
 import { useInstanceSettings } from '@/features/settings/components'
 
 enum Mode {

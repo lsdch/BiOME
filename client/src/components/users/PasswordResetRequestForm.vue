@@ -11,7 +11,7 @@
         label="Email"
         type="email"
         class="mb-3"
-        v-model="state.email"
+        v-model="email"
         variant="outlined"
         prepend-inner-icon="mdi-at"
         v-bind="schema('email')"
@@ -31,23 +31,25 @@
 </template>
 
 <script setup lang="ts">
-import { $PasswordResetRequest, AccountService, PasswordResetRequest } from '@/api'
+import { $PasswordResetRequestInputBody, PasswordResetRequestInputBody } from '@/api'
 import { ref } from 'vue'
 import { useSchemaBinding } from '@/composables/schema'
 import { useRouter } from 'vue-router'
+import { requestPasswordResetMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import { useMutation } from '@tanstack/vue-query'
 
 const router = useRouter()
 
-const state = ref<PasswordResetRequest>({
-  email: '',
-  handler: window.location.origin + router.resolve('password-reset').fullPath
-})
-const { schema } = useSchemaBinding($PasswordResetRequest)
+const email = ref<string>('')
+const { schema } = useSchemaBinding($PasswordResetRequestInputBody)
 
 const requestSent = ref(false)
 
+const { mutateAsync } = useMutation(requestPasswordResetMutation())
 async function submit() {
-  await AccountService.requestPasswordReset({ body: state.value }).then(() => {
+  await mutateAsync({
+    body: { email: email.value, client_path: router.resolve('password-reset').path }
+  }).then(() => {
     requestSent.value = true
   })
 }

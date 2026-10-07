@@ -978,7 +978,21 @@ export const $H3CellWithRichnessAndDistance = {
 export const $Habitat = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Habitat.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    created_at: {
+      format: 'date-time',
+      type: 'string'
+    },
     description: {
+      type: 'string'
+    },
+    facet: {
       type: 'string'
     },
     id: {
@@ -988,163 +1002,62 @@ export const $Habitat = {
       type: 'string'
     }
   },
-  required: ['id', 'name'],
-  type: 'object'
-} as const
-
-export const $HabitatGroupInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/HabitatGroupInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    depends: {
-      description: 'Habitat tag that this group is a refinement of',
-      examples: ['Aquatic, Surface'],
-      type: 'string'
-    },
-    elements: {
-      items: {
-        $ref: '#/components/schemas/HabitatInput'
-      },
-      minItems: 1,
-      type: 'array'
-    },
-    exclusive_elements: {
-      type: 'boolean'
-    },
-    label: {
-      description: 'Name for the group of habitat tags',
-      examples: ['Water flow'],
-      maxLength: 32,
-      minLength: 3,
-      type: 'string'
-    }
-  },
-  required: ['label', 'elements'],
-  type: 'object'
-} as const
-
-export const $HabitatGroupUpdate = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/HabitatGroupUpdate.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    create_elements: {
-      items: {
-        $ref: '#/components/schemas/HabitatInput'
-      },
-      type: 'array'
-    },
-    delete_elements: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    depends: {
-      type: ['string', 'null']
-    },
-    exclusive_elements: {
-      type: 'boolean'
-    },
-    label: {
-      type: 'string'
-    },
-    update_elements: {
-      additionalProperties: {
-        $ref: '#/components/schemas/HabitatUpdate'
-      },
-      type: 'object'
-    }
-  },
-  type: 'object'
-} as const
-
-export const $HabitatGroupWithElements = {
-  additionalProperties: false,
-  properties: {
-    description: {
-      type: 'string'
-    },
-    elements: {
-      items: {
-        $ref: '#/components/schemas/Habitat'
-      },
-      type: 'array'
-    },
-    id: {
-      type: 'string'
-    },
-    name: {
-      type: 'string'
-    },
-    parent_id: {
-      type: 'string'
-    }
-  },
-  required: ['elements', 'id', 'name'],
+  required: ['id', 'name', 'created_at'],
   type: 'object'
 } as const
 
 export const $HabitatInput = {
   additionalProperties: false,
   properties: {
-    description: {
-      description: 'Optional habitat description',
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/HabitatInput.json'],
+      format: 'uri',
+      readOnly: true,
       type: 'string'
     },
-    label: {
-      description: 'A short label for the habitat.',
-      examples: ['Lotic'],
-      maxLength: 32,
-      minLength: 3,
+    description: {
+      maxLength: 4000,
+      type: 'string'
+    },
+    facet: {
+      description: 'Optional facet name',
+      minLength: 1,
+      type: 'string'
+    },
+    name: {
+      description: 'Habitat name',
+      minLength: 1,
       type: 'string'
     }
   },
-  required: ['label'],
+  required: ['name'],
   type: 'object'
 } as const
 
 export const $HabitatUpdate = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/HabitatUpdate.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     description: {
+      maxLength: 4000,
       type: ['string', 'null']
     },
-    label: {
-      type: 'string'
-    }
-  },
-  type: 'object'
-} as const
-
-export const $HabitatWithGroupName = {
-  additionalProperties: false,
-  properties: {
-    description: {
-      type: 'string'
-    },
-    group_name: {
-      type: 'string'
-    },
-    id: {
-      type: 'string'
+    facet: {
+      minLength: 1,
+      type: ['string', 'null']
     },
     name: {
+      minLength: 1,
       type: 'string'
     }
   },
-  required: ['group_name', 'id', 'name'],
   type: 'object'
 } as const
 
@@ -2026,6 +1939,105 @@ export const $PaginatedListOccurrence = {
   type: 'object'
 } as const
 
+export const $PasswordResetInputBody = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/PasswordResetInputBody.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    new_password: {
+      description: 'New password (maximum 72 bytes)',
+      maxLength: 72,
+      minLength: 1,
+      type: 'string',
+      writeOnly: true
+    },
+    token: {
+      description: 'Password reset token received by email',
+      minLength: 1,
+      type: 'string'
+    }
+  },
+  required: ['token', 'new_password'],
+  type: 'object'
+} as const
+
+export const $PasswordResetRequestInputBody = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/PasswordResetRequestInputBody.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    client_path: {
+      description: 'Client-side path to the password reset page, appended to the public base URL',
+      minLength: 1,
+      type: 'string'
+    },
+    email: {
+      description: 'Account email address',
+      format: 'email',
+      minLength: 1,
+      type: 'string'
+    }
+  },
+  required: ['email', 'client_path'],
+  type: 'object'
+} as const
+
+export const $PasswordResetVerificationInputBody = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/PasswordResetVerificationInputBody.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    token: {
+      description: 'Password reset token received by email',
+      minLength: 1,
+      type: 'string'
+    }
+  },
+  required: ['token'],
+  type: 'object'
+} as const
+
+export const $PasswordUpdateParams = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/PasswordUpdateParams.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    new_password: {
+      maxLength: 72,
+      minLength: 1,
+      type: 'string',
+      writeOnly: true
+    },
+    old_password: {
+      minLength: 1,
+      type: 'string',
+      writeOnly: true
+    }
+  },
+  required: ['old_password', 'new_password'],
+  type: 'object'
+} as const
+
 export const $ProgressSnapshot = {
   additionalProperties: false,
   properties: {
@@ -2374,6 +2386,16 @@ export const $SamplingInput = {
       },
       type: 'array'
     },
+    altitude: {
+      format: 'int32',
+      type: 'integer'
+    },
+    comments: {
+      type: 'string'
+    },
+    coordinates: {
+      $ref: '#/components/schemas/CoordinatesWithPrecision'
+    },
     duration: {
       format: 'int32',
       type: 'integer'
@@ -2409,7 +2431,7 @@ export const $SamplingInput = {
       type: 'array'
     }
   },
-  required: ['site', 'performed_on'],
+  required: ['site', 'coordinates'],
   type: 'object'
 } as const
 
@@ -2579,7 +2601,7 @@ export const $SamplingWithDetails = {
     },
     habitats: {
       items: {
-        $ref: '#/components/schemas/HabitatWithGroupName'
+        $ref: '#/components/schemas/Habitat'
       },
       type: 'array'
     },
@@ -2773,6 +2795,24 @@ export const $SamplingWithOccurrencesAndDistance = {
   type: 'object'
 } as const
 
+export const $ServiceSettings = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ServiceSettings.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    geoapify_api_key: {
+      type: ['string', 'null']
+    }
+  },
+  required: ['geoapify_api_key'],
+  type: 'object'
+} as const
+
 export const $SessionTokens = {
   additionalProperties: false,
   properties: {
@@ -2823,15 +2863,8 @@ export const $Site = {
 export const $SiteInput = {
   additionalProperties: false,
   properties: {
-    altitude: {
-      format: 'int32',
-      type: 'integer'
-    },
     code: {
       type: 'string'
-    },
-    coordinates: {
-      $ref: '#/components/schemas/CoordinatesWithPrecision'
     },
     country_code: {
       type: 'string'
@@ -2843,7 +2876,6 @@ export const $SiteInput = {
       type: 'string'
     }
   },
-  required: ['coordinates'],
   type: 'object'
 } as const
 

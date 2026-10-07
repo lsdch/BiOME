@@ -78,7 +78,7 @@ import { GlobalMarkerOptions } from './DeckGlMap.vue'
 const userStore = useUserStore()
 
 const markerOptions = defineModel<GlobalMarkerOptions>('markerOptions', {
-  default: reactive<GlobalMarkerOptions>({
+  default: () => ({
     cluster: {
       radiusScaleFactor: 0.5,
       labelZoomThreshold: 8

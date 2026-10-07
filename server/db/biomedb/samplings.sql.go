@@ -117,38 +117,27 @@ func (q *Queries) CreateSampling(ctx context.Context, arg CreateSamplingParams) 
 }
 
 const getHabitatsAtEvent = `-- name: GetHabitatsAtEvent :many
-SELECT h.id, h.label, h.description, h.habitat_group_id,
-    hg.id, hg.label, hg.description, hg.exclusive_elements, hg.parent_habitat_id
+SELECT h.id, h.label, h.facet, h.description, h.created_at
 FROM habitats h
     JOIN samplings_habitats sh ON sh.habitat_id = h.id
-    JOIN habitat_groups hg ON hg.id = h.habitat_group_id
 WHERE sh.sampling_id = $1::uuid
 `
 
-type GetHabitatsAtEventRow struct {
-	Habitat      Habitat      `json:"habitat"`
-	HabitatGroup HabitatGroup `json:"habitat_group"`
-}
-
-func (q *Queries) GetHabitatsAtEvent(ctx context.Context, samplingID uuid.UUID) ([]GetHabitatsAtEventRow, error) {
+func (q *Queries) GetHabitatsAtEvent(ctx context.Context, samplingID uuid.UUID) ([]Habitat, error) {
 	rows, err := q.db.Query(ctx, getHabitatsAtEvent, samplingID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []GetHabitatsAtEventRow{}
+	items := []Habitat{}
 	for rows.Next() {
-		var i GetHabitatsAtEventRow
+		var i Habitat
 		if err := rows.Scan(
-			&i.Habitat.ID,
-			&i.Habitat.Label,
-			&i.Habitat.Description,
-			&i.Habitat.HabitatGroupID,
-			&i.HabitatGroup.ID,
-			&i.HabitatGroup.Label,
-			&i.HabitatGroup.Description,
-			&i.HabitatGroup.ExclusiveElements,
-			&i.HabitatGroup.ParentHabitatID,
+			&i.ID,
+			&i.Label,
+			&i.Facet,
+			&i.Description,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}

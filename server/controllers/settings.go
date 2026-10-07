@@ -74,6 +74,17 @@ func (c *SettingsController) GetEmailSettings(ctx context.Context, input *struct
 	return &BodyTransporter[models.Mailing]{Body: c.emailService.GetSettings()}, nil
 }
 
+func (c *SettingsController) GetServiceSettings(ctx context.Context, input *struct{}) (*BodyTransporter[models.ServiceSettings], error) {
+	return &BodyTransporter[models.ServiceSettings]{Body: c.service.GetServiceSettings()}, nil
+}
+
+func (c *SettingsController) UpdateServiceSettings(ctx context.Context, input *BodyTransporter[models.ServiceSettings]) (*struct{}, error) {
+	if err := c.service.UpdateServiceSettings(ctx, c.db, input.Body); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 func (c *SettingsController) UpdateEmailSettings(ctx context.Context, input *BodyTransporter[models.UpsertMailingParams]) (*struct{}, error) {
 	if err := c.emailService.SaveSettings(ctx, c.db, input.Body); err != nil {
 		return nil, err
@@ -193,6 +204,24 @@ func (c *SettingsController) RegisterRoutes(r *router.Router) {
 	).
 		WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).
 		Register(r)
+
+	router.NewSpec(settingsAPI,
+		"GetServiceSettings",
+		huma.Operation{
+			Path:    "/services",
+			Method:  http.MethodGet,
+			Summary: "Get external service settings",
+		}, c.GetServiceSettings,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
+
+	router.NewSpec(settingsAPI,
+		"UpdateServiceSettings",
+		huma.Operation{
+			Path:    "/services",
+			Method:  http.MethodPut,
+			Summary: "Update external service settings",
+		}, c.UpdateServiceSettings,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleAdmin)).Register(r)
 
 	router.NewSpec(settingsAPI,
 		"GetEmailSettings",

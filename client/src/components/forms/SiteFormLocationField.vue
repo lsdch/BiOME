@@ -2,7 +2,7 @@
   <v-card
     class="site-location small-card-title"
     prepend-icon="mdi-town-hall"
-    variant="flat"
+    :variant
     :subtitle="
       user_defined_locality
         ? 'User defined'
@@ -90,20 +90,21 @@
 <script setup lang="ts">
 import { $SiteInput, Geoapify } from '@/api'
 import { coordinatesToCountryOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { useGeoapify } from '@/stores/geoapify'
-import { useQuery } from '@tanstack/vue-query'
-import { computed, unref, watch } from 'vue'
-import { Coordinates } from '@/features/cartography/coordinates'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import GeoapifyStatusButton from '@/components/toolkit/services/geoapify/GeoapifyStatusButton.vue'
 import CountryChip from '@/components/toolkit/ui/CountryChip'
-import { SchemaBinding, useSchemaBinding } from '@/composables/schema'
+import { useSchemaBinding } from '@/composables/schema'
+import { Coordinates } from '@/features/cartography/coordinates'
+import { useGeoapify } from '@/stores/geoapify'
+import { useQuery } from '@tanstack/vue-query'
+import { computed, unref, watch } from 'vue'
 
 const locality = defineModel<string | null | undefined>('locality', { required: true })
 const country_code = defineModel<string | null | undefined>('country_code', { required: true })
 const user_defined_locality = defineModel<boolean | undefined>('user_defined_locality')
 
-const props = defineProps<{
+const { variant, coordinates } = defineProps<{
+  variant?: 'outlined' | 'flat' | 'tonal' | 'text'
   coordinates: Partial<Coordinates>
 }>()
 
@@ -114,7 +115,7 @@ const {
   error,
   isFetching: reverseGeocodeIsPending,
   refetch: refetchReverseGeoCode
-} = reverseGeocodeQuery(props.coordinates, {
+} = reverseGeocodeQuery(coordinates, {
   staleTime: Infinity,
   enabled: computed(() => !user_defined_locality.value)
 })
@@ -133,12 +134,12 @@ const {
   refetch: refetchCountry
 } = useQuery(
   computed(() => ({
-    enabled: !user_defined_locality.value && Coordinates.isValidCoordinates(props.coordinates),
+    enabled: !user_defined_locality.value && Coordinates.isValidCoordinates(coordinates),
     staleTime: Infinity,
     ...coordinatesToCountryOptions({
       query: {
-        latitude: props.coordinates.latitude!,
-        longitude: props.coordinates.longitude!
+        latitude: coordinates?.latitude ?? 0,
+        longitude: coordinates?.longitude ?? 0
       }
     })
   }))

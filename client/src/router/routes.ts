@@ -10,24 +10,24 @@ export const accountRoutes: Record<string, RouteRecordRaw> = {
     component: () => import('@/views/auth/LoginView.vue'),
     meta: { title: 'Login' }
   },
-  signup: {
-    path: '/signup',
-    name: 'signup',
-    component: () => import('@/views/auth/SignUpView.vue'),
-    meta: { title: 'Account request' }
-  },
+  // signup: {
+  //   path: '/signup',
+  //   name: 'signup',
+  //   component: () => import('@/views/auth/SignUpView.vue'),
+  //   meta: { title: 'Account request' }
+  // },
   pwdReset: {
     path: '/password-reset',
     name: 'password-reset',
     component: () => import('@/views/auth/PasswordResetView.vue'),
     meta: { title: 'Password reset' }
   },
-  verifyEmail: {
-    path: '/verify-email',
-    name: 'verify-email',
-    component: () => import('@/views/auth/EmailVerificationView.vue'),
-    meta: { title: 'E-mail verification' }
-  },
+  // verifyEmail: {
+  //   path: '/verify-email',
+  //   name: 'verify-email',
+  //   component: () => import('@/views/auth/EmailVerificationView.vue'),
+  //   meta: { title: 'E-mail verification' }
+  // },
   account: guardAuth({
     path: '/account',
     name: 'account',

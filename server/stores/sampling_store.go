@@ -105,19 +105,16 @@ func (s *SamplingStore) GetHabitatsAtEvent(
 	ctx context.Context,
 	q db.Querier,
 	samplingID uuid.UUID,
-) ([]models.HabitatWithGroupName, error) {
+) ([]models.Habitat, error) {
 
 	rows, err := q.Queries().GetHabitatsAtEvent(ctx, samplingID)
 	if err != nil {
 		return nil, err
 	}
 
-	res := make([]models.HabitatWithGroupName, len(rows))
+	res := make([]models.Habitat, len(rows))
 	for i, r := range rows {
-		res[i] = models.HabitatWithGroupNameFromDB(
-			r.Habitat,
-			r.HabitatGroup.Label,
-		)
+		res[i] = models.HabitatFromDB(r)
 	}
 
 	return res, nil

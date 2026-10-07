@@ -14,11 +14,13 @@ import {
   addBibliographyCsvResponseTransformer,
   addCuratorToDatasetResponseTransformer,
   createDatasetResponseTransformer,
+  createHabitatResponseTransformer,
   createOccurrenceAtSamplingResponseTransformer,
   createOccurrenceResponseTransformer,
   createSamplingResponseTransformer,
   getDatasetByIdResponseTransformer,
   getEmailSettingsResponseTransformer,
+  getHabitatsResponseTransformer,
   getImportBatchResponseTransformer,
   getImportBatchWithContentResponseTransformer,
   getImportStatusResponseTransformer,
@@ -69,9 +71,9 @@ import type {
   CreateFixativeData,
   CreateFixativeErrors,
   CreateFixativeResponses,
-  CreateHabitatGroupData,
-  CreateHabitatGroupErrors,
-  CreateHabitatGroupResponses,
+  CreateHabitatData,
+  CreateHabitatErrors,
+  CreateHabitatResponses,
   CreateManualTaxonCandidateData,
   CreateManualTaxonCandidateErrors,
   CreateManualTaxonCandidateResponses,
@@ -99,9 +101,9 @@ import type {
   DeleteFixativeData,
   DeleteFixativeErrors,
   DeleteFixativeResponses,
-  DeleteHabitatGroupData,
-  DeleteHabitatGroupErrors,
-  DeleteHabitatGroupResponses,
+  DeleteHabitatData,
+  DeleteHabitatErrors,
+  DeleteHabitatResponses,
   DeleteImportBatchData,
   DeleteImportBatchErrors,
   DeleteImportBatchResponses,
@@ -144,9 +146,9 @@ import type {
   GetGeoapifyStatusData,
   GetGeoapifyStatusErrors,
   GetGeoapifyStatusResponses,
-  GetHabitatGroupsData,
-  GetHabitatGroupsErrors,
-  GetHabitatGroupsResponses,
+  GetHabitatsData,
+  GetHabitatsErrors,
+  GetHabitatsResponses,
   GetImportBatchData,
   GetImportBatchErrors,
   GetImportBatchResponses,
@@ -165,6 +167,9 @@ import type {
   GetOccurrenceData,
   GetOccurrenceErrors,
   GetOccurrenceResponses,
+  GetServiceSettingsData,
+  GetServiceSettingsErrors,
+  GetServiceSettingsResponses,
   GetTaxaAtRankData,
   GetTaxaAtRankErrors,
   GetTaxaAtRankResponses,
@@ -285,6 +290,12 @@ import type {
   RemoveOccurrenceFromDatasetData,
   RemoveOccurrenceFromDatasetErrors,
   RemoveOccurrenceFromDatasetResponses,
+  RequestPasswordResetData,
+  RequestPasswordResetErrors,
+  RequestPasswordResetResponses,
+  ResetPasswordData,
+  ResetPasswordErrors,
+  ResetPasswordResponses,
   ResolveFixativeData,
   ResolveFixativeErrors,
   ResolveFixativeResponses,
@@ -331,15 +342,24 @@ import type {
   UpdateFixativeData,
   UpdateFixativeErrors,
   UpdateFixativeResponses,
-  UpdateHabitatGroupData,
-  UpdateHabitatGroupErrors,
-  UpdateHabitatGroupResponses,
+  UpdateHabitatData,
+  UpdateHabitatErrors,
+  UpdateHabitatResponses,
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsErrors,
   UpdateInstanceSettingsResponses,
+  UpdatePasswordData,
+  UpdatePasswordErrors,
+  UpdatePasswordResponses,
   UpdateSamplingMethodData,
   UpdateSamplingMethodErrors,
-  UpdateSamplingMethodResponses
+  UpdateSamplingMethodResponses,
+  UpdateServiceSettingsData,
+  UpdateServiceSettingsErrors,
+  UpdateServiceSettingsResponses,
+  VerifyPasswordResetTokenData,
+  VerifyPasswordResetTokenErrors,
+  VerifyPasswordResetTokenResponses
 } from './types.gen'
 
 export type Options<
@@ -552,6 +572,130 @@ export class AccountsService {
       ],
       url: '/accounts',
       ...options
+    })
+  }
+
+  /**
+   * Change the current user's password
+   *
+   * Requires the current password. Revokes all sessions, including the current session, and invalidates reset tokens. Sign in again after success.
+   */
+  public static updatePassword<ThrowOnError extends boolean = false>(
+    options: Options<UpdatePasswordData, ThrowOnError>
+  ): RequestResult<UpdatePasswordResponses, UpdatePasswordErrors, ThrowOnError> {
+    return (options.client ?? client).put<
+      UpdatePasswordResponses,
+      UpdatePasswordErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/accounts/password',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Set a new password using a reset token
+   *
+   * Consumes the reset token, invalidates other reset tokens and revokes existing sessions.
+   */
+  public static resetPassword<ThrowOnError extends boolean = false>(
+    options: Options<ResetPasswordData, ThrowOnError>
+  ): RequestResult<ResetPasswordResponses, ResetPasswordErrors, ThrowOnError> {
+    return (options.client ?? client).post<
+      ResetPasswordResponses,
+      ResetPasswordErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/accounts/password-reset',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Request a password reset email
+   *
+   * Returns the same empty response for existing, unknown and inactive accounts.
+   */
+  public static requestPasswordReset<ThrowOnError extends boolean = false>(
+    options: Options<RequestPasswordResetData, ThrowOnError>
+  ): RequestResult<RequestPasswordResetResponses, RequestPasswordResetErrors, ThrowOnError> {
+    return (options.client ?? client).post<
+      RequestPasswordResetResponses,
+      RequestPasswordResetErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/accounts/password-reset/request',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Verify a password reset token
+   *
+   * Checks token validity and account activity without consuming the token or extending its expiration. Password submission still revalidates the token.
+   */
+  public static verifyPasswordResetToken<ThrowOnError extends boolean = false>(
+    options: Options<VerifyPasswordResetTokenData, ThrowOnError>
+  ): RequestResult<
+    VerifyPasswordResetTokenResponses,
+    VerifyPasswordResetTokenErrors,
+    ThrowOnError
+  > {
+    return (options.client ?? client).post<
+      VerifyPasswordResetTokenResponses,
+      VerifyPasswordResetTokenErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/accounts/password-reset/verify',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
     })
   }
 }
@@ -1210,16 +1354,13 @@ export class ServicesService {
 
 export class HabitatsService {
   /**
-   * Get all habitat groups with their elements
+   * Get all habitats
    */
-  public static getHabitatGroups<ThrowOnError extends boolean = false>(
-    options?: Options<GetHabitatGroupsData, ThrowOnError>
-  ): RequestResult<GetHabitatGroupsResponses, GetHabitatGroupsErrors, ThrowOnError> {
-    return (options?.client ?? client).get<
-      GetHabitatGroupsResponses,
-      GetHabitatGroupsErrors,
-      ThrowOnError
-    >({
+  public static getHabitats<ThrowOnError extends boolean = false>(
+    options?: Options<GetHabitatsData, ThrowOnError>
+  ): RequestResult<GetHabitatsResponses, GetHabitatsErrors, ThrowOnError> {
+    return (options?.client ?? client).get<GetHabitatsResponses, GetHabitatsErrors, ThrowOnError>({
+      responseTransformer: getHabitatsResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -1234,16 +1375,17 @@ export class HabitatsService {
   }
 
   /**
-   * Create a new habitat group with its elements
+   * Create a new habitat
    */
-  public static createHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<CreateHabitatGroupData, ThrowOnError>
-  ): RequestResult<CreateHabitatGroupResponses, CreateHabitatGroupErrors, ThrowOnError> {
+  public static createHabitat<ThrowOnError extends boolean = false>(
+    options: Options<CreateHabitatData, ThrowOnError>
+  ): RequestResult<CreateHabitatResponses, CreateHabitatErrors, ThrowOnError> {
     return (options.client ?? client).post<
-      CreateHabitatGroupResponses,
-      CreateHabitatGroupErrors,
+      CreateHabitatResponses,
+      CreateHabitatErrors,
       ThrowOnError
     >({
+      responseTransformer: createHabitatResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -1262,14 +1404,14 @@ export class HabitatsService {
   }
 
   /**
-   * Delete a habitat group by its ID
+   * Delete a habitat by its ID
    */
-  public static deleteHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<DeleteHabitatGroupData, ThrowOnError>
-  ): RequestResult<DeleteHabitatGroupResponses, DeleteHabitatGroupErrors, ThrowOnError> {
+  public static deleteHabitat<ThrowOnError extends boolean = false>(
+    options: Options<DeleteHabitatData, ThrowOnError>
+  ): RequestResult<DeleteHabitatResponses, DeleteHabitatErrors, ThrowOnError> {
     return (options.client ?? client).delete<
-      DeleteHabitatGroupResponses,
-      DeleteHabitatGroupErrors,
+      DeleteHabitatResponses,
+      DeleteHabitatErrors,
       ThrowOnError
     >({
       security: [
@@ -1286,14 +1428,14 @@ export class HabitatsService {
   }
 
   /**
-   * Update a habitat group by its ID
+   * Update a habitat by its ID
    */
-  public static updateHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<UpdateHabitatGroupData, ThrowOnError>
-  ): RequestResult<UpdateHabitatGroupResponses, UpdateHabitatGroupErrors, ThrowOnError> {
+  public static updateHabitat<ThrowOnError extends boolean = false>(
+    options: Options<UpdateHabitatData, ThrowOnError>
+  ): RequestResult<UpdateHabitatResponses, UpdateHabitatErrors, ThrowOnError> {
     return (options.client ?? client).patch<
-      UpdateHabitatGroupResponses,
-      UpdateHabitatGroupErrors,
+      UpdateHabitatResponses,
+      UpdateHabitatErrors,
       ThrowOnError
     >({
       security: [
@@ -2864,6 +3006,58 @@ export class SettingsService {
         }
       ],
       url: '/settings/instance/public-registration',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Get external service settings
+   */
+  public static getServiceSettings<ThrowOnError extends boolean = false>(
+    options?: Options<GetServiceSettingsData, ThrowOnError>
+  ): RequestResult<GetServiceSettingsResponses, GetServiceSettingsErrors, ThrowOnError> {
+    return (options?.client ?? client).get<
+      GetServiceSettingsResponses,
+      GetServiceSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/services',
+      ...options
+    })
+  }
+
+  /**
+   * Update external service settings
+   */
+  public static updateServiceSettings<ThrowOnError extends boolean = false>(
+    options: Options<UpdateServiceSettingsData, ThrowOnError>
+  ): RequestResult<UpdateServiceSettingsResponses, UpdateServiceSettingsErrors, ThrowOnError> {
+    return (options.client ?? client).put<
+      UpdateServiceSettingsResponses,
+      UpdateServiceSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/services',
       ...options,
       headers: {
         'Content-Type': 'application/json',

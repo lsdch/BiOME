@@ -1,4 +1,4 @@
-import { LoginResult, Meta, SessionTokens, User, UserCredentials, UserRole } from '@/api'
+import { LoginResult, SessionTokens, User, UserCredentials, UserRole } from '@/api'
 import {
   getCurrentUserOptions,
   loginMutation,
@@ -181,9 +181,9 @@ export const useUserStore = defineStore('user', () => {
       : false
   }
 
-  function isOwner<Item extends { meta?: Meta }>(item: Item) {
-    return user.value && item.meta?.created_by?.id === user.value.id
-  }
+  // function isOwner<Item extends { meta?: Meta }>(item: Item) {
+  //   return user.value && item.meta?.created_by?.id === user.value.id
+  // }
 
   return {
     /**
@@ -225,7 +225,7 @@ export const useUserStore = defineStore('user', () => {
      * Checks whether the currently authenticated user is the owner of an item,
      * based on the item's metadata
      */
-    isOwner,
+    // isOwner,
     /**
      * Checks if the current session has expired
      */

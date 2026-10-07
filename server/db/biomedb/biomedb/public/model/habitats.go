@@ -9,11 +9,13 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"time"
 )
 
 type Habitats struct {
-	ID             uuid.UUID `sql:"primary_key"`
-	Label          string
-	Description    *string
-	HabitatGroupID uuid.UUID
+	ID          uuid.UUID `sql:"primary_key"`
+	Label       string
+	Facet       *string
+	Description *string
+	CreatedAt   time.Time
 }

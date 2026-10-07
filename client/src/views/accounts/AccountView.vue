@@ -1,6 +1,6 @@
 <template>
   <div class="bg-main">
-    <TableToolbar :title="model.identity.full_name" icon="mdi-account">
+    <TableToolbar :title="model.full_name" icon="mdi-account">
     </TableToolbar>
     <v-container>
       <v-row>

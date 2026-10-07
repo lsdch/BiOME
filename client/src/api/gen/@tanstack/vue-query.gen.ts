@@ -51,9 +51,9 @@ import type {
   CreateFixativeData,
   CreateFixativeError,
   CreateFixativeResponse,
-  CreateHabitatGroupData,
-  CreateHabitatGroupError,
-  CreateHabitatGroupResponse,
+  CreateHabitatData,
+  CreateHabitatError,
+  CreateHabitatResponse,
   CreateManualTaxonCandidateData,
   CreateManualTaxonCandidateError,
   CreateManualTaxonCandidateResponse,
@@ -81,9 +81,9 @@ import type {
   DeleteFixativeData,
   DeleteFixativeError,
   DeleteFixativeResponse,
-  DeleteHabitatGroupData,
-  DeleteHabitatGroupError,
-  DeleteHabitatGroupResponse,
+  DeleteHabitatData,
+  DeleteHabitatError,
+  DeleteHabitatResponse,
   DeleteImportBatchData,
   DeleteImportBatchError,
   DeleteImportBatchResponse,
@@ -124,9 +124,9 @@ import type {
   GetGeoapifyStatusData,
   GetGeoapifyStatusError,
   GetGeoapifyStatusResponse,
-  GetHabitatGroupsData,
-  GetHabitatGroupsError,
-  GetHabitatGroupsResponse,
+  GetHabitatsData,
+  GetHabitatsError,
+  GetHabitatsResponse,
   GetImportBatchData,
   GetImportBatchError,
   GetImportBatchResponse,
@@ -145,6 +145,9 @@ import type {
   GetOccurrenceData,
   GetOccurrenceError,
   GetOccurrenceResponse,
+  GetServiceSettingsData,
+  GetServiceSettingsError,
+  GetServiceSettingsResponse,
   GetTaxaAtRankData,
   GetTaxaAtRankError,
   GetTaxaAtRankResponse,
@@ -265,6 +268,12 @@ import type {
   RemoveOccurrenceFromDatasetData,
   RemoveOccurrenceFromDatasetError,
   RemoveOccurrenceFromDatasetResponse,
+  RequestPasswordResetData,
+  RequestPasswordResetError,
+  RequestPasswordResetResponse,
+  ResetPasswordData,
+  ResetPasswordError,
+  ResetPasswordResponse,
   ResolveFixativeData,
   ResolveFixativeError,
   ResolveFixativeResponse,
@@ -307,15 +316,24 @@ import type {
   UpdateFixativeData,
   UpdateFixativeError,
   UpdateFixativeResponse,
-  UpdateHabitatGroupData,
-  UpdateHabitatGroupError,
-  UpdateHabitatGroupResponse,
+  UpdateHabitatData,
+  UpdateHabitatError,
+  UpdateHabitatResponse,
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsError,
   UpdateInstanceSettingsResponse,
+  UpdatePasswordData,
+  UpdatePasswordError,
+  UpdatePasswordResponse,
   UpdateSamplingMethodData,
   UpdateSamplingMethodError,
-  UpdateSamplingMethodResponse
+  UpdateSamplingMethodResponse,
+  UpdateServiceSettingsData,
+  UpdateServiceSettingsError,
+  UpdateServiceSettingsResponse,
+  VerifyPasswordResetTokenData,
+  VerifyPasswordResetTokenError,
+  VerifyPasswordResetTokenResponse
 } from '../types.gen'
 
 export type QueryKey<TOptions extends Options> = [
@@ -433,6 +451,114 @@ export const listUsersOptions = (options?: Options<ListUsersData>) =>
     },
     queryKey: listUsersQueryKey(options)
   })
+
+/**
+ * Change the current user's password
+ *
+ * Requires the current password. Revokes all sessions, including the current session, and invalidates reset tokens. Sign in again after success.
+ */
+export const updatePasswordMutation = (
+  options?: Partial<Options<UpdatePasswordData>>
+): UseMutationOptions<UpdatePasswordResponse, UpdatePasswordError, Options<UpdatePasswordData>> => {
+  const mutationOptions: UseMutationOptions<
+    UpdatePasswordResponse,
+    UpdatePasswordError,
+    Options<UpdatePasswordData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await AccountsService.updatePassword({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Set a new password using a reset token
+ *
+ * Consumes the reset token, invalidates other reset tokens and revokes existing sessions.
+ */
+export const resetPasswordMutation = (
+  options?: Partial<Options<ResetPasswordData>>
+): UseMutationOptions<ResetPasswordResponse, ResetPasswordError, Options<ResetPasswordData>> => {
+  const mutationOptions: UseMutationOptions<
+    ResetPasswordResponse,
+    ResetPasswordError,
+    Options<ResetPasswordData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await AccountsService.resetPassword({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Request a password reset email
+ *
+ * Returns the same empty response for existing, unknown and inactive accounts.
+ */
+export const requestPasswordResetMutation = (
+  options?: Partial<Options<RequestPasswordResetData>>
+): UseMutationOptions<
+  RequestPasswordResetResponse,
+  RequestPasswordResetError,
+  Options<RequestPasswordResetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RequestPasswordResetResponse,
+    RequestPasswordResetError,
+    Options<RequestPasswordResetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await AccountsService.requestPasswordReset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Verify a password reset token
+ *
+ * Checks token validity and account activity without consuming the token or extending its expiration. Password submission still revalidates the token.
+ */
+export const verifyPasswordResetTokenMutation = (
+  options?: Partial<Options<VerifyPasswordResetTokenData>>
+): UseMutationOptions<
+  VerifyPasswordResetTokenResponse,
+  VerifyPasswordResetTokenError,
+  Options<VerifyPasswordResetTokenData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    VerifyPasswordResetTokenResponse,
+    VerifyPasswordResetTokenError,
+    Options<VerifyPasswordResetTokenData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await AccountsService.verifyPasswordResetToken({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
 
 /**
  * Authenticate a user and return a JWT token
@@ -951,21 +1077,21 @@ export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData
     queryKey: listGeoapifyUsageQueryKey(options)
   })
 
-export const getHabitatGroupsQueryKey = (options?: Options<GetHabitatGroupsData>) =>
-  createQueryKey('getHabitatGroups', options)
+export const getHabitatsQueryKey = (options?: Options<GetHabitatsData>) =>
+  createQueryKey('getHabitats', options)
 
 /**
- * Get all habitat groups with their elements
+ * Get all habitats
  */
-export const getHabitatGroupsOptions = (options?: Options<GetHabitatGroupsData>) =>
+export const getHabitatsOptions = (options?: Options<GetHabitatsData>) =>
   queryOptions<
-    GetHabitatGroupsResponse,
-    GetHabitatGroupsError,
-    GetHabitatGroupsResponse,
-    ReturnType<typeof getHabitatGroupsQueryKey>
+    GetHabitatsResponse,
+    GetHabitatsError,
+    GetHabitatsResponse,
+    ReturnType<typeof getHabitatsQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await HabitatsService.getHabitatGroups({
+      const { data } = await HabitatsService.getHabitats({
         ...options,
         ...queryKey[0],
         signal,
@@ -973,26 +1099,22 @@ export const getHabitatGroupsOptions = (options?: Options<GetHabitatGroupsData>)
       })
       return data
     },
-    queryKey: getHabitatGroupsQueryKey(options)
+    queryKey: getHabitatsQueryKey(options)
   })
 
 /**
- * Create a new habitat group with its elements
+ * Create a new habitat
  */
-export const createHabitatGroupMutation = (
-  options?: Partial<Options<CreateHabitatGroupData>>
-): UseMutationOptions<
-  CreateHabitatGroupResponse,
-  CreateHabitatGroupError,
-  Options<CreateHabitatGroupData>
-> => {
+export const createHabitatMutation = (
+  options?: Partial<Options<CreateHabitatData>>
+): UseMutationOptions<CreateHabitatResponse, CreateHabitatError, Options<CreateHabitatData>> => {
   const mutationOptions: UseMutationOptions<
-    CreateHabitatGroupResponse,
-    CreateHabitatGroupError,
-    Options<CreateHabitatGroupData>
+    CreateHabitatResponse,
+    CreateHabitatError,
+    Options<CreateHabitatData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await HabitatsService.createHabitatGroup({
+      const { data } = await HabitatsService.createHabitat({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -1004,22 +1126,18 @@ export const createHabitatGroupMutation = (
 }
 
 /**
- * Delete a habitat group by its ID
+ * Delete a habitat by its ID
  */
-export const deleteHabitatGroupMutation = (
-  options?: Partial<Options<DeleteHabitatGroupData>>
-): UseMutationOptions<
-  DeleteHabitatGroupResponse,
-  DeleteHabitatGroupError,
-  Options<DeleteHabitatGroupData>
-> => {
+export const deleteHabitatMutation = (
+  options?: Partial<Options<DeleteHabitatData>>
+): UseMutationOptions<DeleteHabitatResponse, DeleteHabitatError, Options<DeleteHabitatData>> => {
   const mutationOptions: UseMutationOptions<
-    DeleteHabitatGroupResponse,
-    DeleteHabitatGroupError,
-    Options<DeleteHabitatGroupData>
+    DeleteHabitatResponse,
+    DeleteHabitatError,
+    Options<DeleteHabitatData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await HabitatsService.deleteHabitatGroup({
+      const { data } = await HabitatsService.deleteHabitat({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -1031,22 +1149,18 @@ export const deleteHabitatGroupMutation = (
 }
 
 /**
- * Update a habitat group by its ID
+ * Update a habitat by its ID
  */
-export const updateHabitatGroupMutation = (
-  options?: Partial<Options<UpdateHabitatGroupData>>
-): UseMutationOptions<
-  UpdateHabitatGroupResponse,
-  UpdateHabitatGroupError,
-  Options<UpdateHabitatGroupData>
-> => {
+export const updateHabitatMutation = (
+  options?: Partial<Options<UpdateHabitatData>>
+): UseMutationOptions<UpdateHabitatResponse, UpdateHabitatError, Options<UpdateHabitatData>> => {
   const mutationOptions: UseMutationOptions<
-    UpdateHabitatGroupResponse,
-    UpdateHabitatGroupError,
-    Options<UpdateHabitatGroupData>
+    UpdateHabitatResponse,
+    UpdateHabitatError,
+    Options<UpdateHabitatData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await HabitatsService.updateHabitatGroup({
+      const { data } = await HabitatsService.updateHabitat({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -3039,6 +3153,58 @@ export const togglePublicRegistrationMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await SettingsService.togglePublicRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const getServiceSettingsQueryKey = (options?: Options<GetServiceSettingsData>) =>
+  createQueryKey('getServiceSettings', options)
+
+/**
+ * Get external service settings
+ */
+export const getServiceSettingsOptions = (options?: Options<GetServiceSettingsData>) =>
+  queryOptions<
+    GetServiceSettingsResponse,
+    GetServiceSettingsError,
+    GetServiceSettingsResponse,
+    ReturnType<typeof getServiceSettingsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.getServiceSettings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getServiceSettingsQueryKey(options)
+  })
+
+/**
+ * Update external service settings
+ */
+export const updateServiceSettingsMutation = (
+  options?: Partial<Options<UpdateServiceSettingsData>>
+): UseMutationOptions<
+  UpdateServiceSettingsResponse,
+  UpdateServiceSettingsError,
+  Options<UpdateServiceSettingsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateServiceSettingsResponse,
+    UpdateServiceSettingsError,
+    Options<UpdateServiceSettingsData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.updateServiceSettings({
         ...options,
         ...fnOptions,
         throwOnError: true

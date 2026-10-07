@@ -40,6 +40,11 @@ FROM users
 WHERE id = @user_id
 LIMIT 1;
 
+-- name: GetActiveUserForPasswordUpdate :one
+SELECT * FROM users
+WHERE id = @user_id AND active
+FOR UPDATE;
+
 -- name: GetUserByLoginOrEmail :one
 SELECT *
 FROM users
