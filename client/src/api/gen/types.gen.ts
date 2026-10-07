@@ -2066,30 +2066,30 @@ export type ListGeoapifyUsageResponses = {
 
 export type ListGeoapifyUsageResponse = ListGeoapifyUsageResponses[keyof ListGeoapifyUsageResponses]
 
-export type GetHabitatsData = {
+export type ListHabitatsData = {
   body?: never
   path?: never
   query?: never
   url: '/habitats'
 }
 
-export type GetHabitatsErrors = {
+export type ListHabitatsErrors = {
   /**
    * Internal Server Error
    */
   500: AppError
 }
 
-export type GetHabitatsError = GetHabitatsErrors[keyof GetHabitatsErrors]
+export type ListHabitatsError = ListHabitatsErrors[keyof ListHabitatsErrors]
 
-export type GetHabitatsResponses = {
+export type ListHabitatsResponses = {
   /**
    * OK
    */
   200: Array<Habitat>
 }
 
-export type GetHabitatsResponse = GetHabitatsResponses[keyof GetHabitatsResponses]
+export type ListHabitatsResponse = ListHabitatsResponses[keyof ListHabitatsResponses]
 
 export type CreateHabitatData = {
   body: HabitatInput
@@ -3071,6 +3071,8 @@ export type ListOccurrencesData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
+habitats?: Array<string>
+    access_points?: Array<string>
   }
   url: '/occurrences'
 }
@@ -3147,6 +3149,8 @@ export type ListSamplingsWithOccurrencesData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
+habitats?: Array<string>
+    access_points?: Array<string>
   }
   url: '/occurrences/by-sampling'
 }
@@ -3222,6 +3226,8 @@ export type ExportSamplingsWithOccurrencesData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
+habitats?: Array<string>
+    access_points?: Array<string>
     format?: ExportFormat
     filename: string
     delimiter?: CsvDelimiter
@@ -3313,6 +3319,8 @@ export type ListOccurrencesH3Data = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
+habitats?: Array<string>
+    access_points?: Array<string>
   }
   url: '/occurrences/h3/{resolution}'
 }
@@ -3363,6 +3371,8 @@ export type ListSamplingsWithOccurrencesAtCellData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
+habitats?: Array<string>
+    access_points?: Array<string>
   }
   url: '/occurrences/h3/{resolution}/{cell}/data'
 }
@@ -3415,6 +3425,8 @@ export type ListOccurringTaxaAtCellData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
+habitats?: Array<string>
+    access_points?: Array<string>
   }
   url: '/occurrences/h3/{resolution}/{cell}/taxa'
 }

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+
 	"github.com/goccy/go-yaml"
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
@@ -14,7 +15,7 @@ type HabitatService struct{}
 
 func NewHabitatService() *HabitatService { return &HabitatService{} }
 
-func (s *HabitatService) GetHabitats(ctx context.Context, q db.Querier) ([]models.Habitat, error) {
+func (s *HabitatService) ListHabitats(ctx context.Context, q db.Querier) ([]models.Habitat, error) {
 	rows, err := q.Queries().ListHabitats(ctx)
 	if err != nil {
 		return nil, err
@@ -43,7 +44,7 @@ func (s *HabitatService) UpdateHabitat(ctx context.Context, q db.Querier, id uui
 }
 
 func (s *HabitatService) BootstrapHabitats(ctx context.Context, tx *db.Tx, yamlBytes []byte) error {
-	habitats, err := s.GetHabitats(ctx, tx)
+	habitats, err := s.ListHabitats(ctx, tx)
 	if err != nil {
 		return fmt.Errorf("failed to list habitats: %w", err)
 	}

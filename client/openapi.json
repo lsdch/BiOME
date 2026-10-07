@@ -5213,7 +5213,7 @@
 		},
 		"/habitats": {
 			"get": {
-				"operationId": "GetHabitats",
+				"operationId": "ListHabitats",
 				"responses": {
 					"200": {
 						"content": {
@@ -5239,7 +5239,7 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Get all habitats",
+				"summary": "List all habitats",
 				"tags": [
 					"Habitats"
 				],
@@ -7076,6 +7076,28 @@
 						"schema": {
 							"$ref": "#/components/schemas/TaxonStatus"
 						}
+},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "habitats",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "access_points",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
 					}
 				],
 				"responses": {
@@ -7326,6 +7348,28 @@
 						"schema": {
 							"$ref": "#/components/schemas/TaxonStatus"
 						}
+},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "habitats",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "access_points",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
 					}
 				],
 				"responses": {
@@ -7561,6 +7605,28 @@
 						"name": "taxon_status",
 						"schema": {
 							"$ref": "#/components/schemas/TaxonStatus"
+						}
+					},
+{
+						"explode": false,
+						"in": "query",
+						"name": "habitats",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "access_points",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
 						}
 					},
 					{
@@ -7915,6 +7981,28 @@
 							"$ref": "#/components/schemas/TaxonStatus"
 						}
 					},
+{
+						"explode": false,
+						"in": "query",
+						"name": "habitats",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "access_points",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
 					{
 						"in": "path",
 						"name": "resolution",
@@ -8125,6 +8213,28 @@
 						"name": "taxon_status",
 						"schema": {
 							"$ref": "#/components/schemas/TaxonStatus"
+						}
+					},
+{
+						"explode": false,
+						"in": "query",
+						"name": "habitats",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "access_points",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
 						}
 					},
 					{
@@ -8345,6 +8455,28 @@
 						"name": "taxon_status",
 						"schema": {
 							"$ref": "#/components/schemas/TaxonStatus"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "habitats",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "access_points",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
 						}
 					},
 					{

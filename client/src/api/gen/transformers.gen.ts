@@ -10,7 +10,6 @@ import type {
   CreateSamplingResponse,
   GetDatasetByIdResponse,
   GetEmailSettingsResponse,
-  GetHabitatsResponse,
   GetImportBatchResponse,
   GetImportBatchWithContentResponse,
   GetImportStatusResponse,
@@ -18,6 +17,7 @@ import type {
   ImportOccurrencesCsvResponse,
   ListDatasetsResponse,
   ListGeoapifyUsageResponse,
+  ListHabitatsResponse,
   ListImportBatchesInDatasetResponse,
   ListImportBatchesResponse,
   ListImportBatchesWithContentResponse,
@@ -166,7 +166,7 @@ const habitatSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const getHabitatsResponseTransformer = async (data: any): Promise<GetHabitatsResponse> => {
+export const listHabitatsResponseTransformer = async (data: any): Promise<ListHabitatsResponse> => {
   data = data.map((item: any) => habitatSchemaResponseTransformer(item))
   return data
 }

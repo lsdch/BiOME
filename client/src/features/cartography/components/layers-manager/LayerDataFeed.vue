@@ -93,6 +93,26 @@
         closable-chips
       />
     </v-list-item> -->
+
+    <v-list-item>
+      <HabitatPicker
+        v-model="filters.habitats"
+        label="Habitats"
+        density="compact"
+        multiple
+        hide-details
+        item-value="name"
+        clearable
+      />
+    </v-list-item>
+    <v-list-item>
+      <AccessPointsPicker
+        v-model="filters.access_points"
+        label="Access points"
+        density="compact"
+        hide-details
+      />
+    </v-list-item>
     <v-list-item>
       <CountryPicker
         density="compact"
@@ -103,7 +123,7 @@
         chips
         closable-chips
         clearable
-        hide-details²
+        hide-details
         :filter="(c) => c.sampling_count > 0"
       />
     </v-list-item>
@@ -248,6 +268,8 @@ import ImportBatchPicker from '@/features/import/components/ImportBatchPicker.vu
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
 import { reactive } from 'vue'
 import { MappingFilters } from './map-layers'
+import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
+import AccessPointsPicker from '@/features/occurrences/components/sampling/AccessPointsPicker.vue'
 
 const filters = defineModel<MappingFilters>({
   default: () =>

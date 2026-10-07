@@ -183,15 +183,17 @@ func (p ListSamplingsParams) countryFilter() []BoolExpression {
 type ListOccurrencesParams struct {
 	ListSamplingsParams `json:",inline"`
 	models.SortBy[models.OccurrenceSortKey]
-	SearchTerm  string                                       `json:"search_term,omitempty" query:"search_term"`
-	Datasets    []types.ULID                                 `json:"datasets,omitempty" query:"datasets"`
-	Batches     []uuid.UUID                                  `json:"batches,omitempty" query:"batches"`
-	Taxa        []uuid.UUID                                  `json:"taxa,omitempty" query:"taxa"`
-	WholeClade  bool                                         `json:"whole_clade,omitempty" query:"whole_clade"`
-	Confer      models.Optional[bool]                        `json:"confer,omitempty" query:"confer"`
-	TypeStatus  models.Optional[models.OccurrenceTypeStatus] `json:"type_status,omitempty" query:"type_status"`
-	TaxonRank   models.Optional[models.TaxonRank]            `json:"taxon_rank,omitempty" query:"taxon_rank"`
-	TaxonStatus models.Optional[models.TaxonStatus]          `json:"taxon_status,omitempty" query:"taxon_status"`
+	SearchTerm   string                                       `json:"search_term,omitempty" query:"search_term"`
+	Datasets     []types.ULID                                 `json:"datasets,omitempty" query:"datasets"`
+	Batches      []uuid.UUID                                  `json:"batches,omitempty" query:"batches"`
+	Taxa         []uuid.UUID                                  `json:"taxa,omitempty" query:"taxa"`
+	WholeClade   bool                                         `json:"whole_clade,omitempty" query:"whole_clade"`
+	Confer       models.Optional[bool]                        `json:"confer,omitempty" query:"confer"`
+	TypeStatus   models.Optional[models.OccurrenceTypeStatus] `json:"type_status,omitempty" query:"type_status"`
+	TaxonRank    models.Optional[models.TaxonRank]            `json:"taxon_rank,omitempty" query:"taxon_rank"`
+	TaxonStatus  models.Optional[models.TaxonStatus]          `json:"taxon_status,omitempty" query:"taxon_status"`
+	Habitats     []string                                     `json:"habitats,omitempty" query:"habitats"`
+	AccessPoints []string                                     `json:"access_points,omitempty" query:"access_points"`
 	// TargetTaxa           []uuid.UUID                                  `json:"target_taxa,omitempty" query:"target_taxa"`
 	// TargetTaxaWholeClade bool                                         `json:"target_taxa_whole_clade,omitempty" query:"target_taxa_whole_clade"`
 	// Countries            []string                                     `json:"countries,omitempty" query:"countries"`
@@ -211,6 +213,8 @@ func (p ListOccurrencesParams) ApplyFilters(stmt SelectStatement, constraints ..
 			p.countryFilter(),
 			p.batchFilter(),
 			p.dateFilter(),
+			p.habitatFilter(),
+			p.accessPointsFilter(),
 			constraints,
 		),
 		parts.toExpression(),
@@ -296,6 +300,32 @@ func (p *ListOccurrencesParams) typeStatusFilter() []BoolExpression {
 		return nil
 	}
 	return []BoolExpression{table.Occurrences.TypeStatus.EQ(StringExp(CAST(String(string(p.TypeStatus.Value))).AS("public.occurrence_type_status")))}
+}
+
+func (p *ListOccurrencesParams) habitatFilter() []BoolExpression {
+	if len(p.Habitats) == 0 {
+		return nil
+	}
+	filters := make([]BoolExpression, 0, len(p.Habitats))
+	for _, id := range p.Habitats {
+		filters = append(filters, EXISTS(
+			SELECT(Int(1)).
+				FROM(table.SamplingsHabitats).
+				WHERE(table.SamplingsHabitats.SamplingID.EQ(table.Samplings.ID).
+					AND(table.SamplingsHabitats.HabitatID.EQ(StringExp(CAST(String(id)).AS("uuid"))))),
+		))
+	}
+	return filters
+}
+
+func (p *ListOccurrencesParams) accessPointsFilter() []BoolExpression {
+	if len(p.AccessPoints) == 0 {
+		return nil
+	}
+	return []BoolExpression{RawBool(
+		"samplings.access_points && CAST(#access_points AS citext[])",
+		RawArgs{"#access_points": p.AccessPoints},
+	)}
 }
 
 func (p *ListOccurrencesParams) taxonomyFilters() []BoolExpression {

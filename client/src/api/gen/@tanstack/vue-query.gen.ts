@@ -184,6 +184,9 @@ import type {
   ListGeoapifyUsageData,
   ListGeoapifyUsageError,
   ListGeoapifyUsageResponse,
+ListHabitatsData,
+  ListHabitatsError,
+  ListHabitatsResponse,
   ListImportBatchesData,
   ListImportBatchesError,
   ListImportBatchesInDatasetData,
@@ -1077,21 +1080,21 @@ export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData
     queryKey: listGeoapifyUsageQueryKey(options)
   })
 
-export const getHabitatsQueryKey = (options?: Options<GetHabitatsData>) =>
-  createQueryKey('getHabitats', options)
+export const listHabitatsQueryKey = (options?: Options<ListHabitatsData>) =>
+  createQueryKey('listHabitats', options)
 
 /**
- * Get all habitats
+ * List all habitats
  */
-export const getHabitatsOptions = (options?: Options<GetHabitatsData>) =>
+export const listHabitatsOptions = (options?: Options<ListHabitatsData>) =>
   queryOptions<
-    GetHabitatsResponse,
-    GetHabitatsError,
-    GetHabitatsResponse,
-    ReturnType<typeof getHabitatsQueryKey>
+    ListHabitatsResponse,
+    ListHabitatsError,
+    ListHabitatsResponse,
+    ReturnType<typeof listHabitatsQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await HabitatsService.getHabitats({
+      const { data } = await HabitatsService.listHabitats({
         ...options,
         ...queryKey[0],
         signal,
@@ -1099,7 +1102,7 @@ export const getHabitatsOptions = (options?: Options<GetHabitatsData>) =>
       })
       return data
     },
-    queryKey: getHabitatsQueryKey(options)
+    queryKey: listHabitatsQueryKey(options)
   })
 
 /**

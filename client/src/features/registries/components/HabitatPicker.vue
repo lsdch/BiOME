@@ -2,11 +2,11 @@
   <v-autocomplete
     v-model="model"
     v-model:search="searchTerm"
-    :items
+    :items="habitats"
     label="Habitat tags"
     prepend-inner-icon="mdi-tag-multiple"
     color="primary"
-    multiple
+    :multiple
     chips
     clearable
     closable-chips
@@ -15,35 +15,23 @@
     auto-select-first
     clear-on-select
     placeholder="Start typing to search"
-    return-object
+    :return-object
+    :item-value
   >
-    <template #chip="{ item, props }">
-      <v-chip closable v-bind="props" @click:close="onDelete(item)" :text="item.name" />
-    </template>
     <template #item="{ item, props }">
-      <v-list-item
-        :title="item.name"
-        :subtitle="
-          habitatDependencies(item.id)
-            .map(({ name }) => name)
-            .join(' › ')
-        "
-        v-bind="props"
-      >
+      <v-list-item :title="item.name" v-bind="props">
         <template #title="{ title }">
-          <span :class="{ 'font-weight-bold': !habitatDependencies(item.id).length }">{{
-            title
-          }}</span>
+          <span>{{ title }}</span>
         </template>
         <template #subtitle="{ subtitle }">
           <span class="text-caption">{{ subtitle }}</span>
         </template>
         <template #append>
-          <v-chip class="text-overline" color="primary" :text="getHabitat(item.id)?.group.name" />
+          <v-chip class="text-overline" color="primary" :text="item.facet" />
         </template>
       </v-list-item>
     </template>
-    <template #append-item>
+    <!-- <template #append-item>
       <v-list v-if="quickSelect.length > 0">
         <v-list-subheader> Quick select </v-list-subheader>
         <v-list-item v-for="item in quickSelect" :key="item.id" @click="addWithDependencies(item)">
@@ -57,80 +45,36 @@
           </template>
         </v-list-item>
       </v-list>
-    </template>
+    </template> -->
   </v-autocomplete>
 </template>
 
-<script setup lang="ts">
-import { HabitatGroupWithElements, Habitat } from '@/api'
-import { HabitatNode, useHabitats } from '../composables/habitats'
-import { computed, reactive, ref } from 'vue'
+<script setup lang="ts" generic="Multiple extends boolean, ReturnObject extends boolean">
+import { Habitat } from '@/api'
+import { listHabitatsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
+import { ref } from 'vue'
+import type { Value } from 'vuetify/lib/components/VAutocomplete/VAutocomplete.mjs'
 
-const model = defineModel<Habitat[]>({ default: () => reactive([]) })
+export type HabitatPickerProps<
+  Multiple extends boolean = false,
+  ReturnObject extends boolean = false
+> = {
+  multiple?: Multiple
+  returnObject?: ReturnObject
+  itemValue?: 'id' | 'name'
+}
+
+const {
+  multiple = false,
+  returnObject = false,
+  itemValue = 'id'
+} = defineProps<HabitatPickerProps<Multiple, ReturnObject>>()
+
+const model = defineModel<Value<Habitat, ReturnObject, Multiple> | null>()
 const searchTerm = ref<string | undefined>(undefined)
 
-const { groups: habitatGroups, habitatGraph, getHabitat, habitatDependencies } = useHabitats()
-
-function addWithDependencies(habitat: HabitatNode) {
-  const existingIds = new Set(model.value.map(({ id }) => id))
-  const toAdd = [...(habitat.upstream ?? []), habitat]
-
-  toAdd.forEach((item) => {
-    if (!existingIds.has(item.id)) {
-      model.value.push(item)
-      existingIds.add(item.id)
-    }
-  })
-
-  searchTerm.value = undefined
-}
-
-function onDelete(item: Habitat) {
-  model.value = model.value.filter(
-    ({ id }) => id != item.id && !habitatDependencies(id).some(({ id: depId }) => depId == item.id)
-  )
-}
-
-function compatibleHabitats(habitats: HabitatNode[], selected: Habitat[]) {
-  return habitats.filter(
-    ({ id: habitatID, incompatible }) =>
-      !selected.some(({ id }) => habitatID == id || incompatible?.some((incomp) => incomp.id == id))
-  )
-}
-
-function isGroupReachable(group: HabitatGroupWithElements) {
-  return model.value.some(({ id }) => group.parent_id == id)
-}
-
-const items = computed<Habitat[]>(() => {
-  return habitatGraph.value.groups.values().reduce((acc: Habitat[], g) => {
-    const habitats = g.elements
-      .map((habitat) => getHabitat(habitat.id))
-      .filter((habitat): habitat is HabitatNode => Boolean(habitat))
-
-    if (g.parent_id == undefined || isGroupReachable(g)) {
-      acc = acc.concat(compatibleHabitats(habitats, model.value))
-    }
-    return acc
-  }, [])
-})
-
-/**
- * List of deep habitat tags that are not immediately accessible given the current tags selection
- */
-const quickSelect = computed(() => {
-  if (searchTerm.value != undefined && searchTerm.value.length > 0) {
-    const term = searchTerm.value.toLowerCase()
-    return habitatGraph.value.habitats
-      .values()
-      .filter(
-        ({ name, upstream }) => (upstream?.length ?? 0) > 0 && name.toLowerCase().includes(term)
-      )
-      .take(5)
-      .toArray()
-  }
-  return []
-})
+const { data: habitats } = useQuery(listHabitatsOptions())
 </script>
 
 <style scoped></style>

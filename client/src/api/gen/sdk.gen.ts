@@ -20,14 +20,14 @@ import {
   createSamplingResponseTransformer,
   getDatasetByIdResponseTransformer,
   getEmailSettingsResponseTransformer,
-  getHabitatsResponseTransformer,
-  getImportBatchResponseTransformer,
+    getImportBatchResponseTransformer,
   getImportBatchWithContentResponseTransformer,
   getImportStatusResponseTransformer,
   getOccurrenceResponseTransformer,
   importOccurrencesCsvResponseTransformer,
   listDatasetsResponseTransformer,
   listGeoapifyUsageResponseTransformer,
+listHabitatsResponseTransformer,
   listImportBatchesInDatasetResponseTransformer,
   listImportBatchesResponseTransformer,
   listImportBatchesWithContentResponseTransformer,
@@ -206,6 +206,9 @@ import type {
   ListGeoapifyUsageData,
   ListGeoapifyUsageErrors,
   ListGeoapifyUsageResponses,
+ListHabitatsData,
+  ListHabitatsErrors,
+  ListHabitatsResponses,
   ListImportBatchesData,
   ListImportBatchesErrors,
   ListImportBatchesInDatasetData,
@@ -1354,13 +1357,14 @@ export class ServicesService {
 
 export class HabitatsService {
   /**
-   * Get all habitats
+   * List all habitats
    */
-  public static getHabitats<ThrowOnError extends boolean = false>(
-    options?: Options<GetHabitatsData, ThrowOnError>
-  ): RequestResult<GetHabitatsResponses, GetHabitatsErrors, ThrowOnError> {
-    return (options?.client ?? client).get<GetHabitatsResponses, GetHabitatsErrors, ThrowOnError>({
-      responseTransformer: getHabitatsResponseTransformer,
+  public static listHabitats<ThrowOnError extends boolean = false>(
+    options?: Options<ListHabitatsData, ThrowOnError>
+  ): RequestResult<ListHabitatsResponses, ListHabitatsErrors, ThrowOnError> {
+    return (options?.client ?? client).get<ListHabitatsResponses, ListHabitatsErrors, ThrowOnError>(
+{
+      responseTransformer: listHabitatsResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -1371,7 +1375,8 @@ export class HabitatsService {
       ],
       url: '/habitats',
       ...options
-    })
+    }
+)
   }
 
   /**
@@ -2219,7 +2224,9 @@ export class OccurrencesService {
           target_taxa: { array: { explode: false } },
           countries: { array: { explode: false } },
           datasets: { array: { explode: false } },
-          taxa: { array: { explode: false } }
+          taxa: { array: { explode: false } },
+          habitats: { array: { explode: false } },
+          access_points: { array: { explode: false } }
         }
       },
       responseTransformer: listOccurrencesResponseTransformer,
@@ -2286,7 +2293,9 @@ export class OccurrencesService {
           target_taxa: { array: { explode: false } },
           countries: { array: { explode: false } },
           datasets: { array: { explode: false } },
-          taxa: { array: { explode: false } }
+          taxa: { array: { explode: false } },
+          habitats: { array: { explode: false } },
+          access_points: { array: { explode: false } }
         }
       },
       responseTransformer: listSamplingsWithOccurrencesResponseTransformer,
@@ -2348,7 +2357,9 @@ export class OccurrencesService {
           target_taxa: { array: { explode: false } },
           countries: { array: { explode: false } },
           datasets: { array: { explode: false } },
-          taxa: { array: { explode: false } }
+          taxa: { array: { explode: false } },
+          habitats: { array: { explode: false } },
+          access_points: { array: { explode: false } }
         }
       },
       security: [
@@ -2412,7 +2423,9 @@ export class OccurrencesService {
           target_taxa: { array: { explode: false } },
           countries: { array: { explode: false } },
           datasets: { array: { explode: false } },
-          taxa: { array: { explode: false } }
+          taxa: { array: { explode: false } },
+          habitats: { array: { explode: false } },
+          access_points: { array: { explode: false } }
         }
       },
       security: [
@@ -2449,7 +2462,9 @@ export class OccurrencesService {
           target_taxa: { array: { explode: false } },
           countries: { array: { explode: false } },
           datasets: { array: { explode: false } },
-          taxa: { array: { explode: false } }
+          taxa: { array: { explode: false } },
+          habitats: { array: { explode: false } },
+          access_points: { array: { explode: false } }
         }
       },
       responseTransformer: listSamplingsWithOccurrencesAtCellResponseTransformer,
@@ -2483,7 +2498,9 @@ export class OccurrencesService {
           target_taxa: { array: { explode: false } },
           countries: { array: { explode: false } },
           datasets: { array: { explode: false } },
-          taxa: { array: { explode: false } }
+          taxa: { array: { explode: false } },
+          habitats: { array: { explode: false } },
+          access_points: { array: { explode: false } }
         }
       },
       security: [

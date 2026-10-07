@@ -22,8 +22,8 @@ func NewHabitatsController(db *db.DB, service *services.HabitatService) *Habitat
 	return &HabitatsController{db: db, service: service}
 }
 
-func (c *HabitatsController) GetHabitats(ctx context.Context, _ *struct{}) (*BodyTransporter[[]models.Habitat], error) {
-	habitats, err := c.service.GetHabitats(ctx, c.db)
+func (c *HabitatsController) ListHabitats(ctx context.Context, _ *struct{}) (*BodyTransporter[[]models.Habitat], error) {
+	habitats, err := c.service.ListHabitats(ctx, c.db)
 	if err != nil {
 		return nil, err
 	}
@@ -60,13 +60,13 @@ func (c *HabitatsController) RegisterRoutes(r *router.Router) {
 
 	router.NewSpec(
 		habitatsAPI,
-		"GetHabitats",
+		"ListHabitats",
 		huma.Operation{
 			Method:  http.MethodGet,
 			Path:    "/",
-			Summary: "Get all habitats",
+			Summary: "List all habitats",
 		},
-		c.GetHabitats,
+		c.ListHabitats,
 	).WithAccessPolicy(auth.Public()).Register(r)
 
 	router.NewSpec(

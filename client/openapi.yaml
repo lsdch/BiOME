@@ -887,8 +887,8 @@ paths:
     get:
       tags:
       - Habitats
-      summary: Get all habitats
-      operationId: GetHabitats
+      summary: List all habitats
+      operationId: ListHabitats
       responses:
         "200":
           description: OK
@@ -2057,6 +2057,20 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/TaxonStatus"
+      - name: habitats
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: access_points
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: OK
@@ -2214,6 +2228,20 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/TaxonStatus"
+      - name: habitats
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: access_points
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: OK
@@ -2363,6 +2391,20 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/TaxonStatus"
+      - name: habitats
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: access_points
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
       - name: format
         in: query
         explode: false
@@ -2588,6 +2630,20 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/TaxonStatus"
+      - name: habitats
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: access_points
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
       - name: resolution
         in: path
         required: true
@@ -2723,6 +2779,20 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/TaxonStatus"
+      - name: habitats
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: access_points
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
       - name: resolution
         in: path
         required: true
@@ -2863,6 +2933,20 @@ paths:
         explode: false
         schema:
           $ref: "#/components/schemas/TaxonStatus"
+      - name: habitats
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+      - name: access_points
+        in: query
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
       - name: resolution
         in: path
         required: true
