@@ -21,9 +21,9 @@ func TestImportBatchFileIdentity(t *testing.T) {
 }
 
 func TestMaterializationRequiresEveryResolution(t *testing.T) {
-	ready := MaterializationReadyCheck{Taxonomy: true, Methods: true, Fixatives: true, Bibliography: true}
+	ready := MaterializationReadyCheck{Taxonomy: true, Methods: true, Fixatives: true, Bibliography: true, Habitats: true}
 	require.True(t, ready.IsReady())
-	for _, field := range []string{"taxonomy", "methods", "fixatives", "bibliography"} {
+	for _, field := range []string{"taxonomy", "methods", "fixatives", "bibliography", "habitats"} {
 		t.Run(field, func(t *testing.T) {
 			check := ready
 			switch field {
@@ -33,6 +33,8 @@ func TestMaterializationRequiresEveryResolution(t *testing.T) {
 				check.Methods = false
 			case "fixatives":
 				check.Fixatives = false
+			case "habitats":
+				check.Habitats = false
 			case "bibliography":
 				check.Bibliography = false
 			}

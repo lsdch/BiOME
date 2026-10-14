@@ -14,8 +14,9 @@
       <v-tabs-window-item class="fill-height" value="fixatives">
         <SamplingFixativeResolver :import_id="import_id" />
       </v-tabs-window-item>
-      <v-tabs-window-item value="access-points">
-        <AccessPointsPicker />
+      <v-tabs-window-item value="access-points"> </v-tabs-window-item>
+      <v-tabs-window-item value="habitats">
+        <HabitatsResolver :import_id="import_id" />
       </v-tabs-window-item>
     </v-tabs-window>
   </div>
@@ -23,11 +24,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import HabitatsResolver from './HabitatsResolver.vue'
+import SamplingFixativeResolver from './SamplingFixativeResolver.vue'
 import SamplingMethodResolver from './SamplingMethodResolver.vue'
-import AccessPointsPicker from '@/features/occurrences/components/sampling/AccessPointsPicker.vue';
-import SamplingFixativeResolver from './SamplingFixativeResolver.vue';
 
-type Tabs = 'methods' | 'fixatives' | 'access-points'
+type Tabs = 'methods' | 'fixatives' | 'access-points' | 'habitats'
 const tab = ref<Tabs>('methods')
 
 const { import_id } = defineProps<{

@@ -18,7 +18,6 @@
       <span v-if="item.verbatim">{{ item.verbatim }}</span>
       <v-chip v-else-if="item.doi">
         <div class="d-flex align-end">
-          ?.filter((item) => !item.status || statusFilter.includes(item.status)) ?? []
           <span class="text-overline text-muted text-label-medium">DOI:&nbsp;</span>
           <span>{{ item.doi }}</span>
         </div>

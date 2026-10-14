@@ -4,7 +4,6 @@
     v-model:search="searchTerm"
     :items="habitats"
     label="Habitat tags"
-    prepend-inner-icon="mdi-tag-multiple"
     color="primary"
     :multiple
     chips

@@ -34,6 +34,9 @@ fixatives AS (
         AND r.resolved_fixative_id IS NULL
         AND r.status <> 'discard'
 ),
+habitats AS (
+    SELECT sampling_habitats_ready($1)::boolean AS ready
+),
 bibliography AS (
     SELECT COUNT(*) = 0 AS ready
     FROM publication_resolution r
@@ -43,10 +46,12 @@ bibliography AS (
 SELECT taxonomy.ready::bool as taxonomy,
     methods.ready::bool as methods,
     fixatives.ready::bool as fixatives,
+    habitats.ready::bool as habitats,
     bibliography.ready::bool as bibliography
 FROM taxonomy,
     methods,
     fixatives,
+    habitats,
     bibliography
 `
 
@@ -54,6 +59,7 @@ type CheckReadyToMaterializeRow struct {
 	Taxonomy     bool `json:"taxonomy"`
 	Methods      bool `json:"methods"`
 	Fixatives    bool `json:"fixatives"`
+	Habitats     bool `json:"habitats"`
 	Bibliography bool `json:"bibliography"`
 }
 
@@ -64,6 +70,7 @@ func (q *Queries) CheckReadyToMaterialize(ctx context.Context, importID uuid.UUI
 		&i.Taxonomy,
 		&i.Methods,
 		&i.Fixatives,
+		&i.Habitats,
 		&i.Bibliography,
 	)
 	return i, err

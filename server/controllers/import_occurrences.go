@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -10,6 +11,7 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/sse"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/imports"
@@ -18,6 +20,7 @@ import (
 	"github.com/lsdch/biome/middleware"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/router"
+	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
 )
 
@@ -321,6 +324,46 @@ func (c *ImportController) ResolveFixative(ctx context.Context,
 	return &BodyTransporter[models.SamplingFixativeResolution]{Body: resolution}, nil
 }
 
+func (c *ImportController) GetHabitatsResolution(ctx context.Context, input *UUIDInput) (*BodyTransporter[[]models.SamplingHabitatResolution], error) {
+	runner, err := c.getRunner(input.ID)
+	if err != nil {
+		return nil, err
+	}
+	state, err := runner.GetHabitatsResolution(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &BodyTransporter[[]models.SamplingHabitatResolution]{Body: state}, nil
+}
+
+func (c *ImportController) ResolveHabitats(ctx context.Context, input *struct {
+	UUIDInput
+	BodyTransporter[models.SamplingHabitatResolutionInput]
+}) (*BodyTransporter[models.SamplingHabitatResolution], error) {
+	runner, err := c.getRunner(input.ID)
+	if err != nil {
+		return nil, err
+	}
+	resolution, err := runner.ResolveHabitats(ctx, input.Body)
+	if err != nil {
+		var validation models.ErrorWithPath
+		var pgErr *pgconn.PgError
+		switch {
+		case errors.As(err, &validation):
+			return nil, huma.Error422UnprocessableEntity("Invalid habitat resolution", err)
+		case errors.Is(err, stores.ErrHabitatBatchNotEditable):
+			return nil, huma.Error409Conflict(err.Error())
+		case errors.Is(err, stores.ErrConflictingHabitatCreations):
+			return nil, huma.Error422UnprocessableEntity(err.Error())
+		case errors.As(err, &pgErr) && (pgErr.Code == "23503" || pgErr.Code == "23505"):
+			return nil, huma.Error422UnprocessableEntity("Habitat targets must reference existing habitats and have unique names and IDs")
+		default:
+			return nil, err
+		}
+	}
+	return &BodyTransporter[models.SamplingHabitatResolution]{Body: resolution}, nil
+}
+
 func (c *ImportController) Materialize(ctx context.Context, input *UUIDInput) (*BodyTransporter[models.ImportBatch], error) {
 	runner, err := c.getRunner(input.ID)
 	if err != nil {
@@ -334,6 +377,9 @@ func (c *ImportController) Materialize(ctx context.Context, input *UUIDInput) (*
 
 	batch, err := runner.Materialize(session.UserID)
 	if err != nil {
+		if errors.Is(err, imports.ErrBatchAlreadyCompleted) {
+			return nil, huma.Error409Conflict(err.Error())
+		}
 		return nil, fmt.Errorf("failed to materialize import ID %s: %v", input.ID, err)
 	}
 
@@ -500,6 +546,28 @@ func (c *ImportController) RegisterRoutes(r *router.Router) {
 	).
 		WithAccessPolicy(auth.Role(biomedb.UserRoleContributor)).
 		Register(r)
+
+	router.NewSpec(
+		importsAPI,
+		"GetHabitatsResolution",
+		huma.Operation{
+			Method:  http.MethodGet,
+			Path:    "/{id}/habitats",
+			Summary: "Get habitat resolution decisions and deferred creations",
+		},
+		c.GetHabitatsResolution,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleContributor)).Register(r)
+
+	router.NewSpec(
+		importsAPI,
+		"ResolveHabitats",
+		huma.Operation{
+			Method:  http.MethodPatch,
+			Path:    "/{id}/habitats",
+			Summary: "Resolve an imported value to multiple habitats or request their creation",
+		},
+		c.ResolveHabitats,
+	).WithAccessPolicy(auth.Role(biomedb.UserRoleContributor)).Register(r)
 
 	router.NewSpec(
 		importsAPI,

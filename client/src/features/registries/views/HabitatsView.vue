@@ -32,6 +32,7 @@
       open-all
       item-value="id"
       hover
+      :items-per-page-options="[25, 50, 100]"
       class="flex-grow-1 justify-content-start overflow-y-auto"
     >
       <template #group-header="{ item, columns, toggleGroup, isGroupOpen }">
@@ -117,8 +118,8 @@ import type { Habitat, HabitatInput } from '@/api'
 import {
   createHabitatMutation,
   deleteHabitatMutation,
-  getHabitatsOptions,
-  getHabitatsQueryKey,
+  listHabitatsOptions,
+  listHabitatsQueryKey,
   updateHabitatMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
@@ -128,7 +129,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, reactive, ref } from 'vue'
 import { VForm } from 'vuetify/components'
 
-const { data: habitats, error, isPending, isFetching, refetch } = useQuery(getHabitatsOptions())
+const { data: habitats, error, isPending, isFetching, refetch } = useQuery(listHabitatsOptions())
 const queryClient = useQueryClient()
 const { feedback } = useFeedback()
 const { isGranted } = useUserStore()
@@ -166,7 +167,7 @@ const deleteMutation = useMutation({
   onError: () => feedback({ type: 'error', message: 'Failed to delete habitat' })
 })
 function refreshHabitats() {
-  return queryClient.invalidateQueries({ queryKey: getHabitatsQueryKey() })
+  return queryClient.invalidateQueries({ queryKey: listHabitatsQueryKey() })
 }
 function openForm(habitat?: Habitat) {
   editingHabitat.value = habitat

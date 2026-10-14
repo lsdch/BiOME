@@ -1719,6 +1719,22 @@ type SamplingFixativesResolution struct {
 	Status             VocabResolutionStatus `json:"status"`
 }
 
+type SamplingHabitatTarget struct {
+	ID                  uuid.UUID   `json:"id"`
+	ImportID            uuid.UUID   `json:"import_id"`
+	InputText           string      `json:"input_text"`
+	HabitatID           pgtype.UUID `json:"habitat_id"`
+	CreationName        *string     `json:"creation_name"`
+	CreationFacet       *string     `json:"creation_facet"`
+	CreationDescription *string     `json:"creation_description"`
+}
+
+type SamplingHabitatsResolution struct {
+	ImportID  uuid.UUID             `json:"import_id"`
+	InputText string                `json:"input_text"`
+	Status    VocabResolutionStatus `json:"status"`
+}
+
 type SamplingMethod struct {
 	ID          uuid.UUID `json:"id"`
 	Code        string    `json:"code"`

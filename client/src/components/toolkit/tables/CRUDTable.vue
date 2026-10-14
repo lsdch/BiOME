@@ -19,7 +19,7 @@
       hover
       :mobile="mobile ?? xs"
       :density="mobile ? 'compact' : undefined"
-      :items-per-page-options="[5, 10, 15, 20]"
+      :items-per-page-options
       :items-per-page="mobile ? 5 : 15"
       style="position: relative"
     >
@@ -280,6 +280,7 @@ type Props = TableProps<ItemType, ItemsQueryData, ItemsDeleteData> & {
   loading?: boolean
   error?: AppError | null
   exportable?: boolean
+  itemsPerPageOptions?: number[]
 }
 
 const { xs, smAndUp } = useDisplay()
@@ -291,7 +292,11 @@ const slotNames = Object.keys(tableSlots) as 'default'[]
 const items = defineModel<ItemType[]>('items', { default: () => [] })
 const selected = defineModel<string[]>('selected', { default: () => [] })
 const search = defineModel<Partial<Filters>>('search', { default: () => ({}) })
-const { showExpand = true, ...props } = defineProps<Props>()
+const {
+  showExpand = true,
+  itemsPerPageOptions = [10, 20, 50, 100],
+  ...props
+} = defineProps<Props>()
 const emit = defineEmits<{
   itemCreated: [item: ItemType, index: number]
   itemEdited: [item: ItemType, index: number]

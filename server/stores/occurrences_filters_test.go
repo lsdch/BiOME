@@ -10,18 +10,18 @@ import (
 )
 
 func TestOccurrenceHabitatAndAccessPointsFilters(t *testing.T) {
-	const habitatID = "11111111-1111-1111-1111-111111111111"
+	const habitatName = "Forest"
 	for _, tt := range []struct {
 		name   string
 		params ListOccurrencesParams
 	}{
 		{name: "absent"},
 		{name: "empty", params: ListOccurrencesParams{Habitats: []string{}, AccessPoints: []string{}}},
-		{name: "habitat", params: ListOccurrencesParams{Habitats: []string{habitatID}}},
-		{name: "all habitats", params: ListOccurrencesParams{Habitats: []string{habitatID, "22222222-2222-2222-2222-222222222222"}}},
-		{name: "duplicate habitat", params: ListOccurrencesParams{Habitats: []string{habitatID, habitatID}}},
+		{name: "habitat", params: ListOccurrencesParams{Habitats: []string{habitatName}}},
+		{name: "all habitats", params: ListOccurrencesParams{Habitats: []string{habitatName, "O'Brien"}}},
+		{name: "duplicate habitat", params: ListOccurrencesParams{Habitats: []string{habitatName, habitatName}}},
 		{name: "access points", params: ListOccurrencesParams{AccessPoints: []string{"Cave", "O'Brien"}}},
-		{name: "combined", params: ListOccurrencesParams{Habitats: []string{habitatID}, AccessPoints: []string{"Cave", "O'Brien"}}},
+		{name: "combined", params: ListOccurrencesParams{Habitats: []string{habitatName}, AccessPoints: []string{"Cave", "O'Brien"}}},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			stmt := SELECT(table.Occurrences.ID).FROM(table.Occurrences.
@@ -31,14 +31,16 @@ func TestOccurrenceHabitatAndAccessPointsFilters(t *testing.T) {
 				require.Contains(t, sql, "EXISTS")
 				require.Contains(t, sql, "samplings_habitats.sampling_id = samplings.id")
 				require.Equal(t, len(tt.params.Habitats), strings.Count(sql, "EXISTS"))
-				require.Equal(t, len(tt.params.Habitats), strings.Count(sql, "samplings_habitats.habitat_id ="))
+				require.Contains(t, sql, "samplings_habitats.habitat_id = habitats.id")
+				require.Equal(t, len(tt.params.Habitats), strings.Count(sql, "habitats.label ="))
 				require.NotContains(t, sql, " OR ")
-				for _, id := range tt.params.Habitats {
-					require.Contains(t, args, id)
+				for _, name := range tt.params.Habitats {
+					require.Contains(t, args, name)
+					require.NotContains(t, sql, name)
 				}
-				require.Contains(t, sql, "::uuid")
-				require.Contains(t, args, habitatID)
-				require.NotContains(t, sql, habitatID)
+				require.NotContains(t, sql, "::uuid")
+				require.NotContains(t, args, int64(1))
+				require.Contains(t, sql, "SELECT 1")
 			} else {
 				require.NotContains(t, sql, "samplings_habitats")
 			}

@@ -11,6 +11,7 @@
     :error
     :loading
     @reload="refetch()"
+    :items-per-page-options="[20, 50, 100]"
   >
     <template #menu>
       <v-divider class="mb-2"></v-divider>

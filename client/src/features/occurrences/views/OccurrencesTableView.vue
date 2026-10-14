@@ -93,7 +93,7 @@
           </v-card-text>
           <slot name="menu" :toggleMenu :menuOpen="menu">
             <v-row class="ma-0">
-              <v-col cols="12" md="6">
+              <v-col>
                 <v-list>
                   <v-list-item prepend-icon="mdi-folder-table">
                     <DatasetPicker
@@ -109,6 +109,10 @@
                       hide-details
                     />
                   </v-list-item>
+                </v-list>
+              </v-col>
+              <v-col>
+                <v-list>
                   <v-list-item prepend-icon="mdi-file-table">
                     <ImportBatchPicker
                       v-model="filters.batches"
@@ -123,13 +127,46 @@
                       hide-details
                     />
                   </v-list-item>
-                  <v-list-item>
+                </v-list>
+              </v-col>
+            </v-row>
+            <v-row class="ma-0">
+              <v-col cols="12" md="6">
+                <v-list>
+                  <v-list-item prepend-icon="mdi-earth">
                     <CountryPicker
                       v-model="filters.countries"
                       :filter="(c) => !!c.occurrence_count"
                       label="Countries"
                       class="mt-2"
                       item-value="code"
+                      clearable
+                      multiple
+                      chips
+                      closable-chips
+                      density="compact"
+                      hide-details
+                    />
+                  </v-list-item>
+                  <v-list-item prepend-icon="mdi-image-filter-hdr">
+                    <HabitatPicker
+                      v-model="filters.habitats"
+                      label="Habitats"
+                      class="mt-2"
+                      item-value="name"
+                      clearable
+                      multiple
+                      chips
+                      closable-chips
+                      density="compact"
+                      hide-details
+                    />
+                  </v-list-item>
+                  <v-list-item prepend-icon="">
+                    <AccessPointsPicker
+                      v-model="filters.access_points"
+                      label="Access Points"
+                      class="mt-2"
                       clearable
                       multiple
                       chips
@@ -416,6 +453,8 @@ import { computed, onMounted, ref, toRef, watch } from 'vue'
 import { DataTableSortItem, FilterMatch } from 'vuetify'
 import ExportDialogServer from '@/components/toolkit/ui/exports/ExportDialogServer.vue'
 import { exportOccurrences } from '@/lib/exports'
+import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
+import AccessPointsPicker from '../components/sampling/AccessPointsPicker.vue'
 
 const { feedback } = useFeedback()
 const { user: currentUser } = storeToRefs(useUserStore())
@@ -490,6 +529,8 @@ type TableFilters = {
   status?: TaxonStatus
   taxa?: string[]
   date: DateFilters
+  habitats?: string[]
+  access_points?: string[]
 }
 
 const filters = ref<TableFilters>({ date: { enabled: false, is_range: false, precision: 'year' } })
@@ -653,6 +694,8 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
         search_term: filters.value.search_term,
         type_status: filters.value.type_status,
         date: dateQuery(filters.value.date),
+        habitats: filters.value.habitats,
+        access_points: filters.value.access_points,
         sort: sortBy.value.key,
         sort_direction: sortBy.value.order as 'asc' | 'desc'
       }

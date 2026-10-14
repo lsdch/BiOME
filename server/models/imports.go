@@ -46,11 +46,12 @@ type MaterializationReadyCheck struct {
 	Taxonomy     bool `json:"taxonomy"`
 	Methods      bool `json:"methods"`
 	Fixatives    bool `json:"fixatives"`
+	Habitats     bool `json:"habitats"`
 	Bibliography bool `json:"bibliography"`
 }
 
 func (c MaterializationReadyCheck) IsReady() bool {
-	return c.Taxonomy && c.Methods && c.Bibliography && c.Fixatives
+	return c.Taxonomy && c.Methods && c.Bibliography && c.Fixatives && c.Habitats
 }
 
 func MaterializationReadyCheckFromDB(res biomedb.CheckReadyToMaterializeRow) MaterializationReadyCheck {
@@ -59,6 +60,7 @@ func MaterializationReadyCheckFromDB(res biomedb.CheckReadyToMaterializeRow) Mat
 		Methods:      res.Methods,
 		Bibliography: res.Bibliography,
 		Fixatives:    res.Fixatives,
+		Habitats:     res.Habitats,
 	}
 }
 
@@ -85,6 +87,11 @@ func (c MaterializationReadyCheck) AppError() *app_errors.AppError {
 	}
 	if !c.Fixatives {
 		errorDetails = append(errorDetails, fixativesErrorDetail)
+	}
+	if !c.Habitats {
+		errorDetails = append(errorDetails, &app_errors.AppErrorDetail{
+			Message: "Habitat materialization is not ready. Resolve, request creation, or discard every imported habitat value.",
+		})
 	}
 	if !c.Bibliography {
 		errorDetails = append(errorDetails, bibliographyErrorDetail)

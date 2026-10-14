@@ -16,10 +16,10 @@ export function PublicationChip({ publication, ...chipProps }: PublicationChipPr
     >
       {{
         activator: ({ props }: { props: any }) => (
-          <v-chip {...{ ...props, ...chipProps }} style={'max-width: 300px'} class="text-truncate">
-            <span class="text-truncate" style={{
+          <v-chip {...{ ...props, ...chipProps }} style={'max-width: 300px'} class="">
+            <span class="text-truncate d-print-block" style={{
               'min-width': '0px',
-              'max-width': '100%',
+              'max-width': '280px',
             }}>{Publication.toString(publication)}</span>
             </v-chip>
         ),

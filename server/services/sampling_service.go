@@ -162,6 +162,9 @@ func (s *SamplingService) MaterializeSamplings(ctx context.Context, tx *db.Tx, i
 	if err := s.store.MaterializeSamplingFixatives(ctx, tx, importID); err != nil {
 		return err
 	}
+	if err := s.store.MaterializeSamplingHabitats(ctx, tx, importID); err != nil {
+		return err
+	}
 	if err := s.store.MaterializeSamplingTargets(ctx, tx, importID); err != nil {
 		return err
 	}

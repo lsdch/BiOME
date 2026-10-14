@@ -3,6 +3,7 @@ package csvmodels
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -13,15 +14,17 @@ import (
 	"github.com/lsdch/biome/types"
 )
 
-const STRING_LIST_DEFAULT_SEPARATOR = "|"
+var STRING_LIST_DEFAULT_DELIMITERS = []string{"|", ","}
 
 type StringListInput struct {
-	Values []string `csv:"values"`
-	Sep    string
+	Values      []string `csv:"values"`
+	Delimiters  []string
+	SplitRegexp *regexp.Regexp
 }
 
-func (s *StringListInput) SetSeparator(sep string) {
-	s.Sep = sep
+func (s *StringListInput) SetSeparator(delimiters []string) {
+	s.Delimiters = delimiters
+	s.SplitRegexp = regexp.MustCompile(fmt.Sprintf("[%s]", regexp.QuoteMeta(strings.Join(delimiters, ""))))
 }
 
 func (s *StringListInput) UnmarshalCSV(data []byte) error {
@@ -30,11 +33,10 @@ func (s *StringListInput) UnmarshalCSV(data []byte) error {
 		s.Values = []string{}
 		return nil
 	}
-	sep := s.Sep
-	if sep == "" {
-		sep = STRING_LIST_DEFAULT_SEPARATOR
+	if len(s.Delimiters) == 0 {
+		s.SetSeparator(STRING_LIST_DEFAULT_DELIMITERS)
 	}
-	s.Values = strings.Split(str, sep)
+	s.Values = s.SplitRegexp.Split(str, -1)
 	for i := range s.Values {
 		s.Values[i] = strings.TrimSpace(s.Values[i])
 	}
@@ -57,7 +59,7 @@ type OccurrenceImportRow struct {
 	EventDate         models.EventDateInput         `csv:"event_date,omitempty"`
 	PerformedBy       StringListInput               `csv:"sampling_participants,omitempty"`
 	Duration          *int32                        `csv:"sampling_duration,omitempty" validate:"omitempty,gt=0"`
-	AccessPoints      StringListInput               `csv:"access_points,omitempty" sep:","`
+	AccessPoints      StringListInput               `csv:"access_points,omitempty"`
 	Habitat           StringListInput               `csv:"habitat,omitempty"`
 	SamplingTargets   StringListInput               `csv:"sampling_targets,omitempty"`
 	SamplingMethods   StringListInput               `csv:"sampling_methods,omitempty"`
@@ -92,6 +94,7 @@ type OccurrenceImportRow struct {
 	Sources     StringListInput             `csv:"sources,omitempty"`
 
 	// Publication fields
+
 	Publication PublicationImportRow `csv:"pub_,inline"`
 }
 
@@ -162,6 +165,7 @@ func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID, mergeUndated bool) b
 		ID:        types.MakeULID(),
 
 		// Sampling fields
+
 		SamplingHash:         r.SamplingHash(mergeUndated),
 		SiteCode:             r.SiteCode,
 		SiteName:             r.SiteName,
@@ -185,13 +189,13 @@ func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID, mergeUndated bool) b
 		// Occurrence fields
 
 		OccurrenceCode:     r.OccurrenceCode,
-		TypeStatus:         (r.TypeStatus),
+		TypeStatus:         r.TypeStatus,
 		OccurrenceComments: r.OccurrenceComments,
 
 		// Identification fields
 
 		TaxonName:                   r.TaxonName,
-		TaxonRank:                   (r.TaxonRank),
+		TaxonRank:                   r.TaxonRank,
 		TaxonAuthorship:             r.TaxonAuthorship,
 		VerbatimIdentification:      r.VerbatimIdentification,
 		IdentifiedBy:                r.IdentifiedBy.Values,

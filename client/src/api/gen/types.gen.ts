@@ -550,6 +550,7 @@ export type Mailing = {
 export type MaterializationReadyCheck = {
   bibliography: boolean
   fixatives: boolean
+  habitats: boolean
   methods: boolean
   taxonomy: boolean
 }
@@ -853,6 +854,29 @@ export type SamplingFixativeResolutionInput = {
   readonly $schema?: string
   input_text: string
   resolved_fixative_id?: string
+  status: VocabResolutionStatus
+}
+
+export type SamplingHabitatResolution = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  create_habitats?: Array<HabitatInput>
+  habitat_ids?: Array<string>
+  import_id: string
+  input_text: string
+  status: VocabResolutionStatus
+}
+
+export type SamplingHabitatResolutionInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  create_habitats?: Array<HabitatInput>
+  habitat_ids?: Array<string>
+  input_text: string
   status: VocabResolutionStatus
 }
 
@@ -2904,6 +2928,70 @@ export type AddBibliographyCsvResponses = {
 export type AddBibliographyCsvResponse =
   AddBibliographyCsvResponses[keyof AddBibliographyCsvResponses]
 
+export type GetHabitatsResolutionData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batches/{id}/habitats'
+}
+
+export type GetHabitatsResolutionErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type GetHabitatsResolutionError =
+  GetHabitatsResolutionErrors[keyof GetHabitatsResolutionErrors]
+
+export type GetHabitatsResolutionResponses = {
+  /**
+   * OK
+   */
+  200: Array<SamplingHabitatResolution>
+}
+
+export type GetHabitatsResolutionResponse =
+  GetHabitatsResolutionResponses[keyof GetHabitatsResolutionResponses]
+
+export type ResolveHabitatsData = {
+  body: SamplingHabitatResolutionInput
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batches/{id}/habitats'
+}
+
+export type ResolveHabitatsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: AppError
+  /**
+   * Internal Server Error
+   */
+  500: AppError
+}
+
+export type ResolveHabitatsError = ResolveHabitatsErrors[keyof ResolveHabitatsErrors]
+
+export type ResolveHabitatsResponses = {
+  /**
+   * OK
+   */
+  200: SamplingHabitatResolution
+}
+
+export type ResolveHabitatsResponse = ResolveHabitatsResponses[keyof ResolveHabitatsResponses]
+
 export type MaterializeBatchData = {
   body?: never
   path: {
@@ -3071,7 +3159,7 @@ export type ListOccurrencesData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
-habitats?: Array<string>
+    habitats?: Array<string>
     access_points?: Array<string>
   }
   url: '/occurrences'
@@ -3149,7 +3237,7 @@ export type ListSamplingsWithOccurrencesData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
-habitats?: Array<string>
+    habitats?: Array<string>
     access_points?: Array<string>
   }
   url: '/occurrences/by-sampling'
@@ -3226,7 +3314,7 @@ export type ExportSamplingsWithOccurrencesData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
-habitats?: Array<string>
+    habitats?: Array<string>
     access_points?: Array<string>
     format?: ExportFormat
     filename: string
@@ -3319,7 +3407,7 @@ export type ListOccurrencesH3Data = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
-habitats?: Array<string>
+    habitats?: Array<string>
     access_points?: Array<string>
   }
   url: '/occurrences/h3/{resolution}'
@@ -3371,7 +3459,7 @@ export type ListSamplingsWithOccurrencesAtCellData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
-habitats?: Array<string>
+    habitats?: Array<string>
     access_points?: Array<string>
   }
   url: '/occurrences/h3/{resolution}/{cell}/data'
@@ -3425,7 +3513,7 @@ export type ListOccurringTaxaAtCellData = {
     type_status?: OccurrenceTypeStatus
     taxon_rank?: TaxonRank
     taxon_status?: TaxonStatus
-habitats?: Array<string>
+    habitats?: Array<string>
     access_points?: Array<string>
   }
   url: '/occurrences/h3/{resolution}/{cell}/taxa'

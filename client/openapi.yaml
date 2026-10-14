@@ -1800,6 +1800,81 @@ paths:
                 $ref: "#/components/schemas/AppError"
       x-policy:
         role: contributor
+  /imports/batches/{id}/habitats:
+    get:
+      tags:
+      - Batch Imports
+      summary: Get habitat resolution decisions and deferred creations
+      operationId: GetHabitatsResolution
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SamplingHabitatResolution"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
+    patch:
+      tags:
+      - Batch Imports
+      summary: Resolve an imported value to multiple habitats or request their creation
+      operationId: ResolveHabitats
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SamplingHabitatResolutionInput"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SamplingHabitatResolution"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/AppError"
+      x-policy:
+        role: contributor
   /imports/batches/{id}/materialize:
     post:
       tags:
@@ -5335,6 +5410,10 @@ components:
       properties:
         Date:
           $ref: "#/components/schemas/DateFilterParams"
+        access_points:
+          type: array
+          items:
+            type: string
         batches:
           type: array
           items:
@@ -5346,6 +5425,10 @@ components:
           items:
             type: string
         datasets:
+          type: array
+          items:
+            type: string
+        habitats:
           type: array
           items:
             type: string
@@ -5442,6 +5525,8 @@ components:
           type: boolean
         fixatives:
           type: boolean
+        habitats:
+          type: boolean
         methods:
           type: boolean
         taxonomy:
@@ -5450,6 +5535,7 @@ components:
       - taxonomy
       - methods
       - fixatives
+      - habitats
       - bibliography
     MaterializationSteps:
       type: object
@@ -6081,6 +6167,63 @@ components:
           type: string
         resolved_fixative_id:
           type: string
+        status:
+          $ref: "#/components/schemas/VocabResolutionStatus"
+      required:
+      - input_text
+      - status
+    SamplingHabitatResolution:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/SamplingHabitatResolution.json
+          readOnly: true
+        create_habitats:
+          type: array
+          items:
+            $ref: "#/components/schemas/HabitatInput"
+        habitat_ids:
+          type: array
+          items:
+            type: string
+        import_id:
+          type: string
+        input_text:
+          type: string
+          minLength: 1
+        status:
+          $ref: "#/components/schemas/VocabResolutionStatus"
+      required:
+      - import_id
+      - input_text
+      - status
+    SamplingHabitatResolutionInput:
+      type: object
+      additionalProperties: false
+      properties:
+        $schema:
+          type: string
+          description: A URL to the JSON Schema for this object.
+          format: uri
+          examples:
+          - /api/v1/schemas/SamplingHabitatResolutionInput.json
+          readOnly: true
+        create_habitats:
+          type: array
+          items:
+            $ref: "#/components/schemas/HabitatInput"
+        habitat_ids:
+          type: array
+          items:
+            type: string
+        input_text:
+          type: string
+          minLength: 1
         status:
           $ref: "#/components/schemas/VocabResolutionStatus"
       required:

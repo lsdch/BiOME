@@ -124,9 +124,9 @@ import type {
   GetGeoapifyStatusData,
   GetGeoapifyStatusError,
   GetGeoapifyStatusResponse,
-  GetHabitatsData,
-  GetHabitatsError,
-  GetHabitatsResponse,
+  GetHabitatsResolutionData,
+  GetHabitatsResolutionError,
+  GetHabitatsResolutionResponse,
   GetImportBatchData,
   GetImportBatchError,
   GetImportBatchResponse,
@@ -184,7 +184,7 @@ import type {
   ListGeoapifyUsageData,
   ListGeoapifyUsageError,
   ListGeoapifyUsageResponse,
-ListHabitatsData,
+  ListHabitatsData,
   ListHabitatsError,
   ListHabitatsResponse,
   ListImportBatchesData,
@@ -280,6 +280,9 @@ ListHabitatsData,
   ResolveFixativeData,
   ResolveFixativeError,
   ResolveFixativeResponse,
+  ResolveHabitatsData,
+  ResolveHabitatsError,
+  ResolveHabitatsResponse,
   ResolveMethodData,
   ResolveMethodError,
   ResolveMethodResponse,
@@ -1737,6 +1740,58 @@ export const addBibliographyCsvMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await BatchImportsService.addBibliographyCsv({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const getHabitatsResolutionQueryKey = (options: Options<GetHabitatsResolutionData>) =>
+  createQueryKey('getHabitatsResolution', options)
+
+/**
+ * Get habitat resolution decisions and deferred creations
+ */
+export const getHabitatsResolutionOptions = (options: Options<GetHabitatsResolutionData>) =>
+  queryOptions<
+    GetHabitatsResolutionResponse,
+    GetHabitatsResolutionError,
+    GetHabitatsResolutionResponse,
+    ReturnType<typeof getHabitatsResolutionQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await BatchImportsService.getHabitatsResolution({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getHabitatsResolutionQueryKey(options)
+  })
+
+/**
+ * Resolve an imported value to multiple habitats or request their creation
+ */
+export const resolveHabitatsMutation = (
+  options?: Partial<Options<ResolveHabitatsData>>
+): UseMutationOptions<
+  ResolveHabitatsResponse,
+  ResolveHabitatsError,
+  Options<ResolveHabitatsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ResolveHabitatsResponse,
+    ResolveHabitatsError,
+    Options<ResolveHabitatsData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await BatchImportsService.resolveHabitats({
         ...options,
         ...fnOptions,
         throwOnError: true

@@ -40,7 +40,8 @@
   <template v-if="model.enabled">
     <v-list-item>
       <template #prepend>
-        <span class="text-muted" :style="{ width: '50px' }">From:</span>
+        <span v-if="model.is_range" class="text-muted" :style="{ width: '50px' }">From:</span>
+        <span v-else class="text-muted" :style="{ width: '50px' }">Date</span>
       </template>
       <DateFilter
         label=""

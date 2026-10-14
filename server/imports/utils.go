@@ -15,7 +15,7 @@ func buildCSVConfigurator[T any]() csvFieldConfigurator {
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 
-		sep := field.Tag.Get("csvsep")
+		sep := field.Tag.Get("sep")
 		if sep == "" {
 			continue
 		}

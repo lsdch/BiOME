@@ -1,0 +1,3 @@
+[submodule "server/huma"]
+	path = server/huma
+	url = git@github.com:lsdch/huma.git

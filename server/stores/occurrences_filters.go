@@ -307,12 +307,13 @@ func (p *ListOccurrencesParams) habitatFilter() []BoolExpression {
 		return nil
 	}
 	filters := make([]BoolExpression, 0, len(p.Habitats))
-	for _, id := range p.Habitats {
+	for _, name := range p.Habitats {
 		filters = append(filters, EXISTS(
-			SELECT(Int(1)).
-				FROM(table.SamplingsHabitats).
+			SELECT(RawInt("1")).
+				FROM(table.SamplingsHabitats.INNER_JOIN(table.Habitats,
+					table.SamplingsHabitats.HabitatID.EQ(table.Habitats.ID))).
 				WHERE(table.SamplingsHabitats.SamplingID.EQ(table.Samplings.ID).
-					AND(table.SamplingsHabitats.HabitatID.EQ(StringExp(CAST(String(id)).AS("uuid"))))),
+					AND(table.Habitats.Label.EQ(String(name)))),
 		))
 	}
 	return filters

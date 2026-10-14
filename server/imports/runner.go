@@ -2,6 +2,7 @@ package imports
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"io"
@@ -26,6 +27,8 @@ import (
 const (
 	ErrGBIFAlreadyRunning string = "GBIF import is already in progress for this import hash"
 )
+
+var ErrBatchAlreadyCompleted = errors.New("batch is already completed")
 
 type RunnerStatus string
 
@@ -188,6 +191,10 @@ func (r *ImportRunner) StartBatchCSV(csvFile io.Reader, separator rune, taxonDef
 		}
 		if _, err := r.samplings.InitFixativeResolution(r.ctx, tx, r.batch.ID); err != nil {
 			return fmt.Errorf("init fixative resolution: %w", err)
+		}
+
+		if err := r.samplings.InitHabitatResolution(r.ctx, tx, r.batch.ID); err != nil {
+			return fmt.Errorf("init habitat resolution: %w", err)
 		}
 
 		if err := r.bibliography.InitBibliographyResolution(r.ctx, tx, r.batch.ID, bib); err != nil {
@@ -541,14 +548,31 @@ func (r *ImportRunner) ResolveFixative(importID uuid.UUID, input models.Sampling
 	return r.samplings.ResolveFixative(r.ctx, r.db, importID, input)
 }
 
+func (r *ImportRunner) GetHabitatsResolution(ctx context.Context) ([]models.SamplingHabitatResolution, error) {
+	return r.samplings.GetHabitatsResolution(ctx, r.db, r.batch.ID)
+}
+
+func (r *ImportRunner) ResolveHabitats(ctx context.Context, input models.SamplingHabitatResolutionInput) (models.SamplingHabitatResolution, error) {
+	resolution, err := r.samplings.ResolveHabitats(ctx, r.db, r.batch.ID, input)
+	if err != nil {
+		return models.SamplingHabitatResolution{}, err
+	}
+	r.CheckReadyToMaterialize()
+	return resolution, nil
+}
+
 func (r *ImportRunner) CheckReadyToMaterialize() models.MaterializationReadyCheck {
 	check, err := r.store.CheckReadyToMaterialize(r.ctx, r.db, r.batch.ID)
 	if err != nil {
 		r.Fail(err)
+		return models.MaterializationReadyCheck{}
 	}
 	logrus.Debugf("CheckReadyToMaterialize for import ID %s: %+v", r.batch.ID, check)
 	r.withMutex(func() {
 		r.resolutionStatus = check
+		if r.status == Materializing || r.status == Completed {
+			return
+		}
 		if check.IsReady() {
 			r.status = ReadyToMaterialize
 		} else {
@@ -561,13 +585,16 @@ func (r *ImportRunner) CheckReadyToMaterialize() models.MaterializationReadyChec
 
 func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error) {
 	check := r.CheckReadyToMaterialize()
-	if r.Status() != ReadyToMaterialize {
-		return nil, fmt.Errorf("cannot materialize batch in status %s : %w", r.status, check.AppError())
+	r.mu.Lock()
+	if r.status != ReadyToMaterialize {
+		status := r.status
+		r.mu.Unlock()
+		return nil, fmt.Errorf("cannot materialize batch in status %s : %w", status, check.AppError())
 	}
-	r.withMutex(func() {
-		r.status = Materializing
-		r.materializationSteps.reset()
-	})
+	r.status = Materializing
+	r.materializationSteps.reset()
+	r.mu.Unlock()
+	r.notify()
 	if err := r.taxonResolver.FillGBIFDependencies(r.ctx, r.db, r.batch.ID, r.gbif); err != nil {
 		return nil, fmt.Errorf("fill GBIF dependencies: %w", err)
 	}
@@ -575,7 +602,28 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 	r.notify()
 
 	const stepDelay = 500 * time.Millisecond
+	readinessChanged := false
 	if err := r.db.WithTx(r.ctx, func(tx *db.Tx) error {
+		// Serialize habitat decisions with materialization and recheck inside the transaction.
+		batch, err := tx.Queries().LockImportBatchForHabitats(r.ctx, r.batch.ID)
+		if err != nil {
+			return err
+		}
+		if batch.Status == biomedb.ImportBatchStatusCompleted {
+			return ErrBatchAlreadyCompleted
+		}
+		if batch.Status != biomedb.ImportBatchStatusStaged {
+			return fmt.Errorf("batch is not staged")
+		}
+		ready, err := r.store.CheckReadyToMaterialize(r.ctx, tx, r.batch.ID)
+		if err != nil {
+			return err
+		}
+		if !ready.IsReady() {
+			readinessChanged = true
+			return ready.AppError()
+		}
+
 		logrus.Infof("Materializing import batch: %s", r.batch.Label)
 
 		logrus.Infof("Materializing taxa for import batch: %s", r.batch.Label)
@@ -631,6 +679,17 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 		r.notify()
 		return nil
 	}); err != nil {
+		if errors.Is(err, ErrBatchAlreadyCompleted) {
+			r.withMutex(func() { r.status = Completed })
+			return nil, err
+		}
+		if readinessChanged || errors.Is(err, stores.ErrHabitatsNotReady) {
+			// A decision or deleted habitat may change readiness after the initial check.
+			// The transaction rolled back; leave the batch staged so it can be resolved again.
+			r.withMutex(func() { r.status = NeedsResolution; r.materializationSteps.reset() })
+			r.CheckReadyToMaterialize()
+			return nil, err
+		}
 		r.Fail(err)
 		return nil, err
 	}
@@ -639,6 +698,9 @@ func (r *ImportRunner) Materialize(userID uuid.UUID) (*models.ImportBatch, error
 
 func (r *ImportRunner) Delete(ctx context.Context) error {
 	if err := r.store.DeleteBatch(ctx, r.db, r.batch.ID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
 		return fmt.Errorf("delete batch: %w", err)
 	}
 	if err := r.fileStorage.Delete(ctx, r.batch.FileKey()); err != nil {

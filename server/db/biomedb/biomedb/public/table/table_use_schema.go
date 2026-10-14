@@ -41,6 +41,8 @@ func UseSchema(schema string) {
 	Publications = Publications.FromSchema(schema)
 	PublicationsStaging = PublicationsStaging.FromSchema(schema)
 	SamplingFixativesResolution = SamplingFixativesResolution.FromSchema(schema)
+	SamplingHabitatTargets = SamplingHabitatTargets.FromSchema(schema)
+	SamplingHabitatsResolution = SamplingHabitatsResolution.FromSchema(schema)
 	SamplingMethods = SamplingMethods.FromSchema(schema)
 	SamplingMethodsResolution = SamplingMethodsResolution.FromSchema(schema)
 	SamplingTargetResolution = SamplingTargetResolution.FromSchema(schema)

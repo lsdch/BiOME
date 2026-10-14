@@ -100,6 +100,9 @@ func (s *ImportBatchService) DeleteImportBatch(ctx context.Context, tx *db.Tx, i
 	}
 	_, err = tx.Queries().DeleteImportBatch(ctx, id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil
+		}
 		return err
 	}
 	return nil

@@ -20,14 +20,14 @@ import {
   createSamplingResponseTransformer,
   getDatasetByIdResponseTransformer,
   getEmailSettingsResponseTransformer,
-    getImportBatchResponseTransformer,
+  getImportBatchResponseTransformer,
   getImportBatchWithContentResponseTransformer,
   getImportStatusResponseTransformer,
   getOccurrenceResponseTransformer,
   importOccurrencesCsvResponseTransformer,
   listDatasetsResponseTransformer,
   listGeoapifyUsageResponseTransformer,
-listHabitatsResponseTransformer,
+  listHabitatsResponseTransformer,
   listImportBatchesInDatasetResponseTransformer,
   listImportBatchesResponseTransformer,
   listImportBatchesWithContentResponseTransformer,
@@ -146,9 +146,9 @@ import type {
   GetGeoapifyStatusData,
   GetGeoapifyStatusErrors,
   GetGeoapifyStatusResponses,
-  GetHabitatsData,
-  GetHabitatsErrors,
-  GetHabitatsResponses,
+  GetHabitatsResolutionData,
+  GetHabitatsResolutionErrors,
+  GetHabitatsResolutionResponses,
   GetImportBatchData,
   GetImportBatchErrors,
   GetImportBatchResponses,
@@ -206,7 +206,7 @@ import type {
   ListGeoapifyUsageData,
   ListGeoapifyUsageErrors,
   ListGeoapifyUsageResponses,
-ListHabitatsData,
+  ListHabitatsData,
   ListHabitatsErrors,
   ListHabitatsResponses,
   ListImportBatchesData,
@@ -302,6 +302,9 @@ ListHabitatsData,
   ResolveFixativeData,
   ResolveFixativeErrors,
   ResolveFixativeResponses,
+  ResolveHabitatsData,
+  ResolveHabitatsErrors,
+  ResolveHabitatsResponses,
   ResolveMethodData,
   ResolveMethodErrors,
   ResolveMethodResponses,
@@ -1363,20 +1366,20 @@ export class HabitatsService {
     options?: Options<ListHabitatsData, ThrowOnError>
   ): RequestResult<ListHabitatsResponses, ListHabitatsErrors, ThrowOnError> {
     return (options?.client ?? client).get<ListHabitatsResponses, ListHabitatsErrors, ThrowOnError>(
-{
-      responseTransformer: listHabitatsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/habitats',
-      ...options
-    }
-)
+      {
+        responseTransformer: listHabitatsResponseTransformer,
+        security: [
+          { scheme: 'bearer', type: 'http' },
+          {
+            in: 'cookie',
+            name: 'auth_token',
+            type: 'apiKey'
+          }
+        ],
+        url: '/habitats',
+        ...options
+      }
+    )
   }
 
   /**
@@ -2074,6 +2077,58 @@ export class BatchImportsService {
       ...options,
       headers: {
         'Content-Type': null,
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Get habitat resolution decisions and deferred creations
+   */
+  public static getHabitatsResolution<ThrowOnError extends boolean = false>(
+    options: Options<GetHabitatsResolutionData, ThrowOnError>
+  ): RequestResult<GetHabitatsResolutionResponses, GetHabitatsResolutionErrors, ThrowOnError> {
+    return (options.client ?? client).get<
+      GetHabitatsResolutionResponses,
+      GetHabitatsResolutionErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batches/{id}/habitats',
+      ...options
+    })
+  }
+
+  /**
+   * Resolve an imported value to multiple habitats or request their creation
+   */
+  public static resolveHabitats<ThrowOnError extends boolean = false>(
+    options: Options<ResolveHabitatsData, ThrowOnError>
+  ): RequestResult<ResolveHabitatsResponses, ResolveHabitatsErrors, ThrowOnError> {
+    return (options.client ?? client).patch<
+      ResolveHabitatsResponses,
+      ResolveHabitatsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batches/{id}/habitats',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
         ...options.headers
       }
     })

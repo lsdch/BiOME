@@ -1563,6 +1563,9 @@ export const $MaterializationReadyCheck = {
     fixatives: {
       type: 'boolean'
     },
+    habitats: {
+      type: 'boolean'
+    },
     methods: {
       type: 'boolean'
     },
@@ -1570,7 +1573,7 @@ export const $MaterializationReadyCheck = {
       type: 'boolean'
     }
   },
-  required: ['taxonomy', 'methods', 'fixatives', 'bibliography'],
+  required: ['taxonomy', 'methods', 'fixatives', 'habitats', 'bibliography'],
   type: 'object'
 } as const
 
@@ -2360,6 +2363,77 @@ export const $SamplingFixativeResolutionInput = {
       type: 'string'
     },
     resolved_fixative_id: {
+      type: 'string'
+    },
+    status: {
+      $ref: '#/components/schemas/VocabResolutionStatus'
+    }
+  },
+  required: ['input_text', 'status'],
+  type: 'object'
+} as const
+
+export const $SamplingHabitatResolution = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SamplingHabitatResolution.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    create_habitats: {
+      items: {
+        $ref: '#/components/schemas/HabitatInput'
+      },
+      type: 'array'
+    },
+    habitat_ids: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    import_id: {
+      type: 'string'
+    },
+    input_text: {
+      minLength: 1,
+      type: 'string'
+    },
+    status: {
+      $ref: '#/components/schemas/VocabResolutionStatus'
+    }
+  },
+  required: ['import_id', 'input_text', 'status'],
+  type: 'object'
+} as const
+
+export const $SamplingHabitatResolutionInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SamplingHabitatResolutionInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    create_habitats: {
+      items: {
+        $ref: '#/components/schemas/HabitatInput'
+      },
+      type: 'array'
+    },
+    habitat_ids: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    input_text: {
+      minLength: 1,
       type: 'string'
     },
     status: {
