@@ -1,9 +1,10 @@
 package config
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -193,7 +194,7 @@ func (c *Config) Validate() error {
 }
 
 func LoadConfig(dir string, name string) (Config, error) {
-	v := viper.New()
+	v := viper.NewWithOptions(viper.ExperimentalBindStruct())
 	v.AddConfigPath(dir)
 	v.SetConfigName(name)
 	v.SetConfigType("yaml")
@@ -216,12 +217,14 @@ func LoadConfig(dir string, name string) (Config, error) {
 	if env == "" {
 		env = string(EnvDev)
 	}
-	if err := tryMerge(v, fmt.Sprintf("%s.%s.yml", name, env)); err != nil {
+	if err := tryMerge(v, filepath.Join(dir, fmt.Sprintf("%s.%s.yml", name, env))); err != nil {
 		return Config{}, fmt.Errorf("env config: %w", err)
 	}
 
 	// 4. local override (optional)
-	_ = tryMerge(v, filepath.Join(dir, fmt.Sprintf("%s.local.yml", name)))
+	if err := tryMerge(v, filepath.Join(dir, fmt.Sprintf("%s.local.yml", name))); err != nil {
+		return Config{}, fmt.Errorf("local config: %w", err)
+	}
 
 	// fmt.Printf("%#v\n", v.AllSettings())
 
@@ -250,11 +253,6 @@ func LoadConfig(dir string, name string) (Config, error) {
 	}
 	cfg.AppPublicBaseURL = *publicURL
 
-	if cfg.Env == EnvDev {
-		cfgJSON, _ := json.MarshalIndent(cfg, "", "\t")
-		logrus.Infof("Loaded config :\n%s", cfgJSON)
-	}
-
 	return cfg, cfg.Validate()
 }
 
@@ -279,7 +277,8 @@ func tryMerge(v *viper.Viper, file string) error {
 		return nil
 	}
 
-	if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+	var notFound viper.ConfigFileNotFoundError
+	if errors.As(err, &notFound) || errors.Is(err, os.ErrNotExist) {
 		return nil
 	}
 
