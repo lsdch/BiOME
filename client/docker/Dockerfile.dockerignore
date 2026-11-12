@@ -1,0 +1,15 @@
+**
+!client/
+!client/**
+!biome_logo.svg
+client/node_modules
+client/dist
+client/dist-ssr
+client/coverage
+client/cypress
+client/.idea
+client/.vscode
+client/**/*.log
+client/.env*
+client/*.local
+client/openapi.json.md5

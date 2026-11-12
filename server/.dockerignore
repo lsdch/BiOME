@@ -1,7 +1,0 @@
-data/cache
-data/raw_files
-tmp
-.air.toml
-.gitignore
-config.*.yml
-Dockerfile

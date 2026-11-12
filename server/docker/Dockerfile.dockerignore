@@ -1,0 +1,12 @@
+data/cache
+data/raw_files
+tmp
+.air.toml
+.gitignore
+config*.yml
+config*.yaml
+.env*
+.git
+huma/.git
+huma/.github
+docker/Dockerfile

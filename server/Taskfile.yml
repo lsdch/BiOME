@@ -1,11 +1,35 @@
 version: 3
 
+vars:
+  DOCKER_IMAGE: '{{.DOCKER_IMAGE | default "biome-backend"}}'
+  # Full remote repository, without tag (e.g. registry.example.org/biome/server).
+  DOCKER_REMOTE: '{{.DOCKER_REMOTE | default "lsdch/biome-backend"}}'
+
 includes:
   db:
     taskfile: ./db
     dir: ./db
 
 tasks:
+  docker:build:
+    requires:
+      vars: [DOCKER_TAG]
+    interactive: true
+    desc: "Build the backend Docker image"
+    dir: '{{.TASKFILE_DIR}}'
+    cmd: docker build --file docker/Dockerfile --tag '{{.DOCKER_IMAGE}}:{{.DOCKER_TAG}}' .
+
+  docker:push:
+    requires:
+      vars: [DOCKER_TAG]
+    desc: "Tag and push the backend image to DOCKER_REMOTE"
+    preconditions:
+      - sh: test -n '{{.DOCKER_REMOTE}}'
+        msg: "Set DOCKER_REMOTE to the full remote repository, without a tag."
+    cmds:
+      - docker tag '{{.DOCKER_IMAGE}}:{{.DOCKER_TAG}}' '{{.DOCKER_REMOTE}}:{{.DOCKER_TAG}}'
+      - docker push '{{.DOCKER_REMOTE}}:{{.DOCKER_TAG}}'
+
   install-linter:
     internal: true
     cmd: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.56.2

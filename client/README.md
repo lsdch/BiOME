@@ -1,68 +1,43 @@
-# proto
+# Biome Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+## Production Docker image
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+From the repository root:
 
 ```sh
-pnpm install
+docker build -f client/docker/Dockerfile -t biome-client:local .
 ```
 
-### Compile and Hot-Reload for Development
+The image builds the frontend using Node 24 and `pnpm build` (including
+TypeScript checks), then serves the files with Nginx on port 80.
+Vue routes can be accessed directly, including after a page reload.
+The build uses the generated API client included in the repository.
+
+For Kubernetes, set the container's `BACKEND_URL` environment variable to the
+backend Service address and port, for example `http://biome-backend:8080`.
+The default is `http://backend:8080`. Use a URL without a path or trailing
+slash. The backend Service must exist and its name must be resolvable when
+Nginx starts.
+
+Nginx forwards `/api` requests and `/assets` files missing from the frontend to
+this Service. Compiled Vite files under `/assets` are served locally.
+The Ingress can therefore forward all requests for the domain to the frontend
+Service; the API keeps its current URLs on the same domain.
+TLS termination can be handled by the Ingress.
+
+To publish the image to the registry used by the cluster:
 
 ```sh
-pnpm dev
+docker build -f client/docker/Dockerfile -t <registry>/biome-client:<version> .
+docker push <registry>/biome-client:<version>
 ```
 
-### Type-Check, Compile and Minify for Production
+For a local test with the backend already accessible on a Docker network:
 
 ```sh
-pnpm build
+docker run --rm --name biome-client --network biome \
+  -p 8081:80 -e BACKEND_URL=http://backend:8080 biome-client:local
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-pnpm test:unit
-```
-
-### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
-
-```sh
-pnpm test:e2e:dev
-```
-
-This runs the end-to-end tests against the Vite development server.
-It is much faster than the production build.
-
-But it's still recommended to test the production build with `test:e2e` before deploying (e.g. in CI environments):
-
-```sh
-pnpm build
-pnpm test:e2e
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+Adjust the network and backend name, then open `http://localhost:8081`.
+The existing Compose configuration is unchanged.
