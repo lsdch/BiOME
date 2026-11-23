@@ -37,6 +37,21 @@ In ecology, an occurrence is defined as the reported presence of a specific taxo
 - run `air` in the `/server` directory
 - run `pnpm dev` in the `/client` directory
 
+## Publish Docker images
+
+Add `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` to the repository's GitHub Actions secrets. The Docker Hub token must have write access to `lsdch/biome-backend` and `lsdch/biome-frontend`.
+
+The backend build checks out the pinned `lsdch/huma` fork into `server/huma`. If the fork is private, add a `HUMA_READ_TOKEN` Actions secret with read access to that repository.
+
+Create a tag on a commit that contains the workflow and push it to GitHub.
+
+```bash
+git tag -a v1.2.3 -m "Release v1.2.3"
+git push git@github.com:lsdch/BiOME.git refs/tags/v1.2.3
+```
+
+The workflow runs for tags in the `vMAJOR.MINOR.PATCH` format and publishes both images with the Git tag as their Docker tag. After both images are pushed, it creates a GitHub release for the same tag with automatically generated release notes. If a release already exists for the tag, the workflow preserves it.
+
 ## Built with
 
 <div style="display:flex">
