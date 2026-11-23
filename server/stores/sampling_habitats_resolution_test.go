@@ -63,7 +63,7 @@ func habitatResolutionTestDB(t *testing.T) (*db.DB, *pgxpool.Pool) {
         );
     `)
 	require.NoError(t, err)
-	for _, path := range []string{"../db/schema/041_habitats.sql", "../db/schema/093_sampling_metadata_resolution.sql"} {
+	for _, path := range []string{"../db/migrations/0022_habitats.sql", "../db/migrations/0032_sampling_metadata_resolution.sql"} {
 		sql, err := os.ReadFile(path)
 		require.NoError(t, err)
 		_, err = pool.Exec(ctx, string(sql))

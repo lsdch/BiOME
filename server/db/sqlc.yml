@@ -5,7 +5,7 @@ sql:
     - "queries"
     - "queries/generated"
     - "queries/imports"
-    schema: "schema"
+    schema: "migrations"
     gen:
       go:
         package: "biomedb"

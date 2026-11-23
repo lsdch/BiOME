@@ -10,6 +10,12 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     go build -trimpath -ldflags="-s -w" \
     -o /out/server .
 
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    CGO_ENABLED=0 \
+    go build -trimpath -ldflags="-s -w" \
+    -o /out/goose github.com/pressly/goose/v3/cmd/goose
+
 
 FROM debian:bookworm-slim
 
@@ -23,6 +29,8 @@ RUN groupadd --system --gid 10001 app \
 WORKDIR /app
 
 COPY --from=builder /out/server /app/server
+COPY --from=builder /out/goose /app/goose
+COPY db/migrations/*.sql /app/migrations/
 COPY --chown=10001:10001 assets/ /app/assets/
 
 RUN mkdir -p /etc/biome /data/raw_files /data/cache /data/openapi \

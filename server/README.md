@@ -1,5 +1,47 @@
 # Biome Backend
 
+## PostgreSQL migrations
+
+From the repository root, start the development database and apply its migrations:
+
+```sh
+docker compose up -d db
+task server:db:migrate
+task server:db:migration:status
+```
+
+The database must already exist and have the extension packages available (including
+PostGIS and H3). The tasks default to the local Compose database. Set `DB_URL` in
+the environment to target another database. The migration role needs permission
+to create the application objects and the `migrations` schema, and to enable any
+extensions that have not already been installed in the target database.
+
+The first 33 migrations reproduce the original SQL bootstrap. Start with a fresh
+database for a new installation. For a database initialized by the old bootstrap,
+use a separate empty database if the data is disposable. If data must be retained,
+back up the database and verify its schema against a freshly migrated database
+before registering the initial versions as applied. Test that adoption on a
+restored copy first.
+
+To change the schema:
+
+```sh
+task server:db:migration:create NAME=add_example_column
+# Edit the generated SQL migration under server/db/migrations.
+task server:db:migration:validate
+task server:db:migrate
+task server:db:generate
+```
+
+Migration filenames use four-digit sequential versions, such as
+`0034_add_example_column.sql`. Commit new migrations and any resulting generated
+code together. Keep applied migrations immutable. sqlc reads the migration files in filename order, and Go-Jet
+reads the migrated `public` schema. Goose tracks applied versions in
+`migrations.goose_db_version`. The initial migrations contain only an upward path.
+
+For a deployed instance, run migrations as a single deployment step before starting
+the new backend version.
+
 ## Docker image 
 
 From the repository root:
@@ -12,6 +54,17 @@ The local `server/huma` module is required by `go.mod` and must be present in
 the build context, including in CI. CGO is retained for H3; both the build and
 runtime stages use Debian Bookworm. The image includes CA certificates,
 time zone data and assets, but no deployment configuration files.
+
+The same image can run a migration Job before the backend rollout. Override
+the entrypoint with `/app/goose` and pass these arguments:
+
+```sh
+/app/goose -env=none -dir /app/migrations -table migrations.goose_db_version up
+```
+
+Set `GOOSE_DRIVER=postgres` and inject `GOOSE_DBSTRING` from the migration
+role's Secret. Provision the `migrations` schema for that role before running
+the Job. Use the same image digest for the Job and the backend.
 
 ## Kubernetes configuration
 

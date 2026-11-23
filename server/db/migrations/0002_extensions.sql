@@ -1,0 +1,21 @@
+-- +goose Up
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+CREATE EXTENSION IF NOT EXISTS h3;
+CREATE EXTENSION IF NOT EXISTS postgis_raster;
+CREATE EXTENSION IF NOT EXISTS h3_postgis;
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- used for case-insensitive text type and trigram indexes
+CREATE EXTENSION IF NOT EXISTS citext;
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
+-- +goose StatementBegin
+CREATE OR REPLACE FUNCTION f_unaccent(text) RETURNS text AS $$
+SELECT public.unaccent('public.unaccent', $1);
+$$ LANGUAGE sql IMMUTABLE PARALLEL SAFE STRICT;
+-- +goose StatementEnd

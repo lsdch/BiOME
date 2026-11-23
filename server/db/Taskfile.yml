@@ -1,14 +1,17 @@
 version: 3
 
-env: 
-  DB_URL: postgres://dev:dev@localhost:5432/biomedb?sslmode=disable
+vars:
+  GOOSE: go tool goose -env=none -dir migrations -table migrations.goose_db_version
+
+env:
+  DB_URL: '{{.DB_URL | default "postgres://dev:dev@localhost:5432/biomedb?sslmode=disable"}}'
 
 tasks:
   drop: 
     interactive: true
     prompt: Are you sure you want to drop the dev database ?
     cmds: 
-    -  psql {{.DB_URL}} -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+    - psql --set ON_ERROR_STOP=1 "$DB_URL" -c "DROP SCHEMA IF EXISTS migrations CASCADE; DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
   generate:
     desc: "Generate database related code for backend"
     failfast: true
@@ -26,18 +29,67 @@ tasks:
   generate-jet: 
     internal: true
     cmds: 
-      - go run generators/jet-gen/jet_generator.go --dsn={{.DB_URL}} --schema=public --dest=./biomedb
+      - go run generators/jet-gen/jet_generator.go --dsn="$DB_URL" --schema=public --dest=./biomedb
+
   bootstrap:
-    cmds:  
-    - |
-      set -euo pipefail
-      mkdir -p migrations
-      for f in schema/*.sql; do
-        echo "Applying $f..."
-        psql --set ON_ERROR_STOP=1 {{.DB_URL}} -f "$f"
+    cmds: [task: migrate]
+
+  migrate:
+    desc: "Apply pending PostgreSQL migrations"
+    cmds:
+      - task: migration:prepare
+      - GOOSE_DRIVER=postgres GOOSE_DBSTRING="$DB_URL" {{.GOOSE}} up
+
+  migration:prepare:
+    internal: true
+    cmd: psql --set ON_ERROR_STOP=1 "$DB_URL" -c "CREATE SCHEMA IF NOT EXISTS migrations;"
+
+  migration:status:
+    desc: "Show applied and pending PostgreSQL migrations"
+    cmds:
+      - task: migration:prepare
+      - GOOSE_DRIVER=postgres GOOSE_DBSTRING="$DB_URL" {{.GOOSE}} status
+
+  migration:validate:
+    desc: "Validate Goose migration files"
+    cmd: "{{.GOOSE}} validate"
+
+  migration:create:
+    desc: "Create a SQL migration with NAME=<name>"
+    requires:
+      vars: [NAME]
+    env:
+      MIGRATION_NAME: '{{.NAME}}'
+    cmd: |
+      set -eu
+      case "$MIGRATION_NAME" in
+        ''|*[!a-z0-9_]*)
+          echo "Use lowercase letters, digits and underscores in NAME." >&2
+          exit 1
+          ;;
+      esac
+
+      latest=0
+      for file in migrations/[0-9][0-9][0-9][0-9]_*.sql; do
+        [ -f "$file" ] || continue
+        filename=${file##*/}
+        version=${filename%%_*}
+        number=$((10#$version))
+        if [ "$number" -gt "$latest" ]; then
+          latest=$number
+        fi
       done
+      if [ "$latest" -ge 9999 ]; then
+        echo "Four-digit migration versions are exhausted." >&2
+        exit 1
+      fi
+
+      path=$(printf 'migrations/%04d_%s.sql' "$((latest + 1))" "$MIGRATION_NAME")
+      printf '%s\n' '-- +goose Up' '' '-- +goose Down' | sh -C -c 'cat > "$1"' sh "$path"
+      printf 'Created %s\n' "$path"
+
   reset:
     cmds:
       - task: drop
-      - task: bootstrap
+      - task: migrate
       - task: generate
